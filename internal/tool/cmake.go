@@ -1,0 +1,90 @@
+package tool
+
+import (
+	. "cdt/internal"
+	"cdt/internal/utils"
+	"errors"
+	"path/filepath"
+)
+
+type CMake struct {
+	executable *Executable
+}
+
+// NewCMake creates a cmake tool from custom executable
+func NewCMake(executable *Executable) *CMake {
+	return &CMake{
+		executable: executable,
+	}
+}
+
+// DetectCMake create cmake tool can be used in the project
+func DetectCMake() *CMake {
+	return NewCMake(FindExecutable("cmake"))
+}
+
+func (c *CMake) Id() string {
+	return "cmake"
+}
+
+func (c *CMake) Name() string {
+	return "CMake"
+}
+
+func (c *CMake) Info() string {
+	return "A Powerful Software Build System"
+}
+
+func (c *CMake) ExecutablePath() *string {
+	if c.executable != nil {
+		return &c.executable.Path
+	}
+
+	return nil
+}
+
+func (c *CMake) IsAvailable() bool {
+	return c.executable != nil
+}
+
+func (c *CMake) Enabled(directory string) bool {
+	return PathExists(filepath.Join(directory, "CMakeLists.txt"))
+}
+
+func (c *CMake) Run(_ Project, args []string) error {
+	if c.executable == nil {
+		return errors.New("CMake is not installed on the system")
+	}
+
+	return c.executable.Run(args)
+}
+
+func (c *CMake) ConfigureProject(project Project, args []string) error {
+	fileApi := utils.NewCmakeFileApi(project.BuildDirectory())
+
+	if err := fileApi.Query("codemodel", 2); err != nil {
+		return err
+	}
+
+	callArgs := args
+	callArgs = append(callArgs, "-S", project.RootDirectory())
+	callArgs = append(callArgs, "-B", project.BuildDirectory())
+
+	return c.executable.Run(callArgs)
+}
+
+func (c *CMake) BuildAll(project Project, args []string) error {
+	callArgs := args
+	callArgs = append(callArgs, "--build", project.BuildDirectory())
+
+	return c.executable.Run(callArgs)
+}
+
+func (c *CMake) BuildTargets(project Project, targets []string, args []string) error {
+	callArgs := args
+	callArgs = append(callArgs, "--build", project.BuildDirectory())
+	callArgs = append(callArgs, "--target")
+	callArgs = append(callArgs, targets...)
+
+	return c.executable.Run(callArgs)
+}

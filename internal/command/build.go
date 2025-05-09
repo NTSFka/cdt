@@ -1,0 +1,46 @@
+package command
+
+import (
+	"cdt/internal"
+	"context"
+	"errors"
+	"fmt"
+	"github.com/urfave/cli/v3"
+)
+
+var BuildCommand = cli.Command{
+	Name:      "build",
+	Usage:     "build the whole project or target(s) in the project",
+	Action:    buildCommandAction,
+	UsageText: "cdt [OPTIONS] build [TARGETS...]",
+	Arguments: []cli.Argument{
+		&cli.StringArgs{
+			Name: "targets",
+			Min:  0,
+			Max:  -1,
+		},
+	},
+}
+
+func buildCommandAction(ctx context.Context, command *cli.Command) error {
+	c := ctx.Value("context").(internal.Context)
+	builder := c.Project.Builder()
+
+	if builder == nil {
+		return errors.New("project doesn't support building")
+	}
+
+	var err error
+
+	if targets := command.StringArgs("targets"); len(targets) > 0 {
+		err = builder.BuildTargets(targets)
+	} else {
+		err = builder.BuildAll()
+	}
+
+	if err != nil {
+		return fmt.Errorf("%w", err)
+	}
+
+	return nil
+}
