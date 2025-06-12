@@ -74,8 +74,8 @@ func (p *CMakeProject) BuildDirectory() string {
 	return p.buildDirectory
 }
 
-func (p *CMakeProject) Structure() (*ProjectStructure, error) {
-	if err := p.Configure(p); err != nil {
+func (p *CMakeProject) Structure(project Project) (*ProjectStructure, error) {
+	if err := p.Configure(project); err != nil {
 		return nil, err
 	}
 

@@ -66,16 +66,18 @@ func TestCMakeProjectConfigureAndBuildAndRun(t *testing.T) {
 		&tool.ClangTidy{},
 	}
 
-	var cmakeProject *project.CMakeProject
+	var cmake *project.CMakeProject
 	var err error
-	cmakeProject, err = project.DetectCMakeProject("data/cmake", buildDirectory.Path(), tools)
+	cmake, err = project.DetectCMakeProject("data/cmake", buildDirectory.Path(), tools)
 	assert.NoError(t, err)
 
-	err = cmakeProject.Configure(cmakeProject)
+	project := internal.MakeProject("data/cmake", buildDirectory.Path(), cmake)
+
+	err = cmake.Configure(project)
 	assert.NoError(t, err)
 
 	var structure *internal.ProjectStructure
-	structure, err = cmakeProject.Structure()
+	structure, err = cmake.Structure(project)
 	assert.NoError(t, err)
 
 	if assert.NotNil(t, structure) {
@@ -97,12 +99,12 @@ func TestCMakeProjectConfigureAndBuildAndRun(t *testing.T) {
 		assert.Equal(t, []string{"main.cpp", "test.cpp"}, structure.GetFiles())
 	}
 
-	err = cmakeProject.BuildAll(cmakeProject)
+	err = cmake.BuildAll(project)
 	assert.NoError(t, err)
 
-	err = cmakeProject.BuildTarget(cmakeProject, "main")
+	err = cmake.BuildTarget(project, "main")
 	assert.NoError(t, err)
 
-	err = cmakeProject.Run(cmakeProject, "main", []string{})
+	err = cmake.Run(project, "main", []string{})
 	assert.NoError(t, err)
 }

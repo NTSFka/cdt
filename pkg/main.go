@@ -28,8 +28,7 @@ func detectProject(rootDirectory string, buildDirectory string, tools Tools) (Pr
 	var workflow Workflow
 
 	if cmakeProj, _ := project.DetectCMakeProject(rootDirectory, buildDirectory, tools); cmakeProj != nil {
-		tmp := *cmakeProj
-		proj = &tmp
+		proj = MakeProject(rootDirectory, buildDirectory, cmakeProj)
 		workflow = Workflow{
 			Configurator: cmakeProj,
 			Builder:      cmakeProj,
@@ -39,8 +38,7 @@ func detectProject(rootDirectory string, buildDirectory string, tools Tools) (Pr
 			Runner:       cmakeProj,
 		}
 	} else {
-		tmp := project.NewNullProject(rootDirectory, buildDirectory)
-		proj = &tmp
+		proj = MakeProject(rootDirectory, buildDirectory, &EmptyProjectStructureProvider{})
 		workflow = Workflow{}
 	}
 
