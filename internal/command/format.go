@@ -30,7 +30,7 @@ var FormatCommand = cli.Command{
 
 func formatCommandAction(ctx context.Context, command *cli.Command) error {
 	c := ctx.Value("context").(internal.Context)
-	formatter := c.Project.Formatter()
+	formatter := c.Workflow.Formatter
 
 	if formatter == nil {
 		return errors.New("project doesn't support source formatting")
@@ -39,15 +39,15 @@ func formatCommandAction(ctx context.Context, command *cli.Command) error {
 	var err error
 	if command.Bool("check") {
 		if files := command.StringArgs("files"); len(files) > 0 {
-			err = formatter.FormatCheckFiles(files)
+			err = formatter.FormatCheckFiles(c.Project, files)
 		} else {
-			err = formatter.FormatCheckAll()
+			err = formatter.FormatCheckAll(c.Project)
 		}
 	} else {
 		if files := command.StringArgs("files"); len(files) > 0 {
-			err = formatter.FormatFiles(files)
+			err = formatter.FormatFiles(c.Project, files)
 		} else {
-			err = formatter.FormatAll()
+			err = formatter.FormatAll(c.Project)
 		}
 	}
 

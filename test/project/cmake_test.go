@@ -53,13 +53,6 @@ func TestDetectCMakeProjectNoFormatterAndLinters(t *testing.T) {
 		assert.Equal(t, cmakeProject.RootDirectory(), "data/cmake")
 		assert.Equal(t, cmakeProject.BuildDirectory(), buildDirectory.Path())
 	}
-
-	assert.Same(t, cmakeProject.Configurator(), cmakeProject)
-	assert.Same(t, cmakeProject.Builder(), cmakeProject)
-	assert.Same(t, cmakeProject.Tester(), cmakeProject)
-	assert.Same(t, cmakeProject.Formatter(), cmakeProject)
-	assert.Same(t, cmakeProject.Linter(), cmakeProject)
-	assert.Same(t, cmakeProject.Runner(), cmakeProject)
 }
 
 func TestCMakeProjectConfigureAndBuildAndRun(t *testing.T) {
@@ -78,7 +71,7 @@ func TestCMakeProjectConfigureAndBuildAndRun(t *testing.T) {
 	cmakeProject, err = project.DetectCMakeProject("data/cmake", buildDirectory.Path(), tools)
 	assert.NoError(t, err)
 
-	err = cmakeProject.Configure()
+	err = cmakeProject.Configure(cmakeProject)
 	assert.NoError(t, err)
 
 	var structure *internal.ProjectStructure
@@ -104,12 +97,12 @@ func TestCMakeProjectConfigureAndBuildAndRun(t *testing.T) {
 		assert.Equal(t, []string{"main.cpp", "test.cpp"}, structure.GetFiles())
 	}
 
-	err = cmakeProject.BuildAll()
+	err = cmakeProject.BuildAll(cmakeProject)
 	assert.NoError(t, err)
 
-	err = cmakeProject.BuildTarget("main")
+	err = cmakeProject.BuildTarget(cmakeProject, "main")
 	assert.NoError(t, err)
 
-	err = cmakeProject.Run("main", []string{})
+	err = cmakeProject.Run(cmakeProject, "main", []string{})
 	assert.NoError(t, err)
 }

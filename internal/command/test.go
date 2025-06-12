@@ -24,7 +24,7 @@ var TestCommand = cli.Command{
 
 func testCommandAction(ctx context.Context, command *cli.Command) error {
 	c := ctx.Value("context").(internal.Context)
-	tester := c.Project.Tester()
+	tester := c.Workflow.Tester
 
 	if tester == nil {
 		return errors.New("project doesn't support testing")
@@ -33,9 +33,9 @@ func testCommandAction(ctx context.Context, command *cli.Command) error {
 	var err error
 
 	if pattern := command.StringArgs("pattern"); len(pattern) != 0 {
-		err = tester.Test(pattern[0])
+		err = tester.Test(c.Project, pattern[0])
 	} else {
-		err = tester.TestAll()
+		err = tester.TestAll(c.Project)
 	}
 
 	if err != nil {

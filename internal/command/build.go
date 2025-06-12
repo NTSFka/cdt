@@ -24,7 +24,7 @@ var BuildCommand = cli.Command{
 
 func buildCommandAction(ctx context.Context, command *cli.Command) error {
 	c := ctx.Value("context").(internal.Context)
-	builder := c.Project.Builder()
+	builder := c.Workflow.Builder
 
 	if builder == nil {
 		return errors.New("project doesn't support building")
@@ -33,9 +33,9 @@ func buildCommandAction(ctx context.Context, command *cli.Command) error {
 	var err error
 
 	if targets := command.StringArgs("targets"); len(targets) > 0 {
-		err = builder.BuildTargets(targets)
+		err = builder.BuildTargets(c.Project, targets)
 	} else {
-		err = builder.BuildAll()
+		err = builder.BuildAll(c.Project)
 	}
 
 	if err != nil {

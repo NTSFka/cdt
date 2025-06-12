@@ -17,13 +17,13 @@ var ConfigureCommand = cli.Command{
 
 func configureCommandAction(ctx context.Context, _ *cli.Command) error {
 	c := ctx.Value("context").(internal.Context)
-	configurator := c.Project.Configurator()
+	configurator := c.Workflow.Configurator
 
 	if configurator == nil {
 		return errors.New("project doesn't support configuration")
 	}
 
-	if err := configurator.Configure(); err != nil {
+	if err := configurator.Configure(c.Project); err != nil {
 		return fmt.Errorf("%w", err)
 	}
 
