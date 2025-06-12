@@ -24,25 +24,12 @@ func initTools() Tools {
 }
 
 func detectProject(rootDirectory string, buildDirectory string, tools Tools) (Project, Workflow) {
-	var proj Project
-	var workflow Workflow
-
-	if cmakeProj, _ := project.DetectCMakeProject(rootDirectory, buildDirectory, tools); cmakeProj != nil {
-		proj = MakeProject(rootDirectory, buildDirectory, cmakeProj)
-		workflow = Workflow{
-			Configurator: cmakeProj,
-			Builder:      cmakeProj,
-			Tester:       cmakeProj,
-			Formatter:    cmakeProj,
-			Linter:       cmakeProj,
-			Runner:       cmakeProj,
-		}
-	} else {
-		proj = MakeProject(rootDirectory, buildDirectory, &EmptyProjectStructureProvider{})
-		workflow = Workflow{}
+	// CMake
+	if structureProvider, workflow, _ := project.DetectCMakeProject(rootDirectory, tools); structureProvider != nil {
+		return MakeProject(rootDirectory, buildDirectory, structureProvider), *workflow
 	}
 
-	return proj, workflow
+	return MakeProject(rootDirectory, buildDirectory, &EmptyProjectStructureProvider{}), Workflow{}
 }
 
 type RunContext struct {

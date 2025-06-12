@@ -11,12 +11,6 @@ import (
 
 // A CMakeProject describes a CMake project and operations on it
 type CMakeProject struct {
-	// A RootDirectory is a path to the project directory
-	rootDirectory string
-
-	// A buildDirectory where the project is being built.
-	buildDirectory string
-
 	// CMakeTool represents the CMake tool
 	CMakeTool tool.CMake
 
@@ -43,35 +37,34 @@ func detectCMakeLintTool(tools Tools) LintTool {
 }
 
 // DetectCMakeProject detects if the project in the directory is a CMake project
-func DetectCMakeProject(directory string, buildDirectory string, tools Tools) (*CMakeProject, error) {
+func DetectCMakeProject(directory string, tools Tools) (ProjectStructureProvider, *Workflow, error) {
 	if !PathExists(filepath.Join(directory, "CMakeLists.txt")) {
-		return nil, nil
+		return nil, nil, nil
 	}
 
 	cmake := GetTool[*tool.CMake](tools)
 
 	if !cmake.IsAvailable() {
-		return nil, errors.New("cmake is not installed on the system")
+		return nil, nil, errors.New("cmake is not installed on the system")
 	}
 
 	formatTool := detectCMakeFormatTool(tools)
 	lintTool := detectCMakeLintTool(tools)
 
-	return &CMakeProject{
-		rootDirectory:  directory,
-		buildDirectory: buildDirectory,
-		CMakeTool:      *cmake,
-		FormatTool:     formatTool,
-		LintTool:       lintTool,
+	c := &CMakeProject{
+		CMakeTool:  *cmake,
+		FormatTool: formatTool,
+		LintTool:   lintTool,
+	}
+
+	return c, &Workflow{
+		Configurator: c,
+		Builder:      c,
+		Tester:       c,
+		Formatter:    c,
+		Linter:       c,
+		Runner:       c,
 	}, nil
-}
-
-func (p *CMakeProject) RootDirectory() string {
-	return p.rootDirectory
-}
-
-func (p *CMakeProject) BuildDirectory() string {
-	return p.buildDirectory
 }
 
 func (p *CMakeProject) Structure(project Project) (*ProjectStructure, error) {
@@ -79,7 +72,7 @@ func (p *CMakeProject) Structure(project Project) (*ProjectStructure, error) {
 		return nil, err
 	}
 
-	fileApi := utils.NewCmakeFileApi(p.buildDirectory)
+	fileApi := utils.NewCmakeFileApi(project.BuildDirectory())
 
 	info := ProjectStructure{
 		Targets: make(map[string]ProjectTarget),
@@ -99,7 +92,7 @@ func (p *CMakeProject) Structure(project Project) (*ProjectStructure, error) {
 
 // Configure configures the CMake project
 func (p *CMakeProject) Configure(project Project) error {
-	fileApi := utils.NewCmakeFileApi(p.buildDirectory)
+	fileApi := utils.NewCmakeFileApi(project.BuildDirectory())
 
 	if err := fileApi.Query("codemodel", 2); err != nil {
 		return err
@@ -234,7 +227,7 @@ func (p *CMakeProject) TestAll(project Project) error {
 	}
 
 	return ctest.Run([]string{
-		"--test-dir", p.buildDirectory,
+		"--test-dir", project.BuildDirectory(),
 	})
 }
 
@@ -251,7 +244,7 @@ func (p *CMakeProject) Test(project Project, pattern string) error {
 	}
 
 	return ctest.Run([]string{
-		"--test-dir", p.buildDirectory,
+		"--test-dir", project.BuildDirectory(),
 		"-R", pattern,
 	})
 }
@@ -261,7 +254,7 @@ func (p *CMakeProject) Run(project Project, target string, args []string) error 
 		return err
 	}
 
-	fileApi := utils.NewCmakeFileApi(p.buildDirectory)
+	fileApi := utils.NewCmakeFileApi(project.BuildDirectory())
 
 	reply, err := fileApi.Reply()
 	if err != nil {
@@ -270,7 +263,7 @@ func (p *CMakeProject) Run(project Project, target string, args []string) error 
 
 	for _, t := range reply.Targets {
 		if t.Name == target && t.Type == utils.TargetExecutable {
-			executable := Executable{Path: filepath.Join(p.buildDirectory, t.Name)}
+			executable := Executable{Path: filepath.Join(project.BuildDirectory(), t.Name)}
 
 			return executable.Run(args)
 		}
