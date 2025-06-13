@@ -70,10 +70,6 @@ func (c *ClangFormat) IsAvailable() bool {
 	return c.executable != nil
 }
 
-func (c *ClangFormat) Enabled(directory string) bool {
-	return PathExists(filepath.Join(directory, ".clang-format"))
-}
-
 func (c *ClangFormat) buildPaths(directory string, filenames []string) []string {
 	var paths []string
 

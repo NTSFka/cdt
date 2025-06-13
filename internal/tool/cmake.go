@@ -12,7 +12,7 @@ type CMake struct {
 	executable *Executable
 }
 
-// NewCMake creates a cmake tool from custom executable
+// NewCMake creates a cmake tool from a custom executable
 func NewCMake(executable *Executable) *CMake {
 	return &CMake{
 		executable: executable,
@@ -46,10 +46,6 @@ func (c *CMake) ExecutablePath() *string {
 
 func (c *CMake) IsAvailable() bool {
 	return c.executable != nil
-}
-
-func (c *CMake) Enabled(directory string) bool {
-	return PathExists(filepath.Join(directory, "CMakeLists.txt"))
 }
 
 func (c *CMake) Run(_ Project, args []string) error {

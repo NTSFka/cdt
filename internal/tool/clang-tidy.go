@@ -65,10 +65,6 @@ func (c *ClangTidy) IsAvailable() bool {
 	return c.executable != nil
 }
 
-func (c *ClangTidy) Enabled(directory string) bool {
-	return PathExists(filepath.Join(directory, ".clang-tidy"))
-}
-
 func (c *ClangTidy) buildPaths(directory string, filenames []string) []string {
 	var paths []string
 

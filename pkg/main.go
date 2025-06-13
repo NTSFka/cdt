@@ -20,6 +20,7 @@ func initTools() Tools {
 		&clangFormat,
 		&clangTidy,
 		tool.DetectCMake(),
+		tool.DetectCTest(),
 	}
 }
 

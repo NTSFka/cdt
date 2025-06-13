@@ -7,10 +7,10 @@ import (
 	"path/filepath"
 )
 
-// A CMakeProject describes a CMake project and operations on it
-type CMakeProject struct {
-	// CMakeTool represents the CMake tool
-	CMakeTool tool.CMake
+// A cmakeTester is a special project tester that will invoke cmake before ctest
+type cmakeTester struct {
+	cmakeTool tool.CMake
+	ctestTool tool.CTest
 }
 
 // Try to detect format tool for CMake project
@@ -46,51 +46,33 @@ func DetectCMakeProject(directory string, tools Tools) (ProjectStructureProvider
 	formatTool := detectCMakeFormatTool(tools)
 	lintTool := detectCMakeLintTool(tools)
 
-	c := &CMakeProject{
-		CMakeTool: *cmake,
+	tester := &cmakeTester{
+		cmakeTool: *cmake,
+		ctestTool: *GetTool[*tool.CTest](tools),
 	}
 
 	return cmake, &Workflow{
 		Configurator: cmake,
 		Builder:      cmake,
-		Tester:       c,
+		Tester:       tester,
 		Formatter:    formatTool,
 		Linter:       lintTool,
 		Runner:       cmake,
 	}, nil
 }
 
-// TestAll run project tester for all tests
-func (p *CMakeProject) TestAll(project Project, args []string) error {
-	if err := p.CMakeTool.BuildAll(project, []string{}); err != nil {
+func (t *cmakeTester) TestAll(project Project, args []string) error {
+	if err := t.cmakeTool.BuildAll(project, []string{}); err != nil {
 		return err
 	}
 
-	ctest := FindExecutable("ctest")
-
-	if ctest == nil {
-		return errors.New("ctest is not installed on the system")
-	}
-
-	return ctest.Run([]string{
-		"--test-dir", project.BuildDirectory(),
-	})
+	return t.ctestTool.Run(project, args)
 }
 
-// Test run project tester with tests that matches the given pattern
-func (p *CMakeProject) Test(project Project, pattern string, args []string) error {
-	if err := p.CMakeTool.BuildAll(project, []string{}); err != nil {
+func (t *cmakeTester) Test(project Project, pattern string, args []string) error {
+	if err := t.cmakeTool.BuildAll(project, []string{}); err != nil {
 		return err
 	}
 
-	ctest := FindExecutable("ctest")
-
-	if ctest == nil {
-		return errors.New("ctest is not installed on the system")
-	}
-
-	return ctest.Run([]string{
-		"--test-dir", project.BuildDirectory(),
-		"-R", pattern,
-	})
+	return t.ctestTool.Run(project, append(args, "-R", pattern))
 }

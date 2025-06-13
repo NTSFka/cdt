@@ -9,7 +9,7 @@ import (
 	"testing"
 )
 
-// If a project directory doesn't contain CMakeLists.txt, CMakeProject can't be created
+// If a project directory doesn't contain CMakeLists.txt, cmakeTester can't be created
 func TestDetectCMakeProjectNoCMakeLists(t *testing.T) {
 	tools := internal.Tools{}
 
@@ -39,6 +39,7 @@ func TestDetectCMakeProjectNoFormatterAndLinters(t *testing.T) {
 		tool.NewCMake(&internal.Executable{Path: "cmake-test"}),
 		&tool.ClangFormat{},
 		&tool.ClangTidy{},
+		&tool.CTest{},
 	}
 
 	structureProvider, workflow, err := project.DetectCMakeProject("data/cmake", tools)
