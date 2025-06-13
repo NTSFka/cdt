@@ -12,11 +12,9 @@ import (
 func TestDetectCMakeProjectNoCMakeLists(t *testing.T) {
 	tools := internal.Tools{}
 
-	structureProvider, workflow, err := project.DetectCMakeProject("dir1", tools)
+	p := project.DetectCMakeProject("dir1", "build", tools)
 
-	assert.NoError(t, err)
-	assert.Nil(t, structureProvider)
-	assert.Nil(t, workflow)
+	assert.Nil(t, p)
 }
 
 // If cmake is not available
@@ -25,11 +23,9 @@ func TestDetectCMakeProjectNoCMakeBinary(t *testing.T) {
 		tool.NewCMake(nil),
 	}
 
-	structureProvider, workflow, err := project.DetectCMakeProject("data/cmake", tools)
+	p := project.DetectCMakeProject("data/cmake", "build", tools)
 
-	assert.Error(t, err, "cmake is not installed on the system")
-	assert.Nil(t, structureProvider)
-	assert.Nil(t, workflow)
+	assert.Nil(t, p)
 }
 
 // If no formatters and linters are available
@@ -41,9 +37,25 @@ func TestDetectCMakeProjectNoFormatterAndLinters(t *testing.T) {
 		&tool.CTest{},
 	}
 
-	structureProvider, workflow, err := project.DetectCMakeProject("data/cmake", tools)
+	p := project.DetectCMakeProject("data/cmake", "build", tools)
 
-	assert.NoError(t, err)
-	assert.NotNil(t, structureProvider)
-	assert.NotNil(t, workflow)
+	assert.NotNil(t, p)
+	assert.Nil(t, p.Workflow.Linter)
+	assert.Nil(t, p.Workflow.Formatter)
+}
+
+// If formatters and linters are available
+func TestDetectCMakeProjectFormatterAndLinters(t *testing.T) {
+	tools := internal.Tools{
+		tool.NewCMake(&internal.Executable{Path: "cmake-test"}),
+		tool.NewClangFormat(&internal.Executable{Path: "clang-format-test"}, nil),
+		tool.NewClangTidy(&internal.Executable{Path: "clang-tidy-test"}, nil),
+		&tool.CTest{},
+	}
+
+	p := project.DetectCMakeProject("data/cmake", "build", tools)
+
+	assert.NotNil(t, p)
+	assert.NotNil(t, p.Workflow.Linter)
+	assert.NotNil(t, p.Workflow.Formatter)
 }

@@ -24,7 +24,7 @@ var TestCommand = cli.Command{
 
 func testCommandAction(ctx context.Context, command *cli.Command) error {
 	c := ctx.Value("context").(internal.Context)
-	tester := c.Workflow.Tester
+	tester := c.Project.Workflow.Tester
 
 	if tester == nil {
 		return errors.New("project doesn't support testing")

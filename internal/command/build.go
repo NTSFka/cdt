@@ -24,7 +24,7 @@ var BuildCommand = cli.Command{
 
 func buildCommandAction(ctx context.Context, command *cli.Command) error {
 	c := ctx.Value("context").(internal.Context)
-	builder := c.Workflow.Builder
+	builder := c.Project.Workflow.Builder
 
 	if builder == nil {
 		return errors.New("project doesn't support building")

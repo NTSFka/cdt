@@ -2,7 +2,7 @@ package internal
 
 import "slices"
 
-// A ProjectStructureProvider provides detailed structure of the project
+// A ProjectStructureProvider provides a detailed structure of the project
 type ProjectStructureProvider interface {
 	// Structure returns project structure
 	Structure(project Project) (*ProjectStructure, error)
@@ -38,23 +38,25 @@ type Project struct {
 	rootDirectory     string
 	buildDirectory    string
 	structureProvider ProjectStructureProvider
+	Workflow          Workflow
 }
 
 // MakeProject creates a new project
-func MakeProject(rootDirectory string, buildDirectory string, structureProvider ProjectStructureProvider) Project {
+func MakeProject(rootDirectory string, buildDirectory string, structureProvider ProjectStructureProvider, workflow Workflow) Project {
 	return Project{
 		rootDirectory:     rootDirectory,
 		buildDirectory:    buildDirectory,
 		structureProvider: structureProvider,
+		Workflow:          workflow,
 	}
 }
 
-// RootDirectory returns project root directory
+// RootDirectory returns the project root directory
 func (p *Project) RootDirectory() string {
 	return p.rootDirectory
 }
 
-// BuildDirectory returns project build directory
+// BuildDirectory returns the project build directory
 func (p *Project) BuildDirectory() string {
 	return p.buildDirectory
 }
@@ -69,6 +71,6 @@ type EmptyProjectStructureProvider struct {
 }
 
 // Structure returns project structure
-func (p *EmptyProjectStructureProvider) Structure(project Project) (*ProjectStructure, error) {
+func (p *EmptyProjectStructureProvider) Structure(_ Project) (*ProjectStructure, error) {
 	return &ProjectStructure{}, nil
 }

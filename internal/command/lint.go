@@ -23,7 +23,7 @@ var LintCommand = cli.Command{
 
 func lintCommandAction(ctx context.Context, command *cli.Command) error {
 	c := ctx.Value("context").(internal.Context)
-	linter := c.Workflow.Linter
+	linter := c.Project.Workflow.Linter
 
 	if linter == nil {
 		return errors.New("project doesn't support linting")

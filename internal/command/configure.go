@@ -17,7 +17,7 @@ var ConfigureCommand = cli.Command{
 
 func configureCommandAction(ctx context.Context, command *cli.Command) error {
 	c := ctx.Value("context").(internal.Context)
-	configurator := c.Workflow.Configurator
+	configurator := c.Project.Workflow.Configurator
 
 	if configurator == nil {
 		return errors.New("project doesn't support configuration")

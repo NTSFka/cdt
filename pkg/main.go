@@ -21,13 +21,13 @@ func initTools() Tools {
 	}
 }
 
-func detectProject(rootDirectory string, buildDirectory string, tools Tools) (Project, Workflow) {
+func detectProject(rootDirectory string, buildDirectory string, tools Tools) Project {
 	// CMake
-	if structureProvider, workflow, _ := project.DetectCMakeProject(rootDirectory, tools); structureProvider != nil {
-		return MakeProject(rootDirectory, buildDirectory, structureProvider), *workflow
+	if p := project.DetectCMakeProject(rootDirectory, buildDirectory, tools); p != nil {
+		return *p
 	}
 
-	return MakeProject(rootDirectory, buildDirectory, &EmptyProjectStructureProvider{}), Workflow{}
+	return MakeProject(rootDirectory, buildDirectory, &EmptyProjectStructureProvider{}, Workflow{})
 }
 
 type RunContext struct {
@@ -83,12 +83,11 @@ func RunMain(runCtx RunContext) error {
 			projectPath := command.String("directory")
 			buildDirectory := command.String("build")
 
-			proj, workflow := detectProject(projectPath, buildDirectory, tools)
+			proj := detectProject(projectPath, buildDirectory, tools)
 
 			c := Context{
-				Project:  proj,
-				Workflow: workflow,
-				Tools:    tools,
+				Project: proj,
+				Tools:   tools,
 			}
 
 			return context.WithValue(ctx, "context", c), nil

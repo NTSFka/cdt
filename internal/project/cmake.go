@@ -3,7 +3,6 @@ package project
 import (
 	. "cdt/internal"
 	"cdt/internal/tool"
-	"errors"
 	"path/filepath"
 )
 
@@ -32,15 +31,15 @@ func detectCMakeLintTool(tools Tools) ProjectLinter {
 }
 
 // DetectCMakeProject detects if the project in the directory is a CMake project
-func DetectCMakeProject(directory string, tools Tools) (ProjectStructureProvider, *Workflow, error) {
-	if !PathExists(filepath.Join(directory, "CMakeLists.txt")) {
-		return nil, nil, nil
+func DetectCMakeProject(rootDirectory string, buildDirectory string, tools Tools) *Project {
+	if !PathExists(filepath.Join(rootDirectory, "CMakeLists.txt")) {
+		return nil
 	}
 
 	cmake := GetTool[*tool.CMake](tools)
 
 	if !cmake.IsAvailable() {
-		return nil, nil, errors.New("cmake is not installed on the system")
+		return nil
 	}
 
 	formatTool := detectCMakeFormatTool(tools)
@@ -51,14 +50,18 @@ func DetectCMakeProject(directory string, tools Tools) (ProjectStructureProvider
 		ctestTool: *GetTool[*tool.CTest](tools),
 	}
 
-	return cmake, &Workflow{
+	workflow := Workflow{
 		Configurator: cmake,
 		Builder:      cmake,
 		Tester:       tester,
 		Formatter:    formatTool,
 		Linter:       lintTool,
 		Runner:       cmake,
-	}, nil
+	}
+
+	project := MakeProject(rootDirectory, buildDirectory, cmake, workflow)
+
+	return &project
 }
 
 func (t *cmakeTester) TestAll(project Project, args []string) error {

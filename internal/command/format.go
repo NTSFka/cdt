@@ -30,7 +30,7 @@ var FormatCommand = cli.Command{
 
 func formatCommandAction(ctx context.Context, command *cli.Command) error {
 	c := ctx.Value("context").(internal.Context)
-	formatter := c.Workflow.Formatter
+	formatter := c.Project.Workflow.Formatter
 
 	if formatter == nil {
 		return errors.New("project doesn't support source formatting")

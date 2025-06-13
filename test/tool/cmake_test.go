@@ -2,52 +2,11 @@ package tool
 
 import (
 	"cdt/internal"
-	"cdt/internal/project"
 	"cdt/internal/tool"
 	"github.com/stretchr/testify/assert"
 	"gotest.tools/v3/fs"
 	"testing"
 )
-
-// If a project directory doesn't contain CMakeLists.txt, cmakeTester can't be created
-func TestDetectCMakeProjectNoCMakeLists(t *testing.T) {
-	tools := internal.Tools{}
-
-	structureProvider, workflow, err := project.DetectCMakeProject("dir1", tools)
-
-	assert.NoError(t, err)
-	assert.Nil(t, structureProvider)
-	assert.Nil(t, workflow)
-}
-
-// If cmake is not available
-func TestDetectCMakeProjectNoCMakeBinary(t *testing.T) {
-	tools := internal.Tools{
-		tool.NewCMake(nil),
-	}
-
-	structureProvider, workflow, err := project.DetectCMakeProject("data/cmake", tools)
-
-	assert.Error(t, err, "cmake is not installed on the system")
-	assert.Nil(t, structureProvider)
-	assert.Nil(t, workflow)
-}
-
-// If no formatters and linters are available
-func TestDetectCMakeProjectNoFormatterAndLinters(t *testing.T) {
-	tools := internal.Tools{
-		tool.NewCMake(&internal.Executable{Path: "cmake-test"}),
-		&tool.ClangFormat{},
-		&tool.ClangTidy{},
-		&tool.CTest{},
-	}
-
-	structureProvider, workflow, err := project.DetectCMakeProject("data/cmake", tools)
-
-	assert.NoError(t, err)
-	assert.NotNil(t, structureProvider)
-	assert.NotNil(t, workflow)
-}
 
 func TestCMakeProjectConfigureAndBuildAndRun(t *testing.T) {
 	checkTool(t, "cmake")
@@ -56,13 +15,13 @@ func TestCMakeProjectConfigureAndBuildAndRun(t *testing.T) {
 
 	cmake := tool.DetectCMake()
 
-	project := internal.MakeProject("data/cmake", buildDirectory.Path(), cmake)
+	p := internal.MakeProject("data/cmake", buildDirectory.Path(), cmake, internal.Workflow{})
 
-	var err = cmake.Configure(project, []string{})
+	var err = cmake.Configure(p, []string{})
 	assert.NoError(t, err)
 
 	var structure *internal.ProjectStructure
-	structure, err = cmake.Structure(project)
+	structure, err = cmake.Structure(p)
 	assert.NoError(t, err)
 
 	if assert.NotNil(t, structure) {
@@ -84,12 +43,12 @@ func TestCMakeProjectConfigureAndBuildAndRun(t *testing.T) {
 		assert.Equal(t, []string{"main.cpp", "test.cpp"}, structure.GetFiles())
 	}
 
-	err = cmake.BuildAll(project, []string{})
+	err = cmake.BuildAll(p, []string{})
 	assert.NoError(t, err)
 
-	err = cmake.BuildTargets(project, []string{"main"}, []string{})
+	err = cmake.BuildTargets(p, []string{"main"}, []string{})
 	assert.NoError(t, err)
 
-	err = cmake.RunTarget(project, "main", []string{})
+	err = cmake.RunTarget(p, "main", []string{})
 	assert.NoError(t, err)
 }

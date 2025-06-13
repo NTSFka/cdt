@@ -22,7 +22,7 @@ var RunCommand = cli.Command{
 
 func runCommandAction(ctx context.Context, command *cli.Command) error {
 	c := ctx.Value("context").(internal.Context)
-	runner := c.Workflow.Runner
+	runner := c.Project.Workflow.Runner
 
 	if runner == nil {
 		return errors.New("project doesn't support run of target")
