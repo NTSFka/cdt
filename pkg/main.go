@@ -13,12 +13,9 @@ import (
 
 // InitTools initializes all supported tools on the system
 func initTools() Tools {
-	clangFormat := tool.NewClangFormat(nil)
-	clangTidy := tool.NewClangTidy(nil)
-
 	return Tools{
-		&clangFormat,
-		&clangTidy,
+		tool.DetectClangFormat(nil),
+		tool.DetectClangTidy(nil),
 		tool.DetectCMake(),
 		tool.DetectCTest(),
 	}

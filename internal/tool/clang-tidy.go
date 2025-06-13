@@ -7,6 +7,9 @@ import (
 	"path/filepath"
 )
 
+const clangTidyMinVersion = 1
+const clangTidyMaxVersion = 22
+
 type ClangTidy struct {
 	executable *Executable
 	Version    *int
@@ -16,29 +19,34 @@ func detectClangTidyVersion(version int) *Executable {
 	return FindExecutable(fmt.Sprintf("clang-tidy-%d", version))
 }
 
-// NewClangTidy create a tool for clang-tidy
-func NewClangTidy(preferredVersion *int) ClangTidy {
+// DetectClangTidy create a tool for clang-tidy
+func DetectClangTidy(preferredVersion *int) *ClangTidy {
 	if preferredVersion != nil {
 		if executable := detectClangTidyVersion(*preferredVersion); executable != nil {
-			return ClangTidy{executable: executable, Version: preferredVersion}
+			return NewClangTidy(executable, preferredVersion)
 		}
 	}
 
 	// Detect unversioned (system default)
 	if executable := FindExecutable("clang-tidy"); executable != nil {
-		return ClangTidy{executable: executable, Version: nil}
+		return NewClangTidy(executable, nil)
 	}
 
-	// TODO: find a way to generate automatically
-	versions := []int{22, 21, 20, 19, 18, 17, 16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1}
-
-	for _, version := range versions {
+	for version := clangTidyMaxVersion; version >= clangTidyMinVersion; version-- {
 		if executable := detectClangTidyVersion(version); executable != nil {
-			return ClangTidy{executable: executable, Version: &version}
+			return NewClangTidy(executable, &version)
 		}
 	}
 
-	return ClangTidy{executable: nil, Version: nil}
+	return NewClangTidy(nil, nil)
+}
+
+// NewClangTidy creates a clang-tidy tool from a custom executable
+func NewClangTidy(executable *Executable, version *int) *ClangTidy {
+	return &ClangTidy{
+		executable: executable,
+		Version:    version,
+	}
 }
 
 func (c *ClangTidy) Id() string {
@@ -89,9 +97,8 @@ func (c *ClangTidy) buildArgs(rootDirectory string, buildDirectory string, paths
 	}
 
 	args = append(args, "-p", buildDirectory)
-	args = append(args, paths...)
 
-	return args
+	return append(args, paths...)
 }
 
 // LintAll lints all files in the project
@@ -105,9 +112,8 @@ func (c *ClangTidy) LintAll(project Project, args []string) error {
 	paths := c.buildPaths(project.RootDirectory(), info.GetFiles())
 
 	toolArgs := c.buildArgs(project.RootDirectory(), project.BuildDirectory(), paths)
-	toolArgs = append(toolArgs, args...)
 
-	return c.executable.Run(toolArgs)
+	return c.executable.Run(append(toolArgs, args...))
 }
 
 // LintFiles lints a file in the project
@@ -115,15 +121,14 @@ func (c *ClangTidy) LintFiles(project Project, filenames []string, args []string
 	paths := c.buildPaths(project.RootDirectory(), filenames)
 
 	toolArgs := c.buildArgs(project.RootDirectory(), project.BuildDirectory(), paths)
-	toolArgs = append(toolArgs, args...)
 
-	return c.executable.Run(toolArgs)
+	return c.executable.Run(append(toolArgs, args...))
 }
 
 func (c *ClangTidy) Run(project Project, args []string) error {
-	var toolArgs []string
-	toolArgs = append(toolArgs, project.RootDirectory())
-	toolArgs = append(toolArgs, args...)
+	toolArgs := []string{
+		project.RootDirectory(),
+	}
 
-	return c.executable.Run(toolArgs)
+	return c.executable.Run(append(toolArgs, args...))
 }
