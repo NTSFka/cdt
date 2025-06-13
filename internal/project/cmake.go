@@ -3,9 +3,7 @@ package project
 import (
 	. "cdt/internal"
 	"cdt/internal/tool"
-	"cdt/internal/utils"
 	"errors"
-	"fmt"
 	"path/filepath"
 )
 
@@ -16,7 +14,7 @@ type CMakeProject struct {
 }
 
 // Try to detect format tool for CMake project
-func detectCMakeFormatTool(tools Tools) FormatTool {
+func detectCMakeFormatTool(tools Tools) ProjectFormatter {
 	if clangFormat := GetTool[*tool.ClangFormat](tools); clangFormat.IsAvailable() {
 		return clangFormat
 	}
@@ -52,88 +50,19 @@ func DetectCMakeProject(directory string, tools Tools) (ProjectStructureProvider
 		CMakeTool: *cmake,
 	}
 
-	return c, &Workflow{
-		Configurator: c,
-		Builder:      c,
+	return cmake, &Workflow{
+		Configurator: cmake,
+		Builder:      cmake,
 		Tester:       c,
 		Formatter:    formatTool,
 		Linter:       lintTool,
-		Runner:       c,
+		Runner:       cmake,
 	}, nil
-}
-
-func (p *CMakeProject) Structure(project Project) (*ProjectStructure, error) {
-	if err := p.Configure(project, []string{}); err != nil {
-		return nil, err
-	}
-
-	fileApi := utils.NewCmakeFileApi(project.BuildDirectory())
-
-	info := ProjectStructure{
-		Targets: make(map[string]ProjectTarget),
-	}
-
-	if reply, err := fileApi.Reply(); err == nil {
-		for _, target := range reply.Targets {
-			info.Targets[target.Name] = ProjectTarget{
-				Files:      target.Files,
-				Dependency: target.External,
-			}
-		}
-	}
-
-	return &info, nil
-}
-
-// Configure configures the CMake project
-func (p *CMakeProject) Configure(project Project, args []string) error {
-	fileApi := utils.NewCmakeFileApi(project.BuildDirectory())
-
-	if err := fileApi.Query("codemodel", 2); err != nil {
-		return err
-	}
-
-	res := p.CMakeTool.ConfigureProject(project, []string{
-		"-DCMAKE_EXPORT_COMPILE_COMMANDS=ON",
-	})
-
-	if res != nil {
-		return res
-	}
-
-	return res
-}
-
-// BuildAll builds all targets in the CMake project
-func (p *CMakeProject) BuildAll(project Project, args []string) error {
-	if err := p.Configure(project, []string{}); err != nil {
-		return err
-	}
-
-	return p.CMakeTool.BuildAll(project, []string{})
-}
-
-// BuildTarget builds a specific target
-func (p *CMakeProject) BuildTarget(project Project, target string, args []string) error {
-	if err := p.Configure(project, []string{}); err != nil {
-		return err
-	}
-
-	return p.CMakeTool.BuildTargets(project, []string{target}, []string{})
-}
-
-// BuildTargets builds specific targets
-func (p *CMakeProject) BuildTargets(project Project, targets []string, args []string) error {
-	if err := p.Configure(project, []string{}); err != nil {
-		return err
-	}
-
-	return p.CMakeTool.BuildTargets(project, targets, []string{})
 }
 
 // TestAll run project tester for all tests
 func (p *CMakeProject) TestAll(project Project, args []string) error {
-	if err := p.BuildAll(project, []string{}); err != nil {
+	if err := p.CMakeTool.BuildAll(project, []string{}); err != nil {
 		return err
 	}
 
@@ -150,7 +79,7 @@ func (p *CMakeProject) TestAll(project Project, args []string) error {
 
 // Test run project tester with tests that matches the given pattern
 func (p *CMakeProject) Test(project Project, pattern string, args []string) error {
-	if err := p.BuildAll(project, []string{}); err != nil {
+	if err := p.CMakeTool.BuildAll(project, []string{}); err != nil {
 		return err
 	}
 
@@ -164,27 +93,4 @@ func (p *CMakeProject) Test(project Project, pattern string, args []string) erro
 		"--test-dir", project.BuildDirectory(),
 		"-R", pattern,
 	})
-}
-
-func (p *CMakeProject) Run(project Project, target string, args []string) error {
-	if err := p.BuildAll(project, []string{}); err != nil {
-		return err
-	}
-
-	fileApi := utils.NewCmakeFileApi(project.BuildDirectory())
-
-	reply, err := fileApi.Reply()
-	if err != nil {
-		return err
-	}
-
-	for _, t := range reply.Targets {
-		if t.Name == target && t.Type == utils.TargetExecutable {
-			executable := Executable{Path: filepath.Join(project.BuildDirectory(), t.Name)}
-
-			return executable.Run(args)
-		}
-	}
-
-	return fmt.Errorf("target '%s' not found", target)
 }

@@ -34,7 +34,7 @@ func runCommandAction(ctx context.Context, command *cli.Command) error {
 		return errors.New("target is required")
 	}
 
-	if err := runner.Run(c.Project, target, command.Args().Slice()); err != nil {
+	if err := runner.RunTarget(c.Project, target, command.Args().Slice()); err != nil {
 		return fmt.Errorf("%w", err)
 	}
 

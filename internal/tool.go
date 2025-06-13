@@ -26,64 +26,6 @@ type Tool interface {
 	Run(project Project, args []string) error
 }
 
-// DependencyTool is an interface for a project dependencies management tool
-type DependencyTool interface {
-	Tool
-
-	// InstallDependencies installs all defined dependencies
-	InstallDependencies(project Project, args []string) error
-}
-
-// ConfigureTool is an interface for project configuration
-type ConfigureTool interface {
-	Tool
-
-	// ConfigureProject configures the project
-	ConfigureProject(project Project, args []string) error
-}
-
-// BuildTool is an interface for project builders
-type BuildTool interface {
-	Tool
-
-	// BuildAll builds the whole project
-	BuildAll(project Project, args []string) error
-
-	// GetBuildTargets returns available targets to build in the project
-	GetBuildTargets(project Project) ([]string, error)
-
-	// BuildTarget builds a target from the project
-	BuildTarget(project Project, target string, args []string) error
-}
-
-// TestTool is an interface for project testers
-type TestTool interface {
-	Tool
-
-	// TestAll runs all tests in the project
-	TestAll(project Project, args []string) error
-
-	// Test runs tests that match the pattern
-	Test(project Project, pattern string, args []string) error
-}
-
-// FormatTool is an interface for project formatters
-type FormatTool interface {
-	Tool
-
-	// FormatAll formats all files in the project
-	FormatAll(project Project, args []string) error
-
-	// FormatFiles formats a file in the project
-	FormatFiles(project Project, filenames []string, args []string) error
-
-	// FormatCheckAll checks all files if some needs formatting
-	FormatCheckAll(project Project, args []string) error
-
-	// FormatCheckFiles checks a file if it needs formatting
-	FormatCheckFiles(project Project, filenames []string, args []string) error
-}
-
 type Tools []Tool
 
 func (t *Tools) Active() (result []Tool) {

@@ -50,8 +50,8 @@ type ProjectLinter interface {
 
 // A ProjectRunner allow running executables of a project
 type ProjectRunner interface {
-	// Run a target
-	Run(project Project, target string, args []string) error
+	// RunTarget run a target
+	RunTarget(project Project, target string, args []string) error
 }
 
 // A Workflow describes how to work on a project

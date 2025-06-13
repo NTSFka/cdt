@@ -4,6 +4,7 @@ import (
 	. "cdt/internal"
 	"cdt/internal/utils"
 	"errors"
+	"fmt"
 	"path/filepath"
 )
 
@@ -59,7 +60,30 @@ func (c *CMake) Run(_ Project, args []string) error {
 	return c.executable.Run(args)
 }
 
-func (c *CMake) ConfigureProject(project Project, args []string) error {
+func (c *CMake) Structure(project Project) (*ProjectStructure, error) {
+	if err := c.Configure(project, []string{}); err != nil {
+		return nil, err
+	}
+
+	fileApi := utils.NewCmakeFileApi(project.BuildDirectory())
+
+	info := ProjectStructure{
+		Targets: make(map[string]ProjectTarget),
+	}
+
+	if reply, err := fileApi.Reply(); err == nil {
+		for _, target := range reply.Targets {
+			info.Targets[target.Name] = ProjectTarget{
+				Files:      target.Files,
+				Dependency: target.External,
+			}
+		}
+	}
+
+	return &info, nil
+}
+
+func (c *CMake) Configure(project Project, args []string) error {
 	fileApi := utils.NewCmakeFileApi(project.BuildDirectory())
 
 	if err := fileApi.Query("codemodel", 2); err != nil {
@@ -67,6 +91,7 @@ func (c *CMake) ConfigureProject(project Project, args []string) error {
 	}
 
 	callArgs := args
+	callArgs = append(callArgs, "-DCMAKE_EXPORT_COMPILE_COMMANDS=ON")
 	callArgs = append(callArgs, "-S", project.RootDirectory())
 	callArgs = append(callArgs, "-B", project.BuildDirectory())
 
@@ -74,6 +99,10 @@ func (c *CMake) ConfigureProject(project Project, args []string) error {
 }
 
 func (c *CMake) BuildAll(project Project, args []string) error {
+	if err := c.Configure(project, []string{}); err != nil {
+		return err
+	}
+
 	callArgs := args
 	callArgs = append(callArgs, "--build", project.BuildDirectory())
 
@@ -81,10 +110,37 @@ func (c *CMake) BuildAll(project Project, args []string) error {
 }
 
 func (c *CMake) BuildTargets(project Project, targets []string, args []string) error {
+	if err := c.Configure(project, []string{}); err != nil {
+		return err
+	}
+
 	callArgs := args
 	callArgs = append(callArgs, "--build", project.BuildDirectory())
 	callArgs = append(callArgs, "--target")
 	callArgs = append(callArgs, targets...)
 
 	return c.executable.Run(callArgs)
+}
+
+func (c *CMake) RunTarget(project Project, target string, args []string) error {
+	if err := c.BuildAll(project, []string{}); err != nil {
+		return err
+	}
+
+	fileApi := utils.NewCmakeFileApi(project.BuildDirectory())
+
+	reply, err := fileApi.Reply()
+	if err != nil {
+		return err
+	}
+
+	for _, t := range reply.Targets {
+		if t.Name == target && t.Type == utils.TargetExecutable {
+			executable := Executable{Path: filepath.Join(project.BuildDirectory(), t.Name)}
+
+			return executable.Run(args)
+		}
+	}
+
+	return fmt.Errorf("target '%s' not found", target)
 }
