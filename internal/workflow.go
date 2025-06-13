@@ -3,39 +3,49 @@ package internal
 // A ProjectConfigurator allow configuring a project
 type ProjectConfigurator interface {
 	// Configure the project
-	Configure(project Project) error
+	Configure(project Project, args []string) error
 }
 
 // A ProjectBuilder allow building a project
 type ProjectBuilder interface {
 	// BuildAll builds all targets in the project
-	BuildAll(project Project) error
+	BuildAll(project Project, args []string) error
 
 	// BuildTargets builds specific targets in the project
-	BuildTargets(project Project, targets []string) error
+	BuildTargets(project Project, targets []string, args []string) error
 }
 
 // A ProjectTester allow testing a project
 type ProjectTester interface {
 	// TestAll runs all tests in the project
-	TestAll(project Project) error
+	TestAll(project Project, args []string) error
 
 	// Test runs tests that match the pattern
-	Test(project Project, pattern string) error
+	Test(project Project, pattern string, args []string) error
 }
 
 // A ProjectFormatter allow formatting files of a project
 type ProjectFormatter interface {
-	FormatAll(project Project) error
-	FormatFiles(project Project, filenames []string) error
-	FormatCheckAll(project Project) error
-	FormatCheckFiles(project Project, filenames []string) error
+	// FormatAll formates all files in the project
+	FormatAll(project Project, args []string) error
+
+	// FormatFiles formates specified files in the project
+	FormatFiles(project Project, filenames []string, args []string) error
+
+	// FormatCheckAll check if all files in the project are formatted
+	FormatCheckAll(project Project, args []string) error
+
+	// FormatCheckFiles check if all specified files in the project are formatted
+	FormatCheckFiles(project Project, filenames []string, args []string) error
 }
 
 // A ProjectLinter allow linting files of a project
 type ProjectLinter interface {
-	LintAll(project Project) error
-	LintFiles(project Project, filenames []string) error
+	// LintAll lints all project files
+	LintAll(project Project, args []string) error
+
+	// LintFiles perform linting on specified files
+	LintFiles(project Project, filenames []string, args []string) error
 }
 
 // A ProjectRunner allow running executables of a project

@@ -54,14 +54,12 @@ func TestCMakeProjectConfigureAndBuildAndRun(t *testing.T) {
 	buildDirectory := fs.NewDir(t, "cdt-test")
 
 	cmake := project.CMakeProject{
-		CMakeTool:  *tool.DetectCMake(),
-		FormatTool: &tool.ClangFormat{},
-		LintTool:   &tool.ClangTidy{},
+		CMakeTool: *tool.DetectCMake(),
 	}
 
 	project := internal.MakeProject("data/cmake", buildDirectory.Path(), &cmake)
 
-	var err = cmake.Configure(project)
+	var err = cmake.Configure(project, []string{})
 	assert.NoError(t, err)
 
 	var structure *internal.ProjectStructure
@@ -87,10 +85,10 @@ func TestCMakeProjectConfigureAndBuildAndRun(t *testing.T) {
 		assert.Equal(t, []string{"main.cpp", "test.cpp"}, structure.GetFiles())
 	}
 
-	err = cmake.BuildAll(project)
+	err = cmake.BuildAll(project, []string{})
 	assert.NoError(t, err)
 
-	err = cmake.BuildTarget(project, "main")
+	err = cmake.BuildTarget(project, "main", []string{})
 	assert.NoError(t, err)
 
 	err = cmake.Run(project, "main", []string{})

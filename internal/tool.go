@@ -84,17 +84,6 @@ type FormatTool interface {
 	FormatCheckFiles(project Project, filenames []string, args []string) error
 }
 
-// LintTool is an interface for project linters
-type LintTool interface {
-	Tool
-
-	// LintAll lints all files in the project
-	LintAll(project Project, args []string) error
-
-	// LintFiles lints a file(s) in the project
-	LintFiles(project Project, filenames []string, args []string) error
-}
-
 type Tools []Tool
 
 func (t *Tools) Active() (result []Tool) {

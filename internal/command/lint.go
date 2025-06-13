@@ -31,9 +31,9 @@ func lintCommandAction(ctx context.Context, command *cli.Command) error {
 
 	var err error
 	if files := command.StringArgs("files"); len(files) > 0 {
-		err = linter.LintFiles(c.Project, files)
+		err = linter.LintFiles(c.Project, files, command.Args().Tail())
 	} else {
-		err = linter.LintAll(c.Project)
+		err = linter.LintAll(c.Project, command.Args().Tail())
 	}
 
 	if err != nil {

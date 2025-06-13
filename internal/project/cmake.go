@@ -13,9 +13,6 @@ import (
 type CMakeProject struct {
 	// CMakeTool represents the CMake tool
 	CMakeTool tool.CMake
-
-	FormatTool FormatTool
-	LintTool   LintTool
 }
 
 // Try to detect format tool for CMake project
@@ -28,7 +25,7 @@ func detectCMakeFormatTool(tools Tools) FormatTool {
 }
 
 // Try to detect lint tool for CMake project
-func detectCMakeLintTool(tools Tools) LintTool {
+func detectCMakeLintTool(tools Tools) ProjectLinter {
 	if clangTidy := GetTool[*tool.ClangTidy](tools); clangTidy.IsAvailable() {
 		return clangTidy
 	}
@@ -52,23 +49,21 @@ func DetectCMakeProject(directory string, tools Tools) (ProjectStructureProvider
 	lintTool := detectCMakeLintTool(tools)
 
 	c := &CMakeProject{
-		CMakeTool:  *cmake,
-		FormatTool: formatTool,
-		LintTool:   lintTool,
+		CMakeTool: *cmake,
 	}
 
 	return c, &Workflow{
 		Configurator: c,
 		Builder:      c,
 		Tester:       c,
-		Formatter:    c,
-		Linter:       c,
+		Formatter:    formatTool,
+		Linter:       lintTool,
 		Runner:       c,
 	}, nil
 }
 
 func (p *CMakeProject) Structure(project Project) (*ProjectStructure, error) {
-	if err := p.Configure(project); err != nil {
+	if err := p.Configure(project, []string{}); err != nil {
 		return nil, err
 	}
 
@@ -91,7 +86,7 @@ func (p *CMakeProject) Structure(project Project) (*ProjectStructure, error) {
 }
 
 // Configure configures the CMake project
-func (p *CMakeProject) Configure(project Project) error {
+func (p *CMakeProject) Configure(project Project, args []string) error {
 	fileApi := utils.NewCmakeFileApi(project.BuildDirectory())
 
 	if err := fileApi.Query("codemodel", 2); err != nil {
@@ -110,8 +105,8 @@ func (p *CMakeProject) Configure(project Project) error {
 }
 
 // BuildAll builds all targets in the CMake project
-func (p *CMakeProject) BuildAll(project Project) error {
-	if err := p.Configure(project); err != nil {
+func (p *CMakeProject) BuildAll(project Project, args []string) error {
+	if err := p.Configure(project, []string{}); err != nil {
 		return err
 	}
 
@@ -119,8 +114,8 @@ func (p *CMakeProject) BuildAll(project Project) error {
 }
 
 // BuildTarget builds a specific target
-func (p *CMakeProject) BuildTarget(project Project, target string) error {
-	if err := p.Configure(project); err != nil {
+func (p *CMakeProject) BuildTarget(project Project, target string, args []string) error {
+	if err := p.Configure(project, []string{}); err != nil {
 		return err
 	}
 
@@ -128,95 +123,17 @@ func (p *CMakeProject) BuildTarget(project Project, target string) error {
 }
 
 // BuildTargets builds specific targets
-func (p *CMakeProject) BuildTargets(project Project, targets []string) error {
-	if err := p.Configure(project); err != nil {
+func (p *CMakeProject) BuildTargets(project Project, targets []string, args []string) error {
+	if err := p.Configure(project, []string{}); err != nil {
 		return err
 	}
 
 	return p.CMakeTool.BuildTargets(project, targets, []string{})
 }
 
-// FormatAll formats all files in the CMake project
-func (p *CMakeProject) FormatAll(project Project) error {
-	if err := p.Configure(project); err != nil {
-		return err
-	}
-
-	if p.FormatTool != nil {
-		return p.FormatTool.FormatAll(project, []string{})
-	}
-
-	return errors.New("no format tool found")
-}
-
-// FormatFiles formats a file in the project
-func (p *CMakeProject) FormatFiles(project Project, filenames []string) error {
-	if err := p.Configure(project); err != nil {
-		return err
-	}
-
-	if p.FormatTool != nil {
-		return p.FormatTool.FormatFiles(project, filenames, []string{})
-	}
-
-	return errors.New("no format tool found")
-}
-
-// FormatCheckAll check all files in the project if some needs formatting
-func (p *CMakeProject) FormatCheckAll(project Project) error {
-	if err := p.Configure(project); err != nil {
-		return err
-	}
-
-	if p.FormatTool != nil {
-		return p.FormatTool.FormatCheckAll(project, []string{})
-	}
-
-	return errors.New("no format tool found")
-}
-
-// FormatCheckFiles check a file in the project if it needs formatting
-func (p *CMakeProject) FormatCheckFiles(project Project, filenames []string) error {
-	if err := p.Configure(project); err != nil {
-		return err
-	}
-
-	if p.FormatTool != nil {
-		return p.FormatTool.FormatCheckFiles(project, filenames, []string{})
-	}
-
-	return errors.New("no format tool found")
-}
-
-// LintAll lint all files in the project
-func (p *CMakeProject) LintAll(project Project) error {
-	if err := p.Configure(project); err != nil {
-		return err
-	}
-
-	if p.LintTool != nil {
-		return p.LintTool.LintAll(project, []string{})
-	}
-
-	return nil
-}
-
-// LintFiles lint a file(s) in the project
-func (p *CMakeProject) LintFiles(project Project, filenames []string) error {
-	if err := p.Configure(project); err != nil {
-		return err
-	}
-
-	if p.LintTool != nil {
-		return p.LintTool.LintFiles(project, filenames, []string{})
-	}
-
-	return nil
-}
-
 // TestAll run project tester for all tests
-func (p *CMakeProject) TestAll(project Project) error {
-	if err := p.BuildAll(project); err != nil {
+func (p *CMakeProject) TestAll(project Project, args []string) error {
+	if err := p.BuildAll(project, []string{}); err != nil {
 		return err
 	}
 
@@ -232,8 +149,8 @@ func (p *CMakeProject) TestAll(project Project) error {
 }
 
 // Test run project tester with tests that matches the given pattern
-func (p *CMakeProject) Test(project Project, pattern string) error {
-	if err := p.BuildAll(project); err != nil {
+func (p *CMakeProject) Test(project Project, pattern string, args []string) error {
+	if err := p.BuildAll(project, []string{}); err != nil {
 		return err
 	}
 
@@ -250,7 +167,7 @@ func (p *CMakeProject) Test(project Project, pattern string) error {
 }
 
 func (p *CMakeProject) Run(project Project, target string, args []string) error {
-	if err := p.BuildAll(project); err != nil {
+	if err := p.BuildAll(project, []string{}); err != nil {
 		return err
 	}
 
