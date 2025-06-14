@@ -12,8 +12,8 @@ const clangFormatMaxVersion = 22
 
 // ClangFormat is a formatter for the clang-format tool
 type ClangFormat struct {
-	executable *Executable
-	Version    *int
+	ExecutableTool
+	Version *int
 }
 
 func detectClangFormat() *Executable {
@@ -49,33 +49,14 @@ func DetectClangFormat(preferredVersion *int) *ClangFormat {
 // NewClangFormat creates a clang-format tool from a custom executable
 func NewClangFormat(executable *Executable, version *int) *ClangFormat {
 	return &ClangFormat{
-		executable: executable,
-		Version:    version,
+		ExecutableTool: MakeExecutableTool(
+			"clang-format",
+			"Clang Format",
+			"A tool to format C/C++/Java/JavaScript/JSON/Objective-C/Protobuf/C# code.",
+			executable,
+		),
+		Version: version,
 	}
-}
-
-func (c *ClangFormat) Id() string {
-	return "clang-format"
-}
-
-func (c *ClangFormat) Name() string {
-	return "Clang Format"
-}
-
-func (c *ClangFormat) Info() string {
-	return "A tool to format C/C++/Java/JavaScript/JSON/Objective-C/Protobuf/C# code."
-}
-
-func (c *ClangFormat) ExecutablePath() *string {
-	if c.executable != nil {
-		return &c.executable.Path
-	}
-
-	return nil
-}
-
-func (c *ClangFormat) IsAvailable() bool {
-	return c.executable != nil
 }
 
 func (c *ClangFormat) buildPaths(directory string, filenames []string) []string {
@@ -120,7 +101,7 @@ func (c *ClangFormat) FormatAll(project Project, args []string) error {
 	toolArgs := c.buildArgs(project.RootDirectory(), paths)
 	toolArgs = append(toolArgs, "-i")
 
-	return c.executable.Run(append(toolArgs, args...))
+	return c.Run(project, append(toolArgs, args...))
 }
 
 // FormatFiles formats a file in the project
@@ -130,7 +111,7 @@ func (c *ClangFormat) FormatFiles(project Project, filenames []string, args []st
 	toolArgs := c.buildArgs(project.RootDirectory(), paths)
 	toolArgs = append(toolArgs, "-i")
 
-	return c.executable.Run(append(toolArgs, args...))
+	return c.Run(project, append(toolArgs, args...))
 }
 
 // FormatCheckAll checks all files if some needs formatting
@@ -146,7 +127,7 @@ func (c *ClangFormat) FormatCheckAll(project Project, args []string) error {
 	toolArgs := c.buildArgs(project.RootDirectory(), paths)
 	toolArgs = append(toolArgs, "--dry-run")
 
-	return c.executable.Run(append(toolArgs, args...))
+	return c.Run(project, append(toolArgs, args...))
 }
 
 // FormatCheckFiles checks a file if it needs formatting
@@ -156,9 +137,5 @@ func (c *ClangFormat) FormatCheckFiles(project Project, filenames []string, args
 	toolArgs := c.buildArgs(project.RootDirectory(), paths)
 	toolArgs = append(toolArgs, "--dry-run")
 
-	return c.executable.Run(append(toolArgs, args...))
-}
-
-func (c *ClangFormat) Run(_ Project, args []string) error {
-	return c.executable.Run(args)
+	return c.Run(project, append(toolArgs, args...))
 }

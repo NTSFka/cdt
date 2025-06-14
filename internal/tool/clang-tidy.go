@@ -11,8 +11,8 @@ const clangTidyMinVersion = 1
 const clangTidyMaxVersion = 22
 
 type ClangTidy struct {
-	executable *Executable
-	Version    *int
+	ExecutableTool
+	Version *int
 }
 
 func detectClangTidyVersion(version int) *Executable {
@@ -44,33 +44,14 @@ func DetectClangTidy(preferredVersion *int) *ClangTidy {
 // NewClangTidy creates a clang-tidy tool from a custom executable
 func NewClangTidy(executable *Executable, version *int) *ClangTidy {
 	return &ClangTidy{
-		executable: executable,
-		Version:    version,
+		ExecutableTool: MakeExecutableTool(
+			"clang-tidy",
+			"Clang Tidy",
+			"A clang-based C++ “linter” tool.",
+			executable,
+		),
+		Version: version,
 	}
-}
-
-func (c *ClangTidy) Id() string {
-	return "clang-tidy"
-}
-
-func (c *ClangTidy) Name() string {
-	return "Clang Tidy"
-}
-
-func (c *ClangTidy) Info() string {
-	return "A clang-based C++ “linter” tool."
-}
-
-func (c *ClangTidy) ExecutablePath() *string {
-	if c.executable != nil {
-		return &c.executable.Path
-	}
-
-	return nil
-}
-
-func (c *ClangTidy) IsAvailable() bool {
-	return c.executable != nil
 }
 
 func (c *ClangTidy) buildPaths(directory string, filenames []string) []string {
@@ -101,7 +82,6 @@ func (c *ClangTidy) buildArgs(rootDirectory string, buildDirectory string, paths
 	return append(args, paths...)
 }
 
-// LintAll lints all files in the project
 func (c *ClangTidy) LintAll(project Project, args []string) error {
 	info, err := project.Structure()
 
@@ -113,16 +93,15 @@ func (c *ClangTidy) LintAll(project Project, args []string) error {
 
 	toolArgs := c.buildArgs(project.RootDirectory(), project.BuildDirectory(), paths)
 
-	return c.executable.Run(append(toolArgs, args...))
+	return c.ExecutableTool.Run(project, append(toolArgs, args...))
 }
 
-// LintFiles lints a file in the project
 func (c *ClangTidy) LintFiles(project Project, filenames []string, args []string) error {
 	paths := c.buildPaths(project.RootDirectory(), filenames)
 
 	toolArgs := c.buildArgs(project.RootDirectory(), project.BuildDirectory(), paths)
 
-	return c.executable.Run(append(toolArgs, args...))
+	return c.ExecutableTool.Run(project, append(toolArgs, args...))
 }
 
 func (c *ClangTidy) Run(project Project, args []string) error {
@@ -130,5 +109,5 @@ func (c *ClangTidy) Run(project Project, args []string) error {
 		project.RootDirectory(),
 	}
 
-	return c.executable.Run(append(toolArgs, args...))
+	return c.ExecutableTool.Run(project, append(toolArgs, args...))
 }
