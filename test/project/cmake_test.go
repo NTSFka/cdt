@@ -12,7 +12,7 @@ import (
 func TestDetectCMakeProjectNoCMakeLists(t *testing.T) {
 	tools := internal.Tools{}
 
-	p := project.DetectCMakeProject("dir1", "build", tools)
+	p := project.DetectCMakeProject(internal.Config{RootDirectory: "dir1"}, tools)
 
 	assert.Nil(t, p)
 }
@@ -23,7 +23,7 @@ func TestDetectCMakeProjectNoCMakeBinary(t *testing.T) {
 		tool.NewCMake(nil),
 	}
 
-	p := project.DetectCMakeProject("data/cmake", "build", tools)
+	p := project.DetectCMakeProject(internal.Config{RootDirectory: "data/cmake"}, tools)
 
 	assert.Nil(t, p)
 }
@@ -37,7 +37,7 @@ func TestDetectCMakeProjectNoFormatterAndLinters(t *testing.T) {
 		&tool.CTest{},
 	}
 
-	p := project.DetectCMakeProject("data/cmake", "build", tools)
+	p := project.DetectCMakeProject(internal.Config{RootDirectory: "data/cmake"}, tools)
 
 	assert.NotNil(t, p)
 	assert.Nil(t, p.Workflow.Linter)
@@ -53,7 +53,7 @@ func TestDetectCMakeProjectFormatterAndLinters(t *testing.T) {
 		&tool.CTest{},
 	}
 
-	p := project.DetectCMakeProject("data/cmake", "build", tools)
+	p := project.DetectCMakeProject(internal.Config{RootDirectory: "data/cmake"}, tools)
 
 	assert.NotNil(t, p)
 	assert.NotNil(t, p.Workflow.Linter)

@@ -21,13 +21,13 @@ func initTools() Tools {
 	}
 }
 
-func detectProject(rootDirectory string, buildDirectory string, tools Tools) Project {
+func detectProject(config Config, tools Tools) Project {
 	// CMake
-	if p := project.DetectCMakeProject(rootDirectory, buildDirectory, tools); p != nil {
+	if p := project.DetectCMakeProject(config, tools); p != nil {
 		return *p
 	}
 
-	return MakeProject(rootDirectory, buildDirectory, &EmptyProjectStructureProvider{}, Workflow{})
+	return MakeProject(config.RootDirectory, "", &EmptyProjectStructureProvider{}, Workflow{})
 }
 
 type RunContext struct {
@@ -81,11 +81,22 @@ func RunMain(runCtx RunContext) error {
 		},
 		Before: func(ctx context.Context, command *cli.Command) (context.Context, error) {
 			projectPath := command.String("directory")
-			buildDirectory := command.String("build")
+			var buildDirectory *string = nil
 
-			proj := detectProject(projectPath, buildDirectory, tools)
+			if command.Count("build") > 0 {
+				directory := command.String("build")
+				buildDirectory = &directory
+			}
+
+			config := Config{
+				RootDirectory:  projectPath,
+				BuildDirectory: buildDirectory,
+			}
+
+			proj := detectProject(config, tools)
 
 			c := Context{
+				Config:  config,
 				Project: proj,
 				Tools:   tools,
 			}

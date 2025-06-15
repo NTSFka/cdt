@@ -31,8 +31,8 @@ func detectCMakeLintTool(tools Tools) ProjectLinter {
 }
 
 // DetectCMakeProject detects if the project in the directory is a CMake project
-func DetectCMakeProject(rootDirectory string, buildDirectory string, tools Tools) *Project {
-	if !PathExists(filepath.Join(rootDirectory, "CMakeLists.txt")) {
+func DetectCMakeProject(config Config, tools Tools) *Project {
+	if !PathExists(filepath.Join(config.RootDirectory, "CMakeLists.txt")) {
 		return nil
 	}
 
@@ -59,7 +59,15 @@ func DetectCMakeProject(rootDirectory string, buildDirectory string, tools Tools
 		Runner:       cmake,
 	}
 
-	project := MakeProject(rootDirectory, buildDirectory, cmake, workflow)
+	var buildDirectory string
+
+	if config.BuildDirectory != nil {
+		buildDirectory = *config.BuildDirectory
+	} else {
+		buildDirectory = "build"
+	}
+
+	project := MakeProject(config.RootDirectory, buildDirectory, cmake, workflow)
 
 	return &project
 }
