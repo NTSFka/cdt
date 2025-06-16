@@ -1,64 +1,92 @@
 package cli
 
 import (
+	"cdt/internal"
+	"errors"
 	"github.com/stretchr/testify/assert"
-	"gotest.tools/v3/fs"
-	"path/filepath"
+	"github.com/stretchr/testify/mock"
 	"testing"
 )
 
-func runLintDir(project string, buildDirectory string, args ...string) error {
+func runLint(linter internal.ProjectLinter, args ...string) error {
 	var runArgs []string
-	runArgs = append(runArgs, "--directory", filepath.Join("data", project))
-	runArgs = append(runArgs, "--build", buildDirectory)
 	runArgs = append(runArgs, "lint")
 	runArgs = append(runArgs, args...)
 
-	return runMain(runArgs...)
+	return runMainWithWorkflow(internal.Workflow{
+		Linter: linter,
+	}, runArgs...)
 }
 
-func runLint(t *testing.T, project string, args ...string) error {
-	buildDirectory := fs.NewDir(t, filepath.Join("cdt-test", project))
+func TestLintConfigDefault(t *testing.T) {
+	config := runMainGetConfig("lint")
 
-	return runLintDir(project, buildDirectory.Path(), args...)
+	assert.Equal(t, ".", config.RootDirectory)
+	assert.Nil(t, config.BuildDirectory)
 }
 
-// Test lint of a project that cannot be linted
+func TestLintConfigCustomRootDirectory(t *testing.T) {
+	config := runMainGetConfig("lint", "--directory", "data/test")
+
+	assert.Equal(t, "data/test", config.RootDirectory)
+	assert.Nil(t, config.BuildDirectory)
+}
+
+func TestLintConfigCustomRootDirectoryShort(t *testing.T) {
+	config := runMainGetConfig("lint", "-d", "data/short-test")
+
+	assert.Equal(t, "data/short-test", config.RootDirectory)
+	assert.Nil(t, config.BuildDirectory)
+}
+
 func TestLintCannotBeLinted(t *testing.T) {
-	err := runLint(t, "empty")
+	err := runLint(nil)
 
 	if assert.Error(t, err) {
 		assert.Equal(t, "project doesn't support linting", err.Error())
 	}
 }
 
-// Test lint of a project that uses C++ with CMake
-func TestLintCxxCmake(t *testing.T) {
-	checkTool(t, "cmake")
-	checkTool(t, "clang-tidy")
+func TestLintAllSuccess(t *testing.T) {
+	linter := testProjectLinter{}
+	linter.On("LintAll", mock.Anything, []string{}).Return(nil)
 
-	err := runLint(t, "cxx-cmake/valid")
-
-	assert.NoError(t, err)
-}
-
-// Test lint of a project that uses C++ with CMake
-func TestLintFileCxxCmake(t *testing.T) {
-	checkTool(t, "cmake")
-	checkTool(t, "clang-tidy")
-
-	err := runLint(t, "cxx-cmake/valid", "main.cpp")
+	err := runLint(&linter)
 
 	assert.NoError(t, err)
+	linter.AssertExpectations(t)
 }
 
-// Test lint of a project that uses C++ with CMake - invalid configuration
-func TestLintCxxCmakeConfigureInvalid(t *testing.T) {
-	checkTool(t, "cmake")
+func TestLintAllFailure(t *testing.T) {
+	linter := testProjectLinter{}
+	linter.On("LintAll", mock.Anything, []string{}).Return(errors.New("failed"))
 
-	err := runLint(t, "cxx-cmake/configure-invalid")
+	err := runLint(&linter)
 
 	if assert.Error(t, err) {
-		assert.Equal(t, "exit status 1", err.Error())
+		assert.Equal(t, "failed", err.Error())
 	}
+	linter.AssertExpectations(t)
+}
+
+func TestLintFilesSuccess(t *testing.T) {
+	linter := testProjectLinter{}
+	linter.On("LintFiles", mock.Anything, []string{"file1", "file2"}, []string{}).Return(nil)
+
+	err := runLint(&linter, "file1", "file2")
+
+	assert.NoError(t, err)
+	linter.AssertExpectations(t)
+}
+
+func TestLintFilesFailure(t *testing.T) {
+	linter := testProjectLinter{}
+	linter.On("LintFiles", mock.Anything, []string{"file1", "file2"}, []string{}).Return(errors.New("failed"))
+
+	err := runLint(&linter, "file1", "file2")
+
+	if assert.Error(t, err) {
+		assert.Equal(t, "failed", err.Error())
+	}
+	linter.AssertExpectations(t)
 }

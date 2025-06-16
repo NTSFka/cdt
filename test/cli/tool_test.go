@@ -1,36 +1,29 @@
 package cli
 
 import (
+	"cdt/internal"
 	"github.com/stretchr/testify/assert"
-	"gotest.tools/v3/fs"
-	"path/filepath"
 	"testing"
 )
 
-func runToolDir(project string, buildDirectory string, args ...string) error {
+func runTool(tools internal.Tools, args ...string) error {
 	var runArgs []string
-	runArgs = append(runArgs, "--directory", filepath.Join("data", project))
-	runArgs = append(runArgs, "--build", buildDirectory)
 	runArgs = append(runArgs, "tool")
 	runArgs = append(runArgs, args...)
 
-	return runMain(runArgs...)
+	return runMainWithTools(tools, runArgs...)
 }
 
-func runTool(t *testing.T, project string, args ...string) error {
-	buildDirectory := fs.NewDir(t, filepath.Join("cdt-test", project))
-
-	return runToolDir(project, buildDirectory.Path(), args...)
-}
-
-func TestToolList(t *testing.T) {
-	err := runTool(t, "cxx-cmake/valid", "list")
+func TestToolListEmpty(t *testing.T) {
+	err := runTool(internal.Tools{}, "list")
 
 	assert.NoError(t, err)
 }
 
 func TestToolListAll(t *testing.T) {
-	err := runTool(t, "cxx-cmake/valid", "list", "--all")
+	err := runTool(internal.Tools{}, "list", "--all")
 
 	assert.NoError(t, err)
 }
+
+// TODO: check output with some tools

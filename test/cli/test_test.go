@@ -1,71 +1,112 @@
 package cli
 
 import (
+	"cdt/internal"
+	"errors"
 	"github.com/stretchr/testify/assert"
-	"gotest.tools/v3/fs"
-	"path/filepath"
+	"github.com/stretchr/testify/mock"
 	"testing"
 )
 
-func runTestDir(project string, buildDirectory string, args ...string) error {
+func runTest(tester internal.ProjectTester, args ...string) error {
 	var runArgs []string
-	runArgs = append(runArgs, "--directory", filepath.Join("data", project))
-	runArgs = append(runArgs, "--build", buildDirectory)
 	runArgs = append(runArgs, "test")
 	runArgs = append(runArgs, args...)
 
-	return runMain(runArgs...)
+	return runMainWithWorkflow(internal.Workflow{
+		Tester: tester,
+	}, runArgs...)
 }
 
-func runTest(t *testing.T, project string, args ...string) error {
-	buildDirectory := fs.NewDir(t, filepath.Join("cdt-test", project))
+func TestTestConfigDefault(t *testing.T) {
+	config := runMainGetConfig("test")
 
-	return runTestDir(project, buildDirectory.Path(), args...)
+	assert.Equal(t, ".", config.RootDirectory)
+	assert.Nil(t, config.BuildDirectory)
 }
 
-// Test "test" of a project that cannot be configured
-func TestTestCannotBeBuilt(t *testing.T) {
-	err := runTest(t, "empty")
+func TestTestConfigCustomRootDirectory(t *testing.T) {
+	config := runMainGetConfig("test", "--directory", "data/test")
+
+	assert.Equal(t, "data/test", config.RootDirectory)
+	assert.Nil(t, config.BuildDirectory)
+}
+
+func TestTestConfigCustomRootDirectoryShort(t *testing.T) {
+	config := runMainGetConfig("test", "-d", "data/short-test")
+
+	assert.Equal(t, "data/short-test", config.RootDirectory)
+	assert.Nil(t, config.BuildDirectory)
+}
+
+func TestTestConfigCustomBuildDirectory(t *testing.T) {
+	config := runMainGetConfig("test", "--build", "data/test")
+
+	assert.Equal(t, ".", config.RootDirectory)
+
+	if assert.NotNil(t, config.BuildDirectory) {
+		assert.Equal(t, "data/test", *config.BuildDirectory)
+	}
+}
+
+func TestTestConfigCustomBuildDirectoryShort(t *testing.T) {
+	config := runMainGetConfig("test", "-b", "data/short-test")
+
+	assert.Equal(t, ".", config.RootDirectory)
+
+	if assert.NotNil(t, config.BuildDirectory) {
+		assert.Equal(t, "data/short-test", *config.BuildDirectory)
+	}
+}
+
+func TestTestCannotBeTested(t *testing.T) {
+	err := runTest(nil)
 
 	if assert.Error(t, err) {
 		assert.Equal(t, "project doesn't support testing", err.Error())
 	}
 }
 
-// Test "test" of a project that uses C++ with CMake
-func TestTestCxxCmake(t *testing.T) {
-	checkTool(t, "cmake")
+func TestTestAllSuccess(t *testing.T) {
+	tester := testProjectTester{}
+	tester.On("TestAll", mock.Anything, []string{}).Return(nil)
 
-	err := runTest(t, "cxx-cmake/valid")
+	err := runTest(&tester)
+
 	assert.NoError(t, err)
+	tester.AssertExpectations(t)
 }
 
-// Test "test" of a project that uses C++ with CMake - pattern
-func TestTestCxxCmakePattern(t *testing.T) {
-	checkTool(t, "cmake")
+func TestTestAllFailure(t *testing.T) {
+	tester := testProjectTester{}
+	tester.On("TestAll", mock.Anything, []string{}).Return(errors.New("failed"))
 
-	err := runTest(t, "cxx-cmake/valid", "test_test")
-	assert.NoError(t, err)
-}
-
-// Test "test" of a project that uses C++ with CMake - invalid configuration
-func TestTestCxxCmakeConfigureInvalid(t *testing.T) {
-	checkTool(t, "cmake")
-
-	err := runTest(t, "cxx-cmake/configure-invalid")
+	err := runTest(&tester)
 
 	if assert.Error(t, err) {
-		assert.Equal(t, "exit status 1", err.Error())
+		assert.Equal(t, "failed", err.Error())
 	}
+	tester.AssertExpectations(t)
 }
 
-// Test "test" of a project that uses C++ with CMake - invalid build
-func TestTestCxxCmakeInvalid(t *testing.T) {
-	checkTool(t, "cmake")
+func TestTestTargetsSuccess(t *testing.T) {
+	tester := testProjectTester{}
+	tester.On("Test", mock.Anything, "pattern", []string{}).Return(nil)
 
-	err := runTest(t, "cxx-cmake/build-invalid")
+	err := runTest(&tester, "pattern")
+
+	assert.NoError(t, err)
+	tester.AssertExpectations(t)
+}
+
+func TestTestTargetsFailure(t *testing.T) {
+	tester := testProjectTester{}
+	tester.On("Test", mock.Anything, "pattern", []string{}).Return(errors.New("failed"))
+
+	err := runTest(&tester, "pattern")
 
 	if assert.Error(t, err) {
-		assert.Equal(t, "exit status 2", err.Error())
+		assert.Equal(t, "failed", err.Error())
 	}
+	tester.AssertExpectations(t)
 }

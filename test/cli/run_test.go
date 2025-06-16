@@ -1,69 +1,90 @@
 package cli
 
 import (
+	"cdt/internal"
+	"errors"
 	"github.com/stretchr/testify/assert"
-	"gotest.tools/v3/fs"
-	"path/filepath"
+	"github.com/stretchr/testify/mock"
 	"testing"
 )
 
-func runRunDir(project string, buildDirectory string, args ...string) error {
+func runRun(runner internal.ProjectRunner, args ...string) error {
 	var runArgs []string
-	runArgs = append(runArgs, "--directory", filepath.Join("data", project))
-	runArgs = append(runArgs, "--build", buildDirectory)
 	runArgs = append(runArgs, "run")
 	runArgs = append(runArgs, args...)
 
-	return runMain(runArgs...)
+	return runMainWithWorkflow(internal.Workflow{
+		Runner: runner,
+	}, runArgs...)
 }
 
-func runRun(t *testing.T, project string, args ...string) error {
-	buildDirectory := fs.NewDir(t, filepath.Join("cdt-test", project))
+func TestRunConfigDefault(t *testing.T) {
+	config := runMainGetConfig("run")
 
-	return runRunDir(project, buildDirectory.Path(), args...)
+	assert.Equal(t, ".", config.RootDirectory)
+	assert.Nil(t, config.BuildDirectory)
 }
 
-func TestRunCannotBeBuilt(t *testing.T) {
-	err := runRun(t, "empty")
+func TestRunConfigCustomRootDirectory(t *testing.T) {
+	config := runMainGetConfig("run", "--directory", "data/test")
+
+	assert.Equal(t, "data/test", config.RootDirectory)
+	assert.Nil(t, config.BuildDirectory)
+}
+
+func TestRunConfigCustomRootDirectoryShort(t *testing.T) {
+	config := runMainGetConfig("run", "-d", "data/short-test")
+
+	assert.Equal(t, "data/short-test", config.RootDirectory)
+	assert.Nil(t, config.BuildDirectory)
+}
+
+func TestRunConfigCustomBuildDirectory(t *testing.T) {
+	config := runMainGetConfig("run", "--build", "data/test")
+
+	assert.Equal(t, ".", config.RootDirectory)
+
+	if assert.NotNil(t, config.BuildDirectory) {
+		assert.Equal(t, "data/test", *config.BuildDirectory)
+	}
+}
+
+func TestRunConfigCustomBuildDirectoryShort(t *testing.T) {
+	config := runMainGetConfig("run", "-b", "data/short-test")
+
+	assert.Equal(t, ".", config.RootDirectory)
+
+	if assert.NotNil(t, config.BuildDirectory) {
+		assert.Equal(t, "data/short-test", *config.BuildDirectory)
+	}
+}
+
+func TestRunNotSupported(t *testing.T) {
+	err := runRun(nil)
 
 	if assert.Error(t, err) {
 		assert.Equal(t, "project doesn't support run of target", err.Error())
 	}
 }
 
-func TestRunTargetCxxCmakeMissing(t *testing.T) {
-	checkTool(t, "cmake")
+func TestRunAllSuccess(t *testing.T) {
+	runner := testProjectRunner{}
+	runner.On("RunTarget", mock.Anything, "target1", []string{}).Return(nil)
 
-	err := runRun(t, "cxx-cmake/valid")
+	err := runRun(&runner, "target1")
 
-	if assert.Error(t, err) {
-		assert.Equal(t, "target is required", err.Error())
-	}
-}
-
-func TestRunTargetCxxCmake(t *testing.T) {
-	checkTool(t, "cmake")
-
-	err := runRun(t, "cxx-cmake/valid", "main")
 	assert.NoError(t, err)
+	runner.AssertExpectations(t)
 }
 
-func TestRunCxxCmakeConfigureInvalid(t *testing.T) {
-	checkTool(t, "cmake")
+func TestRunAllFailure(t *testing.T) {
+	runner := testProjectRunner{}
+	runner.On("RunTarget", mock.Anything, "target1", []string{}).Return(errors.New("failed"))
 
-	err := runRun(t, "cxx-cmake/configure-invalid", "main")
-
-	if assert.Error(t, err) {
-		assert.Equal(t, "exit status 1", err.Error())
-	}
-}
-
-func TestRunCxxCmakeInvalid(t *testing.T) {
-	checkTool(t, "cmake")
-
-	err := runRun(t, "cxx-cmake/build-invalid", "main")
+	err := runRun(&runner, "target1")
 
 	if assert.Error(t, err) {
-		assert.Equal(t, "exit status 2", err.Error())
+		assert.Equal(t, "failed", err.Error())
 	}
+	runner.AssertExpectations(t)
 }

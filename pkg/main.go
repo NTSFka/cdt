@@ -3,53 +3,12 @@ package pkg
 import (
 	. "cdt/internal"
 	"cdt/internal/command"
-	"cdt/internal/project"
-	"cdt/internal/tool"
 	"context"
 	"github.com/urfave/cli/v3"
-	"io"
-	"os"
 )
 
-// InitTools initializes all supported tools on the system
-func initTools() Tools {
-	return Tools{
-		tool.DetectClangFormat(nil),
-		tool.DetectClangTidy(nil),
-		tool.DetectCMake(),
-		tool.DetectCTest(),
-	}
-}
-
-func detectProject(config Config, tools Tools) Project {
-	// CMake
-	if p := project.DetectCMakeProject(config, tools); p != nil {
-		return *p
-	}
-
-	return MakeProject(config.RootDirectory, "", &EmptyProjectStructureProvider{}, Workflow{})
-}
-
-type RunContext struct {
-	Args   []string
-	Input  io.Reader
-	Output io.Writer
-	Error  io.Writer
-}
-
-// NewRunContext create standard run context
-func NewRunContext() RunContext {
-	return RunContext{
-		Args:   os.Args,
-		Input:  os.Stdin,
-		Output: os.Stdout,
-		Error:  os.Stderr,
-	}
-}
-
-func RunMain(runCtx RunContext) error {
-	tools := initTools()
-
+// RunMain is the main function of the application
+func RunMain(buildContext func(config Config) Context, args []string) error {
 	cmd := &cli.Command{
 		Name:                  "cdt",
 		Usage:                 "A common developer tool",
@@ -93,17 +52,11 @@ func RunMain(runCtx RunContext) error {
 				BuildDirectory: buildDirectory,
 			}
 
-			proj := detectProject(config, tools)
-
-			c := Context{
-				Config:  config,
-				Project: proj,
-				Tools:   tools,
-			}
+			c := buildContext(config)
 
 			return context.WithValue(ctx, "context", c), nil
 		},
 	}
 
-	return cmd.Run(context.Background(), runCtx.Args)
+	return cmd.Run(context.Background(), args)
 }

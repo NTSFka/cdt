@@ -1,53 +1,90 @@
 package cli
 
 import (
+	"cdt/internal"
+	"errors"
 	"github.com/stretchr/testify/assert"
-	"gotest.tools/v3/fs"
-	"path/filepath"
+	"github.com/stretchr/testify/mock"
 	"testing"
 )
 
-func runConfigureDir(project string, buildDirectory string, args ...string) error {
+func runConfigure(configurator internal.ProjectConfigurator, args ...string) error {
 	var runArgs []string
-	runArgs = append(runArgs, "--directory", filepath.Join("data", project))
-	runArgs = append(runArgs, "--build", buildDirectory)
 	runArgs = append(runArgs, "configure")
 	runArgs = append(runArgs, args...)
 
-	return runMain(runArgs...)
+	return runMainWithWorkflow(internal.Workflow{
+		Configurator: configurator,
+	}, runArgs...)
 }
 
-func runConfigure(t *testing.T, project string, args ...string) error {
-	buildDirectory := fs.NewDir(t, filepath.Join("cdt-test", project))
+func TestConfigureConfigDefault(t *testing.T) {
+	config := runMainGetConfig("configure")
 
-	return runConfigureDir(project, buildDirectory.Path(), args...)
+	assert.Equal(t, ".", config.RootDirectory)
+	assert.Nil(t, config.BuildDirectory)
 }
 
-// Test configuration of a project that cannot be configured
-func TestConfigureCannotBeConfigured(t *testing.T) {
-	err := runConfigure(t, "empty")
+func TestConfigureConfigCustomRootDirectory(t *testing.T) {
+	config := runMainGetConfig("configure", "--directory", "data/test")
+
+	assert.Equal(t, "data/test", config.RootDirectory)
+	assert.Nil(t, config.BuildDirectory)
+}
+
+func TestConfigureConfigCustomRootDirectoryShort(t *testing.T) {
+	config := runMainGetConfig("configure", "-d", "data/short-test")
+
+	assert.Equal(t, "data/short-test", config.RootDirectory)
+	assert.Nil(t, config.BuildDirectory)
+}
+
+func TestConfigureConfigCustomBuildDirectory(t *testing.T) {
+	config := runMainGetConfig("configure", "--build", "data/test")
+
+	assert.Equal(t, ".", config.RootDirectory)
+
+	if assert.NotNil(t, config.BuildDirectory) {
+		assert.Equal(t, "data/test", *config.BuildDirectory)
+	}
+}
+
+func TestConfigureConfigCustomBuildDirectoryShort(t *testing.T) {
+	config := runMainGetConfig("configure", "-b", "data/short-test")
+
+	assert.Equal(t, ".", config.RootDirectory)
+
+	if assert.NotNil(t, config.BuildDirectory) {
+		assert.Equal(t, "data/short-test", *config.BuildDirectory)
+	}
+}
+
+func TestConfigureNotSupported(t *testing.T) {
+	err := runConfigure(nil)
 
 	if assert.Error(t, err) {
 		assert.Equal(t, "project doesn't support configuration", err.Error())
 	}
 }
 
-// Test configuration of a project that uses C++ with CMake
-func TestConfigureCxxCmake(t *testing.T) {
-	checkTool(t, "cmake")
+func TestConfigureSuccess(t *testing.T) {
+	configurator := testProjectConfigurator{}
+	configurator.On("Configure", mock.Anything, []string{}).Return(nil)
 
-	err := runConfigure(t, "cxx-cmake/valid")
+	err := runConfigure(&configurator)
 
 	assert.NoError(t, err)
+	configurator.AssertExpectations(t)
 }
 
-// Test configuration of a project that uses C++ with CMake - invalid project
-func TestConfigureCxxCmakeInvalid(t *testing.T) {
-	checkTool(t, "cmake")
+func TestConfigureFailure(t *testing.T) {
+	configurator := testProjectConfigurator{}
+	configurator.On("Configure", mock.Anything, []string{}).Return(errors.New("failed"))
 
-	err := runConfigure(t, "cxx-cmake/configure-invalid")
+	err := runConfigure(&configurator)
 
 	if assert.Error(t, err) {
-		assert.Equal(t, "exit status 1", err.Error())
+		assert.Equal(t, "failed", err.Error())
 	}
+	configurator.AssertExpectations(t)
 }
