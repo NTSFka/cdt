@@ -91,7 +91,7 @@ func (c *CMake) BuildTargets(project Project, targets []string, args []string) e
 }
 
 func (c *CMake) RunTarget(project Project, target string, args []string) error {
-	if err := c.BuildAll(project, []string{}); err != nil {
+	if err := c.BuildTargets(project, []string{target}, []string{}); err != nil {
 		return err
 	}
 
