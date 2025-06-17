@@ -82,8 +82,10 @@ func (t *ExecutableTool) Run(_ Project, args []string) error {
 	return t.executable.Run(args)
 }
 
+// Tools is a container for available tools
 type Tools []Tool
 
+// Active returns only tools that are available
 func (t *Tools) Active() (result []Tool) {
 	for _, tool := range *t {
 		if tool.IsAvailable() {

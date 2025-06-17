@@ -9,13 +9,13 @@ type Executable struct {
 	// Path to executable
 	Path string
 
-	// Environment in which the executable exists
-	Environment Environment
+	// RunFunc is a function that will run the executable
+	RunFunc func(path string, args []string) error
 }
 
 // Run starts the executable with the given arguments
 func (t *Executable) Run(args []string) error {
 	fmt.Printf("RUN: %s\n", args)
 
-	return t.Environment.RunExecutable(t.Path, args)
+	return t.RunFunc(t.Path, args)
 }

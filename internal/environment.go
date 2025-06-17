@@ -25,7 +25,7 @@ func (s *systemEnvironment) FindExecutable(name string) *Executable {
 		return nil
 	}
 
-	return &Executable{Path: path, Environment: s}
+	return &Executable{Path: path, RunFunc: s.RunExecutable}
 }
 
 func (s *systemEnvironment) RunExecutable(path string, args []string) error {

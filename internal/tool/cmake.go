@@ -106,8 +106,8 @@ func (c *CMake) RunTarget(project Project, target string, args []string) error {
 		if t.Name == target && t.Type == utils.TargetExecutable {
 			// TODO: run environment?
 			executable := Executable{
-				Path:        filepath.Join(project.BuildDirectory(), t.Name),
-				Environment: SystemEnvironment,
+				Path:    filepath.Join(project.BuildDirectory(), t.Name),
+				RunFunc: SystemEnvironment.RunExecutable,
 			}
 
 			return executable.Run(args)
