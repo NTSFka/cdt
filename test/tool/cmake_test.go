@@ -9,11 +9,13 @@ import (
 )
 
 func TestCMakeProjectConfigureAndBuildAndRun(t *testing.T) {
-	checkTool(t, "cmake")
+	environment := internal.SystemEnvironment
+
+	checkTool(t, environment, "cmake")
 
 	buildDirectory := fs.NewDir(t, "cdt-test")
 
-	cmake := tool.DetectCMake()
+	cmake := tool.DetectCMake(environment)
 
 	p := internal.MakeProject("data/cmake", buildDirectory.Path(), cmake, internal.Workflow{})
 

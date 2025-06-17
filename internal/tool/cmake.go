@@ -24,8 +24,8 @@ func NewCMake(executable *Executable) *CMake {
 }
 
 // DetectCMake create cmake tool can be used in the project
-func DetectCMake() *CMake {
-	return NewCMake(FindExecutable("cmake"))
+func DetectCMake(environment Environment) *CMake {
+	return NewCMake(environment.FindExecutable("cmake"))
 }
 
 func (c *CMake) Structure(project Project) (*ProjectStructure, error) {
@@ -104,7 +104,11 @@ func (c *CMake) RunTarget(project Project, target string, args []string) error {
 
 	for _, t := range reply.Targets {
 		if t.Name == target && t.Type == utils.TargetExecutable {
-			executable := Executable{Path: filepath.Join(project.BuildDirectory(), t.Name)}
+			// TODO: run environment?
+			executable := Executable{
+				Path:        filepath.Join(project.BuildDirectory(), t.Name),
+				Environment: SystemEnvironment,
+			}
 
 			return executable.Run(args)
 		}

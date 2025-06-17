@@ -16,29 +16,29 @@ type ClangFormat struct {
 	Version *int
 }
 
-func detectClangFormat() *Executable {
-	return FindExecutable("clang-format")
+func detectClangFormat(environment Environment) *Executable {
+	return environment.FindExecutable("clang-format")
 }
 
-func detectClangFormatVersion(version int) *Executable {
-	return FindExecutable(fmt.Sprintf("clang-format-%d", version))
+func detectClangFormatVersion(environment Environment, version int) *Executable {
+	return environment.FindExecutable(fmt.Sprintf("clang-format-%d", version))
 }
 
 // DetectClangFormat Create clang-format tool can be used in the project
-func DetectClangFormat(preferredVersion *int) *ClangFormat {
+func DetectClangFormat(environment Environment, preferredVersion *int) *ClangFormat {
 	if preferredVersion != nil {
-		if executable := detectClangFormatVersion(*preferredVersion); executable != nil {
+		if executable := detectClangFormatVersion(environment, *preferredVersion); executable != nil {
 			return NewClangFormat(executable, preferredVersion)
 		}
 	}
 
 	// Detect unversioned (system default)
-	if executable := detectClangFormat(); executable != nil {
+	if executable := detectClangFormat(environment); executable != nil {
 		return NewClangFormat(executable, nil)
 	}
 
 	for version := clangFormatMaxVersion; version >= clangFormatMinVersion; version-- {
-		if executable := detectClangFormatVersion(version); executable != nil {
+		if executable := detectClangFormatVersion(environment, version); executable != nil {
 			return NewClangFormat(executable, &version)
 		}
 	}

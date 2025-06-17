@@ -15,25 +15,25 @@ type ClangTidy struct {
 	Version *int
 }
 
-func detectClangTidyVersion(version int) *Executable {
-	return FindExecutable(fmt.Sprintf("clang-tidy-%d", version))
+func detectClangTidyVersion(environment Environment, version int) *Executable {
+	return environment.FindExecutable(fmt.Sprintf("clang-tidy-%d", version))
 }
 
 // DetectClangTidy create a tool for clang-tidy
-func DetectClangTidy(preferredVersion *int) *ClangTidy {
+func DetectClangTidy(environment Environment, preferredVersion *int) *ClangTidy {
 	if preferredVersion != nil {
-		if executable := detectClangTidyVersion(*preferredVersion); executable != nil {
+		if executable := detectClangTidyVersion(environment, *preferredVersion); executable != nil {
 			return NewClangTidy(executable, preferredVersion)
 		}
 	}
 
 	// Detect unversioned (system default)
-	if executable := FindExecutable("clang-tidy"); executable != nil {
+	if executable := environment.FindExecutable("clang-tidy"); executable != nil {
 		return NewClangTidy(executable, nil)
 	}
 
 	for version := clangTidyMaxVersion; version >= clangTidyMinVersion; version-- {
-		if executable := detectClangTidyVersion(version); executable != nil {
+		if executable := detectClangTidyVersion(environment, version); executable != nil {
 			return NewClangTidy(executable, &version)
 		}
 	}

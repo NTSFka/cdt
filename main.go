@@ -10,12 +10,12 @@ import (
 )
 
 // InitTools initializes all supported tools on the system
-func initTools() Tools {
+func initTools(environment Environment) Tools {
 	return Tools{
-		tool.DetectClangFormat(nil),
-		tool.DetectClangTidy(nil),
-		tool.DetectCMake(),
-		tool.DetectCTest(),
+		tool.DetectClangFormat(environment, nil),
+		tool.DetectClangTidy(environment, nil),
+		tool.DetectCMake(environment),
+		tool.DetectCTest(environment),
 	}
 }
 
@@ -29,7 +29,7 @@ func detectProject(config Config, tools Tools) Project {
 }
 
 func buildContext(config Config) Context {
-	tools := initTools()
+	tools := initTools(SystemEnvironment)
 
 	return Context{
 		Config:  config,

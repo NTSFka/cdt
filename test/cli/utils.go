@@ -4,7 +4,6 @@ import (
 	"cdt/internal"
 	. "cdt/pkg"
 	"github.com/stretchr/testify/mock"
-	"testing"
 )
 
 type testProjectConfigurator struct {
@@ -130,11 +129,4 @@ func runMainWithTools(tools internal.Tools, args ...string) error {
 			Tools:   tools,
 		}
 	}, args...)
-}
-
-// Check if a tool exists in the current environment
-func checkTool(t *testing.T, toolName string) {
-	if executable := internal.FindExecutable(toolName); executable == nil {
-		t.Skipf("unable to find tool: %v", toolName)
-	}
 }

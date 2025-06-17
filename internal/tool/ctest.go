@@ -22,8 +22,8 @@ func NewCTest(executable *Executable) *CTest {
 }
 
 // DetectCTest create ctest tool can be used in the project
-func DetectCTest() *CTest {
-	return NewCTest(FindExecutable("ctest"))
+func DetectCTest(environment Environment) *CTest {
+	return NewCTest(environment.FindExecutable("ctest"))
 }
 
 func (c *CTest) Run(project Project, args []string) error {
