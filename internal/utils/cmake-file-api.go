@@ -47,8 +47,8 @@ func (c *CmakeFileApi) Query(kind string, version int) error {
 
 const (
 	TargetUnsupported string = "unsupported"
-	TargetExecutable         = "executable"
-	TargetLibrary            = "library"
+	TargetExecutable  string = "executable"
+	TargetLibrary     string = "library"
 )
 
 type ReplyTarget struct {

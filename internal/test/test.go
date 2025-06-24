@@ -12,7 +12,11 @@ func CaptureOutput(f func() error) (string, error) {
 	os.Stdout = w
 	err := f()
 	os.Stdout = orig
-	w.Close()
+
+	if err := w.Close(); err != nil {
+		return "", err
+	}
+
 	out, _ := io.ReadAll(r)
 	return string(out), err
 }

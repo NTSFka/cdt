@@ -1,7 +1,7 @@
 package tool
 
 import (
-	. "cdt/internal"
+	"cdt/internal"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -12,20 +12,20 @@ const clangFormatMaxVersion = 22
 
 // ClangFormat is a formatter for the clang-format tool
 type ClangFormat struct {
-	ExecutableTool
+	internal.ExecutableTool
 	Version *int
 }
 
-func detectClangFormat(environment Environment) *Executable {
+func detectClangFormat(environment internal.Environment) *internal.Executable {
 	return environment.FindExecutable("clang-format")
 }
 
-func detectClangFormatVersion(environment Environment, version int) *Executable {
+func detectClangFormatVersion(environment internal.Environment, version int) *internal.Executable {
 	return environment.FindExecutable(fmt.Sprintf("clang-format-%d", version))
 }
 
 // DetectClangFormat Create clang-format tool can be used in the project
-func DetectClangFormat(environment Environment, preferredVersion *int) *ClangFormat {
+func DetectClangFormat(environment internal.Environment, preferredVersion *int) *ClangFormat {
 	if preferredVersion != nil {
 		if executable := detectClangFormatVersion(environment, *preferredVersion); executable != nil {
 			return NewClangFormat(executable, preferredVersion)
@@ -47,9 +47,9 @@ func DetectClangFormat(environment Environment, preferredVersion *int) *ClangFor
 }
 
 // NewClangFormat creates a clang-format tool from a custom executable
-func NewClangFormat(executable *Executable, version *int) *ClangFormat {
+func NewClangFormat(executable *internal.Executable, version *int) *ClangFormat {
 	return &ClangFormat{
-		ExecutableTool: MakeExecutableTool(
+		ExecutableTool: internal.MakeExecutableTool(
 			"clang-format",
 			"Clang Format",
 			"A tool to format C/C++/Java/JavaScript/JSON/Objective-C/Protobuf/C# code.",
@@ -89,7 +89,7 @@ func (c *ClangFormat) buildArgs(directory string, paths []string) []string {
 }
 
 // FormatAll formats all files in the project
-func (c *ClangFormat) FormatAll(project Project, args []string) error {
+func (c *ClangFormat) FormatAll(project internal.Project, args []string) error {
 	info, err := project.Structure()
 
 	if err != nil {
@@ -105,7 +105,7 @@ func (c *ClangFormat) FormatAll(project Project, args []string) error {
 }
 
 // FormatFiles formats a file in the project
-func (c *ClangFormat) FormatFiles(project Project, filenames []string, args []string) error {
+func (c *ClangFormat) FormatFiles(project internal.Project, filenames []string, args []string) error {
 	paths := c.buildPaths(project.RootDirectory(), filenames)
 
 	toolArgs := c.buildArgs(project.RootDirectory(), paths)
@@ -115,7 +115,7 @@ func (c *ClangFormat) FormatFiles(project Project, filenames []string, args []st
 }
 
 // FormatCheckAll checks all files if some needs formatting
-func (c *ClangFormat) FormatCheckAll(project Project, args []string) error {
+func (c *ClangFormat) FormatCheckAll(project internal.Project, args []string) error {
 	info, err := project.Structure()
 
 	if err != nil {
@@ -131,7 +131,7 @@ func (c *ClangFormat) FormatCheckAll(project Project, args []string) error {
 }
 
 // FormatCheckFiles checks a file if it needs formatting
-func (c *ClangFormat) FormatCheckFiles(project Project, filenames []string, args []string) error {
+func (c *ClangFormat) FormatCheckFiles(project internal.Project, filenames []string, args []string) error {
 	paths := c.buildPaths(project.RootDirectory(), filenames)
 
 	toolArgs := c.buildArgs(project.RootDirectory(), paths)

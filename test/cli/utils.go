@@ -2,7 +2,7 @@ package cli
 
 import (
 	"cdt/internal"
-	. "cdt/pkg"
+	"cdt/pkg"
 	"github.com/stretchr/testify/mock"
 )
 
@@ -88,7 +88,7 @@ func (t *testStructureProvider) Structure(project internal.Project) (*internal.P
 }
 
 func runMain(contextBuilder func(config internal.Config) internal.Context, args ...string) error {
-	return RunMain(contextBuilder, append([]string{"cdt"}, args...))
+	return pkg.RunMain(contextBuilder, append([]string{"cdt"}, args...))
 }
 
 // Run main function and return obtained configuration

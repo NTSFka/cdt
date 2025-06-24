@@ -1,20 +1,20 @@
 package tool
 
 import (
-	. "cdt/internal"
+	"cdt/internal"
 	"cdt/internal/utils"
 	"fmt"
 	"path/filepath"
 )
 
 type CMake struct {
-	ExecutableTool
+	internal.ExecutableTool
 }
 
 // NewCMake creates a cmake tool from a custom executable
-func NewCMake(executable *Executable) *CMake {
+func NewCMake(executable *internal.Executable) *CMake {
 	return &CMake{
-		MakeExecutableTool(
+		internal.MakeExecutableTool(
 			"cmake",
 			"CMake",
 			"A Powerful Software Build System",
@@ -24,24 +24,24 @@ func NewCMake(executable *Executable) *CMake {
 }
 
 // DetectCMake create cmake tool can be used in the project
-func DetectCMake(environment Environment) *CMake {
+func DetectCMake(environment internal.Environment) *CMake {
 	return NewCMake(environment.FindExecutable("cmake"))
 }
 
-func (c *CMake) Structure(project Project) (*ProjectStructure, error) {
+func (c *CMake) Structure(project internal.Project) (*internal.ProjectStructure, error) {
 	if err := c.Configure(project, []string{}); err != nil {
 		return nil, err
 	}
 
 	fileApi := utils.NewCmakeFileApi(project.BuildDirectory())
 
-	info := ProjectStructure{
-		Targets: make(map[string]ProjectTarget),
+	info := internal.ProjectStructure{
+		Targets: make(map[string]internal.ProjectTarget),
 	}
 
 	if reply, err := fileApi.Reply(); err == nil {
 		for _, target := range reply.Targets {
-			info.Targets[target.Name] = ProjectTarget{
+			info.Targets[target.Name] = internal.ProjectTarget{
 				Files:      target.Files,
 				Dependency: target.External,
 			}
@@ -51,7 +51,7 @@ func (c *CMake) Structure(project Project) (*ProjectStructure, error) {
 	return &info, nil
 }
 
-func (c *CMake) Configure(project Project, args []string) error {
+func (c *CMake) Configure(project internal.Project, args []string) error {
 	fileApi := utils.NewCmakeFileApi(project.BuildDirectory())
 
 	if err := fileApi.Query("codemodel", 2); err != nil {
@@ -66,7 +66,7 @@ func (c *CMake) Configure(project Project, args []string) error {
 	return c.Run(project, callArgs)
 }
 
-func (c *CMake) BuildAll(project Project, args []string) error {
+func (c *CMake) BuildAll(project internal.Project, args []string) error {
 	if err := c.Configure(project, []string{}); err != nil {
 		return err
 	}
@@ -77,7 +77,7 @@ func (c *CMake) BuildAll(project Project, args []string) error {
 	return c.Run(project, callArgs)
 }
 
-func (c *CMake) BuildTargets(project Project, targets []string, args []string) error {
+func (c *CMake) BuildTargets(project internal.Project, targets []string, args []string) error {
 	if err := c.Configure(project, []string{}); err != nil {
 		return err
 	}
@@ -90,7 +90,7 @@ func (c *CMake) BuildTargets(project Project, targets []string, args []string) e
 	return c.Run(project, callArgs)
 }
 
-func (c *CMake) RunTarget(project Project, target string, args []string) error {
+func (c *CMake) RunTarget(project internal.Project, target string, args []string) error {
 	if err := c.BuildTargets(project, []string{target}, []string{}); err != nil {
 		return err
 	}
@@ -105,9 +105,9 @@ func (c *CMake) RunTarget(project Project, target string, args []string) error {
 	for _, t := range reply.Targets {
 		if t.Name == target && t.Type == utils.TargetExecutable {
 			// TODO: run environment?
-			executable := Executable{
+			executable := internal.Executable{
 				Path:    filepath.Join(project.BuildDirectory(), t.Name),
-				RunFunc: SystemEnvironment.RunExecutable,
+				RunFunc: internal.SystemEnvironment.RunExecutable,
 			}
 
 			return executable.Run(args)

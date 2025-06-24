@@ -1,7 +1,7 @@
 package tool
 
 import (
-	. "cdt/internal"
+	"cdt/internal"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -11,16 +11,16 @@ const clangTidyMinVersion = 1
 const clangTidyMaxVersion = 22
 
 type ClangTidy struct {
-	ExecutableTool
+	internal.ExecutableTool
 	Version *int
 }
 
-func detectClangTidyVersion(environment Environment, version int) *Executable {
+func detectClangTidyVersion(environment internal.Environment, version int) *internal.Executable {
 	return environment.FindExecutable(fmt.Sprintf("clang-tidy-%d", version))
 }
 
 // DetectClangTidy create a tool for clang-tidy
-func DetectClangTidy(environment Environment, preferredVersion *int) *ClangTidy {
+func DetectClangTidy(environment internal.Environment, preferredVersion *int) *ClangTidy {
 	if preferredVersion != nil {
 		if executable := detectClangTidyVersion(environment, *preferredVersion); executable != nil {
 			return NewClangTidy(executable, preferredVersion)
@@ -42,9 +42,9 @@ func DetectClangTidy(environment Environment, preferredVersion *int) *ClangTidy 
 }
 
 // NewClangTidy creates a clang-tidy tool from a custom executable
-func NewClangTidy(executable *Executable, version *int) *ClangTidy {
+func NewClangTidy(executable *internal.Executable, version *int) *ClangTidy {
 	return &ClangTidy{
-		ExecutableTool: MakeExecutableTool(
+		ExecutableTool: internal.MakeExecutableTool(
 			"clang-tidy",
 			"Clang Tidy",
 			"A clang-based C++ “linter” tool.",
@@ -82,7 +82,7 @@ func (c *ClangTidy) buildArgs(rootDirectory string, buildDirectory string, paths
 	return append(args, paths...)
 }
 
-func (c *ClangTidy) LintAll(project Project, args []string) error {
+func (c *ClangTidy) LintAll(project internal.Project, args []string) error {
 	info, err := project.Structure()
 
 	if err != nil {
@@ -96,7 +96,7 @@ func (c *ClangTidy) LintAll(project Project, args []string) error {
 	return c.ExecutableTool.Run(project, append(toolArgs, args...))
 }
 
-func (c *ClangTidy) LintFiles(project Project, filenames []string, args []string) error {
+func (c *ClangTidy) LintFiles(project internal.Project, filenames []string, args []string) error {
 	paths := c.buildPaths(project.RootDirectory(), filenames)
 
 	toolArgs := c.buildArgs(project.RootDirectory(), project.BuildDirectory(), paths)
@@ -104,7 +104,7 @@ func (c *ClangTidy) LintFiles(project Project, filenames []string, args []string
 	return c.ExecutableTool.Run(project, append(toolArgs, args...))
 }
 
-func (c *ClangTidy) Run(project Project, args []string) error {
+func (c *ClangTidy) Run(project internal.Project, args []string) error {
 	toolArgs := []string{
 		project.RootDirectory(),
 	}

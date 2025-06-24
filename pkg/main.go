@@ -1,14 +1,14 @@
 package pkg
 
 import (
-	. "cdt/internal"
+	"cdt/internal"
 	"cdt/internal/command"
 	"context"
 	"github.com/urfave/cli/v3"
 )
 
 // RunMain is the main function of the application
-func RunMain(buildContext func(config Config) Context, args []string) error {
+func RunMain(buildContext func(config internal.Config) internal.Context, args []string) error {
 	cmd := &cli.Command{
 		Name:                  "cdt",
 		Usage:                 "A common developer tool",
@@ -47,14 +47,14 @@ func RunMain(buildContext func(config Config) Context, args []string) error {
 				buildDirectory = &directory
 			}
 
-			config := Config{
+			config := internal.Config{
 				RootDirectory:  projectPath,
 				BuildDirectory: buildDirectory,
 			}
 
 			c := buildContext(config)
 
-			return context.WithValue(ctx, "context", c), nil
+			return context.WithValue(ctx, "context", c), nil //nolint:staticcheck
 		},
 	}
 

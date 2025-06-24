@@ -35,9 +35,20 @@ jobs:
         run: go build -v ./...
 
       - name: Test
-        run: go test -v -json ./test/... > TestResults-${{ matrix.go-version }}-${{ matrix.platform }}.json
+        run: go test -v -json ./test/... | tee TestResults-${{ matrix.go-version }}-${{ matrix.platform }}.json
+
+      - name: Generate test reports
+        if: always()
+        run: |
+          go install github.com/ctrf-io/go-ctrf-json-reporter/cmd/go-ctrf-json-reporter@latest
+          go-ctrf-json-reporter -output ctrf-${{ matrix.go-version }}-${{ matrix.platform }}.json < TestResults-${{ matrix.go-version }}-${{ matrix.platform }}.json
+
+      - name: Publish Test Summary Results
+        if: always()
+        run: npx github-actions-ctrf ctrf-${{ matrix.go-version }}-${{ matrix.platform }}.json
 
       - name: Upload Go test results
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: Go-results-${{ matrix.go-version }}-${{ matrix.platform }}

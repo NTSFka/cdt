@@ -1,7 +1,7 @@
 package project
 
 import (
-	. "cdt/internal"
+	"cdt/internal"
 	"cdt/internal/tool"
 	"path/filepath"
 )
@@ -13,8 +13,8 @@ type cmakeTester struct {
 }
 
 // Try to detect format tool for CMake project
-func detectCMakeFormatTool(tools Tools) ProjectFormatter {
-	if clangFormat := GetTool[*tool.ClangFormat](tools); clangFormat.IsAvailable() {
+func detectCMakeFormatTool(tools internal.Tools) internal.ProjectFormatter {
+	if clangFormat := internal.GetTool[*tool.ClangFormat](tools); clangFormat.IsAvailable() {
 		return clangFormat
 	}
 
@@ -22,8 +22,8 @@ func detectCMakeFormatTool(tools Tools) ProjectFormatter {
 }
 
 // Try to detect lint tool for CMake project
-func detectCMakeLintTool(tools Tools) ProjectLinter {
-	if clangTidy := GetTool[*tool.ClangTidy](tools); clangTidy.IsAvailable() {
+func detectCMakeLintTool(tools internal.Tools) internal.ProjectLinter {
+	if clangTidy := internal.GetTool[*tool.ClangTidy](tools); clangTidy.IsAvailable() {
 		return clangTidy
 	}
 
@@ -31,12 +31,12 @@ func detectCMakeLintTool(tools Tools) ProjectLinter {
 }
 
 // DetectCMakeProject detects if the project in the directory is a CMake project
-func DetectCMakeProject(config Config, tools Tools) *Project {
-	if !PathExists(filepath.Join(config.RootDirectory, "CMakeLists.txt")) {
+func DetectCMakeProject(config internal.Config, tools internal.Tools) *internal.Project {
+	if !internal.PathExists(filepath.Join(config.RootDirectory, "CMakeLists.txt")) {
 		return nil
 	}
 
-	cmake := GetTool[*tool.CMake](tools)
+	cmake := internal.GetTool[*tool.CMake](tools)
 
 	if !cmake.IsAvailable() {
 		return nil
@@ -47,10 +47,10 @@ func DetectCMakeProject(config Config, tools Tools) *Project {
 
 	tester := &cmakeTester{
 		cmakeTool: *cmake,
-		ctestTool: *GetTool[*tool.CTest](tools),
+		ctestTool: *internal.GetTool[*tool.CTest](tools),
 	}
 
-	workflow := Workflow{
+	workflow := internal.Workflow{
 		Configurator: cmake,
 		Builder:      cmake,
 		Tester:       tester,
@@ -67,12 +67,12 @@ func DetectCMakeProject(config Config, tools Tools) *Project {
 		buildDirectory = "build"
 	}
 
-	project := MakeProject(config.RootDirectory, buildDirectory, cmake, workflow)
+	project := internal.MakeProject(config.RootDirectory, buildDirectory, cmake, workflow)
 
 	return &project
 }
 
-func (t *cmakeTester) TestAll(project Project, args []string) error {
+func (t *cmakeTester) TestAll(project internal.Project, args []string) error {
 	if err := t.cmakeTool.BuildAll(project, []string{}); err != nil {
 		return err
 	}
@@ -80,7 +80,7 @@ func (t *cmakeTester) TestAll(project Project, args []string) error {
 	return t.ctestTool.Run(project, args)
 }
 
-func (t *cmakeTester) Test(project Project, pattern string, args []string) error {
+func (t *cmakeTester) Test(project internal.Project, pattern string, args []string) error {
 	if err := t.cmakeTool.BuildAll(project, []string{}); err != nil {
 		return err
 	}

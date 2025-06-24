@@ -1,17 +1,17 @@
 package main
 
 import (
-	. "cdt/internal"
+	"cdt/internal"
 	"cdt/internal/project"
 	"cdt/internal/tool"
-	. "cdt/pkg"
+	"cdt/pkg"
 	"fmt"
 	"os"
 )
 
 // InitTools initializes all supported tools on the system
-func initTools(environment Environment) Tools {
-	return Tools{
+func initTools(environment internal.Environment) internal.Tools {
+	return internal.Tools{
 		tool.DetectClangFormat(environment, nil),
 		tool.DetectClangTidy(environment, nil),
 		tool.DetectCMake(environment),
@@ -19,19 +19,19 @@ func initTools(environment Environment) Tools {
 	}
 }
 
-func detectProject(config Config, tools Tools) Project {
+func detectProject(config internal.Config, tools internal.Tools) internal.Project {
 	// CMake
 	if p := project.DetectCMakeProject(config, tools); p != nil {
 		return *p
 	}
 
-	return MakeProject(config.RootDirectory, "", &EmptyProjectStructureProvider{}, Workflow{})
+	return internal.MakeProject(config.RootDirectory, "", &internal.EmptyProjectStructureProvider{}, internal.Workflow{})
 }
 
-func buildContext(config Config) Context {
-	tools := initTools(SystemEnvironment)
+func buildContext(config internal.Config) internal.Context {
+	tools := initTools(internal.SystemEnvironment)
 
-	return Context{
+	return internal.Context{
 		Config:  config,
 		Project: detectProject(config, tools),
 		Tools:   tools,
@@ -39,7 +39,7 @@ func buildContext(config Config) Context {
 }
 
 func main() {
-	if err := RunMain(buildContext, os.Args); err != nil {
+	if err := pkg.RunMain(buildContext, os.Args); err != nil {
 		fmt.Printf("ERROR: %v\n", err)
 	}
 }
