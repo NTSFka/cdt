@@ -41,7 +41,7 @@ jobs:
         if: always()
         run: |
           go install github.com/ctrf-io/go-ctrf-json-reporter/cmd/go-ctrf-json-reporter@latest
-          go-ctrf-json-reporter -output ctrf-${{ matrix.go-version }}-${{ matrix.platform }}.json < TestResults-${{ matrix.go-version }}-${{ matrix.platform }}.json
+          cat TestResults-${{ matrix.go-version }}-${{ matrix.platform }}.json | go-ctrf-json-reporter -output ctrf-${{ matrix.go-version }}-${{ matrix.platform }}.json
 
       - name: Publish Test Summary Results
         if: always()
