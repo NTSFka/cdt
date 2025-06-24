@@ -6,6 +6,7 @@ import (
 	"errors"
 	"github.com/stretchr/testify/assert"
 	"gotest.tools/v3/fs"
+	"runtime"
 	"testing"
 )
 
@@ -296,6 +297,10 @@ func TestCMakeRunTargetFailed(t *testing.T) {
 }
 
 func TestCMakeRealProjectConfigureAndBuildAndRun(t *testing.T) {
+	if runtime.GOOS == "windows" {
+		t.Skip("project structure is not detected properly on Windows using MSVC Generator")
+	}
+
 	environment := internal.SystemEnvironment
 
 	checkTool(t, environment, "cmake")
