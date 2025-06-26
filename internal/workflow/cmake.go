@@ -3,6 +3,7 @@ package workflow
 import (
 	"cdt/internal"
 	"cdt/internal/tool"
+	"fmt"
 	"path/filepath"
 )
 
@@ -64,7 +65,7 @@ func DetectCMakeProject(config internal.Config, tools internal.Tools) *internal.
 	if config.BuildDirectory != nil {
 		buildDirectory = *config.BuildDirectory
 	} else {
-		buildDirectory = "build"
+		buildDirectory = filepath.Join("build", "dev")
 	}
 
 	project := internal.MakeProject(config.RootDirectory, buildDirectory, cmake, workflow)
@@ -74,7 +75,7 @@ func DetectCMakeProject(config internal.Config, tools internal.Tools) *internal.
 
 func (t *cmakeTester) TestAll(project internal.Project, args []string) error {
 	if err := t.cmakeTool.BuildAll(project, []string{}); err != nil {
-		return err
+		return fmt.Errorf("build failed: %w", err)
 	}
 
 	return t.ctestTool.Run(project, args)
@@ -82,7 +83,7 @@ func (t *cmakeTester) TestAll(project internal.Project, args []string) error {
 
 func (t *cmakeTester) Test(project internal.Project, pattern string, args []string) error {
 	if err := t.cmakeTool.BuildAll(project, []string{}); err != nil {
-		return err
+		return fmt.Errorf("build failed: %w", err)
 	}
 
 	return t.ctestTool.Run(project, append(args, "-R", pattern))
