@@ -2,8 +2,8 @@ package main
 
 import (
 	"cdt/internal"
-	"cdt/internal/project"
 	"cdt/internal/tool"
+	"cdt/internal/workflow"
 	"cdt/pkg"
 	"fmt"
 	"os"
@@ -21,7 +21,7 @@ func initTools(environment internal.Environment) internal.Tools {
 
 func detectProject(config internal.Config, tools internal.Tools) internal.Project {
 	// CMake
-	if p := project.DetectCMakeProject(config, tools); p != nil {
+	if p := workflow.DetectCMakeProject(config, tools); p != nil {
 		return *p
 	}
 
