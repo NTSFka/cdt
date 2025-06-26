@@ -2,9 +2,10 @@ package project
 
 import (
 	"cdt/internal"
-	"cdt/internal/project"
 	"cdt/internal/tool"
 	"github.com/stretchr/testify/assert"
+	"os"
+	"path/filepath"
 	"testing"
 )
 
@@ -12,7 +13,7 @@ import (
 func TestDetectCMakeProjectNoCMakeLists(t *testing.T) {
 	tools := internal.Tools{}
 
-	p := project.DetectCMakeProject(internal.Config{RootDirectory: "dir1"}, tools)
+	p := DetectCMakeProject(internal.Config{RootDirectory: "dir1"}, tools)
 
 	assert.Nil(t, p)
 }
@@ -23,7 +24,7 @@ func TestDetectCMakeProjectNoCMakeBinary(t *testing.T) {
 		tool.NewCMake(nil),
 	}
 
-	p := project.DetectCMakeProject(internal.Config{RootDirectory: "data/cmake"}, tools)
+	p := DetectCMakeProject(internal.Config{RootDirectory: "data/cmake"}, tools)
 
 	assert.Nil(t, p)
 }
@@ -37,11 +38,17 @@ func TestDetectCMakeProjectNoFormatterAndLinters(t *testing.T) {
 		&tool.CTest{},
 	}
 
-	p := project.DetectCMakeProject(internal.Config{RootDirectory: "data/cmake"}, tools)
+	dir := t.TempDir()
 
-	assert.NotNil(t, p)
-	assert.Nil(t, p.Workflow.Linter)
-	assert.Nil(t, p.Workflow.Formatter)
+	_, err := os.OpenFile(filepath.Join(dir, "CMakeLists.txt"), os.O_RDONLY|os.O_CREATE, 0644)
+	assert.NoError(t, err)
+
+	p := DetectCMakeProject(internal.Config{RootDirectory: dir}, tools)
+
+	if assert.NotNil(t, p) {
+		assert.Nil(t, p.Workflow.Linter)
+		assert.Nil(t, p.Workflow.Formatter)
+	}
 }
 
 // If formatters and linters are available
@@ -53,9 +60,15 @@ func TestDetectCMakeProjectFormatterAndLinters(t *testing.T) {
 		&tool.CTest{},
 	}
 
-	p := project.DetectCMakeProject(internal.Config{RootDirectory: "data/cmake"}, tools)
+	dir := t.TempDir()
 
-	assert.NotNil(t, p)
-	assert.NotNil(t, p.Workflow.Linter)
-	assert.NotNil(t, p.Workflow.Formatter)
+	_, err := os.OpenFile(filepath.Join(dir, "CMakeLists.txt"), os.O_RDONLY|os.O_CREATE, 0644)
+	assert.NoError(t, err)
+
+	p := DetectCMakeProject(internal.Config{RootDirectory: dir}, tools)
+
+	if assert.NotNil(t, p) {
+		assert.NotNil(t, p.Workflow.Linter)
+		assert.NotNil(t, p.Workflow.Formatter)
+	}
 }

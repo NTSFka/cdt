@@ -1,19 +1,18 @@
-package unit
+package internal
 
 import (
-	"cdt/internal"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
 
 func TestSystemEnvironmentFindExecutableNotFound(t *testing.T) {
-	executable := internal.SystemEnvironment.FindExecutable("tool-not-found")
+	executable := SystemEnvironment.FindExecutable("tool-not-found")
 
 	assert.Nil(t, executable)
 }
 
 func TestSystemEnvironmentFindExecutable(t *testing.T) {
-	executable := internal.SystemEnvironment.FindExecutable("echo")
+	executable := SystemEnvironment.FindExecutable("echo")
 
 	if assert.NotNil(t, executable) {
 		assert.NotNil(t, executable.RunFunc)

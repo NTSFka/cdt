@@ -1,25 +1,24 @@
-package unit
+package internal
 
 import (
 	"bytes"
-	"cdt/internal"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
 
 func TestExecutableToolNotAvailable(t *testing.T) {
-	tool := internal.MakeExecutableTool("toolId", "Tool Name", "Tool Info", nil)
+	tool := MakeExecutableTool("toolId", "Tool Name", "Tool Info", nil)
 
 	assert.Equal(t, "toolId", tool.Id())
 	assert.Equal(t, "Tool Name", tool.Name())
 	assert.Equal(t, "Tool Info", tool.Info())
 	assert.False(t, tool.IsAvailable())
 	assert.Nil(t, tool.ExecutablePath())
-	assert.EqualError(t, tool.Run(internal.Project{}, []string{}), tool.NotFoundError().Error())
+	assert.EqualError(t, tool.Run(Project{}, []string{}), tool.NotFoundError().Error())
 }
 
 func TestExecutableTool(t *testing.T) {
-	tool := internal.MakeExecutableTool("toolId", "Tool Name", "Tool Info", &internal.Executable{Path: "/bin/tool"})
+	tool := MakeExecutableTool("toolId", "Tool Name", "Tool Info", &Executable{Path: "/bin/tool"})
 
 	assert.Equal(t, "toolId", tool.Id())
 	assert.Equal(t, "Tool Name", tool.Name())
@@ -31,19 +30,19 @@ func TestExecutableTool(t *testing.T) {
 }
 
 type testTool struct {
-	internal.ExecutableTool
+	ExecutableTool
 }
 
 func TestToolsActiveEmpty(t *testing.T) {
-	tools := internal.Tools{}
+	tools := Tools{}
 
 	assert.Empty(t, tools.Active())
 }
 
 func TestToolsActiveNoActive(t *testing.T) {
-	tools := internal.Tools{
+	tools := Tools{
 		&testTool{
-			internal.MakeExecutableTool("toolId", "", "", nil),
+			MakeExecutableTool("toolId", "", "", nil),
 		},
 	}
 
@@ -51,12 +50,12 @@ func TestToolsActiveNoActive(t *testing.T) {
 }
 
 func TestToolsActive(t *testing.T) {
-	tools := internal.Tools{
+	tools := Tools{
 		&testTool{
-			internal.MakeExecutableTool("id1", "", "", nil),
+			MakeExecutableTool("id1", "", "", nil),
 		},
 		&testTool{
-			internal.MakeExecutableTool("id2", "", "", &internal.Executable{Path: "/bin/tool"}),
+			MakeExecutableTool("id2", "", "", &Executable{Path: "/bin/tool"}),
 		},
 	}
 
@@ -68,47 +67,47 @@ func TestToolsActive(t *testing.T) {
 }
 
 func TestToolsGetToolNotFound(t *testing.T) {
-	tools := internal.Tools{}
+	tools := Tools{}
 
 	assert.PanicsWithValue(t, "Tool not found", func() {
-		internal.GetTool[*testTool](tools)
+		GetTool[*testTool](tools)
 	})
 }
 
 func TestToolsGetTool(t *testing.T) {
-	tools := internal.Tools{
+	tools := Tools{
 		&testTool{
-			internal.MakeExecutableTool("toolId", "", "", nil),
+			MakeExecutableTool("toolId", "", "", nil),
 		},
 	}
 
-	tool := internal.GetTool[*testTool](tools)
+	tool := GetTool[*testTool](tools)
 
 	assert.NotNil(t, tool)
 	assert.Equal(t, "toolId", tool.Id())
 }
 
 func TestPrintToolsEmpty(t *testing.T) {
-	tools := internal.Tools{}
+	tools := Tools{}
 
 	var output bytes.Buffer
-	internal.PrintToolList(&output, tools)
+	PrintToolList(&output, tools)
 
 	assert.Empty(t, output.String())
 }
 
 func TestPrintTools(t *testing.T) {
-	tools := internal.Tools{
+	tools := Tools{
 		&testTool{
-			internal.MakeExecutableTool("id1", "Tool 1", "", nil),
+			MakeExecutableTool("id1", "Tool 1", "", nil),
 		},
 		&testTool{
-			internal.MakeExecutableTool("id2", "Tool 2", "", &internal.Executable{Path: "/bin/tool"}),
+			MakeExecutableTool("id2", "Tool 2", "", &Executable{Path: "/bin/tool"}),
 		},
 	}
 
 	var output bytes.Buffer
-	internal.PrintToolList(&output, tools)
+	PrintToolList(&output, tools)
 
 	assert.NotEmpty(t, output.String())
 }
