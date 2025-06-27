@@ -16,12 +16,19 @@ func initTools(environment internal.Environment) internal.Tools {
 		tool.DetectClangTidy(environment, nil),
 		tool.DetectCMake(environment),
 		tool.DetectCTest(environment),
+		tool.DetectGo(environment),
+		tool.DetectGolangCILint(environment),
 	}
 }
 
 func detectProject(config internal.Config, tools internal.Tools) internal.Project {
 	// CMake
 	if p := workflow.DetectCMakeProject(config, tools); p != nil {
+		return *p
+	}
+
+	// Go
+	if p := workflow.DetectGoProject(config, tools); p != nil {
 		return *p
 	}
 
