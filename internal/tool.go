@@ -74,12 +74,12 @@ func (t *ExecutableTool) IsAvailable() bool {
 	return t.executable != nil
 }
 
-func (t *ExecutableTool) Run(_ Project, args []string) error {
+func (t *ExecutableTool) Run(project Project, args []string) error {
 	if t.executable == nil {
 		return t.NotFoundError()
 	}
 
-	return t.executable.Run(args)
+	return t.executable.Run(project.RootDirectory(), args)
 }
 
 // Tools is a container for available tools

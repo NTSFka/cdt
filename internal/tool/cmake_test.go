@@ -48,9 +48,9 @@ func TestCMakeConfigure(t *testing.T) {
 
 	p := internal.MakeProject(rootDirectory, buildDirectory, cmake, internal.Workflow{})
 
-	environment.On("RunExecutable", "cmake", []string{
+	environment.On("RunExecutable", rootDirectory, "cmake", []string{
 		"-DCMAKE_EXPORT_COMPILE_COMMANDS=ON",
-		"-S", rootDirectory,
+		"-S", ".",
 		"-B", buildDirectory,
 	}).Return(nil)
 
@@ -70,9 +70,9 @@ func TestCMakeConfigureFailed(t *testing.T) {
 
 	p := internal.MakeProject(rootDirectory, buildDirectory, cmake, internal.Workflow{})
 
-	environment.On("RunExecutable", "cmake", []string{
+	environment.On("RunExecutable", rootDirectory, "cmake", []string{
 		"-DCMAKE_EXPORT_COMPILE_COMMANDS=ON",
-		"-S", rootDirectory,
+		"-S", ".",
 		"-B", buildDirectory,
 	}).Return(errors.New("failed"))
 
@@ -93,9 +93,9 @@ func TestCMakeStructureConfigureFailed(t *testing.T) {
 	p := internal.MakeProject(rootDirectory, buildDirectory, cmake, internal.Workflow{})
 
 	// Configure
-	environment.On("RunExecutable", "cmake", []string{
+	environment.On("RunExecutable", rootDirectory, "cmake", []string{
 		"-DCMAKE_EXPORT_COMPILE_COMMANDS=ON",
-		"-S", rootDirectory,
+		"-S", ".",
 		"-B", buildDirectory,
 	}).Return(errors.New("failed"))
 
@@ -117,14 +117,14 @@ func TestCMakeBuildAll(t *testing.T) {
 	p := internal.MakeProject(rootDirectory, buildDirectory, cmake, internal.Workflow{})
 
 	// Configure
-	environment.On("RunExecutable", "cmake", []string{
+	environment.On("RunExecutable", rootDirectory, "cmake", []string{
 		"-DCMAKE_EXPORT_COMPILE_COMMANDS=ON",
-		"-S", rootDirectory,
+		"-S", ".",
 		"-B", buildDirectory,
 	}).Return(nil)
 
 	// Build
-	environment.On("RunExecutable", "cmake", []string{
+	environment.On("RunExecutable", rootDirectory, "cmake", []string{
 		"--build", buildDirectory,
 	}).Return(nil)
 
@@ -145,14 +145,14 @@ func TestCMakeBuildAllFailed(t *testing.T) {
 	p := internal.MakeProject(rootDirectory, buildDirectory, cmake, internal.Workflow{})
 
 	// Configure
-	environment.On("RunExecutable", "cmake", []string{
+	environment.On("RunExecutable", rootDirectory, "cmake", []string{
 		"-DCMAKE_EXPORT_COMPILE_COMMANDS=ON",
-		"-S", rootDirectory,
+		"-S", ".",
 		"-B", buildDirectory,
 	}).Return(nil)
 
 	// Build
-	environment.On("RunExecutable", "cmake", []string{
+	environment.On("RunExecutable", rootDirectory, "cmake", []string{
 		"--build", buildDirectory,
 	}).Return(errors.New("failed"))
 
@@ -173,9 +173,9 @@ func TestCMakeBuildAllConfigureFailed(t *testing.T) {
 	p := internal.MakeProject(rootDirectory, buildDirectory, cmake, internal.Workflow{})
 
 	// Configure
-	environment.On("RunExecutable", "cmake", []string{
+	environment.On("RunExecutable", rootDirectory, "cmake", []string{
 		"-DCMAKE_EXPORT_COMPILE_COMMANDS=ON",
-		"-S", rootDirectory,
+		"-S", ".",
 		"-B", buildDirectory,
 	}).Return(errors.New("failed"))
 
@@ -196,14 +196,14 @@ func TestCMakeBuildTargets(t *testing.T) {
 	p := internal.MakeProject(rootDirectory, buildDirectory, cmake, internal.Workflow{})
 
 	// Configure
-	environment.On("RunExecutable", "cmake", []string{
+	environment.On("RunExecutable", rootDirectory, "cmake", []string{
 		"-DCMAKE_EXPORT_COMPILE_COMMANDS=ON",
-		"-S", rootDirectory,
+		"-S", ".",
 		"-B", buildDirectory,
 	}).Return(nil)
 
 	// Build
-	environment.On("RunExecutable", "cmake", []string{
+	environment.On("RunExecutable", rootDirectory, "cmake", []string{
 		"--build", buildDirectory,
 		"--target", "target1", "target2",
 	}).Return(nil)
@@ -225,14 +225,14 @@ func TestCMakeBuildTargetsFailed(t *testing.T) {
 	p := internal.MakeProject(rootDirectory, buildDirectory, cmake, internal.Workflow{})
 
 	// Configure
-	environment.On("RunExecutable", "cmake", []string{
+	environment.On("RunExecutable", rootDirectory, "cmake", []string{
 		"-DCMAKE_EXPORT_COMPILE_COMMANDS=ON",
-		"-S", rootDirectory,
+		"-S", ".",
 		"-B", buildDirectory,
 	}).Return(nil)
 
 	// Build
-	environment.On("RunExecutable", "cmake", []string{
+	environment.On("RunExecutable", rootDirectory, "cmake", []string{
 		"--build", buildDirectory,
 		"--target", "target1", "target2",
 	}).Return(errors.New("failed"))
@@ -254,9 +254,9 @@ func TestCMakeBuildTargetsConfigureFailed(t *testing.T) {
 	p := internal.MakeProject(rootDirectory, buildDirectory, cmake, internal.Workflow{})
 
 	// Configure
-	environment.On("RunExecutable", "cmake", []string{
+	environment.On("RunExecutable", rootDirectory, "cmake", []string{
 		"-DCMAKE_EXPORT_COMPILE_COMMANDS=ON",
-		"-S", rootDirectory,
+		"-S", ".",
 		"-B", buildDirectory,
 	}).Return(errors.New("failed"))
 
@@ -277,14 +277,14 @@ func TestCMakeRunTargetFailed(t *testing.T) {
 	p := internal.MakeProject(rootDirectory, buildDirectory, cmake, internal.Workflow{})
 
 	// Configure
-	environment.On("RunExecutable", "cmake", []string{
+	environment.On("RunExecutable", rootDirectory, "cmake", []string{
 		"-DCMAKE_EXPORT_COMPILE_COMMANDS=ON",
-		"-S", rootDirectory,
+		"-S", ".",
 		"-B", buildDirectory,
 	}).Return(nil)
 
 	// Build
-	environment.On("RunExecutable", "cmake", []string{
+	environment.On("RunExecutable", rootDirectory, "cmake", []string{
 		"--build", buildDirectory,
 		"--target", "target1",
 	}).Return(errors.New("failed"))

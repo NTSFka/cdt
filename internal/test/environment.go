@@ -23,6 +23,6 @@ func (e *Environment) FindExecutable(name string) *internal.Executable {
 	return result.(*internal.Executable)
 }
 
-func (e *Environment) RunExecutable(path string, args []string) error {
-	return e.Called(path, args).Error(0)
+func (e *Environment) RunExecutable(dir string, path string, args []string) error {
+	return e.Called(dir, path, args).Error(0)
 }

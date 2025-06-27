@@ -11,7 +11,7 @@ type Environment interface {
 	FindExecutable(name string) *Executable
 
 	// RunExecutable run an executable in the environment
-	RunExecutable(path string, args []string) error
+	RunExecutable(dir string, path string, args []string) error
 }
 
 // SystemEnvironment is the operating system environment
@@ -28,10 +28,11 @@ func (s *systemEnvironment) FindExecutable(name string) *Executable {
 	return &Executable{Path: path, RunFunc: s.RunExecutable}
 }
 
-func (s *systemEnvironment) RunExecutable(path string, args []string) error {
+func (s *systemEnvironment) RunExecutable(dir string, path string, args []string) error {
 	command := exec.Command(path, args...)
 	command.Stdout = os.Stdout
 	command.Stderr = os.Stderr
+	command.Dir = dir
 
 	return command.Run()
 }

@@ -60,7 +60,7 @@ func (c *CMake) Configure(project internal.Project, args []string) error {
 
 	callArgs := args
 	callArgs = append(callArgs, "-DCMAKE_EXPORT_COMPILE_COMMANDS=ON")
-	callArgs = append(callArgs, "-S", project.RootDirectory())
+	callArgs = append(callArgs, "-S", ".")
 	callArgs = append(callArgs, "-B", project.BuildDirectory())
 
 	return c.Run(project, callArgs)
@@ -110,7 +110,7 @@ func (c *CMake) RunTarget(project internal.Project, target string, args []string
 				RunFunc: internal.SystemEnvironment.RunExecutable,
 			}
 
-			return executable.Run(args)
+			return executable.Run(project.RootDirectory(), args)
 		}
 	}
 

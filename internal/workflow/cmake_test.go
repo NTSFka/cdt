@@ -110,12 +110,12 @@ func TestDetectCMakeProjectTestAll(t *testing.T) {
 	var cmakeMock mock.Mock
 	var ctestMock mock.Mock
 
-	cmakeRun := func(path string, args []string) error {
-		return cmakeMock.Called(path, args).Error(0)
+	cmakeRun := func(dir string, path string, args []string) error {
+		return cmakeMock.Called(dir, path, args).Error(0)
 	}
 
-	ctestRun := func(path string, args []string) error {
-		return ctestMock.Called(path, args).Error(0)
+	ctestRun := func(dir string, path string, args []string) error {
+		return ctestMock.Called(dir, path, args).Error(0)
 	}
 
 	tools := internal.Tools{
@@ -135,8 +135,8 @@ func TestDetectCMakeProjectTestAll(t *testing.T) {
 	p := DetectCMakeProject(internal.Config{RootDirectory: dir, BuildDirectory: &buildDir}, tools)
 
 	if assert.NotNil(t, p) && assert.NotNil(t, p.Workflow.Tester) {
-		cmakeMock.On("func1", "cmake-test", mock.Anything).Return(nil)
-		ctestMock.On("func2", "ctest-test", []string{"--test-dir", buildDir}).Return(nil)
+		cmakeMock.On("func1", dir, "cmake-test", mock.Anything).Return(nil)
+		ctestMock.On("func2", dir, "ctest-test", []string{"--test-dir", buildDir}).Return(nil)
 
 		err = p.Workflow.Tester.TestAll(*p, []string{})
 		assert.NoError(t, err)
@@ -150,12 +150,12 @@ func TestDetectCMakeProjectTestAllBuildFailed(t *testing.T) {
 	var cmakeMock mock.Mock
 	var ctestMock mock.Mock
 
-	cmakeRun := func(path string, args []string) error {
-		return cmakeMock.Called(path, args).Error(0)
+	cmakeRun := func(dir string, path string, args []string) error {
+		return cmakeMock.Called(dir, path, args).Error(0)
 	}
 
-	ctestRun := func(path string, args []string) error {
-		return ctestMock.Called(path, args).Error(0)
+	ctestRun := func(dir string, path string, args []string) error {
+		return ctestMock.Called(dir, path, args).Error(0)
 	}
 
 	tools := internal.Tools{
@@ -175,7 +175,7 @@ func TestDetectCMakeProjectTestAllBuildFailed(t *testing.T) {
 	p := DetectCMakeProject(internal.Config{RootDirectory: dir, BuildDirectory: &buildDir}, tools)
 
 	if assert.NotNil(t, p) && assert.NotNil(t, p.Workflow.Tester) {
-		cmakeMock.On("func1", "cmake-test", mock.Anything).Return(errors.New("failed"))
+		cmakeMock.On("func1", dir, "cmake-test", mock.Anything).Return(errors.New("failed"))
 
 		err = p.Workflow.Tester.TestAll(*p, []string{})
 		assert.EqualError(t, err, "build failed: failed")
@@ -189,12 +189,12 @@ func TestDetectCMakeProjectTest(t *testing.T) {
 	var cmakeMock mock.Mock
 	var ctestMock mock.Mock
 
-	cmakeRun := func(path string, args []string) error {
-		return cmakeMock.Called(path, args).Error(0)
+	cmakeRun := func(dir string, path string, args []string) error {
+		return cmakeMock.Called(dir, path, args).Error(0)
 	}
 
-	ctestRun := func(path string, args []string) error {
-		return ctestMock.Called(path, args).Error(0)
+	ctestRun := func(dir string, path string, args []string) error {
+		return ctestMock.Called(dir, path, args).Error(0)
 	}
 
 	tools := internal.Tools{
@@ -214,8 +214,8 @@ func TestDetectCMakeProjectTest(t *testing.T) {
 	p := DetectCMakeProject(internal.Config{RootDirectory: dir, BuildDirectory: &buildDir}, tools)
 
 	if assert.NotNil(t, p) && assert.NotNil(t, p.Workflow.Tester) {
-		cmakeMock.On("func1", "cmake-test", mock.Anything).Return(nil)
-		ctestMock.On("func2", "ctest-test", []string{"-R", "my-test", "--test-dir", buildDir}).Return(nil)
+		cmakeMock.On("func1", dir, "cmake-test", mock.Anything).Return(nil)
+		ctestMock.On("func2", dir, "ctest-test", []string{"-R", "my-test", "--test-dir", buildDir}).Return(nil)
 
 		err = p.Workflow.Tester.Test(*p, "my-test", []string{})
 		assert.NoError(t, err)
@@ -229,12 +229,12 @@ func TestDetectCMakeProjectTestBuildFailed(t *testing.T) {
 	var cmakeMock mock.Mock
 	var ctestMock mock.Mock
 
-	cmakeRun := func(path string, args []string) error {
-		return cmakeMock.Called(path, args).Error(0)
+	cmakeRun := func(dir string, path string, args []string) error {
+		return cmakeMock.Called(dir, path, args).Error(0)
 	}
 
-	ctestRun := func(path string, args []string) error {
-		return ctestMock.Called(path, args).Error(0)
+	ctestRun := func(dir string, path string, args []string) error {
+		return ctestMock.Called(dir, path, args).Error(0)
 	}
 
 	tools := internal.Tools{
@@ -254,7 +254,7 @@ func TestDetectCMakeProjectTestBuildFailed(t *testing.T) {
 	p := DetectCMakeProject(internal.Config{RootDirectory: dir, BuildDirectory: &buildDir}, tools)
 
 	if assert.NotNil(t, p) && assert.NotNil(t, p.Workflow.Tester) {
-		cmakeMock.On("func1", "cmake-test", mock.Anything).Return(errors.New("failed"))
+		cmakeMock.On("func1", dir, "cmake-test", mock.Anything).Return(errors.New("failed"))
 
 		err = p.Workflow.Tester.Test(*p, "my-test", []string{})
 		assert.EqualError(t, err, "build failed: failed")

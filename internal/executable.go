@@ -10,12 +10,12 @@ type Executable struct {
 	Path string
 
 	// RunFunc is a function that will run the executable
-	RunFunc func(path string, args []string) error
+	RunFunc func(dir string, path string, args []string) error
 }
 
 // Run starts the executable with the given arguments
-func (t *Executable) Run(args []string) error {
+func (t *Executable) Run(dir string, args []string) error {
 	fmt.Printf("RUN: %s\n", args)
 
-	return t.RunFunc(t.Path, args)
+	return t.RunFunc(dir, t.Path, args)
 }
