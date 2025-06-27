@@ -3,10 +3,11 @@ package internal
 import (
 	"bytes"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 	"testing"
 )
 
-func TestExecutableToolNotAvailable(t *testing.T) {
+func TestTool_ExecutableTool_NotAvailable(t *testing.T) {
 	tool := MakeExecutableTool("toolId", "Tool Name", "Tool Info", nil)
 
 	assert.Equal(t, "toolId", tool.Id())
@@ -17,7 +18,7 @@ func TestExecutableToolNotAvailable(t *testing.T) {
 	assert.EqualError(t, tool.Run(Project{}, []string{}), tool.NotFoundError().Error())
 }
 
-func TestExecutableTool(t *testing.T) {
+func TestTool_ExecutableTool(t *testing.T) {
 	tool := MakeExecutableTool("toolId", "Tool Name", "Tool Info", &Executable{Path: "/bin/tool"})
 
 	assert.Equal(t, "toolId", tool.Id())
@@ -29,17 +30,30 @@ func TestExecutableTool(t *testing.T) {
 	}
 }
 
+func TestTool_ExecutableTool_Run(t *testing.T) {
+	var runMock mock.Mock
+
+	tool := MakeExecutableTool("id", "", "", &Executable{Path: "echo", RunFunc: func(ctx RunContext, path string, args []string) error {
+		return runMock.Called(ctx, path, args).Error(0)
+	}})
+
+	runMock.On("func1", mock.Anything, "echo", []string{"arg1", "arg2"}).Return(nil)
+
+	err := tool.Run(Project{}, []string{"arg1", "arg2"})
+	assert.NoError(t, err)
+}
+
 type testTool struct {
 	ExecutableTool
 }
 
-func TestToolsActiveEmpty(t *testing.T) {
+func TestTool_Tools_Active_Empty(t *testing.T) {
 	tools := Tools{}
 
 	assert.Empty(t, tools.Active())
 }
 
-func TestToolsActiveNoActive(t *testing.T) {
+func TestTool_Tools_Active_NoActive(t *testing.T) {
 	tools := Tools{
 		&testTool{
 			MakeExecutableTool("toolId", "", "", nil),
@@ -49,7 +63,7 @@ func TestToolsActiveNoActive(t *testing.T) {
 	assert.Empty(t, tools.Active())
 }
 
-func TestToolsActive(t *testing.T) {
+func TestTool_Tools_Active(t *testing.T) {
 	tools := Tools{
 		&testTool{
 			MakeExecutableTool("id1", "", "", nil),
@@ -66,7 +80,7 @@ func TestToolsActive(t *testing.T) {
 	}
 }
 
-func TestToolsGetToolNotFound(t *testing.T) {
+func TestTool_Tools_GetTool_NotFound(t *testing.T) {
 	tools := Tools{}
 
 	assert.PanicsWithValue(t, "Tool not found", func() {
@@ -74,7 +88,7 @@ func TestToolsGetToolNotFound(t *testing.T) {
 	})
 }
 
-func TestToolsGetTool(t *testing.T) {
+func TestTool_Tools_GetTool(t *testing.T) {
 	tools := Tools{
 		&testTool{
 			MakeExecutableTool("toolId", "", "", nil),
@@ -87,7 +101,7 @@ func TestToolsGetTool(t *testing.T) {
 	assert.Equal(t, "toolId", tool.Id())
 }
 
-func TestPrintToolsEmpty(t *testing.T) {
+func TestTool_PrintTools_Empty(t *testing.T) {
 	tools := Tools{}
 
 	var output bytes.Buffer
@@ -96,7 +110,7 @@ func TestPrintToolsEmpty(t *testing.T) {
 	assert.Empty(t, output.String())
 }
 
-func TestPrintTools(t *testing.T) {
+func TestTool_PrintTools(t *testing.T) {
 	tools := Tools{
 		&testTool{
 			MakeExecutableTool("id1", "Tool 1", "", nil),

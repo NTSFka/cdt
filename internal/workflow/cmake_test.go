@@ -12,7 +12,7 @@ import (
 )
 
 // If a project directory doesn't contain CMakeLists.txt, cmakeTester can't be created
-func TestDetectCMakeProjectNoCMakeLists(t *testing.T) {
+func TestCMake_DetectCMakeProject_NoCMakeLists(t *testing.T) {
 	tools := internal.Tools{}
 
 	p := DetectCMakeProject(internal.Config{RootDirectory: "dir1"}, tools)
@@ -21,7 +21,7 @@ func TestDetectCMakeProjectNoCMakeLists(t *testing.T) {
 }
 
 // If cmake is not available
-func TestDetectCMakeProjectNoCMakeBinary(t *testing.T) {
+func TestTest_DetectCMakeProject_NoCMakeBinary(t *testing.T) {
 	tools := internal.Tools{
 		tool.NewCMake(nil),
 	}
@@ -36,7 +36,7 @@ func TestDetectCMakeProjectNoCMakeBinary(t *testing.T) {
 	assert.Nil(t, p)
 }
 
-func TestDetectCMakeProjectCustomBuildDirectory(t *testing.T) {
+func TestCMake_DetectCMakeProject_CustomBuildDirectory(t *testing.T) {
 	tools := internal.Tools{
 		tool.NewCMake(&internal.Executable{Path: "cmake-test"}),
 		&tool.ClangFormat{},
@@ -61,7 +61,7 @@ func TestDetectCMakeProjectCustomBuildDirectory(t *testing.T) {
 }
 
 // If no formatters and linters are available
-func TestDetectCMakeProjectNoFormatterAndLinters(t *testing.T) {
+func TestCMake_DetectCMakeProject_NoFormatterAndLinters(t *testing.T) {
 	tools := internal.Tools{
 		tool.NewCMake(&internal.Executable{Path: "cmake-test"}),
 		&tool.ClangFormat{},
@@ -84,7 +84,7 @@ func TestDetectCMakeProjectNoFormatterAndLinters(t *testing.T) {
 }
 
 // If formatters and linters are available
-func TestDetectCMakeProjectFormatterAndLinters(t *testing.T) {
+func TestCMake_DetectCMakeProject_FormatterAndLinters(t *testing.T) {
 	tools := internal.Tools{
 		tool.NewCMake(&internal.Executable{Path: "cmake-test"}),
 		tool.NewClangFormat(&internal.Executable{Path: "clang-format-test"}, nil),
@@ -106,7 +106,7 @@ func TestDetectCMakeProjectFormatterAndLinters(t *testing.T) {
 	}
 }
 
-func TestDetectCMakeProjectTestAll(t *testing.T) {
+func TestCMake_DetectCMakeProject_TestAll(t *testing.T) {
 	var cmakeMock mock.Mock
 	var ctestMock mock.Mock
 
@@ -146,7 +146,7 @@ func TestDetectCMakeProjectTestAll(t *testing.T) {
 	}
 }
 
-func TestDetectCMakeProjectTestAllBuildFailed(t *testing.T) {
+func TestCMake_DetectCMakeProject_TestAll_BuildFailed(t *testing.T) {
 	var cmakeMock mock.Mock
 	var ctestMock mock.Mock
 
@@ -185,7 +185,7 @@ func TestDetectCMakeProjectTestAllBuildFailed(t *testing.T) {
 	}
 }
 
-func TestDetectCMakeProjectTest(t *testing.T) {
+func TestCMake_DetectCMakeProject_Test(t *testing.T) {
 	var cmakeMock mock.Mock
 	var ctestMock mock.Mock
 
@@ -225,7 +225,7 @@ func TestDetectCMakeProjectTest(t *testing.T) {
 	}
 }
 
-func TestDetectCMakeProjectTestBuildFailed(t *testing.T) {
+func TestCMake_DetectCMakeProject_TestBuild_Failed(t *testing.T) {
 	var cmakeMock mock.Mock
 	var ctestMock mock.Mock
 

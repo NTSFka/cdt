@@ -74,3 +74,13 @@ type EmptyProjectStructureProvider struct {
 func (p *EmptyProjectStructureProvider) Structure(_ Project) (*ProjectStructure, error) {
 	return &ProjectStructure{}, nil
 }
+
+// A FixedProjectStructureProvider provides a predefined project structure
+type FixedProjectStructureProvider struct {
+	ProjectStructure ProjectStructure
+}
+
+// Structure returns project structure
+func (p *FixedProjectStructureProvider) Structure(_ Project) (*ProjectStructure, error) {
+	return &p.ProjectStructure, nil
+}

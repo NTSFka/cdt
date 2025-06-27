@@ -86,7 +86,7 @@ func (c *ClangTidy) LintAll(project internal.Project, args []string) error {
 	info, err := project.Structure()
 
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to obtain project structure: %v", err)
 	}
 
 	paths := c.buildPaths(project.RootDirectory(), info.GetFiles())

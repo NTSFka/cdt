@@ -8,7 +8,7 @@ import (
 	"testing"
 )
 
-func TestCMakeDetect(t *testing.T) {
+func TestCMake_CMakeDetect(t *testing.T) {
 	environment := test.Environment{}
 	environment.On("FindExecutable", "cmake").Return(environment.MakeExecutable("/bin/cmake"))
 
@@ -24,7 +24,7 @@ func TestCMakeDetect(t *testing.T) {
 	environment.AssertExpectations(t)
 }
 
-func TestCMakeDetectNotFound(t *testing.T) {
+func TestCMake_CMakeDetect_NotFound(t *testing.T) {
 	environment := test.Environment{}
 	environment.On("FindExecutable", "cmake").Return(nil)
 
@@ -37,7 +37,7 @@ func TestCMakeDetectNotFound(t *testing.T) {
 	environment.AssertExpectations(t)
 }
 
-func TestCMakeConfigure(t *testing.T) {
+func TestCMake_Configure(t *testing.T) {
 	environment := test.Environment{}
 
 	cmake := NewCMake(environment.MakeExecutable("cmake"))
@@ -56,7 +56,7 @@ func TestCMakeConfigure(t *testing.T) {
 	environment.AssertExpectations(t)
 }
 
-func TestCMakeConfigureFailed(t *testing.T) {
+func TestCMake_Configure_Failed(t *testing.T) {
 	environment := test.Environment{}
 
 	cmake := NewCMake(environment.MakeExecutable("cmake"))
@@ -75,7 +75,7 @@ func TestCMakeConfigureFailed(t *testing.T) {
 	environment.AssertExpectations(t)
 }
 
-func TestCMakeStructureConfigureFailed(t *testing.T) {
+func TestCMake_Structure_ConfigureFailed(t *testing.T) {
 	environment := test.Environment{}
 
 	cmake := NewCMake(environment.MakeExecutable("cmake"))
@@ -96,7 +96,7 @@ func TestCMakeStructureConfigureFailed(t *testing.T) {
 	environment.AssertExpectations(t)
 }
 
-func TestCMakeBuildAll(t *testing.T) {
+func TestCMake_BuildAll(t *testing.T) {
 	environment := test.Environment{}
 
 	cmake := NewCMake(environment.MakeExecutable("cmake"))
@@ -119,7 +119,7 @@ func TestCMakeBuildAll(t *testing.T) {
 	environment.AssertExpectations(t)
 }
 
-func TestCMakeBuildAllFailed(t *testing.T) {
+func TestCMake_BuildAll_Failed(t *testing.T) {
 	environment := test.Environment{}
 
 	cmake := NewCMake(environment.MakeExecutable("cmake"))
@@ -142,7 +142,7 @@ func TestCMakeBuildAllFailed(t *testing.T) {
 	environment.AssertExpectations(t)
 }
 
-func TestCMakeBuildAllConfigureFailed(t *testing.T) {
+func TestCMake_BuildAll_ConfigureFailed(t *testing.T) {
 	environment := test.Environment{}
 
 	cmake := NewCMake(environment.MakeExecutable("cmake"))
@@ -162,7 +162,7 @@ func TestCMakeBuildAllConfigureFailed(t *testing.T) {
 	environment.AssertExpectations(t)
 }
 
-func TestCMakeBuildTargets(t *testing.T) {
+func TestCMake_BuildTargets(t *testing.T) {
 	environment := test.Environment{}
 
 	cmake := NewCMake(environment.MakeExecutable("cmake"))
@@ -188,7 +188,7 @@ func TestCMakeBuildTargets(t *testing.T) {
 	environment.AssertExpectations(t)
 }
 
-func TestCMakeBuildTargetsFailed(t *testing.T) {
+func TestCMake_BuildTargets_Failed(t *testing.T) {
 	environment := test.Environment{}
 
 	cmake := NewCMake(environment.MakeExecutable("cmake"))
@@ -214,7 +214,7 @@ func TestCMakeBuildTargetsFailed(t *testing.T) {
 	environment.AssertExpectations(t)
 }
 
-func TestCMakeBuildTargetsConfigureFailed(t *testing.T) {
+func TestCMake_BuildTargets_ConfigureFailed(t *testing.T) {
 	environment := test.Environment{}
 
 	cmake := NewCMake(environment.MakeExecutable("cmake"))
@@ -234,7 +234,7 @@ func TestCMakeBuildTargetsConfigureFailed(t *testing.T) {
 	environment.AssertExpectations(t)
 }
 
-func TestCMakeRunTargetFailed(t *testing.T) {
+func TestCMake_RunTarget_Failed(t *testing.T) {
 	environment := test.Environment{}
 
 	cmake := NewCMake(environment.MakeExecutable("cmake"))
