@@ -5,7 +5,6 @@ import (
 	"cdt/internal/test"
 	"errors"
 	"github.com/stretchr/testify/assert"
-	"gotest.tools/v3/fs"
 	"testing"
 )
 
@@ -43,16 +42,13 @@ func TestCMakeConfigure(t *testing.T) {
 
 	cmake := NewCMake(environment.MakeExecutable("cmake"))
 
-	rootDirectory := "project"
-	buildDirectory := fs.NewDir(t, "cdt-test").Path()
+	p := internal.MakeProject("project", t.TempDir(), cmake, internal.Workflow{})
 
-	p := internal.MakeProject(rootDirectory, buildDirectory, cmake, internal.Workflow{})
-
-	environment.On("RunExecutable", rootDirectory, "cmake", []string{
+	environment.OnRunSuccess(p, "cmake", []string{
 		"-DCMAKE_EXPORT_COMPILE_COMMANDS=ON",
 		"-S", ".",
-		"-B", buildDirectory,
-	}).Return(nil)
+		"-B", p.BuildDirectory(),
+	})
 
 	err := cmake.Configure(p, []string{})
 	assert.NoError(t, err)
@@ -65,16 +61,13 @@ func TestCMakeConfigureFailed(t *testing.T) {
 
 	cmake := NewCMake(environment.MakeExecutable("cmake"))
 
-	rootDirectory := "project"
-	buildDirectory := fs.NewDir(t, "cdt-test").Path()
+	p := internal.MakeProject("project", t.TempDir(), cmake, internal.Workflow{})
 
-	p := internal.MakeProject(rootDirectory, buildDirectory, cmake, internal.Workflow{})
-
-	environment.On("RunExecutable", rootDirectory, "cmake", []string{
+	environment.OnRunError(p, "cmake", []string{
 		"-DCMAKE_EXPORT_COMPILE_COMMANDS=ON",
 		"-S", ".",
-		"-B", buildDirectory,
-	}).Return(errors.New("failed"))
+		"-B", p.BuildDirectory(),
+	}, errors.New("failed"))
 
 	err := cmake.Configure(p, []string{})
 	assert.EqualError(t, err, "failed")
@@ -87,17 +80,14 @@ func TestCMakeStructureConfigureFailed(t *testing.T) {
 
 	cmake := NewCMake(environment.MakeExecutable("cmake"))
 
-	rootDirectory := "project"
-	buildDirectory := fs.NewDir(t, "cdt-test").Path()
-
-	p := internal.MakeProject(rootDirectory, buildDirectory, cmake, internal.Workflow{})
+	p := internal.MakeProject("project", t.TempDir(), cmake, internal.Workflow{})
 
 	// Configure
-	environment.On("RunExecutable", rootDirectory, "cmake", []string{
+	environment.OnRunError(p, "cmake", []string{
 		"-DCMAKE_EXPORT_COMPILE_COMMANDS=ON",
 		"-S", ".",
-		"-B", buildDirectory,
-	}).Return(errors.New("failed"))
+		"-B", p.BuildDirectory(),
+	}, errors.New("failed"))
 
 	structure, err := cmake.Structure(p)
 	assert.Nil(t, structure)
@@ -111,22 +101,17 @@ func TestCMakeBuildAll(t *testing.T) {
 
 	cmake := NewCMake(environment.MakeExecutable("cmake"))
 
-	rootDirectory := "project"
-	buildDirectory := fs.NewDir(t, "cdt-test").Path()
-
-	p := internal.MakeProject(rootDirectory, buildDirectory, cmake, internal.Workflow{})
+	p := internal.MakeProject("project", t.TempDir(), cmake, internal.Workflow{})
 
 	// Configure
-	environment.On("RunExecutable", rootDirectory, "cmake", []string{
+	environment.OnRunSuccess(p, "cmake", []string{
 		"-DCMAKE_EXPORT_COMPILE_COMMANDS=ON",
 		"-S", ".",
-		"-B", buildDirectory,
-	}).Return(nil)
+		"-B", p.BuildDirectory(),
+	})
 
 	// Build
-	environment.On("RunExecutable", rootDirectory, "cmake", []string{
-		"--build", buildDirectory,
-	}).Return(nil)
+	environment.OnRunSuccess(p, "cmake", []string{"--build", p.BuildDirectory()})
 
 	err := cmake.BuildAll(p, []string{})
 	assert.NoError(t, err)
@@ -139,22 +124,17 @@ func TestCMakeBuildAllFailed(t *testing.T) {
 
 	cmake := NewCMake(environment.MakeExecutable("cmake"))
 
-	rootDirectory := "project"
-	buildDirectory := fs.NewDir(t, "cdt-test").Path()
-
-	p := internal.MakeProject(rootDirectory, buildDirectory, cmake, internal.Workflow{})
+	p := internal.MakeProject("project", t.TempDir(), cmake, internal.Workflow{})
 
 	// Configure
-	environment.On("RunExecutable", rootDirectory, "cmake", []string{
+	environment.OnRunSuccess(p, "cmake", []string{
 		"-DCMAKE_EXPORT_COMPILE_COMMANDS=ON",
 		"-S", ".",
-		"-B", buildDirectory,
-	}).Return(nil)
+		"-B", p.BuildDirectory(),
+	})
 
 	// Build
-	environment.On("RunExecutable", rootDirectory, "cmake", []string{
-		"--build", buildDirectory,
-	}).Return(errors.New("failed"))
+	environment.OnRunError(p, "cmake", []string{"--build", p.BuildDirectory()}, errors.New("failed"))
 
 	err := cmake.BuildAll(p, []string{})
 	assert.EqualError(t, err, "failed")
@@ -167,17 +147,14 @@ func TestCMakeBuildAllConfigureFailed(t *testing.T) {
 
 	cmake := NewCMake(environment.MakeExecutable("cmake"))
 
-	rootDirectory := "project"
-	buildDirectory := fs.NewDir(t, "cdt-test").Path()
-
-	p := internal.MakeProject(rootDirectory, buildDirectory, cmake, internal.Workflow{})
+	p := internal.MakeProject("project", t.TempDir(), cmake, internal.Workflow{})
 
 	// Configure
-	environment.On("RunExecutable", rootDirectory, "cmake", []string{
+	environment.OnRunError(p, "cmake", []string{
 		"-DCMAKE_EXPORT_COMPILE_COMMANDS=ON",
 		"-S", ".",
-		"-B", buildDirectory,
-	}).Return(errors.New("failed"))
+		"-B", p.BuildDirectory(),
+	}, errors.New("failed"))
 
 	err := cmake.BuildAll(p, []string{})
 	assert.EqualError(t, err, "failed")
@@ -190,23 +167,20 @@ func TestCMakeBuildTargets(t *testing.T) {
 
 	cmake := NewCMake(environment.MakeExecutable("cmake"))
 
-	rootDirectory := "project"
-	buildDirectory := fs.NewDir(t, "cdt-test").Path()
-
-	p := internal.MakeProject(rootDirectory, buildDirectory, cmake, internal.Workflow{})
+	p := internal.MakeProject("project", t.TempDir(), cmake, internal.Workflow{})
 
 	// Configure
-	environment.On("RunExecutable", rootDirectory, "cmake", []string{
+	environment.OnRunSuccess(p, "cmake", []string{
 		"-DCMAKE_EXPORT_COMPILE_COMMANDS=ON",
 		"-S", ".",
-		"-B", buildDirectory,
-	}).Return(nil)
+		"-B", p.BuildDirectory(),
+	})
 
 	// Build
-	environment.On("RunExecutable", rootDirectory, "cmake", []string{
-		"--build", buildDirectory,
+	environment.OnRunSuccess(p, "cmake", []string{
+		"--build", p.BuildDirectory(),
 		"--target", "target1", "target2",
-	}).Return(nil)
+	})
 
 	err := cmake.BuildTargets(p, []string{"target1", "target2"}, []string{})
 	assert.NoError(t, err)
@@ -219,23 +193,20 @@ func TestCMakeBuildTargetsFailed(t *testing.T) {
 
 	cmake := NewCMake(environment.MakeExecutable("cmake"))
 
-	rootDirectory := "project"
-	buildDirectory := fs.NewDir(t, "cdt-test").Path()
-
-	p := internal.MakeProject(rootDirectory, buildDirectory, cmake, internal.Workflow{})
+	p := internal.MakeProject("project", t.TempDir(), cmake, internal.Workflow{})
 
 	// Configure
-	environment.On("RunExecutable", rootDirectory, "cmake", []string{
+	environment.OnRunSuccess(p, "cmake", []string{
 		"-DCMAKE_EXPORT_COMPILE_COMMANDS=ON",
 		"-S", ".",
-		"-B", buildDirectory,
-	}).Return(nil)
+		"-B", p.BuildDirectory(),
+	})
 
 	// Build
-	environment.On("RunExecutable", rootDirectory, "cmake", []string{
-		"--build", buildDirectory,
+	environment.OnRunError(p, "cmake", []string{
+		"--build", p.BuildDirectory(),
 		"--target", "target1", "target2",
-	}).Return(errors.New("failed"))
+	}, errors.New("failed"))
 
 	err := cmake.BuildTargets(p, []string{"target1", "target2"}, []string{})
 	assert.EqualError(t, err, "failed")
@@ -248,17 +219,14 @@ func TestCMakeBuildTargetsConfigureFailed(t *testing.T) {
 
 	cmake := NewCMake(environment.MakeExecutable("cmake"))
 
-	rootDirectory := "project"
-	buildDirectory := fs.NewDir(t, "cdt-test").Path()
-
-	p := internal.MakeProject(rootDirectory, buildDirectory, cmake, internal.Workflow{})
+	p := internal.MakeProject("project", t.TempDir(), cmake, internal.Workflow{})
 
 	// Configure
-	environment.On("RunExecutable", rootDirectory, "cmake", []string{
+	environment.OnRunError(p, "cmake", []string{
 		"-DCMAKE_EXPORT_COMPILE_COMMANDS=ON",
 		"-S", ".",
-		"-B", buildDirectory,
-	}).Return(errors.New("failed"))
+		"-B", p.BuildDirectory(),
+	}, errors.New("failed"))
 
 	err := cmake.BuildTargets(p, []string{"target1", "target2"}, []string{})
 	assert.EqualError(t, err, "failed")
@@ -271,23 +239,20 @@ func TestCMakeRunTargetFailed(t *testing.T) {
 
 	cmake := NewCMake(environment.MakeExecutable("cmake"))
 
-	rootDirectory := "project"
-	buildDirectory := fs.NewDir(t, "cdt-test").Path()
-
-	p := internal.MakeProject(rootDirectory, buildDirectory, cmake, internal.Workflow{})
+	p := internal.MakeProject("project", t.TempDir(), cmake, internal.Workflow{})
 
 	// Configure
-	environment.On("RunExecutable", rootDirectory, "cmake", []string{
+	environment.OnRunSuccess(p, "cmake", []string{
 		"-DCMAKE_EXPORT_COMPILE_COMMANDS=ON",
 		"-S", ".",
-		"-B", buildDirectory,
-	}).Return(nil)
+		"-B", p.BuildDirectory(),
+	})
 
 	// Build
-	environment.On("RunExecutable", rootDirectory, "cmake", []string{
-		"--build", buildDirectory,
+	environment.OnRunError(p, "cmake", []string{
+		"--build", p.BuildDirectory(),
 		"--target", "target1",
-	}).Return(errors.New("failed"))
+	}, errors.New("failed"))
 
 	err := cmake.RunTarget(p, "target1", []string{})
 	assert.EqualError(t, err, "failed")
