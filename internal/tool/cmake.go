@@ -110,7 +110,7 @@ func (c *CMake) RunTarget(project internal.Project, target string, args []string
 				RunFunc: internal.SystemEnvironment.RunExecutable,
 			}
 
-			return executable.Run(project.RootDirectory(), args)
+			return executable.Run(internal.NewRunContext(project.RootDirectory()), args)
 		}
 	}
 

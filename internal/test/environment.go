@@ -23,6 +23,18 @@ func (e *Environment) FindExecutable(name string) *internal.Executable {
 	return result.(*internal.Executable)
 }
 
-func (e *Environment) RunExecutable(dir string, path string, args []string) error {
-	return e.Called(dir, path, args).Error(0)
+func (e *Environment) RunExecutable(ctx internal.RunContext, path string, args []string) error {
+	return e.Called(ctx, path, args).Error(0)
+}
+
+func (e *Environment) OnRun(project internal.Project, path string, args []string) *mock.Call {
+	return e.On("RunExecutable", internal.NewRunContext(project.RootDirectory()), path, args)
+}
+
+func (e *Environment) OnRunSuccess(project internal.Project, path string, args []string) {
+	e.OnRun(project, path, args).Return(nil)
+}
+
+func (e *Environment) OnRunError(project internal.Project, path string, args []string, result error) {
+	e.OnRun(project, path, args).Return(result)
 }
