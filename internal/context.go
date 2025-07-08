@@ -10,4 +10,10 @@ type Context struct {
 
 	// Tools store all supported tools
 	Tools Tools
+
+	// EnvironmentProviders stores all supported environment providers
+	EnvironmentProviders EnvironmentProviders
+
+	// Environment is where the tool exists and runs
+	Environment Environment
 }

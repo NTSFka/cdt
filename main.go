@@ -9,6 +9,22 @@ import (
 	"os"
 )
 
+var environmentProviders = internal.EnvironmentProviders{
+	tool.DetectDocker(),
+}
+
+func initEnvironment(rootDirectory string, environment *internal.ConfigEnvironment) (internal.Environment, error) {
+	if environment != nil {
+		for _, provider := range environmentProviders {
+			if provider.IsAvailable() && provider.Id() == environment.ToolName {
+				return provider.CreateEnvironment(rootDirectory, environment.Argument)
+			}
+		}
+	}
+
+	return internal.SystemEnvironment, nil
+}
+
 // InitTools initializes all supported tools on the system
 func initTools(environment internal.Environment) internal.Tools {
 	return internal.Tools{
@@ -35,14 +51,22 @@ func detectProject(config internal.Config, tools internal.Tools) internal.Projec
 	return internal.MakeProject(config.RootDirectory, "", &internal.EmptyProjectStructureProvider{}, internal.Workflow{})
 }
 
-func buildContext(config internal.Config) internal.Context {
-	tools := initTools(internal.SystemEnvironment)
+func buildContext(config internal.Config) (*internal.Context, error) {
+	env, err := initEnvironment(config.RootDirectory, config.Environment)
 
-	return internal.Context{
-		Config:  config,
-		Project: detectProject(config, tools),
-		Tools:   tools,
+	if err != nil {
+		return nil, err
 	}
+
+	tools := initTools(env)
+
+	return &internal.Context{
+		Config:               config,
+		Project:              detectProject(config, tools),
+		Tools:                tools,
+		EnvironmentProviders: environmentProviders,
+		Environment:          env,
+	}, nil
 }
 
 func main() {

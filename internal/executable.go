@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"strings"
 )
 
 // RunContext is a context in which the executable will run.
@@ -29,7 +30,7 @@ type Executable struct {
 
 // Run starts the executable with the given arguments
 func (t *Executable) Run(ctx RunContext, args []string) error {
-	fmt.Printf("RUN: %s\n", args)
+	fmt.Printf("RUN: %s %v\n", t.Path, strings.Join(args, " "))
 
 	return t.RunFunc(ctx, t.Path, args)
 }

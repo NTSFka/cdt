@@ -24,7 +24,7 @@ func detectClangFormatVersion(environment internal.Environment, version int) *in
 	return environment.FindExecutable(fmt.Sprintf("clang-format-%d", version))
 }
 
-// DetectClangFormat Create clang-format tool can be used in the project
+// DetectClangFormat CreateEnvironment clang-format tool can be used in the project
 func DetectClangFormat(environment internal.Environment, preferredVersion *int) *ClangFormat {
 	if preferredVersion != nil {
 		if executable := detectClangFormatVersion(environment, *preferredVersion); executable != nil {
