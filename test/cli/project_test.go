@@ -2,6 +2,7 @@ package cli
 
 import (
 	"cdt/internal"
+	"cdt/internal/test"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"testing"
@@ -21,7 +22,7 @@ func runProject(structureProvider internal.ProjectStructureProvider, args ...str
 }
 
 func TestProjectTargets(t *testing.T) {
-	structure := testStructureProvider{}
+	structure := test.StructureProvider{}
 	structure.On("Structure", mock.Anything).Return(&internal.ProjectStructure{}, nil)
 
 	err := runProject(&structure, "targets")
@@ -31,7 +32,7 @@ func TestProjectTargets(t *testing.T) {
 }
 
 func TestProjectFiles(t *testing.T) {
-	structure := testStructureProvider{}
+	structure := test.StructureProvider{}
 	structure.On("Structure", mock.Anything).Return(&internal.ProjectStructure{}, nil)
 
 	err := runProject(&structure, "files")

@@ -2,6 +2,7 @@ package cli
 
 import (
 	"cdt/internal"
+	"cdt/internal/test"
 	"errors"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -48,7 +49,7 @@ func TestLintCannotBeLinted(t *testing.T) {
 }
 
 func TestLintAllSuccess(t *testing.T) {
-	linter := testProjectLinter{}
+	linter := test.ProjectLinter{}
 	linter.On("LintAll", mock.Anything, []string{}).Return(nil)
 
 	err := runLint(&linter)
@@ -58,7 +59,7 @@ func TestLintAllSuccess(t *testing.T) {
 }
 
 func TestLintAllFailure(t *testing.T) {
-	linter := testProjectLinter{}
+	linter := test.ProjectLinter{}
 	linter.On("LintAll", mock.Anything, []string{}).Return(errors.New("failed"))
 
 	err := runLint(&linter)
@@ -70,7 +71,7 @@ func TestLintAllFailure(t *testing.T) {
 }
 
 func TestLintFilesSuccess(t *testing.T) {
-	linter := testProjectLinter{}
+	linter := test.ProjectLinter{}
 	linter.On("LintFiles", mock.Anything, []string{"file1", "file2"}, []string{}).Return(nil)
 
 	err := runLint(&linter, "file1", "file2")
@@ -80,7 +81,7 @@ func TestLintFilesSuccess(t *testing.T) {
 }
 
 func TestLintFilesFailure(t *testing.T) {
-	linter := testProjectLinter{}
+	linter := test.ProjectLinter{}
 	linter.On("LintFiles", mock.Anything, []string{"file1", "file2"}, []string{}).Return(errors.New("failed"))
 
 	err := runLint(&linter, "file1", "file2")

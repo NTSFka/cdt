@@ -2,6 +2,7 @@ package cli
 
 import (
 	"cdt/internal"
+	"cdt/internal/test"
 	"errors"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -68,7 +69,7 @@ func TestRunNotSupported(t *testing.T) {
 }
 
 func TestRunAllSuccess(t *testing.T) {
-	runner := testProjectRunner{}
+	runner := test.ProjectRunner{}
 	runner.On("RunTarget", mock.Anything, "target1", []string{}).Return(nil)
 
 	err := runRun(&runner, "target1")
@@ -78,7 +79,7 @@ func TestRunAllSuccess(t *testing.T) {
 }
 
 func TestRunAllFailure(t *testing.T) {
-	runner := testProjectRunner{}
+	runner := test.ProjectRunner{}
 	runner.On("RunTarget", mock.Anything, "target1", []string{}).Return(errors.New("failed"))
 
 	err := runRun(&runner, "target1")

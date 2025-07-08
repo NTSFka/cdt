@@ -2,6 +2,7 @@ package cli
 
 import (
 	"cdt/internal"
+	"cdt/internal/test"
 	"errors"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -68,7 +69,7 @@ func TestConfigureNotSupported(t *testing.T) {
 }
 
 func TestConfigureSuccess(t *testing.T) {
-	configurator := testProjectConfigurator{}
+	configurator := test.ProjectConfigurator{}
 	configurator.On("Configure", mock.Anything, []string{}).Return(nil)
 
 	err := runConfigure(&configurator)
@@ -78,7 +79,7 @@ func TestConfigureSuccess(t *testing.T) {
 }
 
 func TestConfigureFailure(t *testing.T) {
-	configurator := testProjectConfigurator{}
+	configurator := test.ProjectConfigurator{}
 	configurator.On("Configure", mock.Anything, []string{}).Return(errors.New("failed"))
 
 	err := runConfigure(&configurator)

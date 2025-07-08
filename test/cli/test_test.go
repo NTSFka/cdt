@@ -2,6 +2,7 @@ package cli
 
 import (
 	"cdt/internal"
+	"cdt/internal/test"
 	"errors"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -68,7 +69,7 @@ func TestTestCannotBeTested(t *testing.T) {
 }
 
 func TestTestAllSuccess(t *testing.T) {
-	tester := testProjectTester{}
+	tester := test.ProjectTester{}
 	tester.On("TestAll", mock.Anything, []string{}).Return(nil)
 
 	err := runTest(&tester)
@@ -78,7 +79,7 @@ func TestTestAllSuccess(t *testing.T) {
 }
 
 func TestTestAllFailure(t *testing.T) {
-	tester := testProjectTester{}
+	tester := test.ProjectTester{}
 	tester.On("TestAll", mock.Anything, []string{}).Return(errors.New("failed"))
 
 	err := runTest(&tester)
@@ -90,7 +91,7 @@ func TestTestAllFailure(t *testing.T) {
 }
 
 func TestTestTargetsSuccess(t *testing.T) {
-	tester := testProjectTester{}
+	tester := test.ProjectTester{}
 	tester.On("Test", mock.Anything, "pattern", []string{}).Return(nil)
 
 	err := runTest(&tester, "pattern")
@@ -100,7 +101,7 @@ func TestTestTargetsSuccess(t *testing.T) {
 }
 
 func TestTestTargetsFailure(t *testing.T) {
-	tester := testProjectTester{}
+	tester := test.ProjectTester{}
 	tester.On("Test", mock.Anything, "pattern", []string{}).Return(errors.New("failed"))
 
 	err := runTest(&tester, "pattern")

@@ -2,6 +2,7 @@ package cli
 
 import (
 	"cdt/internal"
+	"cdt/internal/test"
 	"errors"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -48,7 +49,7 @@ func TestFormatCannotBeFormatted(t *testing.T) {
 }
 
 func TestFormatAllSuccess(t *testing.T) {
-	formatter := testProjectFormatter{}
+	formatter := test.ProjectFormatter{}
 	formatter.On("FormatAll", mock.Anything, []string{}).Return(nil)
 
 	err := runFormat(&formatter)
@@ -58,7 +59,7 @@ func TestFormatAllSuccess(t *testing.T) {
 }
 
 func TestFormatAllFailure(t *testing.T) {
-	formatter := testProjectFormatter{}
+	formatter := test.ProjectFormatter{}
 	formatter.On("FormatAll", mock.Anything, []string{}).Return(errors.New("failed"))
 
 	err := runFormat(&formatter)
@@ -70,7 +71,7 @@ func TestFormatAllFailure(t *testing.T) {
 }
 
 func TestFormatFilesSuccess(t *testing.T) {
-	formatter := testProjectFormatter{}
+	formatter := test.ProjectFormatter{}
 	formatter.On("FormatFiles", mock.Anything, []string{"file1", "file2"}, []string{}).Return(nil)
 
 	err := runFormat(&formatter, "file1", "file2")
@@ -80,7 +81,7 @@ func TestFormatFilesSuccess(t *testing.T) {
 }
 
 func TestFormatFilesFailure(t *testing.T) {
-	formatter := testProjectFormatter{}
+	formatter := test.ProjectFormatter{}
 	formatter.On("FormatFiles", mock.Anything, []string{"file1", "file2"}, []string{}).Return(errors.New("failed"))
 
 	err := runFormat(&formatter, "file1", "file2")
@@ -92,7 +93,7 @@ func TestFormatFilesFailure(t *testing.T) {
 }
 
 func TestFormatCheckAllSuccess(t *testing.T) {
-	formatter := testProjectFormatter{}
+	formatter := test.ProjectFormatter{}
 	formatter.On("FormatCheckAll", mock.Anything, []string{}).Return(nil)
 
 	err := runFormat(&formatter, "--check")
@@ -102,7 +103,7 @@ func TestFormatCheckAllSuccess(t *testing.T) {
 }
 
 func TestFormatCheckAllFailure(t *testing.T) {
-	formatter := testProjectFormatter{}
+	formatter := test.ProjectFormatter{}
 	formatter.On("FormatCheckAll", mock.Anything, []string{}).Return(errors.New("failed"))
 
 	err := runFormat(&formatter, "--check")
@@ -114,7 +115,7 @@ func TestFormatCheckAllFailure(t *testing.T) {
 }
 
 func TestFormatCheckFilesSuccess(t *testing.T) {
-	formatter := testProjectFormatter{}
+	formatter := test.ProjectFormatter{}
 	formatter.On("FormatCheckFiles", mock.Anything, []string{"file1", "file2"}, []string{}).Return(nil)
 
 	err := runFormat(&formatter, "--check", "file1", "file2")
@@ -124,7 +125,7 @@ func TestFormatCheckFilesSuccess(t *testing.T) {
 }
 
 func TestFormatCheckFilesFailure(t *testing.T) {
-	formatter := testProjectFormatter{}
+	formatter := test.ProjectFormatter{}
 	formatter.On("FormatCheckFiles", mock.Anything, []string{"file1", "file2"}, []string{}).Return(errors.New("failed"))
 
 	err := runFormat(&formatter, "--check", "file1", "file2")

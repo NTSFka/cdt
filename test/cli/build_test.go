@@ -2,6 +2,7 @@ package cli
 
 import (
 	"cdt/internal"
+	"cdt/internal/test"
 	"errors"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -68,7 +69,7 @@ func TestBuildNotSupported(t *testing.T) {
 }
 
 func TestBuildAllSuccess(t *testing.T) {
-	builder := testProjectBuilder{}
+	builder := test.ProjectBuilder{}
 	builder.On("BuildAll", mock.Anything, []string{}).Return(nil)
 
 	err := runBuild(&builder)
@@ -78,7 +79,7 @@ func TestBuildAllSuccess(t *testing.T) {
 }
 
 func TestBuildAllFailure(t *testing.T) {
-	builder := testProjectBuilder{}
+	builder := test.ProjectBuilder{}
 	builder.On("BuildAll", mock.Anything, []string{}).Return(errors.New("failed"))
 
 	err := runBuild(&builder)
@@ -90,7 +91,7 @@ func TestBuildAllFailure(t *testing.T) {
 }
 
 func TestBuildTargetsSuccess(t *testing.T) {
-	builder := testProjectBuilder{}
+	builder := test.ProjectBuilder{}
 	builder.On("BuildTargets", mock.Anything, []string{"target1", "target2"}, []string{}).Return(nil)
 
 	err := runBuild(&builder, "target1", "target2")
@@ -100,7 +101,7 @@ func TestBuildTargetsSuccess(t *testing.T) {
 }
 
 func TestBuildTargetsFailure(t *testing.T) {
-	builder := testProjectBuilder{}
+	builder := test.ProjectBuilder{}
 	builder.On("BuildTargets", mock.Anything, []string{"target1", "target2"}, []string{}).Return(errors.New("failed"))
 
 	err := runBuild(&builder, "target1", "target2")
