@@ -2,6 +2,7 @@ package test
 
 import (
 	"cdt/internal"
+	"context"
 	"github.com/stretchr/testify/mock"
 )
 
@@ -17,20 +18,20 @@ func (e *Environment) Id() string {
 	return e.Called().Get(0).(string)
 }
 
-func (e *Environment) Start() error {
-	return e.Called().Error(0)
+func (e *Environment) Start(ctx context.Context) error {
+	return e.Called(ctx).Error(0)
 }
 
-func (e *Environment) IsRunning() bool {
-	return e.Called().Get(0).(bool)
+func (e *Environment) IsRunning(ctx context.Context) bool {
+	return e.Called(ctx).Get(0).(bool)
 }
 
-func (e *Environment) Stop() error {
-	return e.Called().Error(0)
+func (e *Environment) Stop(ctx context.Context) error {
+	return e.Called(ctx).Error(0)
 }
 
-func (e *Environment) Cleanup() error {
-	return e.Called().Error(0)
+func (e *Environment) Cleanup(ctx context.Context) error {
+	return e.Called(ctx).Error(0)
 }
 
 func (e *Environment) FindExecutable(name string) *internal.Executable {

@@ -75,8 +75,8 @@ func (d *DockerEnvironment) Id() string {
 	return "docker"
 }
 
-func (d *DockerEnvironment) Start() error {
-	if d.IsRunning() {
+func (d *DockerEnvironment) Start(ctx context.Context) error {
+	if d.IsRunning(ctx) {
 		return nil
 	}
 
@@ -88,7 +88,7 @@ func (d *DockerEnvironment) Start() error {
 
 	d.ContainerName = fmt.Sprintf("cdt-%s-%s", filepath.Base(absPath), strings.ReplaceAll(d.Image, ":", "_"))
 
-	resp, err := d.Docker.client.ContainerCreate(context.Background(), &container.Config{
+	resp, err := d.Docker.client.ContainerCreate(ctx, &container.Config{
 		Image: d.Image,
 		// FIXME: linux only
 		Cmd:        []string{"/bin/bash", "-c", "trap : TERM INT; sleep infinity & wait"},
@@ -109,11 +109,11 @@ func (d *DockerEnvironment) Start() error {
 
 	d.ContainerId = resp.ID
 
-	return d.Docker.client.ContainerStart(context.Background(), d.ContainerId, container.StartOptions{})
+	return d.Docker.client.ContainerStart(ctx, d.ContainerId, container.StartOptions{})
 }
 
-func (d *DockerEnvironment) IsRunning() bool {
-	resp, err := d.Docker.client.ContainerInspect(context.Background(), d.ContainerId)
+func (d *DockerEnvironment) IsRunning(ctx context.Context) bool {
+	resp, err := d.Docker.client.ContainerInspect(ctx, d.ContainerId)
 
 	if err != nil {
 		return false
@@ -122,22 +122,22 @@ func (d *DockerEnvironment) IsRunning() bool {
 	return resp.State.Running
 }
 
-func (d *DockerEnvironment) Stop() error {
-	if !d.IsRunning() {
+func (d *DockerEnvironment) Stop(ctx context.Context) error {
+	if !d.IsRunning(ctx) {
 		return nil
 	}
 
-	err := d.Docker.client.ContainerStop(context.Background(), d.ContainerId, container.StopOptions{})
+	err := d.Docker.client.ContainerStop(ctx, d.ContainerId, container.StopOptions{})
 	if err != nil {
 		return err
 	}
 
-	return d.Docker.client.ContainerRemove(context.Background(), d.ContainerId, container.RemoveOptions{})
+	return d.Docker.client.ContainerRemove(ctx, d.ContainerId, container.RemoveOptions{})
 }
 
-func (d *DockerEnvironment) Cleanup() error {
+func (d *DockerEnvironment) Cleanup(ctx context.Context) error {
 	if d.AutoStop {
-		return d.Stop()
+		return d.Stop(ctx)
 	}
 
 	return nil
@@ -146,10 +146,10 @@ func (d *DockerEnvironment) Cleanup() error {
 func (d *DockerEnvironment) FindExecutable(name string) *internal.Executable {
 	ctx := context.Background()
 
-	if !d.IsRunning() {
+	if !d.IsRunning(ctx) {
 		d.AutoStop = true
 
-		if err := d.Start(); err != nil {
+		if err := d.Start(ctx); err != nil {
 			return nil
 		}
 	}
@@ -185,15 +185,15 @@ func (d *DockerEnvironment) FindExecutable(name string) *internal.Executable {
 }
 
 func (d *DockerEnvironment) RunExecutable(ctx internal.RunContext, path string, args []string) error {
-	if !d.IsRunning() {
+	c := context.Background()
+
+	if !d.IsRunning(c) {
 		d.AutoStop = true
 
-		if err := d.Start(); err != nil {
+		if err := d.Start(c); err != nil {
 			return err
 		}
 	}
-
-	c := context.Background()
 
 	execResp, err := d.Docker.client.ContainerExecCreate(c, d.ContainerId, container.ExecOptions{
 		Cmd:          append([]string{path}, args...),

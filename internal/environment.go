@@ -1,6 +1,7 @@
 package internal
 
 import (
+	"context"
 	"github.com/jedib0t/go-pretty/v6/table"
 	"io"
 	"os/exec"
@@ -12,16 +13,16 @@ type Environment interface {
 	Id() string
 
 	// Start the environment
-	Start() error
+	Start(ctx context.Context) error
 
 	// IsRunning returns if the environment is running
-	IsRunning() bool
+	IsRunning(ctx context.Context) bool
 
 	// Stop the environment
-	Stop() error
+	Stop(ctx context.Context) error
 
 	// Cleanup cleans the environment
-	Cleanup() error
+	Cleanup(ctx context.Context) error
 
 	// FindExecutable try to find an executable in the environment
 	FindExecutable(name string) *Executable
@@ -89,22 +90,22 @@ func (s *systemEnvironment) IsAvailable() bool {
 	return true
 }
 
-func (s *systemEnvironment) Start() error {
+func (s *systemEnvironment) Start(_ context.Context) error {
 	// Always available
 	return nil
 }
 
-func (s *systemEnvironment) IsRunning() bool {
+func (s *systemEnvironment) IsRunning(_ context.Context) bool {
 	// Always available
 	return true
 }
 
-func (s *systemEnvironment) Stop() error {
+func (s *systemEnvironment) Stop(_ context.Context) error {
 	// Always available
 	return nil
 }
 
-func (s *systemEnvironment) Cleanup() error {
+func (s *systemEnvironment) Cleanup(_ context.Context) error {
 	// Always available
 	return nil
 }

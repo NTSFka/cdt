@@ -44,7 +44,7 @@ func environmentCommandActionStatus(ctx context.Context, _ *cli.Command) error {
 	c := ctx.Value("context").(internal.Context)
 	env := c.Environment
 
-	if env.IsRunning() {
+	if env.IsRunning(ctx) {
 		fmt.Printf("%v: running\n", env.Id())
 	} else {
 		fmt.Printf("%v: stopped\n", env.Id())
@@ -57,7 +57,7 @@ func environmentCommandActionStart(ctx context.Context, _ *cli.Command) error {
 	c := ctx.Value("context").(internal.Context)
 	env := c.Environment
 
-	if err := env.Start(); err != nil {
+	if err := env.Start(ctx); err != nil {
 		return fmt.Errorf("environment start failed: %w", err)
 	}
 
@@ -68,7 +68,7 @@ func environmentCommandActionStop(ctx context.Context, _ *cli.Command) error {
 	c := ctx.Value("context").(internal.Context)
 	env := c.Environment
 
-	if err := env.Stop(); err != nil {
+	if err := env.Stop(ctx); err != nil {
 		return fmt.Errorf("environment stop failed: %w", err)
 	}
 

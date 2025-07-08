@@ -4,6 +4,7 @@ import (
 	"cdt/internal/test"
 	"errors"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 	"testing"
 )
 
@@ -53,8 +54,8 @@ func TestEnvironment_Status_Running(t *testing.T) {
 	env := test.Environment{}
 
 	env.On("Id").Return("test")
-	env.On("IsRunning").Return(true)
-	env.On("Cleanup").Return(nil)
+	env.On("IsRunning", mock.Anything).Return(true)
+	env.On("Cleanup", mock.Anything).Return(nil)
 
 	err := runMainWithEnvironment(&env, "environment", "status")
 
@@ -66,8 +67,8 @@ func TestEnvironment_Status_NotRunning(t *testing.T) {
 	env := test.Environment{}
 
 	env.On("Id").Return("test")
-	env.On("IsRunning").Return(false)
-	env.On("Cleanup").Return(nil)
+	env.On("IsRunning", mock.Anything).Return(false)
+	env.On("Cleanup", mock.Anything).Return(nil)
 
 	err := runMainWithEnvironment(&env, "environment", "status")
 
@@ -78,8 +79,8 @@ func TestEnvironment_Status_NotRunning(t *testing.T) {
 func TestEnvironment_Start(t *testing.T) {
 	env := test.Environment{}
 
-	env.On("Start").Return(nil)
-	env.On("Cleanup").Return(nil)
+	env.On("Start", mock.Anything).Return(nil)
+	env.On("Cleanup", mock.Anything).Return(nil)
 
 	err := runMainWithEnvironment(&env, "environment", "start")
 
@@ -90,8 +91,8 @@ func TestEnvironment_Start(t *testing.T) {
 func TestEnvironment_Start_Failed(t *testing.T) {
 	env := test.Environment{}
 
-	env.On("Start").Return(errors.New("failed"))
-	env.On("Cleanup").Return(nil)
+	env.On("Start", mock.Anything).Return(errors.New("failed"))
+	env.On("Cleanup", mock.Anything).Return(nil)
 
 	err := runMainWithEnvironment(&env, "environment", "start")
 
@@ -102,8 +103,8 @@ func TestEnvironment_Start_Failed(t *testing.T) {
 func TestEnvironment_Stop(t *testing.T) {
 	env := test.Environment{}
 
-	env.On("Stop").Return(nil)
-	env.On("Cleanup").Return(nil)
+	env.On("Stop", mock.Anything).Return(nil)
+	env.On("Cleanup", mock.Anything).Return(nil)
 
 	err := runMainWithEnvironment(&env, "environment", "stop")
 
@@ -114,8 +115,8 @@ func TestEnvironment_Stop(t *testing.T) {
 func TestEnvironment_Stop_Failed(t *testing.T) {
 	env := test.Environment{}
 
-	env.On("Stop").Return(errors.New("failed"))
-	env.On("Cleanup").Return(nil)
+	env.On("Stop", mock.Anything).Return(errors.New("failed"))
+	env.On("Cleanup", mock.Anything).Return(nil)
 
 	err := runMainWithEnvironment(&env, "environment", "stop")
 

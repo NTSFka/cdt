@@ -99,7 +99,7 @@ func RunMain(buildContext func(config internal.Config) (*internal.Context, error
 			c, ok := ctx.Value("context").(internal.Context)
 
 			if ok && c.Environment != nil {
-				return c.Environment.Cleanup()
+				return c.Environment.Cleanup(ctx)
 			}
 
 			return nil
