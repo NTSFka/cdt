@@ -23,7 +23,7 @@ func TestCMake_DetectCMakeProject_NoCMakeLists(t *testing.T) {
 // If cmake is not available
 func TestTest_DetectCMakeProject_NoCMakeBinary(t *testing.T) {
 	tools := internal.Tools{
-		tool.NewCMake(nil),
+		tool.NewCMake(func() *internal.Executable { return nil }),
 	}
 
 	dir := t.TempDir()
@@ -38,10 +38,10 @@ func TestTest_DetectCMakeProject_NoCMakeBinary(t *testing.T) {
 
 func TestCMake_DetectCMakeProject_CustomBuildDirectory(t *testing.T) {
 	tools := internal.Tools{
-		tool.NewCMake(&internal.Executable{Path: "cmake-test"}),
-		&tool.ClangFormat{},
-		&tool.ClangTidy{},
-		&tool.CTest{},
+		tool.NewCMake(func() *internal.Executable { return &internal.Executable{Path: "cmake-test"} }),
+		tool.NewClangFormat(func() *internal.Executable { return nil }),
+		tool.NewClangTidy(func() *internal.Executable { return nil }),
+		tool.NewCTest(func() *internal.Executable { return nil }),
 	}
 
 	dir := t.TempDir()
@@ -63,10 +63,10 @@ func TestCMake_DetectCMakeProject_CustomBuildDirectory(t *testing.T) {
 // If no formatters and linters are available
 func TestCMake_DetectCMakeProject_NoFormatterAndLinters(t *testing.T) {
 	tools := internal.Tools{
-		tool.NewCMake(&internal.Executable{Path: "cmake-test"}),
-		&tool.ClangFormat{},
-		&tool.ClangTidy{},
-		&tool.CTest{},
+		tool.NewCMake(func() *internal.Executable { return &internal.Executable{Path: "cmake-test"} }),
+		tool.NewClangFormat(func() *internal.Executable { return nil }),
+		tool.NewClangTidy(func() *internal.Executable { return nil }),
+		tool.NewCTest(func() *internal.Executable { return nil }),
 	}
 
 	dir := t.TempDir()
@@ -86,10 +86,10 @@ func TestCMake_DetectCMakeProject_NoFormatterAndLinters(t *testing.T) {
 // If formatters and linters are available
 func TestCMake_DetectCMakeProject_FormatterAndLinters(t *testing.T) {
 	tools := internal.Tools{
-		tool.NewCMake(&internal.Executable{Path: "cmake-test"}),
-		tool.NewClangFormat(&internal.Executable{Path: "clang-format-test"}, nil),
-		tool.NewClangTidy(&internal.Executable{Path: "clang-tidy-test"}, nil),
-		&tool.CTest{},
+		tool.NewCMake(func() *internal.Executable { return &internal.Executable{Path: "cmake-test"} }),
+		tool.NewClangFormat(func() *internal.Executable { return &internal.Executable{Path: "clang-format-test"} }),
+		tool.NewClangTidy(func() *internal.Executable { return &internal.Executable{Path: "clang-tidy-test"} }),
+		tool.NewCTest(func() *internal.Executable { return nil }),
 	}
 
 	dir := t.TempDir()
@@ -119,10 +119,10 @@ func TestCMake_DetectCMakeProject_TestAll(t *testing.T) {
 	}
 
 	tools := internal.Tools{
-		tool.NewCMake(&internal.Executable{Path: "cmake-test", RunFunc: cmakeRun}),
-		tool.NewCTest(&internal.Executable{Path: "ctest-test", RunFunc: ctestRun}),
-		&tool.ClangFormat{},
-		&tool.ClangTidy{},
+		tool.NewCMake(func() *internal.Executable { return &internal.Executable{Path: "cmake-test", RunFunc: cmakeRun} }),
+		tool.NewCTest(func() *internal.Executable { return &internal.Executable{Path: "ctest-test", RunFunc: ctestRun} }),
+		tool.NewClangFormat(func() *internal.Executable { return nil }),
+		tool.NewClangTidy(func() *internal.Executable { return nil }),
 	}
 
 	dir := t.TempDir()
@@ -159,10 +159,10 @@ func TestCMake_DetectCMakeProject_TestAll_BuildFailed(t *testing.T) {
 	}
 
 	tools := internal.Tools{
-		tool.NewCMake(&internal.Executable{Path: "cmake-test", RunFunc: cmakeRun}),
-		tool.NewCTest(&internal.Executable{Path: "ctest-test", RunFunc: ctestRun}),
-		&tool.ClangFormat{},
-		&tool.ClangTidy{},
+		tool.NewCMake(func() *internal.Executable { return &internal.Executable{Path: "cmake-test", RunFunc: cmakeRun} }),
+		tool.NewCTest(func() *internal.Executable { return &internal.Executable{Path: "ctest-test", RunFunc: ctestRun} }),
+		tool.NewClangFormat(func() *internal.Executable { return nil }),
+		tool.NewClangTidy(func() *internal.Executable { return nil }),
 	}
 
 	dir := t.TempDir()
@@ -198,10 +198,10 @@ func TestCMake_DetectCMakeProject_Test(t *testing.T) {
 	}
 
 	tools := internal.Tools{
-		tool.NewCMake(&internal.Executable{Path: "cmake-test", RunFunc: cmakeRun}),
-		tool.NewCTest(&internal.Executable{Path: "ctest-test", RunFunc: ctestRun}),
-		&tool.ClangFormat{},
-		&tool.ClangTidy{},
+		tool.NewCMake(func() *internal.Executable { return &internal.Executable{Path: "cmake-test", RunFunc: cmakeRun} }),
+		tool.NewCTest(func() *internal.Executable { return &internal.Executable{Path: "ctest-test", RunFunc: ctestRun} }),
+		tool.NewClangFormat(func() *internal.Executable { return nil }),
+		tool.NewClangTidy(func() *internal.Executable { return nil }),
 	}
 
 	dir := t.TempDir()
@@ -238,10 +238,10 @@ func TestCMake_DetectCMakeProject_TestBuild_Failed(t *testing.T) {
 	}
 
 	tools := internal.Tools{
-		tool.NewCMake(&internal.Executable{Path: "cmake-test", RunFunc: cmakeRun}),
-		tool.NewCTest(&internal.Executable{Path: "ctest-test", RunFunc: ctestRun}),
-		&tool.ClangFormat{},
-		&tool.ClangTidy{},
+		tool.NewCMake(func() *internal.Executable { return &internal.Executable{Path: "cmake-test", RunFunc: cmakeRun} }),
+		tool.NewCTest(func() *internal.Executable { return &internal.Executable{Path: "ctest-test", RunFunc: ctestRun} }),
+		tool.NewClangFormat(func() *internal.Executable { return nil }),
+		tool.NewClangTidy(func() *internal.Executable { return nil }),
 	}
 
 	dir := t.TempDir()

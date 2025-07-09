@@ -12,20 +12,22 @@ type CMake struct {
 }
 
 // NewCMake creates a cmake tool from a custom executable
-func NewCMake(executable *internal.Executable) *CMake {
+func NewCMake(detect func() *internal.Executable) *CMake {
 	return &CMake{
 		internal.MakeExecutableTool(
 			"cmake",
 			"CMake",
 			"A Powerful Software Build System",
-			executable,
+			detect,
 		),
 	}
 }
 
 // DetectCMake create cmake tool can be used in the project
 func DetectCMake(environment internal.Environment) *CMake {
-	return NewCMake(environment.FindExecutable("cmake"))
+	return NewCMake(func() *internal.Executable {
+		return environment.FindExecutable("cmake")
+	})
 }
 
 func (c *CMake) Structure(project internal.Project) (*internal.ProjectStructure, error) {

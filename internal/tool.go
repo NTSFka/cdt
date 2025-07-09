@@ -29,20 +29,23 @@ type Tool interface {
 
 // ExecutableTool is a simple implementation of the Tool interface.
 type ExecutableTool struct {
-	Tool
 	id         string
 	name       string
 	info       string
+	detected   bool
+	detect     func() *Executable
 	executable *Executable
 }
 
 // MakeExecutableTool creates an executable tool
-func MakeExecutableTool(id string, name string, info string, executable *Executable) ExecutableTool {
+func MakeExecutableTool(id string, name string, info string, detect func() *Executable) ExecutableTool {
 	return ExecutableTool{
 		id:         id,
 		name:       name,
 		info:       info,
-		executable: executable,
+		detected:   false,
+		detect:     detect,
+		executable: nil,
 	}
 }
 
@@ -63,23 +66,36 @@ func (t *ExecutableTool) Info() string {
 }
 
 func (t *ExecutableTool) ExecutablePath() *string {
-	if t.executable != nil {
-		return &t.executable.Path
+	if executable := t.Executable(); executable != nil {
+		return &executable.Path
 	}
 
 	return nil
 }
 
 func (t *ExecutableTool) IsAvailable() bool {
-	return t.executable != nil
+	return t.Executable() != nil
+}
+
+func (t *ExecutableTool) Executable() *Executable {
+	if !t.detected {
+		if t.detect == nil {
+			panic("detect function is not set")
+		}
+
+		t.executable = t.detect()
+		t.detected = true
+	}
+
+	return t.executable
 }
 
 func (t *ExecutableTool) RunContext(ctx RunContext, args []string) error {
-	if t.executable == nil {
+	if t.Executable() == nil {
 		return t.NotFoundError()
 	}
 
-	return t.executable.Run(ctx, args)
+	return t.Executable().Run(ctx, args)
 }
 
 func (t *ExecutableTool) Run(project Project, args []string) error {

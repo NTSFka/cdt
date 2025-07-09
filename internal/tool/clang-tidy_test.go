@@ -82,7 +82,7 @@ func TestClangTidy_DetectClangTidy_NotFound(t *testing.T) {
 func TestClangTidy_LintAll(t *testing.T) {
 	environment := test.Environment{}
 
-	tool := NewClangTidy(environment.MakeExecutable("clang-tidy"), nil)
+	tool := NewClangTidy(environment.DetectExecutable("clang-tidy"))
 
 	p := internal.MakeProject("project", "build", &internal.FixedProjectStructureProvider{
 		ProjectStructure: internal.ProjectStructure{
@@ -109,7 +109,7 @@ func TestClangTidy_LintAll(t *testing.T) {
 func TestClangTidy_LintAll_Failed(t *testing.T) {
 	environment := test.Environment{}
 
-	tool := NewClangTidy(environment.MakeExecutable("clang-tidy"), nil)
+	tool := NewClangTidy(environment.DetectExecutable("clang-tidy"))
 
 	p := internal.MakeProject("project", "build", &internal.FixedProjectStructureProvider{
 		ProjectStructure: internal.ProjectStructure{
@@ -136,7 +136,7 @@ func TestClangTidy_LintAll_Failed(t *testing.T) {
 func TestClangTidy_LintAll_CustomConfig(t *testing.T) {
 	environment := test.Environment{}
 
-	tool := NewClangTidy(environment.MakeExecutable("clang-tidy"), nil)
+	tool := NewClangTidy(environment.DetectExecutable("clang-tidy"))
 
 	p := internal.MakeProject(t.TempDir(), "build", &internal.FixedProjectStructureProvider{
 		ProjectStructure: internal.ProjectStructure{
@@ -167,7 +167,7 @@ func TestClangTidy_LintAll_CustomConfig(t *testing.T) {
 func TestClangTidy_LintFiles(t *testing.T) {
 	environment := test.Environment{}
 
-	tool := NewClangTidy(environment.MakeExecutable("clang-tidy"), nil)
+	tool := NewClangTidy(environment.DetectExecutable("clang-tidy"))
 
 	p := internal.MakeProject(t.TempDir(), "build", nil, internal.Workflow{})
 
@@ -186,7 +186,7 @@ func TestClangTidy_LintFiles(t *testing.T) {
 func TestClangTidy_LintFiles_Failed(t *testing.T) {
 	environment := test.Environment{}
 
-	tool := NewClangTidy(environment.MakeExecutable("clang-tidy"), nil)
+	tool := NewClangTidy(environment.DetectExecutable("clang-tidy"))
 
 	p := internal.MakeProject("project", "build", nil, internal.Workflow{})
 
@@ -204,7 +204,7 @@ func TestClangTidy_LintFiles_Failed(t *testing.T) {
 func TestClangTidy_LintFiles_CustomConfig(t *testing.T) {
 	environment := test.Environment{}
 
-	tool := NewClangTidy(environment.MakeExecutable("clang-tidy"), nil)
+	tool := NewClangTidy(environment.DetectExecutable("clang-tidy"))
 
 	p := internal.MakeProject(t.TempDir(), "build", nil, internal.Workflow{})
 
@@ -226,7 +226,7 @@ func TestClangTidy_LintFiles_CustomConfig(t *testing.T) {
 func TestClangTidy_Run(t *testing.T) {
 	environment := test.Environment{}
 
-	tool := NewClangTidy(environment.MakeExecutable("clang-tidy"), nil)
+	tool := NewClangTidy(environment.DetectExecutable("clang-tidy"))
 
 	p := internal.MakeProject("project", "build", nil, internal.Workflow{})
 
@@ -241,7 +241,7 @@ func TestClangTidy_Run(t *testing.T) {
 func TestClangTidy_Run_Failed(t *testing.T) {
 	environment := test.Environment{}
 
-	tool := NewClangTidy(environment.MakeExecutable("clang-tidy"), nil)
+	tool := NewClangTidy(environment.DetectExecutable("clang-tidy"))
 
 	p := internal.MakeProject("project", "build", nil, internal.Workflow{})
 

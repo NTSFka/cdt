@@ -12,7 +12,6 @@ const clangTidyMaxVersion = 22
 
 type ClangTidy struct {
 	internal.ExecutableTool
-	Version *int
 }
 
 func detectClangTidyVersion(environment internal.Environment, version int) *internal.Executable {
@@ -21,36 +20,37 @@ func detectClangTidyVersion(environment internal.Environment, version int) *inte
 
 // DetectClangTidy create a tool for clang-tidy
 func DetectClangTidy(environment internal.Environment, preferredVersion *int) *ClangTidy {
-	if preferredVersion != nil {
-		if executable := detectClangTidyVersion(environment, *preferredVersion); executable != nil {
-			return NewClangTidy(executable, preferredVersion)
+	return NewClangTidy(func() *internal.Executable {
+		if preferredVersion != nil {
+			if executable := detectClangTidyVersion(environment, *preferredVersion); executable != nil {
+				return executable
+			}
 		}
-	}
 
-	// Detect unversioned (system default)
-	if executable := environment.FindExecutable("clang-tidy"); executable != nil {
-		return NewClangTidy(executable, nil)
-	}
-
-	for version := clangTidyMaxVersion; version >= clangTidyMinVersion; version-- {
-		if executable := detectClangTidyVersion(environment, version); executable != nil {
-			return NewClangTidy(executable, &version)
+		// Detect unversioned (system default)
+		if executable := environment.FindExecutable("clang-tidy"); executable != nil {
+			return executable
 		}
-	}
 
-	return NewClangTidy(nil, nil)
+		for version := clangTidyMaxVersion; version >= clangTidyMinVersion; version-- {
+			if executable := detectClangTidyVersion(environment, version); executable != nil {
+				return executable
+			}
+		}
+
+		return nil
+	})
 }
 
 // NewClangTidy creates a clang-tidy tool from a custom executable
-func NewClangTidy(executable *internal.Executable, version *int) *ClangTidy {
+func NewClangTidy(detect func() *internal.Executable) *ClangTidy {
 	return &ClangTidy{
 		ExecutableTool: internal.MakeExecutableTool(
 			"clang-tidy",
 			"Clang Tidy",
 			"A clang-based C++ “linter” tool.",
-			executable,
+			detect,
 		),
-		Version: version,
 	}
 }
 

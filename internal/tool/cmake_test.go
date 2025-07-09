@@ -40,7 +40,7 @@ func TestCMake_CMakeDetect_NotFound(t *testing.T) {
 func TestCMake_Configure(t *testing.T) {
 	environment := test.Environment{}
 
-	cmake := NewCMake(environment.MakeExecutable("cmake"))
+	cmake := NewCMake(environment.DetectExecutable("cmake"))
 
 	p := internal.MakeProject("project", t.TempDir(), cmake, internal.Workflow{})
 
@@ -59,7 +59,7 @@ func TestCMake_Configure(t *testing.T) {
 func TestCMake_Configure_Failed(t *testing.T) {
 	environment := test.Environment{}
 
-	cmake := NewCMake(environment.MakeExecutable("cmake"))
+	cmake := NewCMake(environment.DetectExecutable("cmake"))
 
 	p := internal.MakeProject("project", t.TempDir(), cmake, internal.Workflow{})
 
@@ -78,7 +78,7 @@ func TestCMake_Configure_Failed(t *testing.T) {
 func TestCMake_Structure_ConfigureFailed(t *testing.T) {
 	environment := test.Environment{}
 
-	cmake := NewCMake(environment.MakeExecutable("cmake"))
+	cmake := NewCMake(environment.DetectExecutable("cmake"))
 
 	p := internal.MakeProject("project", t.TempDir(), cmake, internal.Workflow{})
 
@@ -99,7 +99,7 @@ func TestCMake_Structure_ConfigureFailed(t *testing.T) {
 func TestCMake_BuildAll(t *testing.T) {
 	environment := test.Environment{}
 
-	cmake := NewCMake(environment.MakeExecutable("cmake"))
+	cmake := NewCMake(environment.DetectExecutable("cmake"))
 
 	p := internal.MakeProject("project", t.TempDir(), cmake, internal.Workflow{})
 
@@ -122,7 +122,7 @@ func TestCMake_BuildAll(t *testing.T) {
 func TestCMake_BuildAll_Failed(t *testing.T) {
 	environment := test.Environment{}
 
-	cmake := NewCMake(environment.MakeExecutable("cmake"))
+	cmake := NewCMake(environment.DetectExecutable("cmake"))
 
 	p := internal.MakeProject("project", t.TempDir(), cmake, internal.Workflow{})
 
@@ -145,7 +145,7 @@ func TestCMake_BuildAll_Failed(t *testing.T) {
 func TestCMake_BuildAll_ConfigureFailed(t *testing.T) {
 	environment := test.Environment{}
 
-	cmake := NewCMake(environment.MakeExecutable("cmake"))
+	cmake := NewCMake(environment.DetectExecutable("cmake"))
 
 	p := internal.MakeProject("project", t.TempDir(), cmake, internal.Workflow{})
 
@@ -165,7 +165,7 @@ func TestCMake_BuildAll_ConfigureFailed(t *testing.T) {
 func TestCMake_BuildTargets(t *testing.T) {
 	environment := test.Environment{}
 
-	cmake := NewCMake(environment.MakeExecutable("cmake"))
+	cmake := NewCMake(environment.DetectExecutable("cmake"))
 
 	p := internal.MakeProject("project", t.TempDir(), cmake, internal.Workflow{})
 
@@ -191,7 +191,7 @@ func TestCMake_BuildTargets(t *testing.T) {
 func TestCMake_BuildTargets_Failed(t *testing.T) {
 	environment := test.Environment{}
 
-	cmake := NewCMake(environment.MakeExecutable("cmake"))
+	cmake := NewCMake(environment.DetectExecutable("cmake"))
 
 	p := internal.MakeProject("project", t.TempDir(), cmake, internal.Workflow{})
 
@@ -217,7 +217,7 @@ func TestCMake_BuildTargets_Failed(t *testing.T) {
 func TestCMake_BuildTargets_ConfigureFailed(t *testing.T) {
 	environment := test.Environment{}
 
-	cmake := NewCMake(environment.MakeExecutable("cmake"))
+	cmake := NewCMake(environment.DetectExecutable("cmake"))
 
 	p := internal.MakeProject("project", t.TempDir(), cmake, internal.Workflow{})
 
@@ -237,7 +237,7 @@ func TestCMake_BuildTargets_ConfigureFailed(t *testing.T) {
 func TestCMake_RunTarget_Failed(t *testing.T) {
 	environment := test.Environment{}
 
-	cmake := NewCMake(environment.MakeExecutable("cmake"))
+	cmake := NewCMake(environment.DetectExecutable("cmake"))
 
 	p := internal.MakeProject("project", t.TempDir(), cmake, internal.Workflow{})
 

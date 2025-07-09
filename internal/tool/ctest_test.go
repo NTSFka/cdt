@@ -40,7 +40,7 @@ func TestCTest_DetectCTest_NotFound(t *testing.T) {
 func TestCTest_Run(t *testing.T) {
 	environment := test.Environment{}
 
-	tool := NewCTest(environment.MakeExecutable("ctest"))
+	tool := NewCTest(environment.DetectExecutable("ctest"))
 
 	p := internal.MakeProject("project", "build", nil, internal.Workflow{})
 
@@ -55,7 +55,7 @@ func TestCTest_Run(t *testing.T) {
 func TestCTest_Run_Failed(t *testing.T) {
 	environment := test.Environment{}
 
-	tool := NewCTest(environment.MakeExecutable("ctest"))
+	tool := NewCTest(environment.DetectExecutable("ctest"))
 
 	p := internal.MakeProject("project", "build", nil, internal.Workflow{})
 

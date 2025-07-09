@@ -14,6 +14,12 @@ func (e *Environment) MakeExecutable(path string) *internal.Executable {
 	return &internal.Executable{Path: path, RunFunc: e.RunExecutable}
 }
 
+func (e *Environment) DetectExecutable(path string) func() *internal.Executable {
+	return func() *internal.Executable {
+		return e.MakeExecutable(path)
+	}
+}
+
 func (e *Environment) Id() string {
 	return e.Called().Get(0).(string)
 }

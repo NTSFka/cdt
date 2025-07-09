@@ -13,7 +13,6 @@ const clangFormatMaxVersion = 22
 // ClangFormat is a formatter for the clang-format tool
 type ClangFormat struct {
 	internal.ExecutableTool
-	Version *int
 }
 
 func detectClangFormat(environment internal.Environment) *internal.Executable {
@@ -26,36 +25,37 @@ func detectClangFormatVersion(environment internal.Environment, version int) *in
 
 // DetectClangFormat CreateEnvironment clang-format tool can be used in the project
 func DetectClangFormat(environment internal.Environment, preferredVersion *int) *ClangFormat {
-	if preferredVersion != nil {
-		if executable := detectClangFormatVersion(environment, *preferredVersion); executable != nil {
-			return NewClangFormat(executable, preferredVersion)
+	return NewClangFormat(func() *internal.Executable {
+		if preferredVersion != nil {
+			if executable := detectClangFormatVersion(environment, *preferredVersion); executable != nil {
+				return executable
+			}
 		}
-	}
 
-	// Detect unversioned (system default)
-	if executable := detectClangFormat(environment); executable != nil {
-		return NewClangFormat(executable, nil)
-	}
-
-	for version := clangFormatMaxVersion; version >= clangFormatMinVersion; version-- {
-		if executable := detectClangFormatVersion(environment, version); executable != nil {
-			return NewClangFormat(executable, &version)
+		// Detect unversioned (system default)
+		if executable := detectClangFormat(environment); executable != nil {
+			return executable
 		}
-	}
 
-	return NewClangFormat(nil, nil)
+		for version := clangFormatMaxVersion; version >= clangFormatMinVersion; version-- {
+			if executable := detectClangFormatVersion(environment, version); executable != nil {
+				return executable
+			}
+		}
+
+		return nil
+	})
 }
 
 // NewClangFormat creates a clang-format tool from a custom executable
-func NewClangFormat(executable *internal.Executable, version *int) *ClangFormat {
+func NewClangFormat(detect func() *internal.Executable) *ClangFormat {
 	return &ClangFormat{
 		ExecutableTool: internal.MakeExecutableTool(
 			"clang-format",
 			"Clang Format",
 			"A tool to format C/C++/Java/JavaScript/JSON/Objective-C/Protobuf/C# code.",
-			executable,
+			detect,
 		),
-		Version: version,
 	}
 }
 

@@ -82,7 +82,7 @@ func TestClangFormat_DetectClangFormat_NotFound(t *testing.T) {
 func TestClangFormat_FormatAll(t *testing.T) {
 	environment := test.Environment{}
 
-	tool := NewClangFormat(environment.MakeExecutable("clang-format"), nil)
+	tool := NewClangFormat(environment.DetectExecutable("clang-format"))
 
 	p := internal.MakeProject("project", "build", &internal.FixedProjectStructureProvider{
 		ProjectStructure: internal.ProjectStructure{
@@ -110,7 +110,7 @@ func TestClangFormat_FormatAll(t *testing.T) {
 func TestClangFormat_FormatAll_Failed(t *testing.T) {
 	environment := test.Environment{}
 
-	tool := NewClangFormat(environment.MakeExecutable("clang-format"), nil)
+	tool := NewClangFormat(environment.DetectExecutable("clang-format"))
 
 	p := internal.MakeProject("project", "build", &internal.FixedProjectStructureProvider{
 		ProjectStructure: internal.ProjectStructure{
@@ -138,7 +138,7 @@ func TestClangFormat_FormatAll_Failed(t *testing.T) {
 func TestClangFormat_FormatAll_CustomConfig(t *testing.T) {
 	environment := test.Environment{}
 
-	tool := NewClangFormat(environment.MakeExecutable("clang-format"), nil)
+	tool := NewClangFormat(environment.DetectExecutable("clang-format"))
 
 	p := internal.MakeProject(t.TempDir(), "build", &internal.FixedProjectStructureProvider{
 		ProjectStructure: internal.ProjectStructure{
@@ -170,7 +170,7 @@ func TestClangFormat_FormatAll_CustomConfig(t *testing.T) {
 func TestClangFormat_FormatFiles(t *testing.T) {
 	environment := test.Environment{}
 
-	tool := NewClangFormat(environment.MakeExecutable("clang-format"), nil)
+	tool := NewClangFormat(environment.DetectExecutable("clang-format"))
 
 	p := internal.MakeProject(t.TempDir(), "build", nil, internal.Workflow{})
 
@@ -190,7 +190,7 @@ func TestClangFormat_FormatFiles(t *testing.T) {
 func TestClangFormat_FormatFiles_Failed(t *testing.T) {
 	environment := test.Environment{}
 
-	tool := NewClangFormat(environment.MakeExecutable("clang-format"), nil)
+	tool := NewClangFormat(environment.DetectExecutable("clang-format"))
 
 	p := internal.MakeProject("project", "build", nil, internal.Workflow{})
 
@@ -209,7 +209,7 @@ func TestClangFormat_FormatFiles_Failed(t *testing.T) {
 func TestClangFormat_FormatFiles_CustomConfig(t *testing.T) {
 	environment := test.Environment{}
 
-	tool := NewClangFormat(environment.MakeExecutable("clang-format"), nil)
+	tool := NewClangFormat(environment.DetectExecutable("clang-format"))
 
 	p := internal.MakeProject(t.TempDir(), "build", nil, internal.Workflow{})
 
@@ -232,7 +232,7 @@ func TestClangFormat_FormatFiles_CustomConfig(t *testing.T) {
 func TestClangFormat_FormatCheckAll(t *testing.T) {
 	environment := test.Environment{}
 
-	tool := NewClangFormat(environment.MakeExecutable("clang-format"), nil)
+	tool := NewClangFormat(environment.DetectExecutable("clang-format"))
 
 	p := internal.MakeProject("project", "build", &internal.FixedProjectStructureProvider{
 		ProjectStructure: internal.ProjectStructure{
@@ -260,7 +260,7 @@ func TestClangFormat_FormatCheckAll(t *testing.T) {
 func TestClangFormat_FormatCheckAll_Failed(t *testing.T) {
 	environment := test.Environment{}
 
-	tool := NewClangFormat(environment.MakeExecutable("clang-format"), nil)
+	tool := NewClangFormat(environment.DetectExecutable("clang-format"))
 
 	p := internal.MakeProject("project", "build", &internal.FixedProjectStructureProvider{
 		ProjectStructure: internal.ProjectStructure{
@@ -288,7 +288,7 @@ func TestClangFormat_FormatCheckAll_Failed(t *testing.T) {
 func TestClangFormat_FormatCheckAll_CustomConfig(t *testing.T) {
 	environment := test.Environment{}
 
-	tool := NewClangFormat(environment.MakeExecutable("clang-format"), nil)
+	tool := NewClangFormat(environment.DetectExecutable("clang-format"))
 
 	p := internal.MakeProject(t.TempDir(), "build", &internal.FixedProjectStructureProvider{
 		ProjectStructure: internal.ProjectStructure{
@@ -320,7 +320,7 @@ func TestClangFormat_FormatCheckAll_CustomConfig(t *testing.T) {
 func TestClangFormat_FormatCheckFiles(t *testing.T) {
 	environment := test.Environment{}
 
-	tool := NewClangFormat(environment.MakeExecutable("clang-format"), nil)
+	tool := NewClangFormat(environment.DetectExecutable("clang-format"))
 
 	p := internal.MakeProject(t.TempDir(), "build", nil, internal.Workflow{})
 
@@ -340,7 +340,7 @@ func TestClangFormat_FormatCheckFiles(t *testing.T) {
 func TestClangFormat_FormatCheckFiles_Failed(t *testing.T) {
 	environment := test.Environment{}
 
-	tool := NewClangFormat(environment.MakeExecutable("clang-format"), nil)
+	tool := NewClangFormat(environment.DetectExecutable("clang-format"))
 
 	p := internal.MakeProject("project", "build", nil, internal.Workflow{})
 
@@ -359,7 +359,7 @@ func TestClangFormat_FormatCheckFiles_Failed(t *testing.T) {
 func TestClangFormat_FormatCheckFiles_CustomConfig(t *testing.T) {
 	environment := test.Environment{}
 
-	tool := NewClangFormat(environment.MakeExecutable("clang-format"), nil)
+	tool := NewClangFormat(environment.DetectExecutable("clang-format"))
 
 	p := internal.MakeProject(t.TempDir(), "build", nil, internal.Workflow{})
 
@@ -382,7 +382,7 @@ func TestClangFormat_FormatCheckFiles_CustomConfig(t *testing.T) {
 func TestClangFormat_Run(t *testing.T) {
 	environment := test.Environment{}
 
-	tool := NewClangFormat(environment.MakeExecutable("clang-format"), nil)
+	tool := NewClangFormat(environment.DetectExecutable("clang-format"))
 
 	p := internal.MakeProject("project", "build", nil, internal.Workflow{})
 
@@ -397,7 +397,7 @@ func TestClangFormat_Run(t *testing.T) {
 func TestClangFormat_Run_Failed(t *testing.T) {
 	environment := test.Environment{}
 
-	tool := NewClangFormat(environment.MakeExecutable("clang-format"), nil)
+	tool := NewClangFormat(environment.DetectExecutable("clang-format"))
 
 	p := internal.MakeProject("project", "build", nil, internal.Workflow{})
 

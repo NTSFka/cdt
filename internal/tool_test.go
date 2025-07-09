@@ -8,7 +8,7 @@ import (
 )
 
 func TestTool_ExecutableTool_NotAvailable(t *testing.T) {
-	tool := MakeExecutableTool("toolId", "Tool Name", "Tool Info", nil)
+	tool := MakeExecutableTool("toolId", "Tool Name", "Tool Info", func() *Executable { return nil })
 
 	assert.Equal(t, "toolId", tool.Id())
 	assert.Equal(t, "Tool Name", tool.Name())
@@ -19,7 +19,7 @@ func TestTool_ExecutableTool_NotAvailable(t *testing.T) {
 }
 
 func TestTool_ExecutableTool(t *testing.T) {
-	tool := MakeExecutableTool("toolId", "Tool Name", "Tool Info", &Executable{Path: "/bin/tool"})
+	tool := MakeExecutableTool("toolId", "Tool Name", "Tool Info", func() *Executable { return &Executable{Path: "/bin/tool"} })
 
 	assert.Equal(t, "toolId", tool.Id())
 	assert.Equal(t, "Tool Name", tool.Name())
@@ -33,11 +33,13 @@ func TestTool_ExecutableTool(t *testing.T) {
 func TestTool_ExecutableTool_Run(t *testing.T) {
 	var runMock mock.Mock
 
-	tool := MakeExecutableTool("id", "", "", &Executable{Path: "echo", RunFunc: func(ctx RunContext, path string, args []string) error {
-		return runMock.Called(ctx, path, args).Error(0)
-	}})
+	tool := MakeExecutableTool("id", "", "", func() *Executable {
+		return &Executable{Path: "echo", RunFunc: func(ctx RunContext, path string, args []string) error {
+			return runMock.Called(ctx, path, args).Error(0)
+		}}
+	})
 
-	runMock.On("func1", mock.Anything, "echo", []string{"arg1", "arg2"}).Return(nil)
+	runMock.On("1", mock.Anything, "echo", []string{"arg1", "arg2"}).Return(nil)
 
 	err := tool.Run(Project{}, []string{"arg1", "arg2"})
 	assert.NoError(t, err)
@@ -56,7 +58,7 @@ func TestTool_Tools_Active_Empty(t *testing.T) {
 func TestTool_Tools_Active_NoActive(t *testing.T) {
 	tools := Tools{
 		&testTool{
-			MakeExecutableTool("toolId", "", "", nil),
+			MakeExecutableTool("toolId", "", "", func() *Executable { return nil }),
 		},
 	}
 
@@ -66,10 +68,10 @@ func TestTool_Tools_Active_NoActive(t *testing.T) {
 func TestTool_Tools_Active(t *testing.T) {
 	tools := Tools{
 		&testTool{
-			MakeExecutableTool("id1", "", "", nil),
+			MakeExecutableTool("id1", "", "", func() *Executable { return nil }),
 		},
 		&testTool{
-			MakeExecutableTool("id2", "", "", &Executable{Path: "/bin/tool"}),
+			MakeExecutableTool("id2", "", "", func() *Executable { return &Executable{Path: "/bin/tool"} }),
 		},
 	}
 
@@ -113,10 +115,10 @@ func TestTool_PrintTools_Empty(t *testing.T) {
 func TestTool_PrintTools(t *testing.T) {
 	tools := Tools{
 		&testTool{
-			MakeExecutableTool("id1", "Tool 1", "", nil),
+			MakeExecutableTool("id1", "Tool 1", "", func() *Executable { return nil }),
 		},
 		&testTool{
-			MakeExecutableTool("id2", "Tool 2", "", &Executable{Path: "/bin/tool"}),
+			MakeExecutableTool("id2", "Tool 2", "", func() *Executable { return &Executable{Path: "/bin/tool"} }),
 		},
 	}
 

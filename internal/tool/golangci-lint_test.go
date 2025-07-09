@@ -39,7 +39,7 @@ func TestGolangCILint_DetectGolangCILint_NotFound(t *testing.T) {
 func TestGolangCILint_GolangCILint_LintAll(t *testing.T) {
 	environment := test.Environment{}
 
-	tool := NewGolangCILint(environment.MakeExecutable("lint"))
+	tool := NewGolangCILint(environment.DetectExecutable("lint"))
 
 	p := internal.MakeProject("project", "", nil, internal.Workflow{Linter: tool})
 
@@ -54,7 +54,7 @@ func TestGolangCILint_GolangCILint_LintAll(t *testing.T) {
 func TestGolangCILint_GolangCILint_Lint(t *testing.T) {
 	environment := test.Environment{}
 
-	tool := NewGolangCILint(environment.MakeExecutable("lint"))
+	tool := NewGolangCILint(environment.DetectExecutable("lint"))
 
 	p := internal.MakeProject("project", "", nil, internal.Workflow{Linter: tool})
 

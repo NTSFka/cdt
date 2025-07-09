@@ -41,7 +41,7 @@ func TestGo_DetectGo_NotFound(t *testing.T) {
 func TestGo_Structure(t *testing.T) {
 	environment := test.Environment{}
 
-	tool := NewGo(environment.MakeExecutable("go"))
+	tool := NewGo(environment.DetectExecutable("go"))
 
 	p := internal.MakeProject("project", "", tool, internal.Workflow{})
 
@@ -78,7 +78,7 @@ func TestGo_Structure(t *testing.T) {
 func TestGo_Structure_Failed(t *testing.T) {
 	environment := test.Environment{}
 
-	tool := NewGo(environment.MakeExecutable("go"))
+	tool := NewGo(environment.DetectExecutable("go"))
 
 	p := internal.MakeProject("project", "", tool, internal.Workflow{})
 
@@ -95,7 +95,7 @@ func TestGo_Structure_Failed(t *testing.T) {
 func TestGo_Structure_InvalidJson(t *testing.T) {
 	environment := test.Environment{}
 
-	tool := NewGo(environment.MakeExecutable("go"))
+	tool := NewGo(environment.DetectExecutable("go"))
 
 	p := internal.MakeProject("project", "", tool, internal.Workflow{})
 
@@ -118,7 +118,7 @@ func TestGo_Structure_InvalidJson(t *testing.T) {
 func TestGo_BuildAll(t *testing.T) {
 	environment := test.Environment{}
 
-	tool := NewGo(environment.MakeExecutable("go"))
+	tool := NewGo(environment.DetectExecutable("go"))
 
 	p := internal.MakeProject("project", "", tool, internal.Workflow{})
 
@@ -133,7 +133,7 @@ func TestGo_BuildAll(t *testing.T) {
 func TestGo_BuildAll_Failed(t *testing.T) {
 	environment := test.Environment{}
 
-	tool := NewGo(environment.MakeExecutable("go"))
+	tool := NewGo(environment.DetectExecutable("go"))
 
 	p := internal.MakeProject("project", "", tool, internal.Workflow{})
 
@@ -148,7 +148,7 @@ func TestGo_BuildAll_Failed(t *testing.T) {
 func TestGo_BuildTargets(t *testing.T) {
 	environment := test.Environment{}
 
-	tool := NewGo(environment.MakeExecutable("go"))
+	tool := NewGo(environment.DetectExecutable("go"))
 
 	p := internal.MakeProject("project", "", tool, internal.Workflow{})
 
@@ -163,7 +163,7 @@ func TestGo_BuildTargets(t *testing.T) {
 func TestGo_BuildTargets_Failed(t *testing.T) {
 	environment := test.Environment{}
 
-	tool := NewGo(environment.MakeExecutable("go"))
+	tool := NewGo(environment.DetectExecutable("go"))
 
 	p := internal.MakeProject("project", "", tool, internal.Workflow{})
 
@@ -178,7 +178,7 @@ func TestGo_BuildTargets_Failed(t *testing.T) {
 func TestGo_RunTarget(t *testing.T) {
 	environment := test.Environment{}
 
-	tool := NewGo(environment.MakeExecutable("go"))
+	tool := NewGo(environment.DetectExecutable("go"))
 
 	p := internal.MakeProject("project", "", tool, internal.Workflow{})
 
@@ -193,7 +193,7 @@ func TestGo_RunTarget(t *testing.T) {
 func TestGo_RunTarget_Failed(t *testing.T) {
 	environment := test.Environment{}
 
-	tool := NewGo(environment.MakeExecutable("go"))
+	tool := NewGo(environment.DetectExecutable("go"))
 
 	p := internal.MakeProject("project", "", tool, internal.Workflow{})
 
@@ -208,7 +208,7 @@ func TestGo_RunTarget_Failed(t *testing.T) {
 func TestGo_TestAll(t *testing.T) {
 	environment := test.Environment{}
 
-	tool := NewGo(environment.MakeExecutable("go"))
+	tool := NewGo(environment.DetectExecutable("go"))
 
 	p := internal.MakeProject("project", "", tool, internal.Workflow{})
 
@@ -223,7 +223,7 @@ func TestGo_TestAll(t *testing.T) {
 func TestGo_TestAll_Failed(t *testing.T) {
 	environment := test.Environment{}
 
-	tool := NewGo(environment.MakeExecutable("go"))
+	tool := NewGo(environment.DetectExecutable("go"))
 
 	p := internal.MakeProject("project", "", tool, internal.Workflow{})
 
@@ -238,7 +238,7 @@ func TestGo_TestAll_Failed(t *testing.T) {
 func TestGo_Test(t *testing.T) {
 	environment := test.Environment{}
 
-	tool := NewGo(environment.MakeExecutable("go"))
+	tool := NewGo(environment.DetectExecutable("go"))
 
 	p := internal.MakeProject("project", "", tool, internal.Workflow{})
 
@@ -253,7 +253,7 @@ func TestGo_Test(t *testing.T) {
 func TestGo_Test_Failed(t *testing.T) {
 	environment := test.Environment{}
 
-	tool := NewGo(environment.MakeExecutable("go"))
+	tool := NewGo(environment.DetectExecutable("go"))
 
 	p := internal.MakeProject("project", "", tool, internal.Workflow{})
 
@@ -268,7 +268,7 @@ func TestGo_Test_Failed(t *testing.T) {
 func TestGo_FormatAll(t *testing.T) {
 	environment := test.Environment{}
 
-	tool := NewGo(environment.MakeExecutable("go"))
+	tool := NewGo(environment.DetectExecutable("go"))
 
 	p := internal.MakeProject("project", "", tool, internal.Workflow{})
 
@@ -283,7 +283,7 @@ func TestGo_FormatAll(t *testing.T) {
 func TestGo_FormatAll_Failed(t *testing.T) {
 	environment := test.Environment{}
 
-	tool := NewGo(environment.MakeExecutable("go"))
+	tool := NewGo(environment.DetectExecutable("go"))
 
 	p := internal.MakeProject("project", "", tool, internal.Workflow{})
 
@@ -298,7 +298,7 @@ func TestGo_FormatAll_Failed(t *testing.T) {
 func TestGo_FormatFiles(t *testing.T) {
 	environment := test.Environment{}
 
-	tool := NewGo(environment.MakeExecutable("go"))
+	tool := NewGo(environment.DetectExecutable("go"))
 
 	p := internal.MakeProject("project", "", tool, internal.Workflow{})
 
@@ -313,7 +313,7 @@ func TestGo_FormatFiles(t *testing.T) {
 func TestGo_FormatFiles_Failed(t *testing.T) {
 	environment := test.Environment{}
 
-	tool := NewGo(environment.MakeExecutable("go"))
+	tool := NewGo(environment.DetectExecutable("go"))
 
 	p := internal.MakeProject("project", "", tool, internal.Workflow{})
 
@@ -328,7 +328,7 @@ func TestGo_FormatFiles_Failed(t *testing.T) {
 func TestGo_FormatCheckAll(t *testing.T) {
 	environment := test.Environment{}
 
-	tool := NewGo(environment.MakeExecutable("go"))
+	tool := NewGo(environment.DetectExecutable("go"))
 
 	p := internal.MakeProject("project", "", tool, internal.Workflow{})
 
@@ -341,7 +341,7 @@ func TestGo_FormatCheckAll(t *testing.T) {
 func TestGo_FormatCheckFiles(t *testing.T) {
 	environment := test.Environment{}
 
-	tool := NewGo(environment.MakeExecutable("go"))
+	tool := NewGo(environment.DetectExecutable("go"))
 
 	p := internal.MakeProject("project", "", tool, internal.Workflow{})
 

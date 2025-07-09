@@ -25,7 +25,7 @@ func TestGo_DetectGoProject_NoModFile(t *testing.T) {
 
 func TestGo_DetectGpProject_NoGoBinary(t *testing.T) {
 	tools := internal.Tools{
-		tool.NewGo(nil),
+		tool.NewGo(func() *internal.Executable { return nil }),
 	}
 
 	dir := t.TempDir()
@@ -40,8 +40,8 @@ func TestGo_DetectGpProject_NoGoBinary(t *testing.T) {
 
 func TestGo_DetectGoProject_NoLinter(t *testing.T) {
 	tools := internal.Tools{
-		tool.NewGo(&internal.Executable{Path: "go-test"}),
-		&tool.GolangCILint{},
+		tool.NewGo(func() *internal.Executable { return &internal.Executable{Path: "go-test"} }),
+		tool.NewGolangCILint(func() *internal.Executable { return nil }),
 	}
 
 	dir := t.TempDir()
@@ -64,8 +64,8 @@ func TestGo_DetectGoProject_NoLinter(t *testing.T) {
 
 func TestGo_DetectGoProject_Linter(t *testing.T) {
 	tools := internal.Tools{
-		tool.NewGo(&internal.Executable{Path: "go-test"}),
-		tool.NewGolangCILint(&internal.Executable{Path: "golangci-lint-test"}),
+		tool.NewGo(func() *internal.Executable { return &internal.Executable{Path: "go-test"} }),
+		tool.NewGolangCILint(func() *internal.Executable { return &internal.Executable{Path: "golangci-lint-test"} }),
 	}
 
 	dir := t.TempDir()

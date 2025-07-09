@@ -10,20 +10,22 @@ type CTest struct {
 }
 
 // NewCTest creates a ctest tool from a custom executable
-func NewCTest(executable *internal.Executable) *CTest {
+func NewCTest(detect func() *internal.Executable) *CTest {
 	return &CTest{
 		internal.MakeExecutableTool(
 			"ctest",
 			"CTest",
 			"The ctest executable is the CMake test driver program.",
-			executable,
+			detect,
 		),
 	}
 }
 
 // DetectCTest create ctest tool can be used in the project
 func DetectCTest(environment internal.Environment) *CTest {
-	return NewCTest(environment.FindExecutable("ctest"))
+	return NewCTest(func() *internal.Executable {
+		return environment.FindExecutable("ctest")
+	})
 }
 
 func (c *CTest) Run(project internal.Project, args []string) error {
