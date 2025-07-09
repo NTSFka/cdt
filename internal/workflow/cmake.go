@@ -9,55 +9,28 @@ import (
 
 // A cmakeTester is a special project tester that will invoke cmake before ctest
 type cmakeTester struct {
-	cmakeTool tool.CMake
-	ctestTool tool.CTest
-}
-
-// Try to detect format tool for CMake project
-func detectCMakeFormatTool(tools internal.Tools) internal.ProjectFormatter {
-	if clangFormat := internal.GetTool[*tool.ClangFormat](tools); clangFormat.IsAvailable() {
-		return clangFormat
-	}
-
-	return nil
-}
-
-// Try to detect lint tool for CMake project
-func detectCMakeLintTool(tools internal.Tools) internal.ProjectLinter {
-	if clangTidy := internal.GetTool[*tool.ClangTidy](tools); clangTidy.IsAvailable() {
-		return clangTidy
-	}
-
-	return nil
+	cmakeTool *tool.CMake
+	ctestTool *tool.CTest
 }
 
 // DetectCMakeProject detects if the project in the directory is a CMake project
-func DetectCMakeProject(config internal.Config, tools internal.Tools) *internal.Project {
+func DetectCMakeProject(config internal.Config, tools tool.SupportedTools) *internal.Project {
 	if !internal.PathExists(filepath.Join(config.RootDirectory, "CMakeLists.txt")) {
 		return nil
 	}
 
-	cmake := internal.GetTool[*tool.CMake](tools)
-
-	if !cmake.IsAvailable() {
-		return nil
-	}
-
-	formatTool := detectCMakeFormatTool(tools)
-	lintTool := detectCMakeLintTool(tools)
-
 	tester := &cmakeTester{
-		cmakeTool: *cmake,
-		ctestTool: *internal.GetTool[*tool.CTest](tools),
+		cmakeTool: tools.CMake,
+		ctestTool: tools.CTest,
 	}
 
 	workflow := internal.Workflow{
-		Configurator: cmake,
-		Builder:      cmake,
+		Configurator: tools.CMake,
+		Builder:      tools.CMake,
 		Tester:       tester,
-		Formatter:    formatTool,
-		Linter:       lintTool,
-		Runner:       cmake,
+		Formatter:    tools.ClangFormat,
+		Linter:       tools.ClangTidy,
+		Runner:       tools.CMake,
 	}
 
 	var buildDirectory string
@@ -68,7 +41,7 @@ func DetectCMakeProject(config internal.Config, tools internal.Tools) *internal.
 		buildDirectory = filepath.Join("build", "dev")
 	}
 
-	project := internal.MakeProject(config.RootDirectory, buildDirectory, cmake, workflow)
+	project := internal.MakeProject(config.RootDirectory, buildDirectory, tools.CMake, workflow)
 
 	return &project
 }

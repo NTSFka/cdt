@@ -16,32 +16,17 @@ func createGoModFile(dir string) error {
 }
 
 func TestGo_DetectGoProject_NoModFile(t *testing.T) {
-	tools := internal.Tools{}
+	tools := tool.SupportedTools{}
 
 	p := DetectGoProject(internal.Config{RootDirectory: "dir1"}, tools)
 
 	assert.Nil(t, p)
 }
 
-func TestGo_DetectGpProject_NoGoBinary(t *testing.T) {
-	tools := internal.Tools{
-		tool.NewGo(func() *internal.Executable { return nil }),
-	}
-
-	dir := t.TempDir()
-
-	err := createGoModFile(dir)
-	assert.NoError(t, err)
-
-	p := DetectGoProject(internal.Config{RootDirectory: dir}, tools)
-
-	assert.Nil(t, p)
-}
-
 func TestGo_DetectGoProject_NoLinter(t *testing.T) {
-	tools := internal.Tools{
-		tool.NewGo(func() *internal.Executable { return &internal.Executable{Path: "go-test"} }),
-		tool.NewGolangCILint(func() *internal.Executable { return nil }),
+	tools := tool.SupportedTools{
+		Go:           tool.NewGo(func() *internal.Executable { return &internal.Executable{Path: "go-test"} }),
+		GolangCILint: tool.NewGolangCILint(func() *internal.Executable { return nil }),
 	}
 
 	dir := t.TempDir()
@@ -56,16 +41,16 @@ func TestGo_DetectGoProject_NoLinter(t *testing.T) {
 		assert.Nil(t, p.Workflow.Configurator)
 		assert.NotNil(t, p.Workflow.Builder)
 		assert.NotNil(t, p.Workflow.Tester)
-		assert.Nil(t, p.Workflow.Linter)
+		assert.NotNil(t, p.Workflow.Linter)
 		assert.NotNil(t, p.Workflow.Formatter)
 		assert.NotNil(t, p.Workflow.Runner)
 	}
 }
 
 func TestGo_DetectGoProject_Linter(t *testing.T) {
-	tools := internal.Tools{
-		tool.NewGo(func() *internal.Executable { return &internal.Executable{Path: "go-test"} }),
-		tool.NewGolangCILint(func() *internal.Executable { return &internal.Executable{Path: "golangci-lint-test"} }),
+	tools := tool.SupportedTools{
+		Go:           tool.NewGo(func() *internal.Executable { return &internal.Executable{Path: "go-test"} }),
+		GolangCILint: tool.NewGolangCILint(func() *internal.Executable { return &internal.Executable{Path: "golangci-lint-test"} }),
 	}
 
 	dir := t.TempDir()

@@ -26,18 +26,18 @@ func initEnvironment(rootDirectory string, environment *internal.ConfigEnvironme
 }
 
 // InitTools initializes all supported tools on the system
-func initTools(environment internal.Environment) internal.Tools {
-	return internal.Tools{
-		tool.DetectClangFormat(environment, nil),
-		tool.DetectClangTidy(environment, nil),
-		tool.DetectCMake(environment),
-		tool.DetectCTest(environment),
-		tool.DetectGo(environment),
-		tool.DetectGolangCILint(environment),
+func initTools(environment internal.Environment) tool.SupportedTools {
+	return tool.SupportedTools{
+		ClangFormat:  tool.DetectClangFormat(environment, nil),
+		ClangTidy:    tool.DetectClangTidy(environment, nil),
+		CMake:        tool.DetectCMake(environment),
+		CTest:        tool.DetectCTest(environment),
+		Go:           tool.DetectGo(environment),
+		GolangCILint: tool.DetectGolangCILint(environment),
 	}
 }
 
-func detectProject(config internal.Config, tools internal.Tools) internal.Project {
+func detectProject(config internal.Config, tools tool.SupportedTools) internal.Project {
 	// CMake
 	if p := workflow.DetectCMakeProject(config, tools); p != nil {
 		return *p
@@ -63,7 +63,7 @@ func buildContext(config internal.Config) (*internal.Context, error) {
 	return &internal.Context{
 		Config:               config,
 		Project:              detectProject(config, tools),
-		Tools:                tools,
+		Tools:                tools.ToTools(),
 		EnvironmentProviders: environmentProviders,
 		Environment:          env,
 	}, nil
