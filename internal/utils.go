@@ -13,3 +13,10 @@ func PathExists(path string) bool {
 
 	return true
 }
+
+// Assert panics when the condition is not true
+func Assert(condition bool, message string) {
+	if !condition {
+		panic(message)
+	}
+}

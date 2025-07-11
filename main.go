@@ -10,7 +10,7 @@ import (
 )
 
 var environmentProviders = internal.EnvironmentProviders{
-	tool.DetectDocker(),
+	tool.DetectDocker(internal.SystemEnvironment),
 	tool.DetectDockerCompose(internal.SystemEnvironment),
 }
 

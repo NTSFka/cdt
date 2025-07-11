@@ -4,18 +4,15 @@ import (
 	"bytes"
 	"cdt/internal"
 	"context"
+	"encoding/json"
 	"fmt"
-	"github.com/docker/docker/api/types/container"
-	"github.com/docker/docker/api/types/mount"
-	"github.com/docker/docker/client"
-	"github.com/docker/docker/pkg/stdcopy"
 	"path/filepath"
 	"strings"
 )
 
 // A Docker is a tool that wraps docker executable.
 type Docker struct {
-	client *client.Client
+	docker *internal.Executable
 }
 
 func (d *Docker) Id() string {
@@ -31,187 +28,173 @@ func (d *Docker) Info() string {
 }
 
 func (d *Docker) IsAvailable() bool {
-	return d.client != nil
+	return d.docker != nil
 }
 
 // NewDocker creates a docker tool from a custom executable
-func NewDocker(client *client.Client) *Docker {
+func NewDocker(docker *internal.Executable) *Docker {
 	return &Docker{
-		client: client,
+		docker: docker,
 	}
 }
 
-// DetectDocker create docker tool can be used in the project
-func DetectDocker() *Docker {
-	c, err := client.NewClientWithOpts(client.FromEnv)
-
-	if err != nil {
-		return nil
-	}
-
-	return NewDocker(c)
+// DetectDocker create a docker tool with a detected docker executable in the given environment.
+func DetectDocker(environment internal.Environment) *Docker {
+	return NewDocker(environment.FindExecutable("docker"))
 }
 
+// CreateEnvironment create docker environment where the service is used for running tools
 func (d *Docker) CreateEnvironment(directory, image string) (internal.Environment, error) {
-	env := DockerEnvironment{
-		Directory: directory,
-		Image:     image,
-		Docker:    d,
+	env := dockerEnvironment{
+		directory: directory,
+		imageName: image,
+		docker:    d,
 	}
 
 	return &env, nil
 }
 
-type DockerEnvironment struct {
-	Directory     string
-	Image         string
-	Docker        *Docker
-	ContainerName string
-	ContainerId   string
-	AutoStop      bool
+type dockerEnvironment struct {
+	directory   string
+	imageName   string
+	docker      *Docker
+	containerId string
+	autoStop    bool
 }
 
-func (d *DockerEnvironment) Id() string {
+func (d *dockerEnvironment) Id() string {
 	return "docker"
 }
 
-func (d *DockerEnvironment) Start(ctx context.Context) error {
+func (d *dockerEnvironment) run(ctx context.Context, args []string) error {
+	return d.docker.docker.Run(
+		internal.NewRunContext(d.directory),
+		args,
+	)
+}
+
+func (d *dockerEnvironment) runOutput(ctx context.Context, args []string) (string, error) {
+	output := bytes.Buffer{}
+	err := d.docker.docker.Run(
+		internal.RunContext{Directory: d.directory, Output: &output},
+		args,
+	)
+
+	if err != nil {
+		fmt.Printf("docker run failed: %v\n", err)
+		return "", err
+	}
+
+	return strings.TrimSpace(output.String()), nil
+}
+
+func (d *dockerEnvironment) autoStart(ctx context.Context) error {
+	if !d.IsRunning(ctx) {
+		d.autoStop = true
+
+		if err := d.Start(ctx); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (d *dockerEnvironment) Start(ctx context.Context) error {
 	if d.IsRunning(ctx) {
 		return nil
 	}
 
-	absPath, err := filepath.Abs(d.Directory)
+	absPath, err := filepath.Abs(d.directory)
+	internal.Assert(err == nil, "failed to determine absolute path")
 
-	if err != nil {
-		return err
+	output, err := d.runOutput(ctx, []string{
+		"run", "--rm", "-d",
+		"-v", fmt.Sprintf("%s:/work", absPath),
+		"-w", "/work",
+		d.imageName,
+		// FIXME: only linux
+		"/bin/bash", "-c", "trap : TERM INT; sleep infinity & wait",
+	})
+
+	if err == nil {
+		d.containerId = output
 	}
 
-	d.ContainerName = fmt.Sprintf("cdt-%s-%s", filepath.Base(absPath), strings.ReplaceAll(d.Image, ":", "_"))
-
-	resp, err := d.Docker.client.ContainerCreate(ctx, &container.Config{
-		Image: d.Image,
-		// FIXME: linux only
-		Cmd:        []string{"/bin/bash", "-c", "trap : TERM INT; sleep infinity & wait"},
-		WorkingDir: "/work",
-	}, &container.HostConfig{
-		Mounts: []mount.Mount{
-			{
-				Type:   mount.TypeBind,
-				Source: absPath,
-				Target: "/work",
-			},
-		},
-	}, nil, nil, d.ContainerName)
-
-	if err != nil {
-		return err
-	}
-
-	d.ContainerId = resp.ID
-
-	return d.Docker.client.ContainerStart(ctx, d.ContainerId, container.StartOptions{})
+	return err
 }
 
-func (d *DockerEnvironment) IsRunning(ctx context.Context) bool {
-	resp, err := d.Docker.client.ContainerInspect(ctx, d.ContainerId)
+func (d *dockerEnvironment) IsRunning(ctx context.Context) bool {
+	// No container name specified = not running
+	if len(d.containerId) == 0 {
+		return false
+	}
+
+	output, err := d.runOutput(ctx, []string{"inspect", "--format", "json", d.containerId})
 
 	if err != nil {
 		return false
 	}
 
-	return resp.State.Running
-}
-
-func (d *DockerEnvironment) Stop(ctx context.Context) error {
-	if !d.IsRunning(ctx) {
-		return nil
+	var data []struct {
+		State struct {
+			Running bool `json:"Running"`
+		} `json:"State"`
+	}
+	if err := json.Unmarshal([]byte(output), &data); err != nil {
+		return false
 	}
 
-	err := d.Docker.client.ContainerStop(ctx, d.ContainerId, container.StopOptions{})
-	if err != nil {
-		return err
+	if len(data) == 0 {
+		return false
 	}
 
-	return d.Docker.client.ContainerRemove(ctx, d.ContainerId, container.RemoveOptions{})
+	return data[0].State.Running
 }
 
-func (d *DockerEnvironment) Cleanup(ctx context.Context) error {
-	if d.AutoStop {
+func (d *dockerEnvironment) Stop(ctx context.Context) error {
+	internal.Assert(d.containerId != "", "container ID is not set")
+
+	return d.run(ctx, []string{"stop", d.containerId})
+}
+
+func (d *dockerEnvironment) Cleanup(ctx context.Context) error {
+	if d.autoStop {
 		return d.Stop(ctx)
 	}
 
 	return nil
 }
 
-func (d *DockerEnvironment) FindExecutable(name string) *internal.Executable {
+func (d *dockerEnvironment) FindExecutable(name string) *internal.Executable {
 	ctx := context.Background()
 
-	if !d.IsRunning(ctx) {
-		d.AutoStop = true
-
-		if err := d.Start(ctx); err != nil {
-			return nil
-		}
-	}
-
-	execResp, err := d.Docker.client.ContainerExecCreate(ctx, d.ContainerId, container.ExecOptions{
-		Cmd:          []string{"which", name},
-		AttachStdout: true,
-	})
-
-	if err != nil {
-		fmt.Printf("Error executing the docker container: %v\n", err)
+	if err := d.autoStart(ctx); err != nil {
 		return nil
 	}
 
-	attachResp, err := d.Docker.client.ContainerExecAttach(ctx, execResp.ID, container.ExecAttachOptions{})
+	internal.Assert(d.containerId != "", "container ID is not set")
+
+	output, err := d.runOutput(ctx, []string{"exec", d.containerId, "which", name})
 
 	if err != nil {
-		fmt.Printf("Error attaching to docker container: %v\n", err)
-		return nil
-	}
-
-	buffer := bytes.Buffer{}
-	_, _ = stdcopy.StdCopy(&buffer, nil, attachResp.Reader)
-
-	if buffer.Available() == 0 {
 		return nil
 	}
 
 	return &internal.Executable{
-		Path:    strings.TrimSpace(buffer.String()),
+		Path:    output,
 		RunFunc: d.RunExecutable,
 	}
 }
 
-func (d *DockerEnvironment) RunExecutable(ctx internal.RunContext, path string, args []string) error {
+func (d *dockerEnvironment) RunExecutable(ctx internal.RunContext, path string, args []string) error {
 	c := context.Background()
 
-	if !d.IsRunning(c) {
-		d.AutoStop = true
-
-		if err := d.Start(c); err != nil {
-			return err
-		}
+	if err := d.autoStart(c); err != nil {
+		return fmt.Errorf("docker start failed: %w", err)
 	}
 
-	execResp, err := d.Docker.client.ContainerExecCreate(c, d.ContainerId, container.ExecOptions{
-		Cmd:          append([]string{path}, args...),
-		AttachStdout: true,
-		AttachStderr: true,
-	})
+	internal.Assert(d.containerId != "", "container ID is not set")
 
-	if err != nil {
-		return err
-	}
-
-	attachResp, err := d.Docker.client.ContainerExecAttach(c, execResp.ID, container.ExecAttachOptions{})
-
-	if err != nil {
-		return err
-	}
-
-	_, _ = stdcopy.StdCopy(ctx.Output, ctx.Error, attachResp.Reader)
-
-	return nil
+	return d.docker.docker.Run(ctx, append([]string{"exec", d.containerId, path}, args...))
 }
