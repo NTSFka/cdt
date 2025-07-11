@@ -2,11 +2,10 @@ package workflow
 
 import (
 	"cdt/internal"
+	"cdt/internal/test"
 	"cdt/internal/tool"
-	"context"
 	"errors"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
 	"os"
 	"path/filepath"
 	"testing"
@@ -92,20 +91,12 @@ func TestCMake_DetectCMakeProject_FormatterAndLinters(t *testing.T) {
 }
 
 func TestCMake_DetectCMakeProject_TestAll(t *testing.T) {
-	var cmakeMock mock.Mock
-	var ctestMock mock.Mock
-
-	cmakeRun := func(ctx context.Context, options internal.RunOptions, path string, args []string) error {
-		return cmakeMock.Called(ctx, path, args).Error(0)
-	}
-
-	ctestRun := func(ctx context.Context, options internal.RunOptions, path string, args []string) error {
-		return ctestMock.Called(ctx, path, args).Error(0)
-	}
+	var cmakeMock test.Executable
+	var ctestMock test.Executable
 
 	tools := tool.SupportedTools{
-		CMake:       tool.NewCMake(func() *internal.Executable { return &internal.Executable{Path: "cmake-test", RunFunc: cmakeRun} }),
-		CTest:       tool.NewCTest(func() *internal.Executable { return &internal.Executable{Path: "ctest-test", RunFunc: ctestRun} }),
+		CMake:       tool.NewCMake(cmakeMock.LazyExecutable("cmake-test")),
+		CTest:       tool.NewCTest(ctestMock.LazyExecutable("ctest-test")),
 		ClangFormat: tool.NewClangFormat(func() *internal.Executable { return nil }),
 		ClangTidy:   tool.NewClangTidy(func() *internal.Executable { return nil }),
 	}
@@ -120,8 +111,8 @@ func TestCMake_DetectCMakeProject_TestAll(t *testing.T) {
 	p := DetectCMakeProject(internal.Config{RootDirectory: dir, BuildDirectory: &buildDir}, tools)
 
 	if assert.NotNil(t, p) && assert.NotNil(t, p.Workflow.Tester) {
-		cmakeMock.On("func1", mock.Anything, "cmake-test", mock.Anything).Return(nil)
-		ctestMock.On("func2", mock.Anything, "ctest-test", []string{"--test-dir", buildDir}).Return(nil)
+		cmakeMock.OnRunAnything("cmake-test").Return(nil)
+		ctestMock.OnRun("ctest-test", []string{"--test-dir", buildDir}).Return(nil)
 
 		err = p.Workflow.Tester.TestAll(*p, []string{})
 		assert.NoError(t, err)
@@ -132,20 +123,12 @@ func TestCMake_DetectCMakeProject_TestAll(t *testing.T) {
 }
 
 func TestCMake_DetectCMakeProject_TestAll_BuildFailed(t *testing.T) {
-	var cmakeMock mock.Mock
-	var ctestMock mock.Mock
-
-	cmakeRun := func(ctx context.Context, options internal.RunOptions, path string, args []string) error {
-		return cmakeMock.Called(ctx, path, args).Error(0)
-	}
-
-	ctestRun := func(ctx context.Context, options internal.RunOptions, path string, args []string) error {
-		return ctestMock.Called(ctx, path, args).Error(0)
-	}
+	var cmakeMock test.Executable
+	var ctestMock test.Executable
 
 	tools := tool.SupportedTools{
-		CMake:       tool.NewCMake(func() *internal.Executable { return &internal.Executable{Path: "cmake-test", RunFunc: cmakeRun} }),
-		CTest:       tool.NewCTest(func() *internal.Executable { return &internal.Executable{Path: "ctest-test", RunFunc: ctestRun} }),
+		CMake:       tool.NewCMake(cmakeMock.LazyExecutable("cmake-test")),
+		CTest:       tool.NewCTest(ctestMock.LazyExecutable("ctest-test")),
 		ClangFormat: tool.NewClangFormat(func() *internal.Executable { return nil }),
 		ClangTidy:   tool.NewClangTidy(func() *internal.Executable { return nil }),
 	}
@@ -160,7 +143,7 @@ func TestCMake_DetectCMakeProject_TestAll_BuildFailed(t *testing.T) {
 	p := DetectCMakeProject(internal.Config{RootDirectory: dir, BuildDirectory: &buildDir}, tools)
 
 	if assert.NotNil(t, p) && assert.NotNil(t, p.Workflow.Tester) {
-		cmakeMock.On("func1", mock.Anything, "cmake-test", mock.Anything).Return(errors.New("failed"))
+		cmakeMock.OnRunAnything("cmake-test").Return(errors.New("failed"))
 
 		err = p.Workflow.Tester.TestAll(*p, []string{})
 		assert.EqualError(t, err, "build failed: failed")
@@ -171,20 +154,12 @@ func TestCMake_DetectCMakeProject_TestAll_BuildFailed(t *testing.T) {
 }
 
 func TestCMake_DetectCMakeProject_Test(t *testing.T) {
-	var cmakeMock mock.Mock
-	var ctestMock mock.Mock
-
-	cmakeRun := func(ctx context.Context, options internal.RunOptions, path string, args []string) error {
-		return cmakeMock.Called(ctx, path, args).Error(0)
-	}
-
-	ctestRun := func(ctx context.Context, options internal.RunOptions, path string, args []string) error {
-		return ctestMock.Called(ctx, path, args).Error(0)
-	}
+	var cmakeMock test.Executable
+	var ctestMock test.Executable
 
 	tools := tool.SupportedTools{
-		CMake:       tool.NewCMake(func() *internal.Executable { return &internal.Executable{Path: "cmake-test", RunFunc: cmakeRun} }),
-		CTest:       tool.NewCTest(func() *internal.Executable { return &internal.Executable{Path: "ctest-test", RunFunc: ctestRun} }),
+		CMake:       tool.NewCMake(cmakeMock.LazyExecutable("cmake-test")),
+		CTest:       tool.NewCTest(ctestMock.LazyExecutable("ctest-test")),
 		ClangFormat: tool.NewClangFormat(func() *internal.Executable { return nil }),
 		ClangTidy:   tool.NewClangTidy(func() *internal.Executable { return nil }),
 	}
@@ -199,8 +174,8 @@ func TestCMake_DetectCMakeProject_Test(t *testing.T) {
 	p := DetectCMakeProject(internal.Config{RootDirectory: dir, BuildDirectory: &buildDir}, tools)
 
 	if assert.NotNil(t, p) && assert.NotNil(t, p.Workflow.Tester) {
-		cmakeMock.On("func1", mock.Anything, "cmake-test", mock.Anything).Return(nil)
-		ctestMock.On("func2", mock.Anything, "ctest-test", []string{"-R", "my-test", "--test-dir", buildDir}).Return(nil)
+		cmakeMock.OnRunAnything("cmake-test").Return(nil)
+		ctestMock.OnRun("ctest-test", []string{"-R", "my-test", "--test-dir", buildDir}).Return(nil)
 
 		err = p.Workflow.Tester.Test(*p, "my-test", []string{})
 		assert.NoError(t, err)
@@ -211,20 +186,12 @@ func TestCMake_DetectCMakeProject_Test(t *testing.T) {
 }
 
 func TestCMake_DetectCMakeProject_TestBuild_Failed(t *testing.T) {
-	var cmakeMock mock.Mock
-	var ctestMock mock.Mock
-
-	cmakeRun := func(ctx context.Context, options internal.RunOptions, path string, args []string) error {
-		return cmakeMock.Called(ctx, path, args).Error(0)
-	}
-
-	ctestRun := func(ctx context.Context, options internal.RunOptions, path string, args []string) error {
-		return ctestMock.Called(ctx, path, args).Error(0)
-	}
+	var cmakeMock test.Executable
+	var ctestMock test.Executable
 
 	tools := tool.SupportedTools{
-		CMake:       tool.NewCMake(func() *internal.Executable { return &internal.Executable{Path: "cmake-test", RunFunc: cmakeRun} }),
-		CTest:       tool.NewCTest(func() *internal.Executable { return &internal.Executable{Path: "ctest-test", RunFunc: ctestRun} }),
+		CMake:       tool.NewCMake(cmakeMock.LazyExecutable("cmake-test")),
+		CTest:       tool.NewCTest(ctestMock.LazyExecutable("ctest-test")),
 		ClangFormat: tool.NewClangFormat(func() *internal.Executable { return nil }),
 		ClangTidy:   tool.NewClangTidy(func() *internal.Executable { return nil }),
 	}
@@ -239,7 +206,7 @@ func TestCMake_DetectCMakeProject_TestBuild_Failed(t *testing.T) {
 	p := DetectCMakeProject(internal.Config{RootDirectory: dir, BuildDirectory: &buildDir}, tools)
 
 	if assert.NotNil(t, p) && assert.NotNil(t, p.Workflow.Tester) {
-		cmakeMock.On("func1", mock.Anything, "cmake-test", mock.Anything).Return(errors.New("failed"))
+		cmakeMock.OnRunAnything("cmake-test").Return(errors.New("failed"))
 
 		err = p.Workflow.Tester.Test(*p, "my-test", []string{})
 		assert.EqualError(t, err, "build failed: failed")

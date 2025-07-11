@@ -32,7 +32,8 @@ func TestDocker_NewDocker_WithExecutable(t *testing.T) {
 
 func TestDocker_DetectDocker_NotFound(t *testing.T) {
 	environment := test.Environment{}
-	environment.On("FindExecutable", "docker").Return(nil)
+	environment.OnFindExecutable("docker").
+		Return(nil)
 
 	tool := DetectDocker(&environment)
 	assert.NotNil(t, tool)
@@ -44,7 +45,8 @@ func TestDocker_DetectDocker_NotFound(t *testing.T) {
 
 func TestDocker_DetectDocker_Found(t *testing.T) {
 	environment := test.Environment{}
-	environment.On("FindExecutable", "docker").Return(&internal.Executable{Path: "docker"})
+	environment.OnFindExecutable("docker").
+		Return(environment.MakeExecutable("docker"))
 
 	tool := DetectDocker(&environment)
 	assert.NotNil(t, tool)
@@ -66,11 +68,11 @@ func TestDocker_CreateEnvironment(t *testing.T) {
 }
 
 type dockerRunMock struct {
-	mock.Mock
+	test.Executable
 }
 
 func (m *dockerRunMock) OnCall(args []string) *mock.Call {
-	return m.On("func1", mock.Anything, mock.Anything, "docker", args)
+	return m.OnRun("docker", args)
 }
 
 func (m *dockerRunMock) OnCallOutput(args []string, output string) *mock.Call {
@@ -104,9 +106,7 @@ func (m *dockerRunMock) OnInspectResult(containerId string, result bool) *mock.C
 func dockerPrepare(t *testing.T, image string) (*dockerRunMock, internal.Environment) {
 	runMock := dockerRunMock{}
 
-	tool := NewDocker(&internal.Executable{Path: "docker", RunFunc: func(ctx context.Context, options internal.RunOptions, path string, args []string) error {
-		return runMock.Called(ctx, options, path, args).Error(0)
-	}})
+	tool := NewDocker(runMock.NewExecutable("docker"))
 	assert.NotNil(t, tool)
 
 	env, err := tool.CreateEnvironment(".", image)

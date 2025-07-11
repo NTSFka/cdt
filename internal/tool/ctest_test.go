@@ -10,7 +10,8 @@ import (
 
 func TestCTest_DetectCTest(t *testing.T) {
 	environment := test.Environment{}
-	environment.On("FindExecutable", "ctest").Return(environment.MakeExecutable("/bin/ctest"))
+	environment.OnFindExecutable("ctest").
+		Return(environment.MakeExecutable("/bin/ctest"))
 
 	tool := DetectCTest(&environment)
 	assert.NotNil(t, tool)
@@ -26,7 +27,8 @@ func TestCTest_DetectCTest(t *testing.T) {
 
 func TestCTest_DetectCTest_NotFound(t *testing.T) {
 	environment := test.Environment{}
-	environment.On("FindExecutable", "ctest").Return(nil)
+	environment.OnFindExecutable("ctest").
+		Return(nil)
 
 	tool := DetectCTest(&environment)
 	assert.NotNil(t, tool)
@@ -38,31 +40,33 @@ func TestCTest_DetectCTest_NotFound(t *testing.T) {
 }
 
 func TestCTest_Run(t *testing.T) {
-	environment := test.Environment{}
+	runMock := test.Executable{}
 
-	tool := NewCTest(environment.DetectExecutable("ctest"))
+	tool := NewCTest(runMock.LazyExecutable("ctest"))
 
 	p := internal.MakeProject("project", "build", nil, internal.Workflow{})
 
-	environment.OnRunSuccess(p, "ctest", []string{"--test-dir", "build"})
+	runMock.OnRun("ctest", []string{"--test-dir", "build"}).
+		Return(nil)
 
 	err := tool.Run(p, []string{})
 	assert.NoError(t, err)
 
-	environment.AssertExpectations(t)
+	runMock.AssertExpectations(t)
 }
 
 func TestCTest_Run_Failed(t *testing.T) {
-	environment := test.Environment{}
+	runMock := test.Executable{}
 
-	tool := NewCTest(environment.DetectExecutable("ctest"))
+	tool := NewCTest(runMock.LazyExecutable("ctest"))
 
 	p := internal.MakeProject("project", "build", nil, internal.Workflow{})
 
-	environment.OnRunError(p, "ctest", []string{"--test-dir", "build"}, errors.New("failed"))
+	runMock.OnRun("ctest", []string{"--test-dir", "build"}).
+		Return(errors.New("failed"))
 
 	err := tool.Run(p, []string{})
 	assert.EqualError(t, err, "failed")
 
-	environment.AssertExpectations(t)
+	runMock.AssertExpectations(t)
 }

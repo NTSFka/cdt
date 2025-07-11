@@ -9,7 +9,8 @@ import (
 
 func TestGolangCILint_DetectGolangCILint(t *testing.T) {
 	environment := test.Environment{}
-	environment.On("FindExecutable", "golangci-lint").Return(environment.MakeExecutable("/bin/tool"))
+	environment.OnFindExecutable("golangci-lint").
+		Return(environment.MakeExecutable("/bin/tool"))
 
 	tool := DetectGolangCILint(&environment)
 	assert.NotNil(t, tool)
@@ -25,7 +26,8 @@ func TestGolangCILint_DetectGolangCILint(t *testing.T) {
 
 func TestGolangCILint_DetectGolangCILint_NotFound(t *testing.T) {
 	environment := test.Environment{}
-	environment.On("FindExecutable", "golangci-lint").Return(nil)
+	environment.OnFindExecutable("golangci-lint").
+		Return(nil)
 
 	tool := DetectGolangCILint(&environment)
 	assert.NotNil(t, tool)
@@ -37,31 +39,33 @@ func TestGolangCILint_DetectGolangCILint_NotFound(t *testing.T) {
 }
 
 func TestGolangCILint_GolangCILint_LintAll(t *testing.T) {
-	environment := test.Environment{}
+	runMock := test.Executable{}
 
-	tool := NewGolangCILint(environment.DetectExecutable("lint"))
+	tool := NewGolangCILint(runMock.LazyExecutable("lint"))
 
 	p := internal.MakeProject("project", "", nil, internal.Workflow{Linter: tool})
 
-	environment.OnRunSuccess(p, "lint", []string{"run"})
+	runMock.OnRun("lint", []string{"run"}).
+		Return(nil)
 
 	err := tool.LintAll(p, []string{})
 	assert.NoError(t, err)
 
-	environment.AssertExpectations(t)
+	runMock.AssertExpectations(t)
 }
 
 func TestGolangCILint_GolangCILint_Lint(t *testing.T) {
-	environment := test.Environment{}
+	runMock := test.Executable{}
 
-	tool := NewGolangCILint(environment.DetectExecutable("lint"))
+	tool := NewGolangCILint(runMock.LazyExecutable("lint"))
 
 	p := internal.MakeProject("project", "", nil, internal.Workflow{Linter: tool})
 
-	environment.OnRunSuccess(p, "lint", []string{"run", "mod1"})
+	runMock.OnRun("lint", []string{"run", "mod1"}).
+		Return(nil)
 
 	err := tool.LintFiles(p, []string{"mod1"}, []string{})
 	assert.NoError(t, err)
 
-	environment.AssertExpectations(t)
+	runMock.AssertExpectations(t)
 }
