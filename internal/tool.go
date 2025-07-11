@@ -50,6 +50,18 @@ func MakeExecutableTool(id string, name string, info string, detect func() *Exec
 	}
 }
 
+// NewExecutableTool creates an executable tool
+func NewExecutableTool(id string, name string, info string, detect func() *Executable) *ExecutableTool {
+	return &ExecutableTool{
+		id:         id,
+		name:       name,
+		info:       info,
+		detected:   false,
+		detect:     detect,
+		executable: nil,
+	}
+}
+
 func (t *ExecutableTool) NotFoundError() error {
 	return fmt.Errorf("%v is not installed on the system", t.Name())
 }
@@ -115,6 +127,17 @@ func (t *Tools) Active() (result []Tool) {
 	}
 
 	return
+}
+
+// Get returns a tool by ID
+func (t *Tools) Get(id string) Tool {
+	for _, tool := range *t {
+		if tool.Id() == id {
+			return tool
+		}
+	}
+
+	return nil
 }
 
 // PrintToolList prints tools list to the writer
