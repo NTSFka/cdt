@@ -22,7 +22,7 @@ var TestCommand = cli.Command{
 	},
 }
 
-func testCommandAction(ctx context.Context, command *cli.Command) error {
+func testCommandAction(ctx context.Context, cmd *cli.Command) error {
 	c := ctx.Value("context").(internal.Context)
 	tester := c.Project.Workflow.Tester
 
@@ -32,10 +32,10 @@ func testCommandAction(ctx context.Context, command *cli.Command) error {
 
 	var err error
 
-	if pattern := command.StringArgs("pattern"); len(pattern) != 0 {
-		err = tester.Test(c.Project, pattern[0], command.Args().Tail())
+	if pattern := cmd.StringArgs("pattern"); len(pattern) != 0 {
+		err = tester.Test(c.Project, pattern[0], cmd.Args().Tail())
 	} else {
-		err = tester.TestAll(c.Project, command.Args().Tail())
+		err = tester.TestAll(c.Project, cmd.Args().Tail())
 	}
 
 	if err != nil {

@@ -28,7 +28,7 @@ var FormatCommand = cli.Command{
 	},
 }
 
-func formatCommandAction(ctx context.Context, command *cli.Command) error {
+func formatCommandAction(ctx context.Context, cmd *cli.Command) error {
 	c := ctx.Value("context").(internal.Context)
 	formatter := c.Project.Workflow.Formatter
 
@@ -37,17 +37,17 @@ func formatCommandAction(ctx context.Context, command *cli.Command) error {
 	}
 
 	var err error
-	if command.Bool("check") {
-		if files := command.StringArgs("files"); len(files) > 0 {
-			err = formatter.FormatCheckFiles(c.Project, files, command.Args().Tail())
+	if cmd.Bool("check") {
+		if files := cmd.StringArgs("files"); len(files) > 0 {
+			err = formatter.FormatCheckFiles(c.Project, files, cmd.Args().Tail())
 		} else {
-			err = formatter.FormatCheckAll(c.Project, command.Args().Tail())
+			err = formatter.FormatCheckAll(c.Project, cmd.Args().Tail())
 		}
 	} else {
-		if files := command.StringArgs("files"); len(files) > 0 {
-			err = formatter.FormatFiles(c.Project, files, command.Args().Tail())
+		if files := cmd.StringArgs("files"); len(files) > 0 {
+			err = formatter.FormatFiles(c.Project, files, cmd.Args().Tail())
 		} else {
-			err = formatter.FormatAll(c.Project, command.Args().Tail())
+			err = formatter.FormatAll(c.Project, cmd.Args().Tail())
 		}
 	}
 

@@ -95,7 +95,7 @@ func RunMain(buildContext func(config internal.Config) (*internal.Context, error
 
 			return context.WithValue(ctx, "context", *c), nil //nolint:staticcheck
 		},
-		After: func(ctx context.Context, command *cli.Command) error {
+		After: func(ctx context.Context, cmd *cli.Command) error {
 			c, ok := ctx.Value("context").(internal.Context)
 
 			if ok && c.Environment != nil {

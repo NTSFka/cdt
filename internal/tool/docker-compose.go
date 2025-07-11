@@ -6,6 +6,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"os"
 	"strings"
 )
 
@@ -63,7 +64,7 @@ type dockerComposeEnvironment struct {
 func (d *dockerComposeEnvironment) run(ctx context.Context, args []string) error {
 	return d.dockerCompose.docker.Run(
 		ctx,
-		internal.RunOptions{Directory: d.directory},
+		internal.RunOptions{Directory: d.directory, Output: os.Stdout, Error: os.Stderr},
 		append([]string{"compose"}, args...),
 	)
 }

@@ -5,7 +5,6 @@ import (
 	"context"
 	"fmt"
 	"github.com/urfave/cli/v3"
-	"os"
 )
 
 var EnvironmentCommand = cli.Command{
@@ -32,22 +31,22 @@ var EnvironmentCommand = cli.Command{
 	},
 }
 
-func environmentCommandActionList(ctx context.Context, _ *cli.Command) error {
+func environmentCommandActionList(ctx context.Context, cmd *cli.Command) error {
 	c := ctx.Value("context").(internal.Context)
 
-	c.EnvironmentProviders.PrintList(os.Stdout)
+	c.EnvironmentProviders.PrintTable(cmd.Writer)
 
 	return nil
 }
 
-func environmentCommandActionStatus(ctx context.Context, _ *cli.Command) error {
+func environmentCommandActionStatus(ctx context.Context, cmd *cli.Command) error {
 	c := ctx.Value("context").(internal.Context)
 	env := c.Environment
 
 	if env.IsRunning(ctx) {
-		fmt.Printf("%v: running\n", env.Id())
+		fmt.Fprintf(cmd.Writer, "%v: running\n", env.Id())
 	} else {
-		fmt.Printf("%v: stopped\n", env.Id())
+		fmt.Fprintf(cmd.Writer, "%v: stopped\n", env.Id())
 	}
 
 	return nil

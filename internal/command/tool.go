@@ -5,7 +5,6 @@ import (
 	"context"
 	"fmt"
 	"github.com/urfave/cli/v3"
-	"os"
 )
 
 var ToolCommand = cli.Command{
@@ -37,25 +36,26 @@ var ToolCommand = cli.Command{
 	},
 }
 
-func toolCommandListAction(ctx context.Context, command *cli.Command) error {
+func toolCommandListAction(ctx context.Context, cmd *cli.Command) error {
 	c := ctx.Value("context").(internal.Context)
 
-	if command.Bool("all") {
-		internal.PrintToolList(os.Stdout, c.Tools)
+	if cmd.Bool("all") {
+		c.Tools.PrintTable(cmd.Writer)
 	} else {
-		internal.PrintToolList(os.Stdout, c.Tools.Active())
+		tools := c.Tools.Active()
+		tools.PrintTable(cmd.Writer)
 	}
 
 	return nil
 }
 
-func toolCommandRunAction(ctx context.Context, command *cli.Command) error {
+func toolCommandRunAction(ctx context.Context, cmd *cli.Command) error {
 	c := ctx.Value("context").(internal.Context)
 
-	toolId := command.StringArg("toolId")
+	toolId := cmd.StringArg("toolId")
 
 	if tool := c.Tools.Get(toolId); tool != nil {
-		err := tool.Run(c.Project, command.Args().Slice())
+		err := tool.Run(c.Project, cmd.Args().Slice())
 
 		if err != nil {
 			return fmt.Errorf("tool '%s' failed: %w", toolId, err)

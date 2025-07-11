@@ -22,7 +22,7 @@ var BuildCommand = cli.Command{
 	},
 }
 
-func buildCommandAction(ctx context.Context, command *cli.Command) error {
+func buildCommandAction(ctx context.Context, cmd *cli.Command) error {
 	c := ctx.Value("context").(internal.Context)
 	builder := c.Project.Workflow.Builder
 
@@ -32,10 +32,10 @@ func buildCommandAction(ctx context.Context, command *cli.Command) error {
 
 	var err error
 
-	if targets := command.StringArgs("targets"); len(targets) > 0 {
-		err = builder.BuildTargets(c.Project, targets, command.Args().Tail())
+	if targets := cmd.StringArgs("targets"); len(targets) > 0 {
+		err = builder.BuildTargets(c.Project, targets, cmd.Args().Tail())
 	} else {
-		err = builder.BuildAll(c.Project, command.Args().Tail())
+		err = builder.BuildAll(c.Project, cmd.Args().Tail())
 	}
 
 	if err != nil {

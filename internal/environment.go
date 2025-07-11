@@ -4,7 +4,6 @@ import (
 	"context"
 	"github.com/jedib0t/go-pretty/v6/table"
 	"io"
-	"os"
 	"os/exec"
 )
 
@@ -52,8 +51,8 @@ type EnvironmentProvider interface {
 
 type EnvironmentProviders []EnvironmentProvider
 
-// PrintList prints providers to the writer
-func (p *EnvironmentProviders) PrintList(writer io.Writer) {
+// PrintTable prints providers to the writer
+func (p *EnvironmentProviders) PrintTable(writer io.Writer) {
 	if len(*p) == 0 {
 		return
 	}
@@ -69,6 +68,31 @@ func (p *EnvironmentProviders) PrintList(writer io.Writer) {
 	t.Render()
 }
 
+var SystemEnvironmentProvider EnvironmentProvider = &systemEnvironmentProvider{}
+
+type systemEnvironmentProvider struct{}
+
+func (s *systemEnvironmentProvider) Id() string {
+	return "system"
+}
+
+func (s *systemEnvironmentProvider) Name() string {
+	return "System"
+}
+
+func (s *systemEnvironmentProvider) Info() string {
+	return "Native OS system environment"
+}
+
+func (s *systemEnvironmentProvider) IsAvailable() bool {
+	// Always available
+	return true
+}
+
+func (s *systemEnvironmentProvider) CreateEnvironment(_ string, _ string) (Environment, error) {
+	return SystemEnvironment, nil
+}
+
 // SystemEnvironment is the operating system environment
 var SystemEnvironment Environment = &systemEnvironment{}
 
@@ -76,19 +100,6 @@ type systemEnvironment struct{}
 
 func (s *systemEnvironment) Id() string {
 	return "system"
-}
-
-func (s *systemEnvironment) Name() string {
-	return "System environment"
-}
-
-func (s *systemEnvironment) Info() string {
-	return "Default system environment"
-}
-
-func (s *systemEnvironment) IsAvailable() bool {
-	// Always available
-	return true
 }
 
 func (s *systemEnvironment) Start(_ context.Context) error {
@@ -123,18 +134,8 @@ func (s *systemEnvironment) FindExecutable(name string) *Executable {
 func (s *systemEnvironment) RunExecutable(ctx context.Context, options RunOptions, path string, args []string) error {
 	command := exec.CommandContext(ctx, path, args...)
 	command.Dir = options.Directory
-
-	if options.Output != nil {
-		command.Stdout = options.Output
-	} else {
-		command.Stdout = os.Stdout
-	}
-
-	if options.Error != nil {
-		command.Stderr = options.Error
-	} else {
-		command.Stderr = os.Stderr
-	}
+	command.Stdout = options.Output
+	command.Stderr = options.Error
 
 	return command.Run()
 }

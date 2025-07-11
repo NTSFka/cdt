@@ -21,7 +21,7 @@ var LintCommand = cli.Command{
 	},
 }
 
-func lintCommandAction(ctx context.Context, command *cli.Command) error {
+func lintCommandAction(ctx context.Context, cmd *cli.Command) error {
 	c := ctx.Value("context").(internal.Context)
 	linter := c.Project.Workflow.Linter
 
@@ -30,10 +30,10 @@ func lintCommandAction(ctx context.Context, command *cli.Command) error {
 	}
 
 	var err error
-	if files := command.StringArgs("files"); len(files) > 0 {
-		err = linter.LintFiles(c.Project, files, command.Args().Tail())
+	if files := cmd.StringArgs("files"); len(files) > 0 {
+		err = linter.LintFiles(c.Project, files, cmd.Args().Tail())
 	} else {
-		err = linter.LintAll(c.Project, command.Args().Tail())
+		err = linter.LintAll(c.Project, cmd.Args().Tail())
 	}
 
 	if err != nil {

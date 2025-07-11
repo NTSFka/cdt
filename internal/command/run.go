@@ -20,7 +20,7 @@ var RunCommand = cli.Command{
 	},
 }
 
-func runCommandAction(ctx context.Context, command *cli.Command) error {
+func runCommandAction(ctx context.Context, cmd *cli.Command) error {
 	c := ctx.Value("context").(internal.Context)
 	runner := c.Project.Workflow.Runner
 
@@ -28,13 +28,13 @@ func runCommandAction(ctx context.Context, command *cli.Command) error {
 		return errors.New("project doesn't support run of target")
 	}
 
-	target := command.StringArg("target")
+	target := cmd.StringArg("target")
 
 	if target == "" {
 		return errors.New("target is required")
 	}
 
-	if err := runner.RunTarget(c.Project, target, command.Args().Slice()); err != nil {
+	if err := runner.RunTarget(c.Project, target, cmd.Args().Slice()); err != nil {
 		return fmt.Errorf("%w", err)
 	}
 

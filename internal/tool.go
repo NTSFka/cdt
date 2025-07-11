@@ -52,14 +52,9 @@ func MakeExecutableTool(id string, name string, info string, detect func() *Exec
 
 // NewExecutableTool creates an executable tool
 func NewExecutableTool(id string, name string, info string, detect func() *Executable) *ExecutableTool {
-	return &ExecutableTool{
-		id:         id,
-		name:       name,
-		info:       info,
-		detected:   false,
-		detect:     detect,
-		executable: nil,
-	}
+	executable := MakeExecutableTool(id, name, info, detect)
+
+	return &executable
 }
 
 func (t *ExecutableTool) NotFoundError() error {
@@ -92,9 +87,7 @@ func (t *ExecutableTool) IsAvailable() bool {
 
 func (t *ExecutableTool) Executable() *Executable {
 	if !t.detected {
-		if t.detect == nil {
-			panic("detect function is not set")
-		}
+		Assert(t.detect != nil, "detect function is not set")
 
 		t.executable = t.detect()
 		t.detected = true
@@ -119,7 +112,7 @@ func (t *ExecutableTool) Run(project Project, args []string) error {
 type Tools []Tool
 
 // Active returns only tools that are available
-func (t *Tools) Active() (result []Tool) {
+func (t *Tools) Active() (result Tools) {
 	for _, tool := range *t {
 		if tool.IsAvailable() {
 			result = append(result, tool)
@@ -140,17 +133,17 @@ func (t *Tools) Get(id string) Tool {
 	return nil
 }
 
-// PrintToolList prints tools list to the writer
-func PrintToolList(writer io.Writer, tools Tools) {
-	if len(tools) == 0 {
+// PrintTable prints tools list to the writer
+func (t *Tools) PrintTable(writer io.Writer) {
+	if len(*t) == 0 {
 		return
 	}
 
-	t := table.NewWriter()
-	t.SetOutputMirror(writer)
-	t.AppendHeader(table.Row{"ID", "Name", "Available", "Info", "Executable"})
+	w := table.NewWriter()
+	w.SetOutputMirror(writer)
+	w.AppendHeader(table.Row{"ID", "Name", "Available", "Info", "Executable"})
 
-	for _, tool := range tools {
+	for _, tool := range *t {
 		var executable string
 
 		if path := tool.ExecutablePath(); path != nil {
@@ -159,10 +152,10 @@ func PrintToolList(writer io.Writer, tools Tools) {
 			executable = "-"
 		}
 
-		t.AppendRow(table.Row{tool.Id(), tool.Name(), tool.IsAvailable(), tool.Info(), executable})
+		w.AppendRow(table.Row{tool.Id(), tool.Name(), tool.IsAvailable(), tool.Info(), executable})
 	}
 
-	t.Render()
+	w.Render()
 }
 
 // GetTool return a tool with the required type

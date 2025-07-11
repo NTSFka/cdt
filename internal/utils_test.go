@@ -19,3 +19,15 @@ func TestUtils_PathExists_Found(t *testing.T) {
 
 	assert.True(t, PathExists(path))
 }
+
+func TestAssert_Success(t *testing.T) {
+	assert.NotPanics(t, func() {
+		Assert(true, "success")
+	})
+}
+
+func TestAssert_Fails(t *testing.T) {
+	assert.Panics(t, func() {
+		Assert(false, "failed")
+	}, "failed")
+}

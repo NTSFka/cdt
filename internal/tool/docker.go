@@ -6,6 +6,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"os"
 	"path/filepath"
 	"strings"
 )
@@ -69,7 +70,7 @@ func (d *dockerEnvironment) Id() string {
 func (d *dockerEnvironment) run(ctx context.Context, args []string) error {
 	return d.docker.docker.Run(
 		ctx,
-		internal.RunOptions{Directory: d.directory},
+		internal.RunOptions{Directory: d.directory, Output: os.Stdout, Error: os.Stderr},
 		args,
 	)
 }

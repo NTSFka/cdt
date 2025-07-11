@@ -8,7 +8,7 @@ import (
 	"testing"
 )
 
-func TestTool_ExecutableTool_NotAvailable(t *testing.T) {
+func TestTool_MakeExecutableTool_NotAvailable(t *testing.T) {
 	tool := MakeExecutableTool("toolId", "Tool Name", "Tool Info", func() *Executable { return nil })
 
 	assert.Equal(t, "toolId", tool.Id())
@@ -19,8 +19,31 @@ func TestTool_ExecutableTool_NotAvailable(t *testing.T) {
 	assert.EqualError(t, tool.Run(Project{}, []string{}), tool.NotFoundError().Error())
 }
 
-func TestTool_ExecutableTool(t *testing.T) {
+func TestTool_MakeExecutableTool(t *testing.T) {
 	tool := MakeExecutableTool("toolId", "Tool Name", "Tool Info", func() *Executable { return &Executable{Path: "/bin/tool"} })
+
+	assert.Equal(t, "toolId", tool.Id())
+	assert.Equal(t, "Tool Name", tool.Name())
+	assert.Equal(t, "Tool Info", tool.Info())
+
+	if path := tool.ExecutablePath(); assert.NotNil(t, path) {
+		assert.Equal(t, "/bin/tool", *path)
+	}
+}
+
+func TestTool_NewExecutableTool_NotAvailable(t *testing.T) {
+	tool := NewExecutableTool("toolId", "Tool Name", "Tool Info", func() *Executable { return nil })
+
+	assert.Equal(t, "toolId", tool.Id())
+	assert.Equal(t, "Tool Name", tool.Name())
+	assert.Equal(t, "Tool Info", tool.Info())
+	assert.False(t, tool.IsAvailable())
+	assert.Nil(t, tool.ExecutablePath())
+	assert.EqualError(t, tool.Run(Project{}, []string{}), tool.NotFoundError().Error())
+}
+
+func TestTool_NewExecutableTool(t *testing.T) {
+	tool := NewExecutableTool("toolId", "Tool Name", "Tool Info", func() *Executable { return &Executable{Path: "/bin/tool"} })
 
 	assert.Equal(t, "toolId", tool.Id())
 	assert.Equal(t, "Tool Name", tool.Name())
@@ -58,9 +81,7 @@ func TestTool_Tools_Active_Empty(t *testing.T) {
 
 func TestTool_Tools_Active_NoActive(t *testing.T) {
 	tools := Tools{
-		&testTool{
-			MakeExecutableTool("toolId", "", "", func() *Executable { return nil }),
-		},
+		NewExecutableTool("toolId", "", "", func() *Executable { return nil }),
 	}
 
 	assert.Empty(t, tools.Active())
@@ -68,12 +89,8 @@ func TestTool_Tools_Active_NoActive(t *testing.T) {
 
 func TestTool_Tools_Active(t *testing.T) {
 	tools := Tools{
-		&testTool{
-			MakeExecutableTool("id1", "", "", func() *Executable { return nil }),
-		},
-		&testTool{
-			MakeExecutableTool("id2", "", "", func() *Executable { return &Executable{Path: "/bin/tool"} }),
-		},
+		NewExecutableTool("id1", "", "", func() *Executable { return nil }),
+		NewExecutableTool("id2", "", "", func() *Executable { return &Executable{Path: "/bin/tool"} }),
 	}
 
 	active := tools.Active()
@@ -81,6 +98,25 @@ func TestTool_Tools_Active(t *testing.T) {
 	if assert.Len(t, active, 1) {
 		assert.Equal(t, "id2", active[0].Id())
 	}
+}
+
+func TestTool_Tools_Get_NotFound(t *testing.T) {
+	tools := Tools{}
+
+	tool := tools.Get("toolId")
+
+	assert.Nil(t, tool)
+}
+
+func TestTool_Tools_Get(t *testing.T) {
+	tools := Tools{
+		NewExecutableTool("toolId", "", "", nil),
+	}
+
+	tool := tools.Get("toolId")
+
+	assert.NotNil(t, tool)
+	assert.Equal(t, "toolId", tool.Id())
 }
 
 func TestTool_Tools_GetTool_NotFound(t *testing.T) {
@@ -93,9 +129,7 @@ func TestTool_Tools_GetTool_NotFound(t *testing.T) {
 
 func TestTool_Tools_GetTool(t *testing.T) {
 	tools := Tools{
-		&testTool{
-			MakeExecutableTool("toolId", "", "", nil),
-		},
+		&testTool{MakeExecutableTool("toolId", "", "", nil)},
 	}
 
 	tool := GetTool[*testTool](tools)
@@ -104,27 +138,23 @@ func TestTool_Tools_GetTool(t *testing.T) {
 	assert.Equal(t, "toolId", tool.Id())
 }
 
-func TestTool_PrintTools_Empty(t *testing.T) {
+func TestTool_PrintTable_Empty(t *testing.T) {
 	tools := Tools{}
 
 	var output bytes.Buffer
-	PrintToolList(&output, tools)
+	tools.PrintTable(&output)
 
 	assert.Empty(t, output.String())
 }
 
-func TestTool_PrintTools(t *testing.T) {
+func TestTool_PrintTable(t *testing.T) {
 	tools := Tools{
-		&testTool{
-			MakeExecutableTool("id1", "Tool 1", "", func() *Executable { return nil }),
-		},
-		&testTool{
-			MakeExecutableTool("id2", "Tool 2", "", func() *Executable { return &Executable{Path: "/bin/tool"} }),
-		},
+		NewExecutableTool("id1", "Tool 1", "", func() *Executable { return nil }),
+		NewExecutableTool("id2", "Tool 2", "", func() *Executable { return &Executable{Path: "/bin/tool"} }),
 	}
 
 	var output bytes.Buffer
-	PrintToolList(&output, tools)
+	tools.PrintTable(&output)
 
 	assert.NotEmpty(t, output.String())
 }

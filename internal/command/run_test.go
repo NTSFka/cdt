@@ -19,7 +19,7 @@ func runRun(runner internal.ProjectRunner, args ...string) error {
 	}, args...)
 }
 
-func TestRunNotSupported(t *testing.T) {
+func TestRun_NotSupported(t *testing.T) {
 	err := runRun(nil)
 
 	if assert.Error(t, err) {
@@ -27,7 +27,16 @@ func TestRunNotSupported(t *testing.T) {
 	}
 }
 
-func TestRunAllSuccess(t *testing.T) {
+func TestRun_Target_NoTarget(t *testing.T) {
+	runner := test.ProjectRunner{}
+
+	err := runRun(&runner)
+
+	assert.EqualError(t, err, "target is required")
+	runner.AssertExpectations(t)
+}
+
+func TestRun_Target_Success(t *testing.T) {
 	runner := test.ProjectRunner{}
 	runner.On("RunTarget", mock.Anything, "target1", []string{}).Return(nil)
 
@@ -37,7 +46,7 @@ func TestRunAllSuccess(t *testing.T) {
 	runner.AssertExpectations(t)
 }
 
-func TestRunAllFailure(t *testing.T) {
+func TestRun_Target_Failure(t *testing.T) {
 	runner := test.ProjectRunner{}
 	runner.On("RunTarget", mock.Anything, "target1", []string{}).Return(errors.New("failed"))
 

@@ -1,6 +1,9 @@
 package tool
 
-import "cdt/internal"
+import (
+	"cdt/internal"
+	"reflect"
+)
 
 type SupportedTools struct {
 	ClangFormat  *ClangFormat
@@ -11,13 +14,19 @@ type SupportedTools struct {
 	GolangCILint *GolangCILint
 }
 
-func (t *SupportedTools) ToTools() internal.Tools {
-	return internal.Tools{
-		t.ClangFormat,
-		t.ClangTidy,
-		t.CMake,
-		t.CTest,
-		t.Go,
-		t.GolangCILint,
+func (t *SupportedTools) ToTools() (result internal.Tools) {
+	add := func(tool internal.Tool) {
+		if !reflect.ValueOf(tool).IsNil() {
+			result = append(result, tool)
+		}
 	}
+
+	add(t.ClangFormat)
+	add(t.ClangTidy)
+	add(t.CMake)
+	add(t.CTest)
+	add(t.Go)
+	add(t.GolangCILint)
+
+	return
 }

@@ -15,6 +15,15 @@ func runWithEnvironment(environment internal.Environment, args ...string) error 
 	}, args...)
 }
 
+func TestEnvironment_List_Empty(t *testing.T) {
+	env := test.Environment{}
+
+	err := runWithEnvironment(&env, "list")
+
+	assert.NoError(t, err)
+	env.AssertExpectations(t)
+}
+
 func TestEnvironment_Status_Running(t *testing.T) {
 	env := test.Environment{}
 
