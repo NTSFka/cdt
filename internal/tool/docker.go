@@ -68,7 +68,8 @@ func (d *dockerEnvironment) Id() string {
 
 func (d *dockerEnvironment) run(ctx context.Context, args []string) error {
 	return d.docker.docker.Run(
-		internal.NewRunContext(d.directory),
+		ctx,
+		internal.RunOptions{Directory: d.directory},
 		args,
 	)
 }
@@ -76,7 +77,8 @@ func (d *dockerEnvironment) run(ctx context.Context, args []string) error {
 func (d *dockerEnvironment) runOutput(ctx context.Context, args []string) (string, error) {
 	output := bytes.Buffer{}
 	err := d.docker.docker.Run(
-		internal.RunContext{Directory: d.directory, Output: &output},
+		ctx,
+		internal.RunOptions{Directory: d.directory, Output: &output},
 		args,
 	)
 
@@ -187,7 +189,7 @@ func (d *dockerEnvironment) FindExecutable(name string) *internal.Executable {
 	}
 }
 
-func (d *dockerEnvironment) RunExecutable(ctx internal.RunContext, path string, args []string) error {
+func (d *dockerEnvironment) RunExecutable(ctx context.Context, options internal.RunOptions, path string, args []string) error {
 	c := context.Background()
 
 	if err := d.autoStart(c); err != nil {
@@ -196,5 +198,5 @@ func (d *dockerEnvironment) RunExecutable(ctx internal.RunContext, path string, 
 
 	internal.Assert(d.containerId != "", "container ID is not set")
 
-	return d.docker.docker.Run(ctx, append([]string{"exec", d.containerId, path}, args...))
+	return d.docker.docker.Run(ctx, options, append([]string{"exec", d.containerId, path}, args...))
 }

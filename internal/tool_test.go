@@ -2,6 +2,7 @@ package internal
 
 import (
 	"bytes"
+	"context"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"testing"
@@ -34,7 +35,7 @@ func TestTool_ExecutableTool_Run(t *testing.T) {
 	var runMock mock.Mock
 
 	tool := MakeExecutableTool("id", "", "", func() *Executable {
-		return &Executable{Path: "echo", RunFunc: func(ctx RunContext, path string, args []string) error {
+		return &Executable{Path: "echo", RunFunc: func(ctx context.Context, options RunOptions, path string, args []string) error {
 			return runMock.Called(ctx, path, args).Error(0)
 		}}
 	})

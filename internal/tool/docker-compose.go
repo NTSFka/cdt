@@ -62,7 +62,8 @@ type dockerComposeEnvironment struct {
 
 func (d *dockerComposeEnvironment) run(ctx context.Context, args []string) error {
 	return d.dockerCompose.docker.Run(
-		internal.NewRunContext(d.directory),
+		ctx,
+		internal.RunOptions{Directory: d.directory},
 		append([]string{"compose"}, args...),
 	)
 }
@@ -70,7 +71,8 @@ func (d *dockerComposeEnvironment) run(ctx context.Context, args []string) error
 func (d *dockerComposeEnvironment) runOutput(ctx context.Context, args []string) (string, error) {
 	output := bytes.Buffer{}
 	err := d.dockerCompose.docker.Run(
-		internal.RunContext{Directory: d.directory, Output: &output},
+		ctx,
+		internal.RunOptions{Directory: d.directory, Output: &output},
 		append([]string{"compose"}, args...),
 	)
 
@@ -151,7 +153,7 @@ func (d *dockerComposeEnvironment) FindExecutable(name string) *internal.Executa
 	}
 }
 
-func (d *dockerComposeEnvironment) RunExecutable(ctx internal.RunContext, path string, args []string) error {
+func (d *dockerComposeEnvironment) RunExecutable(ctx context.Context, options internal.RunOptions, path string, args []string) error {
 	c := context.Background()
 
 	if err := d.autoStart(c); err != nil {
@@ -160,6 +162,7 @@ func (d *dockerComposeEnvironment) RunExecutable(ctx internal.RunContext, path s
 
 	return d.dockerCompose.docker.Run(
 		ctx,
+		options,
 		append([]string{"compose", "exec", d.service, path}, args...),
 	)
 }

@@ -3,6 +3,7 @@ package tool
 import (
 	"bytes"
 	"cdt/internal"
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -38,8 +39,8 @@ func (c *Go) Structure(project internal.Project) (*internal.ProjectStructure, er
 	}
 
 	builder := bytes.Buffer{}
-	ctx := internal.RunContext{Directory: project.RootDirectory(), Output: &builder, Error: nil}
-	if err := c.RunContext(ctx, []string{"list", "-json=ImportPath,GoFiles", "./..."}); err != nil {
+	options := internal.RunOptions{Directory: project.RootDirectory(), Output: &builder, Error: nil}
+	if err := c.RunContext(context.Background(), options, []string{"list", "-json=ImportPath,GoFiles", "./..."}); err != nil {
 		return nil, err
 	}
 

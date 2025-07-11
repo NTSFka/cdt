@@ -3,6 +3,7 @@ package tool
 import (
 	"cdt/internal"
 	"cdt/internal/utils"
+	"context"
 	"fmt"
 	"path/filepath"
 )
@@ -112,7 +113,7 @@ func (c *CMake) RunTarget(project internal.Project, target string, args []string
 				RunFunc: internal.SystemEnvironment.RunExecutable,
 			}
 
-			return executable.Run(internal.NewRunContext(project.RootDirectory()), args)
+			return executable.Run(context.Background(), internal.RunOptions{Directory: project.RootDirectory()}, args)
 		}
 	}
 

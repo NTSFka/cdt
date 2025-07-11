@@ -50,12 +50,12 @@ func (e *Environment) FindExecutable(name string) *internal.Executable {
 	return result.(*internal.Executable)
 }
 
-func (e *Environment) RunExecutable(ctx internal.RunContext, path string, args []string) error {
-	return e.Called(ctx, path, args).Error(0)
+func (e *Environment) RunExecutable(ctx context.Context, options internal.RunOptions, path string, args []string) error {
+	return e.Called(ctx, options, path, args).Error(0)
 }
 
 func (e *Environment) OnRun(project internal.Project, path string, args []string) *mock.Call {
-	return e.On("RunExecutable", internal.NewRunContext(project.RootDirectory()), path, args)
+	return e.On("RunExecutable", mock.Anything, internal.RunOptions{Directory: project.RootDirectory()}, path, args)
 }
 
 func (e *Environment) OnRunSuccess(project internal.Project, path string, args []string) {

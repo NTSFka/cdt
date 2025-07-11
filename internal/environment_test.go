@@ -2,6 +2,7 @@ package internal
 
 import (
 	"bytes"
+	"context"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
@@ -23,13 +24,13 @@ func TestEnvironment_SystemEnvironment_FindExecutable(t *testing.T) {
 
 func TestEnvironment_SystemEnvironment_RunExecutable(t *testing.T) {
 	buffer := bytes.Buffer{}
-	ctx := RunContext{
+	options := RunOptions{
 		Directory: ".",
 		Output:    &buffer,
 		Error:     nil,
 	}
 
-	err := SystemEnvironment.RunExecutable(ctx, "echo", []string{"test"})
+	err := SystemEnvironment.RunExecutable(context.Background(), options, "echo", []string{"test"})
 	assert.NoError(t, err)
 	assert.Equal(t, "test\n", buffer.String())
 }

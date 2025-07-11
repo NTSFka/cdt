@@ -45,10 +45,10 @@ func TestGo_Structure(t *testing.T) {
 
 	p := internal.MakeProject("project", "", tool, internal.Workflow{})
 
-	environment.On("RunExecutable", mock.Anything, "go", []string{"list", "-json=ImportPath,GoFiles", "./..."}).
+	environment.On("RunExecutable", mock.Anything, mock.Anything, "go", []string{"list", "-json=ImportPath,GoFiles", "./..."}).
 		Return(nil).
 		Run(func(args mock.Arguments) {
-			ctx := args.Get(0).(internal.RunContext)
+			ctx := args.Get(1).(internal.RunOptions)
 			_, _ = ctx.Output.Write([]byte(
 				`{"ImportPath": "target1","GoFiles":["file1.go"]}{"ImportPath": "target2","GoFiles":["file2.go", "file3.go"]}`,
 			))
@@ -82,7 +82,7 @@ func TestGo_Structure_Failed(t *testing.T) {
 
 	p := internal.MakeProject("project", "", tool, internal.Workflow{})
 
-	environment.On("RunExecutable", mock.Anything, "go", []string{"list", "-json=ImportPath,GoFiles", "./..."}).
+	environment.On("RunExecutable", mock.Anything, mock.Anything, "go", []string{"list", "-json=ImportPath,GoFiles", "./..."}).
 		Return(errors.New("failed"))
 
 	structure, err := tool.Structure(p)
@@ -99,10 +99,10 @@ func TestGo_Structure_InvalidJson(t *testing.T) {
 
 	p := internal.MakeProject("project", "", tool, internal.Workflow{})
 
-	environment.On("RunExecutable", mock.Anything, "go", []string{"list", "-json=ImportPath,GoFiles", "./..."}).
+	environment.On("RunExecutable", mock.Anything, mock.Anything, "go", []string{"list", "-json=ImportPath,GoFiles", "./..."}).
 		Return(nil).
 		Run(func(args mock.Arguments) {
-			ctx := args.Get(0).(internal.RunContext)
+			ctx := args.Get(1).(internal.RunOptions)
 			_, _ = ctx.Output.Write([]byte(
 				`{]}`,
 			))

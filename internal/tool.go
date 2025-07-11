@@ -1,6 +1,7 @@
 package internal
 
 import (
+	"context"
 	"fmt"
 	"github.com/jedib0t/go-pretty/v6/table"
 	"io"
@@ -90,16 +91,16 @@ func (t *ExecutableTool) Executable() *Executable {
 	return t.executable
 }
 
-func (t *ExecutableTool) RunContext(ctx RunContext, args []string) error {
+func (t *ExecutableTool) RunContext(ctx context.Context, options RunOptions, args []string) error {
 	if t.Executable() == nil {
 		return t.NotFoundError()
 	}
 
-	return t.Executable().Run(ctx, args)
+	return t.Executable().Run(ctx, options, args)
 }
 
 func (t *ExecutableTool) Run(project Project, args []string) error {
-	return t.RunContext(NewRunContext(project.RootDirectory()), args)
+	return t.RunContext(context.Background(), RunOptions{Directory: project.RootDirectory()}, args)
 }
 
 // Tools is a container for available tools

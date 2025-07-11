@@ -3,6 +3,7 @@ package workflow
 import (
 	"cdt/internal"
 	"cdt/internal/tool"
+	"context"
 	"errors"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -94,11 +95,11 @@ func TestCMake_DetectCMakeProject_TestAll(t *testing.T) {
 	var cmakeMock mock.Mock
 	var ctestMock mock.Mock
 
-	cmakeRun := func(ctx internal.RunContext, path string, args []string) error {
+	cmakeRun := func(ctx context.Context, options internal.RunOptions, path string, args []string) error {
 		return cmakeMock.Called(ctx, path, args).Error(0)
 	}
 
-	ctestRun := func(ctx internal.RunContext, path string, args []string) error {
+	ctestRun := func(ctx context.Context, options internal.RunOptions, path string, args []string) error {
 		return ctestMock.Called(ctx, path, args).Error(0)
 	}
 
@@ -134,11 +135,11 @@ func TestCMake_DetectCMakeProject_TestAll_BuildFailed(t *testing.T) {
 	var cmakeMock mock.Mock
 	var ctestMock mock.Mock
 
-	cmakeRun := func(ctx internal.RunContext, path string, args []string) error {
+	cmakeRun := func(ctx context.Context, options internal.RunOptions, path string, args []string) error {
 		return cmakeMock.Called(ctx, path, args).Error(0)
 	}
 
-	ctestRun := func(ctx internal.RunContext, path string, args []string) error {
+	ctestRun := func(ctx context.Context, options internal.RunOptions, path string, args []string) error {
 		return ctestMock.Called(ctx, path, args).Error(0)
 	}
 
@@ -173,11 +174,11 @@ func TestCMake_DetectCMakeProject_Test(t *testing.T) {
 	var cmakeMock mock.Mock
 	var ctestMock mock.Mock
 
-	cmakeRun := func(ctx internal.RunContext, path string, args []string) error {
+	cmakeRun := func(ctx context.Context, options internal.RunOptions, path string, args []string) error {
 		return cmakeMock.Called(ctx, path, args).Error(0)
 	}
 
-	ctestRun := func(ctx internal.RunContext, path string, args []string) error {
+	ctestRun := func(ctx context.Context, options internal.RunOptions, path string, args []string) error {
 		return ctestMock.Called(ctx, path, args).Error(0)
 	}
 
@@ -213,11 +214,11 @@ func TestCMake_DetectCMakeProject_TestBuild_Failed(t *testing.T) {
 	var cmakeMock mock.Mock
 	var ctestMock mock.Mock
 
-	cmakeRun := func(ctx internal.RunContext, path string, args []string) error {
+	cmakeRun := func(ctx context.Context, options internal.RunOptions, path string, args []string) error {
 		return cmakeMock.Called(ctx, path, args).Error(0)
 	}
 
-	ctestRun := func(ctx internal.RunContext, path string, args []string) error {
+	ctestRun := func(ctx context.Context, options internal.RunOptions, path string, args []string) error {
 		return ctestMock.Called(ctx, path, args).Error(0)
 	}
 
