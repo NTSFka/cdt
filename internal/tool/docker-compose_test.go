@@ -63,8 +63,36 @@ func TestDockerCompose_CreateEnvironment(t *testing.T) {
 	assert.Equal(t, "docker-compose", env.Id())
 }
 
-func dockerComposePrepare(t *testing.T, service string) (*mock.Mock, internal.Environment) {
-	runMock := mock.Mock{}
+type dockerComposeRunMock struct {
+	mock.Mock
+}
+
+func (m *dockerComposeRunMock) OnCall(args []string) *mock.Call {
+	return m.On("func1", mock.Anything, "docker", args)
+}
+
+func (m *dockerComposeRunMock) OnCallOutput(args []string, output string) *mock.Call {
+	return m.On("func1", mock.Anything, "docker", args).
+		Run(func(args mock.Arguments) {
+			c := args.Get(0).(internal.RunContext)
+			_, _ = c.Output.Write([]byte(output))
+		})
+}
+
+func (m *dockerComposeRunMock) OnState(service string, result bool) *mock.Call {
+	var output string
+
+	if result {
+		output = `{"State": "running"}`
+	} else {
+		output = `{"State": "exited"}`
+	}
+
+	return m.OnCallOutput([]string{"compose", "ps", "--format", "json", service}, output)
+}
+
+func dockerComposePrepare(t *testing.T, service string) (*dockerComposeRunMock, internal.Environment) {
+	runMock := dockerComposeRunMock{}
 
 	tool := NewDockerCompose(&internal.Executable{Path: "docker", RunFunc: func(ctx internal.RunContext, path string, args []string) error {
 		return runMock.Called(ctx, path, args).Error(0)
@@ -81,7 +109,8 @@ func dockerComposePrepare(t *testing.T, service string) (*mock.Mock, internal.En
 func TestDockerCompose_Environment_Start(t *testing.T) {
 	runMock, env := dockerComposePrepare(t, "service1")
 
-	runMock.On("func1", mock.Anything, "docker", []string{"compose", "up", "-d"}).Return(nil)
+	runMock.OnCall([]string{"compose", "up", "-d"}).
+		Return(nil)
 
 	err := env.Start(context.Background())
 	assert.NoError(t, err)
@@ -92,7 +121,8 @@ func TestDockerCompose_Environment_Start(t *testing.T) {
 func TestDockerCompose_Environment_Start_Failed(t *testing.T) {
 	runMock, env := dockerComposePrepare(t, "service1")
 
-	runMock.On("func1", mock.Anything, "docker", []string{"compose", "up", "-d"}).Return(errors.New("failed"))
+	runMock.OnCall([]string{"compose", "up", "-d"}).
+		Return(errors.New("failed"))
 
 	err := env.Start(context.Background())
 	assert.EqualError(t, err, "failed")
@@ -103,10 +133,8 @@ func TestDockerCompose_Environment_Start_Failed(t *testing.T) {
 func TestDockerCompose_Environment_IsRunning_True(t *testing.T) {
 	runMock, env := dockerComposePrepare(t, "service1")
 
-	runMock.On("func1", mock.Anything, "docker", []string{"compose", "ps", "--format", "json", "service1"}).Run(func(args mock.Arguments) {
-		c := args.Get(0).(internal.RunContext)
-		_, _ = c.Output.Write([]byte(`{"State": "running"}`))
-	}).Return(nil)
+	runMock.OnState("service1", true).
+		Return(nil)
 
 	result := env.IsRunning(context.Background())
 	assert.True(t, result)
@@ -117,10 +145,8 @@ func TestDockerCompose_Environment_IsRunning_True(t *testing.T) {
 func TestDockerCompose_Environment_IsRunning_False(t *testing.T) {
 	runMock, env := dockerComposePrepare(t, "service1")
 
-	runMock.On("func1", mock.Anything, "docker", []string{"compose", "ps", "--format", "json", "service1"}).Run(func(args mock.Arguments) {
-		c := args.Get(0).(internal.RunContext)
-		_, _ = c.Output.Write([]byte(`{"State": "exited"}`))
-	}).Return(nil)
+	runMock.OnState("service1", false).
+		Return(nil)
 
 	result := env.IsRunning(context.Background())
 	assert.False(t, result)
@@ -131,10 +157,8 @@ func TestDockerCompose_Environment_IsRunning_False(t *testing.T) {
 func TestDockerCompose_Environment_IsRunning_InvalidJson(t *testing.T) {
 	runMock, env := dockerComposePrepare(t, "service1")
 
-	runMock.On("func1", mock.Anything, "docker", []string{"compose", "ps", "--format", "json", "service1"}).Run(func(args mock.Arguments) {
-		c := args.Get(0).(internal.RunContext)
-		_, _ = c.Output.Write([]byte(`{"invalid": "json"`))
-	}).Return(nil)
+	runMock.OnCallOutput([]string{"compose", "ps", "--format", "json", "service1"}, `{"invalid": "json"`).
+		Return(nil)
 
 	result := env.IsRunning(context.Background())
 	assert.False(t, result)
@@ -145,7 +169,8 @@ func TestDockerCompose_Environment_IsRunning_InvalidJson(t *testing.T) {
 func TestDockerCompose_Environment_IsRunning_Failed(t *testing.T) {
 	runMock, env := dockerComposePrepare(t, "service1")
 
-	runMock.On("func1", mock.Anything, "docker", []string{"compose", "ps", "--format", "json", "service1"}).Return(errors.New("failed"))
+	runMock.OnCall([]string{"compose", "ps", "--format", "json", "service1"}).
+		Return(errors.New("failed"))
 
 	result := env.IsRunning(context.Background())
 	assert.False(t, result)
@@ -156,7 +181,8 @@ func TestDockerCompose_Environment_IsRunning_Failed(t *testing.T) {
 func TestDockerCompose_Environment_Stop(t *testing.T) {
 	runMock, env := dockerComposePrepare(t, "service1")
 
-	runMock.On("func1", mock.Anything, "docker", []string{"compose", "stop"}).Return(nil)
+	runMock.OnCall([]string{"compose", "stop"}).
+		Return(nil)
 
 	err := env.Stop(context.Background())
 	assert.NoError(t, err)
@@ -167,7 +193,8 @@ func TestDockerCompose_Environment_Stop(t *testing.T) {
 func TestDockerCompose_Environment_Stop_Failed(t *testing.T) {
 	runMock, env := dockerComposePrepare(t, "service1")
 
-	runMock.On("func1", mock.Anything, "docker", []string{"compose", "stop"}).Return(errors.New("failed"))
+	runMock.OnCall([]string{"compose", "stop"}).
+		Return(errors.New("failed"))
 
 	err := env.Stop(context.Background())
 	assert.EqualError(t, err, "failed")
@@ -188,7 +215,8 @@ func TestDockerCompose_Environment_Cleanup_Running(t *testing.T) {
 	runMock, env := dockerComposePrepare(t, "service1")
 	env.(*dockerComposeEnvironment).autoStop = true
 
-	runMock.On("func1", mock.Anything, "docker", []string{"compose", "stop"}).Return(nil)
+	runMock.OnCall([]string{"compose", "stop"}).
+		Return(nil)
 
 	err := env.Cleanup(context.Background())
 	assert.NoError(t, err)
@@ -200,7 +228,8 @@ func TestDockerCompose_Environment_Cleanup_Running_Failed(t *testing.T) {
 	runMock, env := dockerComposePrepare(t, "service1")
 	env.(*dockerComposeEnvironment).autoStop = true
 
-	runMock.On("func1", mock.Anything, "docker", []string{"compose", "stop"}).Return(errors.New("failed"))
+	runMock.OnCall([]string{"compose", "stop"}).
+		Return(errors.New("failed"))
 
 	err := env.Cleanup(context.Background())
 	assert.EqualError(t, err, "failed")
@@ -212,15 +241,12 @@ func TestDockerCompose_Environment_FindExecutable(t *testing.T) {
 	runMock, env := dockerComposePrepare(t, "service1")
 
 	// Is running
-	runMock.On("func1", mock.Anything, "docker", []string{"compose", "ps", "--format", "json", "service1"}).Run(func(args mock.Arguments) {
-		c := args.Get(0).(internal.RunContext)
-		_, _ = c.Output.Write([]byte(`{"State": "running"}`))
-	}).Return(nil).Once()
+	runMock.OnState("service1", true).
+		Return(nil).
+		Once()
 
-	runMock.On("func1", mock.Anything, "docker", []string{"compose", "exec", "service1", "which", "tool1"}).Run(func(args mock.Arguments) {
-		c := args.Get(0).(internal.RunContext)
-		_, _ = c.Output.Write([]byte("/usr/bin/tool1"))
-	}).Return(nil)
+	runMock.OnCallOutput([]string{"compose", "exec", "service1", "which", "tool1"}, "/usr/bin/tool1").
+		Return(nil)
 
 	executable := env.FindExecutable("tool1")
 	if assert.NotNil(t, executable) {
@@ -234,15 +260,12 @@ func TestDockerCompose_Environment_FindExecutable_Failed(t *testing.T) {
 	runMock, env := dockerComposePrepare(t, "service1")
 
 	// Is running
-	runMock.On("func1", mock.Anything, "docker", []string{"compose", "ps", "--format", "json", "service1"}).Run(func(args mock.Arguments) {
-		c := args.Get(0).(internal.RunContext)
-		_, _ = c.Output.Write([]byte(`{"State": "running"}`))
-	}).Return(nil).Once()
+	runMock.OnState("service1", true).
+		Return(nil).
+		Once()
 
-	runMock.On("func1", mock.Anything, "docker", []string{"compose", "exec", "service1", "which", "tool1"}).Run(func(args mock.Arguments) {
-		c := args.Get(0).(internal.RunContext)
-		_, _ = c.Output.Write([]byte("/usr/bin/tool1"))
-	}).Return(errors.New("failed"))
+	runMock.OnCallOutput([]string{"compose", "exec", "service1", "which", "tool1"}, "/usr/bin/tool1").
+		Return(errors.New("failed"))
 
 	executable := env.FindExecutable("tool1")
 	assert.Nil(t, executable)
@@ -254,18 +277,16 @@ func TestDockerCompose_Environment_FindExecutable_AutoStart(t *testing.T) {
 	runMock, env := dockerComposePrepare(t, "service1")
 
 	// Is running
-	runMock.On("func1", mock.Anything, "docker", []string{"compose", "ps", "--format", "json", "service1"}).Run(func(args mock.Arguments) {
-		c := args.Get(0).(internal.RunContext)
-		_, _ = c.Output.Write([]byte(`{"State": "exited"}`))
-	}).Return(nil).Once()
+	runMock.OnState("service1", false).
+		Return(nil).
+		Once()
 
 	// Start
-	runMock.On("func1", mock.Anything, "docker", []string{"compose", "up", "-d"}).Return(nil)
+	runMock.OnCall([]string{"compose", "up", "-d"}).
+		Return(nil)
 
-	runMock.On("func1", mock.Anything, "docker", []string{"compose", "exec", "service1", "which", "tool1"}).Run(func(args mock.Arguments) {
-		c := args.Get(0).(internal.RunContext)
-		_, _ = c.Output.Write([]byte("/usr/bin/tool1"))
-	}).Return(nil)
+	runMock.OnCallOutput([]string{"compose", "exec", "service1", "which", "tool1"}, "/usr/bin/tool1").
+		Return(nil)
 
 	executable := env.FindExecutable("tool1")
 	if assert.NotNil(t, executable) {
@@ -279,13 +300,13 @@ func TestDockerCompose_Environment_FindExecutable_AutoStart_Failed(t *testing.T)
 	runMock, env := dockerComposePrepare(t, "service1")
 
 	// Is running
-	runMock.On("func1", mock.Anything, "docker", []string{"compose", "ps", "--format", "json", "service1"}).Run(func(args mock.Arguments) {
-		c := args.Get(0).(internal.RunContext)
-		_, _ = c.Output.Write([]byte(`{"State": "exited"}`))
-	}).Return(nil).Once()
+	runMock.OnState("service1", false).
+		Return(nil).
+		Once()
 
 	// Start
-	runMock.On("func1", mock.Anything, "docker", []string{"compose", "up", "-d"}).Return(errors.New("failed"))
+	runMock.OnCall([]string{"compose", "up", "-d"}).
+		Return(errors.New("failed"))
 
 	executable := env.FindExecutable("tool1")
 	assert.Nil(t, executable)
@@ -297,12 +318,11 @@ func TestDockerCompose_Environment_RunExecutable(t *testing.T) {
 	runMock, env := dockerComposePrepare(t, "service1")
 
 	// Is running
-	runMock.On("func1", mock.Anything, "docker", []string{"compose", "ps", "--format", "json", "service1"}).Run(func(args mock.Arguments) {
-		c := args.Get(0).(internal.RunContext)
-		_, _ = c.Output.Write([]byte(`{"State": "running"}`))
-	}).Return(nil).Once()
+	runMock.OnState("service1", true).
+		Return(nil).
+		Once()
 
-	runMock.On("func1", mock.Anything, "docker", []string{"compose", "exec", "service1", "tool1", "arg1", "arg2"}).
+	runMock.OnCall([]string{"compose", "exec", "service1", "tool1", "arg1", "arg2"}).
 		Return(nil).
 		Once()
 
@@ -316,15 +336,11 @@ func TestDockerCompose_Environment_RunExecutable_Failed(t *testing.T) {
 	runMock, env := dockerComposePrepare(t, "service1")
 
 	// Is running
-	runMock.On("func1", mock.Anything, "docker", []string{"compose", "ps", "--format", "json", "service1"}).
-		Run(func(args mock.Arguments) {
-			c := args.Get(0).(internal.RunContext)
-			_, _ = c.Output.Write([]byte(`{"State": "running"}`))
-		}).
+	runMock.OnState("service1", true).
 		Return(nil).
 		Once()
 
-	runMock.On("func1", mock.Anything, "docker", []string{"compose", "exec", "service1", "tool1", "arg1", "arg2"}).
+	runMock.OnCall([]string{"compose", "exec", "service1", "tool1", "arg1", "arg2"}).
 		Return(errors.New("failed")).
 		Once()
 
@@ -338,20 +354,16 @@ func TestDockerCompose_Environment_RunExecutable_AutoStart(t *testing.T) {
 	runMock, env := dockerComposePrepare(t, "service1")
 
 	// Is running
-	runMock.On("func1", mock.Anything, "docker", []string{"compose", "ps", "--format", "json", "service1"}).
-		Run(func(args mock.Arguments) {
-			c := args.Get(0).(internal.RunContext)
-			_, _ = c.Output.Write([]byte(`{"State": "exited"}`))
-		}).
+	runMock.OnState("service1", false).
 		Return(nil).
 		Once()
 
 	// Start
-	runMock.On("func1", mock.Anything, "docker", []string{"compose", "up", "-d"}).
+	runMock.OnCall([]string{"compose", "up", "-d"}).
 		Return(nil).
 		Once()
 
-	runMock.On("func1", mock.Anything, "docker", []string{"compose", "exec", "service1", "tool1", "arg1", "arg2"}).
+	runMock.OnCall([]string{"compose", "exec", "service1", "tool1", "arg1", "arg2"}).
 		Return(nil).
 		Once()
 
@@ -365,16 +377,12 @@ func TestDockerCompose_Environment_RunExecutable_AutoStart_Failed(t *testing.T) 
 	runMock, env := dockerComposePrepare(t, "service1")
 
 	// Is running
-	runMock.On("func1", mock.Anything, "docker", []string{"compose", "ps", "--format", "json", "service1"}).
-		Run(func(args mock.Arguments) {
-			c := args.Get(0).(internal.RunContext)
-			_, _ = c.Output.Write([]byte(`{"State": "exited"}`))
-		}).
+	runMock.OnState("service1", false).
 		Return(nil).
 		Once()
 
 	// Start
-	runMock.On("func1", mock.Anything, "docker", []string{"compose", "up", "-d"}).Return(errors.New("failed"))
+	runMock.OnCall([]string{"compose", "up", "-d"}).Return(errors.New("failed"))
 
 	err := env.RunExecutable(internal.NewRunContext("."), "/usr/bin/tool1", []string{"arg1", "arg2"})
 	assert.EqualError(t, err, "docker compose start failed: failed")
