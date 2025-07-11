@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/jedib0t/go-pretty/v6/table"
 	"io"
+	"os"
 	"os/exec"
 )
 
@@ -125,10 +126,14 @@ func (s *systemEnvironment) RunExecutable(ctx context.Context, options RunOption
 
 	if options.Output != nil {
 		command.Stdout = options.Output
+	} else {
+		command.Stdout = os.Stdout
 	}
 
 	if options.Error != nil {
 		command.Stderr = options.Error
+	} else {
+		command.Stderr = os.Stderr
 	}
 
 	return command.Run()
