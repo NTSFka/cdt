@@ -1,4 +1,4 @@
-package cli
+package command
 
 import (
 	"cdt/internal"
@@ -10,34 +10,13 @@ import (
 )
 
 func runLint(linter internal.ProjectLinter, args ...string) error {
-	var runArgs []string
-	runArgs = append(runArgs, "lint")
-	runArgs = append(runArgs, args...)
-
-	return runMainWithWorkflow(internal.Workflow{
-		Linter: linter,
-	}, runArgs...)
-}
-
-func TestLintConfigDefault(t *testing.T) {
-	config := runMainGetConfig("lint")
-
-	assert.Equal(t, ".", config.RootDirectory)
-	assert.Nil(t, config.BuildDirectory)
-}
-
-func TestLintConfigCustomRootDirectory(t *testing.T) {
-	config := runMainGetConfig("lint", "--directory", "data/test")
-
-	assert.Equal(t, "data/test", config.RootDirectory)
-	assert.Nil(t, config.BuildDirectory)
-}
-
-func TestLintConfigCustomRootDirectoryShort(t *testing.T) {
-	config := runMainGetConfig("lint", "-d", "data/short-test")
-
-	assert.Equal(t, "data/short-test", config.RootDirectory)
-	assert.Nil(t, config.BuildDirectory)
+	return test.RunCommand(LintCommand, internal.Context{
+		Project: internal.Project{
+			Workflow: internal.Workflow{
+				Linter: linter,
+			},
+		},
+	}, args...)
 }
 
 func TestLintCannotBeLinted(t *testing.T) {

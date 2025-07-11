@@ -1,4 +1,4 @@
-package cli
+package command
 
 import (
 	"cdt/internal"
@@ -10,54 +10,13 @@ import (
 )
 
 func runTest(tester internal.ProjectTester, args ...string) error {
-	var runArgs []string
-	runArgs = append(runArgs, "test")
-	runArgs = append(runArgs, args...)
-
-	return runMainWithWorkflow(internal.Workflow{
-		Tester: tester,
-	}, runArgs...)
-}
-
-func TestTestConfigDefault(t *testing.T) {
-	config := runMainGetConfig("test")
-
-	assert.Equal(t, ".", config.RootDirectory)
-	assert.Nil(t, config.BuildDirectory)
-}
-
-func TestTestConfigCustomRootDirectory(t *testing.T) {
-	config := runMainGetConfig("test", "--directory", "data/test")
-
-	assert.Equal(t, "data/test", config.RootDirectory)
-	assert.Nil(t, config.BuildDirectory)
-}
-
-func TestTestConfigCustomRootDirectoryShort(t *testing.T) {
-	config := runMainGetConfig("test", "-d", "data/short-test")
-
-	assert.Equal(t, "data/short-test", config.RootDirectory)
-	assert.Nil(t, config.BuildDirectory)
-}
-
-func TestTestConfigCustomBuildDirectory(t *testing.T) {
-	config := runMainGetConfig("test", "--build", "data/test")
-
-	assert.Equal(t, ".", config.RootDirectory)
-
-	if assert.NotNil(t, config.BuildDirectory) {
-		assert.Equal(t, "data/test", *config.BuildDirectory)
-	}
-}
-
-func TestTestConfigCustomBuildDirectoryShort(t *testing.T) {
-	config := runMainGetConfig("test", "-b", "data/short-test")
-
-	assert.Equal(t, ".", config.RootDirectory)
-
-	if assert.NotNil(t, config.BuildDirectory) {
-		assert.Equal(t, "data/short-test", *config.BuildDirectory)
-	}
+	return test.RunCommand(TestCommand, internal.Context{
+		Project: internal.Project{
+			Workflow: internal.Workflow{
+				Tester: tester,
+			},
+		},
+	}, args...)
 }
 
 func TestTestCannotBeTested(t *testing.T) {

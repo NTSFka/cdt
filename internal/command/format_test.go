@@ -1,4 +1,4 @@
-package cli
+package command
 
 import (
 	"cdt/internal"
@@ -10,34 +10,13 @@ import (
 )
 
 func runFormat(formatter internal.ProjectFormatter, args ...string) error {
-	var runArgs []string
-	runArgs = append(runArgs, "format")
-	runArgs = append(runArgs, args...)
-
-	return runMainWithWorkflow(internal.Workflow{
-		Formatter: formatter,
-	}, runArgs...)
-}
-
-func TestFormatConfigDefault(t *testing.T) {
-	config := runMainGetConfig("format")
-
-	assert.Equal(t, ".", config.RootDirectory)
-	assert.Nil(t, config.BuildDirectory)
-}
-
-func TestFormatConfigCustomRootDirectory(t *testing.T) {
-	config := runMainGetConfig("format", "--directory", "data/test")
-
-	assert.Equal(t, "data/test", config.RootDirectory)
-	assert.Nil(t, config.BuildDirectory)
-}
-
-func TestFormatConfigCustomRootDirectoryShort(t *testing.T) {
-	config := runMainGetConfig("format", "-d", "data/short-test")
-
-	assert.Equal(t, "data/short-test", config.RootDirectory)
-	assert.Nil(t, config.BuildDirectory)
+	return test.RunCommand(FormatCommand, internal.Context{
+		Project: internal.Project{
+			Workflow: internal.Workflow{
+				Formatter: formatter,
+			},
+		},
+	}, args...)
 }
 
 func TestFormatCannotBeFormatted(t *testing.T) {

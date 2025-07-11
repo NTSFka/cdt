@@ -1,4 +1,4 @@
-package cli
+package command
 
 import (
 	"cdt/internal"
@@ -9,16 +9,9 @@ import (
 )
 
 func runProject(structureProvider internal.ProjectStructureProvider, args ...string) error {
-	var runArgs []string
-	runArgs = append(runArgs, "project")
-	runArgs = append(runArgs, args...)
-
-	return runMainWithProject(internal.MakeProject(
-		".",
-		"",
-		structureProvider,
-		internal.Workflow{},
-	), runArgs...)
+	return test.RunCommand(ProjectCommand, internal.Context{
+		Project: internal.MakeProject("", "", structureProvider, internal.Workflow{}),
+	}, args...)
 }
 
 func TestProjectTargets(t *testing.T) {
