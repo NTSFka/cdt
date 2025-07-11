@@ -11,6 +11,7 @@ import (
 
 var environmentProviders = internal.EnvironmentProviders{
 	tool.DetectDocker(),
+	tool.DetectDockerCompose(internal.SystemEnvironment),
 }
 
 func initEnvironment(rootDirectory string, environment *internal.ConfigEnvironment) (internal.Environment, error) {
