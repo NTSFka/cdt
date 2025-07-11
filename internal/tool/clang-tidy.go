@@ -93,7 +93,7 @@ func (c *ClangTidy) LintAll(project internal.Project, args []string) error {
 
 	toolArgs := c.buildArgs(project.RootDirectory(), project.BuildDirectory(), paths)
 
-	return c.ExecutableTool.Run(project, append(toolArgs, args...))
+	return c.ExecutableTool.RunForProject(project, append(toolArgs, args...))
 }
 
 func (c *ClangTidy) LintFiles(project internal.Project, filenames []string, args []string) error {
@@ -101,13 +101,13 @@ func (c *ClangTidy) LintFiles(project internal.Project, filenames []string, args
 
 	toolArgs := c.buildArgs(project.RootDirectory(), project.BuildDirectory(), paths)
 
-	return c.ExecutableTool.Run(project, append(toolArgs, args...))
+	return c.ExecutableTool.RunForProject(project, append(toolArgs, args...))
 }
 
-func (c *ClangTidy) Run(project internal.Project, args []string) error {
+func (c *ClangTidy) RunForProject(project internal.Project, args []string) error {
 	toolArgs := []string{
 		project.RootDirectory(),
 	}
 
-	return c.ExecutableTool.Run(project, append(toolArgs, args...))
+	return c.ExecutableTool.RunForProject(project, append(toolArgs, args...))
 }

@@ -51,7 +51,7 @@ func (t *cmakeTester) TestAll(project internal.Project, args []string) error {
 		return fmt.Errorf("build failed: %w", err)
 	}
 
-	return t.ctestTool.Run(project, args)
+	return t.ctestTool.RunForProject(project, args)
 }
 
 func (t *cmakeTester) Test(project internal.Project, pattern string, args []string) error {
@@ -59,5 +59,5 @@ func (t *cmakeTester) Test(project internal.Project, pattern string, args []stri
 		return fmt.Errorf("build failed: %w", err)
 	}
 
-	return t.ctestTool.Run(project, append(args, "-R", pattern))
+	return t.ctestTool.RunForProject(project, append(args, "-R", pattern))
 }

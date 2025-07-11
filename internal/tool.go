@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/jedib0t/go-pretty/v6/table"
 	"io"
+	"os"
 )
 
 // A Tool is an interface for Tools
@@ -25,7 +26,7 @@ type Tool interface {
 	IsAvailable() bool
 
 	// Run Execute the tool on the project
-	Run(project Project, args []string) error
+	Run(ctx context.Context, options RunOptions, args []string) error
 }
 
 // ExecutableTool is a simple implementation of the Tool interface.
@@ -96,7 +97,7 @@ func (t *ExecutableTool) Executable() *Executable {
 	return t.executable
 }
 
-func (t *ExecutableTool) RunContext(ctx context.Context, options RunOptions, args []string) error {
+func (t *ExecutableTool) Run(ctx context.Context, options RunOptions, args []string) error {
 	if t.Executable() == nil {
 		return t.NotFoundError()
 	}
@@ -104,8 +105,14 @@ func (t *ExecutableTool) RunContext(ctx context.Context, options RunOptions, arg
 	return t.Executable().Run(ctx, options, args)
 }
 
-func (t *ExecutableTool) Run(project Project, args []string) error {
-	return t.RunContext(context.Background(), RunOptions{Directory: project.RootDirectory()}, args)
+func (t *ExecutableTool) RunForProject(project Project, args []string) error {
+	options := RunOptions{
+		Directory: project.RootDirectory(),
+		Output:    os.Stdout,
+		Error:     os.Stderr,
+	}
+
+	return t.Run(context.Background(), options, args)
 }
 
 // Tools is a container for available tools

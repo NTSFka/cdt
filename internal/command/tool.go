@@ -55,7 +55,13 @@ func toolCommandRunAction(ctx context.Context, cmd *cli.Command) error {
 	toolId := cmd.StringArg("toolId")
 
 	if tool := c.Tools.Get(toolId); tool != nil {
-		err := tool.Run(c.Project, cmd.Args().Slice())
+		options := internal.RunOptions{
+			Directory: c.Project.RootDirectory(),
+			Output:    cmd.Writer,
+			Error:     cmd.ErrWriter,
+		}
+
+		err := tool.Run(ctx, options, cmd.Args().Slice())
 
 		if err != nil {
 			return fmt.Errorf("tool '%s' failed: %w", toolId, err)

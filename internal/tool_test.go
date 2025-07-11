@@ -5,6 +5,7 @@ import (
 	"context"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
+	"os"
 	"testing"
 )
 
@@ -16,7 +17,7 @@ func TestTool_MakeExecutableTool_NotAvailable(t *testing.T) {
 	assert.Equal(t, "Tool Info", tool.Info())
 	assert.False(t, tool.IsAvailable())
 	assert.Nil(t, tool.ExecutablePath())
-	assert.EqualError(t, tool.Run(Project{}, []string{}), tool.NotFoundError().Error())
+	assert.EqualError(t, tool.Run(context.Background(), RunOptions{}, []string{}), tool.NotFoundError().Error())
 }
 
 func TestTool_MakeExecutableTool(t *testing.T) {
@@ -39,7 +40,7 @@ func TestTool_NewExecutableTool_NotAvailable(t *testing.T) {
 	assert.Equal(t, "Tool Info", tool.Info())
 	assert.False(t, tool.IsAvailable())
 	assert.Nil(t, tool.ExecutablePath())
-	assert.EqualError(t, tool.Run(Project{}, []string{}), tool.NotFoundError().Error())
+	assert.EqualError(t, tool.Run(context.Background(), RunOptions{}, []string{}), tool.NotFoundError().Error())
 }
 
 func TestTool_NewExecutableTool(t *testing.T) {
@@ -59,13 +60,32 @@ func TestTool_ExecutableTool_Run(t *testing.T) {
 
 	tool := MakeExecutableTool("id", "", "", func() *Executable {
 		return &Executable{Path: "echo", RunFunc: func(ctx context.Context, options RunOptions, path string, args []string) error {
-			return runMock.Called(ctx, path, args).Error(0)
+			return runMock.Called(ctx, options, path, args).Error(0)
 		}}
 	})
 
-	runMock.On("1", mock.Anything, "echo", []string{"arg1", "arg2"}).Return(nil)
+	runMock.On("1", mock.Anything, RunOptions{}, "echo", []string{"arg1", "arg2"}).Return(nil)
 
-	err := tool.Run(Project{}, []string{"arg1", "arg2"})
+	err := tool.Run(context.Background(), RunOptions{}, []string{"arg1", "arg2"})
+	assert.NoError(t, err)
+}
+
+func TestTool_ExecutableTool_RunForProject(t *testing.T) {
+	var runMock mock.Mock
+
+	tool := MakeExecutableTool("id", "", "", func() *Executable {
+		return &Executable{Path: "echo", RunFunc: func(ctx context.Context, options RunOptions, path string, args []string) error {
+			return runMock.Called(ctx, options, path, args).Error(0)
+		}}
+	})
+
+	runMock.On("1", mock.Anything, RunOptions{
+		Directory: "",
+		Output:    os.Stdout,
+		Error:     os.Stderr,
+	}, "echo", []string{"arg1", "arg2"}).Return(nil)
+
+	err := tool.RunForProject(Project{}, []string{"arg1", "arg2"})
 	assert.NoError(t, err)
 }
 

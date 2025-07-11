@@ -24,7 +24,7 @@ var ProjectCommand = cli.Command{
 	},
 }
 
-func projectCommandTargetsAction(ctx context.Context, _ *cli.Command) error {
+func projectCommandTargetsAction(ctx context.Context, cmd *cli.Command) error {
 	c := ctx.Value("context").(internal.Context)
 	info, err := c.Project.Structure()
 
@@ -34,16 +34,16 @@ func projectCommandTargetsAction(ctx context.Context, _ *cli.Command) error {
 
 	for name, target := range info.Targets {
 		if target.Dependency {
-			fmt.Printf("%v (dependency)\n", name)
+			_, _ = fmt.Fprintf(cmd.Writer, "%v (dependency)\n", name)
 		} else {
-			fmt.Printf("%v\n", name)
+			_, _ = fmt.Fprintf(cmd.Writer, "%v\n", name)
 		}
 	}
 
 	return nil
 }
 
-func projectCommandFilesAction(ctx context.Context, _ *cli.Command) error {
+func projectCommandFilesAction(ctx context.Context, cmd *cli.Command) error {
 	c := ctx.Value("context").(internal.Context)
 	info, err := c.Project.Structure()
 
@@ -56,10 +56,10 @@ func projectCommandFilesAction(ctx context.Context, _ *cli.Command) error {
 			continue
 		}
 
-		fmt.Printf("%v:\n", name)
+		_, _ = fmt.Fprintf(cmd.Writer, "%v:\n", name)
 
 		for _, file := range target.Files {
-			fmt.Printf("  %v\n", file)
+			_, _ = fmt.Fprintf(cmd.Writer, "  %v\n", file)
 		}
 	}
 

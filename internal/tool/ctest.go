@@ -28,8 +28,8 @@ func DetectCTest(environment internal.Environment) *CTest {
 	})
 }
 
-func (c *CTest) Run(project internal.Project, args []string) error {
-	return c.ExecutableTool.Run(project, append(args,
+func (c *CTest) RunForProject(project internal.Project, args []string) error {
+	return c.ExecutableTool.RunForProject(project, append(args,
 		"--test-dir", project.BuildDirectory(),
 	))
 }

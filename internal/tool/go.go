@@ -40,7 +40,7 @@ func (c *Go) Structure(project internal.Project) (*internal.ProjectStructure, er
 
 	builder := bytes.Buffer{}
 	options := internal.RunOptions{Directory: project.RootDirectory(), Output: &builder, Error: nil}
-	if err := c.RunContext(context.Background(), options, []string{"list", "-json=ImportPath,GoFiles", "./..."}); err != nil {
+	if err := c.Run(context.Background(), options, []string{"list", "-json=ImportPath,GoFiles", "./..."}); err != nil {
 		return nil, err
 	}
 
@@ -63,37 +63,37 @@ func (c *Go) Structure(project internal.Project) (*internal.ProjectStructure, er
 }
 
 func (c *Go) BuildAll(project internal.Project, args []string) error {
-	return c.Run(project, append(args, "build"))
+	return c.RunForProject(project, append(args, "build"))
 }
 
 func (c *Go) BuildTargets(project internal.Project, targets []string, args []string) error {
-	return c.Run(project, append(append(args, "build"), targets...))
+	return c.RunForProject(project, append(append(args, "build"), targets...))
 }
 
 func (c *Go) RunTarget(project internal.Project, target string, args []string) error {
-	return c.Run(project, append(args, "run", target))
+	return c.RunForProject(project, append(args, "run", target))
 }
 
 func (c *Go) TestAll(project internal.Project, args []string) error {
-	return c.Run(project, append(args, "test", "./..."))
+	return c.RunForProject(project, append(args, "test", "./..."))
 }
 
 func (c *Go) Test(project internal.Project, pattern string, args []string) error {
-	return c.Run(project, append(args, "test", pattern))
+	return c.RunForProject(project, append(args, "test", pattern))
 }
 
 func (c *Go) FormatAll(project internal.Project, args []string) error {
-	return c.Run(project, append(args, "fmt", "./..."))
+	return c.RunForProject(project, append(args, "fmt", "./..."))
 }
 
 func (c *Go) FormatFiles(project internal.Project, filenames []string, args []string) error {
-	return c.Run(project, append(append(args, "fmt"), filenames...))
+	return c.RunForProject(project, append(append(args, "fmt"), filenames...))
 }
 
-func (c *Go) FormatCheckAll(project internal.Project, args []string) error {
+func (c *Go) FormatCheckAll(_ internal.Project, _ []string) error {
 	return errors.New("go fmt doesn't support check mode")
 }
 
-func (c *Go) FormatCheckFiles(project internal.Project, filenames []string, args []string) error {
+func (c *Go) FormatCheckFiles(_ internal.Project, _ []string, _ []string) error {
 	return errors.New("go fmt doesn't support check mode")
 }

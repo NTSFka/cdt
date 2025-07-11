@@ -406,7 +406,7 @@ func TestClangFormat_Run(t *testing.T) {
 	runMock.OnRun("clang-format", []string{}).
 		Return(nil)
 
-	err := tool.Run(p, []string{})
+	err := tool.RunForProject(p, []string{})
 	assert.NoError(t, err)
 
 	runMock.AssertExpectations(t)
@@ -422,7 +422,7 @@ func TestClangFormat_Run_Failed(t *testing.T) {
 	runMock.OnRun("clang-format", []string{}).
 		Return(errors.New("failed"))
 
-	err := tool.Run(p, []string{})
+	err := tool.RunForProject(p, []string{})
 	assert.EqualError(t, err, "failed")
 
 	runMock.AssertExpectations(t)

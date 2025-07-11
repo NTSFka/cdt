@@ -101,7 +101,7 @@ func (c *ClangFormat) FormatAll(project internal.Project, args []string) error {
 
 	toolArgs := c.buildArgs(project.RootDirectory(), []string{"-i"}, paths)
 
-	return c.Run(project, append(toolArgs, args...))
+	return c.RunForProject(project, append(toolArgs, args...))
 }
 
 // FormatFiles formats a file in the project
@@ -110,7 +110,7 @@ func (c *ClangFormat) FormatFiles(project internal.Project, filenames []string, 
 
 	toolArgs := c.buildArgs(project.RootDirectory(), []string{"-i"}, paths)
 
-	return c.Run(project, append(toolArgs, args...))
+	return c.RunForProject(project, append(toolArgs, args...))
 }
 
 // FormatCheckAll checks all files if some needs formatting
@@ -125,7 +125,7 @@ func (c *ClangFormat) FormatCheckAll(project internal.Project, args []string) er
 
 	toolArgs := c.buildArgs(project.RootDirectory(), []string{"--dry-run"}, paths)
 
-	return c.Run(project, append(toolArgs, args...))
+	return c.RunForProject(project, append(toolArgs, args...))
 }
 
 // FormatCheckFiles checks a file if it needs formatting
@@ -134,5 +134,5 @@ func (c *ClangFormat) FormatCheckFiles(project internal.Project, filenames []str
 
 	toolArgs := c.buildArgs(project.RootDirectory(), []string{"--dry-run"}, paths)
 
-	return c.Run(project, append(toolArgs, args...))
+	return c.RunForProject(project, append(toolArgs, args...))
 }

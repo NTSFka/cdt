@@ -66,7 +66,7 @@ func (c *CMake) Configure(project internal.Project, args []string) error {
 	callArgs = append(callArgs, "-S", ".")
 	callArgs = append(callArgs, "-B", project.BuildDirectory())
 
-	return c.Run(project, callArgs)
+	return c.RunForProject(project, callArgs)
 }
 
 func (c *CMake) BuildAll(project internal.Project, args []string) error {
@@ -77,7 +77,7 @@ func (c *CMake) BuildAll(project internal.Project, args []string) error {
 	callArgs := args
 	callArgs = append(callArgs, "--build", project.BuildDirectory())
 
-	return c.Run(project, callArgs)
+	return c.RunForProject(project, callArgs)
 }
 
 func (c *CMake) BuildTargets(project internal.Project, targets []string, args []string) error {
@@ -90,7 +90,7 @@ func (c *CMake) BuildTargets(project internal.Project, targets []string, args []
 	callArgs = append(callArgs, "--target")
 	callArgs = append(callArgs, targets...)
 
-	return c.Run(project, callArgs)
+	return c.RunForProject(project, callArgs)
 }
 
 func (c *CMake) RunTarget(project internal.Project, target string, args []string) error {

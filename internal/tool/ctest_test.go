@@ -49,7 +49,7 @@ func TestCTest_Run(t *testing.T) {
 	runMock.OnRun("ctest", []string{"--test-dir", "build"}).
 		Return(nil)
 
-	err := tool.Run(p, []string{})
+	err := tool.RunForProject(p, []string{})
 	assert.NoError(t, err)
 
 	runMock.AssertExpectations(t)
@@ -65,7 +65,7 @@ func TestCTest_Run_Failed(t *testing.T) {
 	runMock.OnRun("ctest", []string{"--test-dir", "build"}).
 		Return(errors.New("failed"))
 
-	err := tool.Run(p, []string{})
+	err := tool.RunForProject(p, []string{})
 	assert.EqualError(t, err, "failed")
 
 	runMock.AssertExpectations(t)

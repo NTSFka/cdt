@@ -44,9 +44,9 @@ func environmentCommandActionStatus(ctx context.Context, cmd *cli.Command) error
 	env := c.Environment
 
 	if env.IsRunning(ctx) {
-		fmt.Fprintf(cmd.Writer, "%v: running\n", env.Id())
+		_, _ = fmt.Fprintf(cmd.Writer, "%v: running\n", env.Id())
 	} else {
-		fmt.Fprintf(cmd.Writer, "%v: stopped\n", env.Id())
+		_, _ = fmt.Fprintf(cmd.Writer, "%v: stopped\n", env.Id())
 	}
 
 	return nil
