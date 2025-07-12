@@ -59,6 +59,7 @@ func RunMain(buildContext func(config internal.Config) (*internal.Context, error
 			&command.LintCommand,
 			&command.RunCommand,
 			&command.EnvironmentCommand,
+			&command.ExecCommand,
 		},
 		Before: func(ctx context.Context, cmd *cli.Command) (context.Context, error) {
 			projectPath := cmd.String("directory")
