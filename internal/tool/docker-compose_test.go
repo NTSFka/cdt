@@ -29,29 +29,29 @@ func TestDockerCompose_NewDockerCompose_WithExecutable(t *testing.T) {
 }
 
 func TestDockerCompose_DetectDockerCompose_NotFound(t *testing.T) {
-	environment := test.Environment{}
-	environment.OnFindExecutable("docker").
+	env := test.NewEnvironment(t)
+	env.OnFindExecutable("docker").
 		Return(nil)
 
-	tool := DetectDockerCompose(&environment)
+	tool := DetectDockerCompose(env)
 	assert.NotNil(t, tool)
 	assert.Equal(t, "docker-compose", tool.Id())
 	assert.False(t, tool.IsAvailable())
 
-	environment.AssertExpectations(t)
+	env.AssertExpectations(t)
 }
 
 func TestDockerCompose_DetectDockerCompose_Found(t *testing.T) {
-	environment := test.Environment{}
-	environment.OnFindExecutable("docker").
-		Return(environment.MakeExecutable("docker"))
+	env := test.NewEnvironment(t)
+	env.OnFindExecutable("docker").
+		Return(env.NewExecutable("docker"))
 
-	tool := DetectDockerCompose(&environment)
+	tool := DetectDockerCompose(env)
 	assert.NotNil(t, tool)
 	assert.Equal(t, "docker-compose", tool.Id())
 	assert.True(t, tool.IsAvailable())
 
-	environment.AssertExpectations(t)
+	env.AssertExpectations(t)
 }
 
 func TestDockerCompose_CreateEnvironment(t *testing.T) {

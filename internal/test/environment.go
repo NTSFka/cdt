@@ -4,13 +4,21 @@ import (
 	"cdt/internal"
 	"context"
 	"github.com/stretchr/testify/mock"
+	"testing"
 )
 
 type Environment struct {
 	mock.Mock
 }
 
-func (e *Environment) MakeExecutable(path string) *internal.Executable {
+// NewEnvironment create new testing environment
+func NewEnvironment(t *testing.T) *Environment {
+	env := Environment{}
+	env.Test(t)
+	return &env
+}
+
+func (e *Environment) NewExecutable(path string) *internal.Executable {
 	return &internal.Executable{Path: path, RunFunc: e.RunExecutable}
 }
 

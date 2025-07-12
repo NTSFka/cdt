@@ -31,29 +31,29 @@ func TestDocker_NewDocker_WithExecutable(t *testing.T) {
 }
 
 func TestDocker_DetectDocker_NotFound(t *testing.T) {
-	environment := test.Environment{}
-	environment.OnFindExecutable("docker").
+	env := test.NewEnvironment(t)
+	env.OnFindExecutable("docker").
 		Return(nil)
 
-	tool := DetectDocker(&environment)
+	tool := DetectDocker(env)
 	assert.NotNil(t, tool)
 	assert.Equal(t, "docker", tool.Id())
 	assert.False(t, tool.IsAvailable())
 
-	environment.AssertExpectations(t)
+	env.AssertExpectations(t)
 }
 
 func TestDocker_DetectDocker_Found(t *testing.T) {
-	environment := test.Environment{}
-	environment.OnFindExecutable("docker").
-		Return(environment.MakeExecutable("docker"))
+	env := test.NewEnvironment(t)
+	env.OnFindExecutable("docker").
+		Return(env.NewExecutable("docker"))
 
-	tool := DetectDocker(&environment)
+	tool := DetectDocker(env)
 	assert.NotNil(t, tool)
 	assert.Equal(t, "docker", tool.Id())
 	assert.True(t, tool.IsAvailable())
 
-	environment.AssertExpectations(t)
+	env.AssertExpectations(t)
 }
 
 func TestDocker_CreateEnvironment(t *testing.T) {

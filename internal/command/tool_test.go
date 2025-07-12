@@ -51,31 +51,35 @@ func TestTool_Run_Unavailable(t *testing.T) {
 }
 
 func TestTool_Run_Success(t *testing.T) {
-	runMock := test.Executable{}
+	exec := test.NewExecutable(t)
 
 	tools := internal.Tools{
-		internal.NewExecutableTool("tool", "Tool", "Some tool", runMock.LazyExecutable("/usr/bin/tool")),
+		internal.NewExecutableTool("tool", "Tool", "Some tool", exec.LazyExecutable("/usr/bin/tool")),
 	}
 
-	runMock.OnRun("/usr/bin/tool", []string{}).
+	exec.OnRun("/usr/bin/tool", []string{}).
 		Return(nil)
 
 	err := test.RunCommand(ToolCommand, internal.Context{Tools: tools}, "run", "tool")
 
 	assert.NoError(t, err)
+
+	exec.AssertExpectations(t)
 }
 
 func TestTool_Run_Failed(t *testing.T) {
-	runMock := test.Executable{}
+	exec := test.NewExecutable(t)
 
 	tools := internal.Tools{
-		internal.NewExecutableTool("tool", "Tool", "Some tool", runMock.LazyExecutable("/usr/bin/tool")),
+		internal.NewExecutableTool("tool", "Tool", "Some tool", exec.LazyExecutable("/usr/bin/tool")),
 	}
 
-	runMock.OnRun("/usr/bin/tool", []string{}).
+	exec.OnRun("/usr/bin/tool", []string{}).
 		Return(errors.New("failed"))
 
 	err := test.RunCommand(ToolCommand, internal.Context{Tools: tools}, "run", "tool")
 
 	assert.EqualError(t, err, "tool 'tool' failed: failed")
+
+	exec.AssertExpectations(t)
 }

@@ -9,11 +9,11 @@ import (
 )
 
 func TestCMake_CMakeDetect(t *testing.T) {
-	environment := test.Environment{}
-	environment.OnFindExecutable("cmake").
-		Return(environment.MakeExecutable("/bin/cmake"))
+	env := test.NewEnvironment(t)
+	env.OnFindExecutable("cmake").
+		Return(env.NewExecutable("/bin/cmake"))
 
-	cmake := DetectCMake(&environment)
+	cmake := DetectCMake(env)
 	assert.NotNil(t, cmake)
 	assert.Equal(t, "cmake", cmake.Id())
 	assert.True(t, cmake.IsAvailable())
@@ -22,31 +22,31 @@ func TestCMake_CMakeDetect(t *testing.T) {
 		assert.Equal(t, "/bin/cmake", *path)
 	}
 
-	environment.AssertExpectations(t)
+	env.AssertExpectations(t)
 }
 
 func TestCMake_CMakeDetect_NotFound(t *testing.T) {
-	environment := test.Environment{}
-	environment.OnFindExecutable("cmake").
+	env := test.NewEnvironment(t)
+	env.OnFindExecutable("cmake").
 		Return(nil)
 
-	cmake := DetectCMake(&environment)
+	cmake := DetectCMake(env)
 	assert.NotNil(t, cmake)
 	assert.Equal(t, "cmake", cmake.Id())
 	assert.False(t, cmake.IsAvailable())
 	assert.Nil(t, cmake.ExecutablePath())
 
-	environment.AssertExpectations(t)
+	env.AssertExpectations(t)
 }
 
 func TestCMake_Configure(t *testing.T) {
-	runMock := test.Executable{}
+	exec := test.NewExecutable(t)
 
-	cmake := NewCMake(runMock.LazyExecutable("cmake"))
+	cmake := NewCMake(exec.LazyExecutable("cmake"))
 
 	p := internal.MakeProject("project", t.TempDir(), cmake, internal.Workflow{})
 
-	runMock.OnRun("cmake", []string{
+	exec.OnRun("cmake", []string{
 		"-DCMAKE_EXPORT_COMPILE_COMMANDS=ON",
 		"-S", ".",
 		"-B", p.BuildDirectory(),
@@ -55,17 +55,17 @@ func TestCMake_Configure(t *testing.T) {
 	err := cmake.Configure(p, []string{})
 	assert.NoError(t, err)
 
-	runMock.AssertExpectations(t)
+	exec.AssertExpectations(t)
 }
 
 func TestCMake_Configure_Failed(t *testing.T) {
-	runMock := test.Executable{}
+	exec := test.NewExecutable(t)
 
-	cmake := NewCMake(runMock.LazyExecutable("cmake"))
+	cmake := NewCMake(exec.LazyExecutable("cmake"))
 
 	p := internal.MakeProject("project", t.TempDir(), cmake, internal.Workflow{})
 
-	runMock.OnRun("cmake", []string{
+	exec.OnRun("cmake", []string{
 		"-DCMAKE_EXPORT_COMPILE_COMMANDS=ON",
 		"-S", ".",
 		"-B", p.BuildDirectory(),
@@ -74,18 +74,18 @@ func TestCMake_Configure_Failed(t *testing.T) {
 	err := cmake.Configure(p, []string{})
 	assert.EqualError(t, err, "failed")
 
-	runMock.AssertExpectations(t)
+	exec.AssertExpectations(t)
 }
 
 func TestCMake_Structure_ConfigureFailed(t *testing.T) {
-	runMock := test.Executable{}
+	exec := test.NewExecutable(t)
 
-	cmake := NewCMake(runMock.LazyExecutable("cmake"))
+	cmake := NewCMake(exec.LazyExecutable("cmake"))
 
 	p := internal.MakeProject("project", t.TempDir(), cmake, internal.Workflow{})
 
 	// Configure
-	runMock.OnRun("cmake", []string{
+	exec.OnRun("cmake", []string{
 		"-DCMAKE_EXPORT_COMPILE_COMMANDS=ON",
 		"-S", ".",
 		"-B", p.BuildDirectory(),
@@ -96,18 +96,18 @@ func TestCMake_Structure_ConfigureFailed(t *testing.T) {
 	assert.Nil(t, structure)
 	assert.EqualError(t, err, "failed")
 
-	runMock.AssertExpectations(t)
+	exec.AssertExpectations(t)
 }
 
 func TestCMake_BuildAll(t *testing.T) {
-	runMock := test.Executable{}
+	exec := test.NewExecutable(t)
 
-	cmake := NewCMake(runMock.LazyExecutable("cmake"))
+	cmake := NewCMake(exec.LazyExecutable("cmake"))
 
 	p := internal.MakeProject("project", t.TempDir(), cmake, internal.Workflow{})
 
 	// Configure
-	runMock.OnRun("cmake", []string{
+	exec.OnRun("cmake", []string{
 		"-DCMAKE_EXPORT_COMPILE_COMMANDS=ON",
 		"-S", ".",
 		"-B", p.BuildDirectory(),
@@ -115,24 +115,24 @@ func TestCMake_BuildAll(t *testing.T) {
 		Return(nil)
 
 	// Build
-	runMock.OnRun("cmake", []string{"--build", p.BuildDirectory()}).
+	exec.OnRun("cmake", []string{"--build", p.BuildDirectory()}).
 		Return(nil)
 
 	err := cmake.BuildAll(p, []string{})
 	assert.NoError(t, err)
 
-	runMock.AssertExpectations(t)
+	exec.AssertExpectations(t)
 }
 
 func TestCMake_BuildAll_Failed(t *testing.T) {
-	runMock := test.Executable{}
+	exec := test.NewExecutable(t)
 
-	cmake := NewCMake(runMock.LazyExecutable("cmake"))
+	cmake := NewCMake(exec.LazyExecutable("cmake"))
 
 	p := internal.MakeProject("project", t.TempDir(), cmake, internal.Workflow{})
 
 	// Configure
-	runMock.OnRun("cmake", []string{
+	exec.OnRun("cmake", []string{
 		"-DCMAKE_EXPORT_COMPILE_COMMANDS=ON",
 		"-S", ".",
 		"-B", p.BuildDirectory(),
@@ -140,24 +140,24 @@ func TestCMake_BuildAll_Failed(t *testing.T) {
 		Return(nil)
 
 	// Build
-	runMock.OnRun("cmake", []string{"--build", p.BuildDirectory()}).
+	exec.OnRun("cmake", []string{"--build", p.BuildDirectory()}).
 		Return(errors.New("failed"))
 
 	err := cmake.BuildAll(p, []string{})
 	assert.EqualError(t, err, "failed")
 
-	runMock.AssertExpectations(t)
+	exec.AssertExpectations(t)
 }
 
 func TestCMake_BuildAll_ConfigureFailed(t *testing.T) {
-	runMock := test.Executable{}
+	exec := test.NewExecutable(t)
 
-	cmake := NewCMake(runMock.LazyExecutable("cmake"))
+	cmake := NewCMake(exec.LazyExecutable("cmake"))
 
 	p := internal.MakeProject("project", t.TempDir(), cmake, internal.Workflow{})
 
 	// Configure
-	runMock.OnRun("cmake", []string{
+	exec.OnRun("cmake", []string{
 		"-DCMAKE_EXPORT_COMPILE_COMMANDS=ON",
 		"-S", ".",
 		"-B", p.BuildDirectory(),
@@ -167,18 +167,18 @@ func TestCMake_BuildAll_ConfigureFailed(t *testing.T) {
 	err := cmake.BuildAll(p, []string{})
 	assert.EqualError(t, err, "failed")
 
-	runMock.AssertExpectations(t)
+	exec.AssertExpectations(t)
 }
 
 func TestCMake_BuildTargets(t *testing.T) {
-	runMock := test.Executable{}
+	exec := test.NewExecutable(t)
 
-	cmake := NewCMake(runMock.LazyExecutable("cmake"))
+	cmake := NewCMake(exec.LazyExecutable("cmake"))
 
 	p := internal.MakeProject("project", t.TempDir(), cmake, internal.Workflow{})
 
 	// Configure
-	runMock.OnRun("cmake", []string{
+	exec.OnRun("cmake", []string{
 		"-DCMAKE_EXPORT_COMPILE_COMMANDS=ON",
 		"-S", ".",
 		"-B", p.BuildDirectory(),
@@ -186,7 +186,7 @@ func TestCMake_BuildTargets(t *testing.T) {
 		Return(nil)
 
 	// Build
-	runMock.OnRun("cmake", []string{
+	exec.OnRun("cmake", []string{
 		"--build", p.BuildDirectory(),
 		"--target", "target1", "target2",
 	}).
@@ -195,18 +195,18 @@ func TestCMake_BuildTargets(t *testing.T) {
 	err := cmake.BuildTargets(p, []string{"target1", "target2"}, []string{})
 	assert.NoError(t, err)
 
-	runMock.AssertExpectations(t)
+	exec.AssertExpectations(t)
 }
 
 func TestCMake_BuildTargets_Failed(t *testing.T) {
-	runMock := test.Executable{}
+	exec := test.NewExecutable(t)
 
-	cmake := NewCMake(runMock.LazyExecutable("cmake"))
+	cmake := NewCMake(exec.LazyExecutable("cmake"))
 
 	p := internal.MakeProject("project", t.TempDir(), cmake, internal.Workflow{})
 
 	// Configure
-	runMock.OnRun("cmake", []string{
+	exec.OnRun("cmake", []string{
 		"-DCMAKE_EXPORT_COMPILE_COMMANDS=ON",
 		"-S", ".",
 		"-B", p.BuildDirectory(),
@@ -214,7 +214,7 @@ func TestCMake_BuildTargets_Failed(t *testing.T) {
 		Return(nil)
 
 	// Build
-	runMock.OnRun("cmake", []string{
+	exec.OnRun("cmake", []string{
 		"--build", p.BuildDirectory(),
 		"--target", "target1", "target2",
 	}).
@@ -223,18 +223,18 @@ func TestCMake_BuildTargets_Failed(t *testing.T) {
 	err := cmake.BuildTargets(p, []string{"target1", "target2"}, []string{})
 	assert.EqualError(t, err, "failed")
 
-	runMock.AssertExpectations(t)
+	exec.AssertExpectations(t)
 }
 
 func TestCMake_BuildTargets_ConfigureFailed(t *testing.T) {
-	runMock := test.Executable{}
+	exec := test.NewExecutable(t)
 
-	cmake := NewCMake(runMock.LazyExecutable("cmake"))
+	cmake := NewCMake(exec.LazyExecutable("cmake"))
 
 	p := internal.MakeProject("project", t.TempDir(), cmake, internal.Workflow{})
 
 	// Configure
-	runMock.OnRun("cmake", []string{
+	exec.OnRun("cmake", []string{
 		"-DCMAKE_EXPORT_COMPILE_COMMANDS=ON",
 		"-S", ".",
 		"-B", p.BuildDirectory(),
@@ -244,18 +244,18 @@ func TestCMake_BuildTargets_ConfigureFailed(t *testing.T) {
 	err := cmake.BuildTargets(p, []string{"target1", "target2"}, []string{})
 	assert.EqualError(t, err, "failed")
 
-	runMock.AssertExpectations(t)
+	exec.AssertExpectations(t)
 }
 
 func TestCMake_RunTarget_Failed(t *testing.T) {
-	runMock := test.Executable{}
+	exec := test.NewExecutable(t)
 
-	cmake := NewCMake(runMock.LazyExecutable("cmake"))
+	cmake := NewCMake(exec.LazyExecutable("cmake"))
 
 	p := internal.MakeProject("project", t.TempDir(), cmake, internal.Workflow{})
 
 	// Configure
-	runMock.OnRun("cmake", []string{
+	exec.OnRun("cmake", []string{
 		"-DCMAKE_EXPORT_COMPILE_COMMANDS=ON",
 		"-S", ".",
 		"-B", p.BuildDirectory(),
@@ -263,7 +263,7 @@ func TestCMake_RunTarget_Failed(t *testing.T) {
 		Return(nil)
 
 	// Build
-	runMock.OnRun("cmake", []string{
+	exec.OnRun("cmake", []string{
 		"--build", p.BuildDirectory(),
 		"--target", "target1",
 	}).
@@ -272,5 +272,5 @@ func TestCMake_RunTarget_Failed(t *testing.T) {
 	err := cmake.RunTarget(p, "target1", []string{})
 	assert.EqualError(t, err, "failed")
 
-	runMock.AssertExpectations(t)
+	exec.AssertExpectations(t)
 }

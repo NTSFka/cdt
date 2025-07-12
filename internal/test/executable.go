@@ -4,11 +4,19 @@ import (
 	"cdt/internal"
 	"context"
 	"github.com/stretchr/testify/mock"
+	"testing"
 )
 
 // Executable allow testing executable invocation
 type Executable struct {
 	mock.Mock
+}
+
+// NewExecutable create new testing executable
+func NewExecutable(t *testing.T) *Executable {
+	executable := Executable{}
+	executable.Test(t)
+	return &executable
 }
 
 func (m *Executable) runFunc(ctx context.Context, options internal.RunOptions, path string, args []string) error {

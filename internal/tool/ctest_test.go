@@ -9,11 +9,11 @@ import (
 )
 
 func TestCTest_DetectCTest(t *testing.T) {
-	environment := test.Environment{}
-	environment.OnFindExecutable("ctest").
-		Return(environment.MakeExecutable("/bin/ctest"))
+	env := test.NewEnvironment(t)
+	env.OnFindExecutable("ctest").
+		Return(env.NewExecutable("/bin/ctest"))
 
-	tool := DetectCTest(&environment)
+	tool := DetectCTest(env)
 	assert.NotNil(t, tool)
 	assert.Equal(t, "ctest", tool.Id())
 	assert.True(t, tool.IsAvailable())
@@ -22,51 +22,51 @@ func TestCTest_DetectCTest(t *testing.T) {
 		assert.Equal(t, "/bin/ctest", *path)
 	}
 
-	environment.AssertExpectations(t)
+	env.AssertExpectations(t)
 }
 
 func TestCTest_DetectCTest_NotFound(t *testing.T) {
-	environment := test.Environment{}
-	environment.OnFindExecutable("ctest").
+	env := test.NewEnvironment(t)
+	env.OnFindExecutable("ctest").
 		Return(nil)
 
-	tool := DetectCTest(&environment)
+	tool := DetectCTest(env)
 	assert.NotNil(t, tool)
 	assert.Equal(t, "ctest", tool.Id())
 	assert.False(t, tool.IsAvailable())
 	assert.Nil(t, tool.ExecutablePath())
 
-	environment.AssertExpectations(t)
+	env.AssertExpectations(t)
 }
 
 func TestCTest_Run(t *testing.T) {
-	runMock := test.Executable{}
+	exec := test.NewExecutable(t)
 
-	tool := NewCTest(runMock.LazyExecutable("ctest"))
+	tool := NewCTest(exec.LazyExecutable("ctest"))
 
 	p := internal.MakeProject("project", "build", nil, internal.Workflow{})
 
-	runMock.OnRun("ctest", []string{"--test-dir", "build"}).
+	exec.OnRun("ctest", []string{"--test-dir", "build"}).
 		Return(nil)
 
 	err := tool.RunForProject(p, []string{})
 	assert.NoError(t, err)
 
-	runMock.AssertExpectations(t)
+	exec.AssertExpectations(t)
 }
 
 func TestCTest_Run_Failed(t *testing.T) {
-	runMock := test.Executable{}
+	exec := test.NewExecutable(t)
 
-	tool := NewCTest(runMock.LazyExecutable("ctest"))
+	tool := NewCTest(exec.LazyExecutable("ctest"))
 
 	p := internal.MakeProject("project", "build", nil, internal.Workflow{})
 
-	runMock.OnRun("ctest", []string{"--test-dir", "build"}).
+	exec.OnRun("ctest", []string{"--test-dir", "build"}).
 		Return(errors.New("failed"))
 
 	err := tool.RunForProject(p, []string{})
 	assert.EqualError(t, err, "failed")
 
-	runMock.AssertExpectations(t)
+	exec.AssertExpectations(t)
 }
