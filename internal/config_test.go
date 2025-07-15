@@ -58,3 +58,43 @@ project:
 		}
 	}
 }
+
+func TestFileConfig_UpdateConfig_Empty(t *testing.T) {
+	config := DefaultConfig()
+
+	fileConfig := FileConfig{
+		Project: FileConfigProject{},
+	}
+
+	fileConfig.UpdateConfig(&config)
+
+	assert.Equal(t, DefaultConfig(), config)
+}
+
+func TestFileConfig_UpdateConfig(t *testing.T) {
+	strPtr := func(s string) *string {
+		return &s
+	}
+
+	config := DefaultConfig()
+
+	fileConfig := FileConfig{
+		Project: FileConfigProject{
+			Directory:      strPtr("/project/dir"),
+			BuildDirectory: strPtr("/project/build"),
+			Environment:    strPtr("env:arg"),
+		},
+	}
+
+	fileConfig.UpdateConfig(&config)
+
+	assert.Equal(t, "/project/dir", config.RootDirectory)
+
+	if assert.NotNil(t, config.BuildDirectory) {
+		assert.Equal(t, "/project/build", *config.BuildDirectory)
+	}
+
+	if assert.NotNil(t, config.Environment) {
+		assert.Equal(t, "env:arg", *config.Environment)
+	}
+}

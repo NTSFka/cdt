@@ -5,8 +5,10 @@ import (
 	"cdt/internal/tool"
 	"cdt/internal/workflow"
 	"cdt/pkg"
+	"errors"
 	"fmt"
 	"os"
+	"strings"
 )
 
 var environmentProviders = internal.EnvironmentProviders{
@@ -14,28 +16,32 @@ var environmentProviders = internal.EnvironmentProviders{
 	tool.DetectDockerCompose(internal.SystemEnvironment),
 }
 
-func initEnvironment(rootDirectory string, environment *internal.ConfigEnvironment) (internal.Environment, error) {
+func parseEnvironment(environment string) (string, string, error) {
+	parts := strings.SplitN(environment, ":", 2)
+
+	if len(parts) != 2 {
+		return "", "", errors.New("invalid environment string")
+	}
+
+	return parts[0], parts[1], nil
+}
+
+func initEnvironment(rootDirectory string, environment *string) (internal.Environment, error) {
 	if environment != nil {
+		toolName, argument, err := parseEnvironment(*environment)
+
+		if err != nil {
+			return nil, err
+		}
+
 		for _, provider := range environmentProviders {
-			if provider.IsAvailable() && provider.Id() == environment.ToolName {
-				return provider.CreateEnvironment(rootDirectory, environment.Argument)
+			if provider.IsAvailable() && provider.Id() == toolName {
+				return provider.CreateEnvironment(rootDirectory, argument)
 			}
 		}
 	}
 
 	return internal.SystemEnvironment, nil
-}
-
-// InitTools initializes all supported tools on the system
-func initTools(environment internal.Environment) tool.SupportedTools {
-	return tool.SupportedTools{
-		ClangFormat:  tool.DetectClangFormat(environment, nil),
-		ClangTidy:    tool.DetectClangTidy(environment, nil),
-		CMake:        tool.DetectCMake(environment),
-		CTest:        tool.DetectCTest(environment),
-		Go:           tool.DetectGo(environment),
-		GolangCILint: tool.DetectGolangCILint(environment),
-	}
 }
 
 func detectProject(config internal.Config, tools tool.SupportedTools) internal.Project {
@@ -59,7 +65,7 @@ func buildContext(config internal.Config) (*internal.Context, error) {
 		return nil, err
 	}
 
-	tools := initTools(env)
+	tools := tool.NewSupportedTools(env)
 
 	return &internal.Context{
 		Config:               config,

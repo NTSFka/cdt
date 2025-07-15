@@ -4,25 +4,10 @@ import (
 	"cdt/internal"
 	"cdt/internal/command"
 	"context"
-	"errors"
 	"fmt"
 	"github.com/urfave/cli/v3"
 	"os"
-	"strings"
 )
-
-func parseEnvironment(environment string) (*internal.ConfigEnvironment, error) {
-	parts := strings.SplitN(environment, ":", 2)
-
-	if len(parts) != 2 {
-		return nil, errors.New("invalid environment string")
-	}
-
-	return &internal.ConfigEnvironment{
-		ToolName: parts[0],
-		Argument: parts[1],
-	}, nil
-}
 
 // RunMain is the main function of the application
 func RunMain(buildContext func(config internal.Config) (*internal.Context, error), args []string) error {
@@ -98,66 +83,33 @@ func RunMain(buildContext func(config internal.Config) (*internal.Context, error
 	return cmd.Run(context.Background(), args)
 }
 
-func determineProjectDir(cmd *cli.Command, config *internal.FileConfig) (result string) {
-	result = "."
-
-	if config != nil && config.Project.Directory != nil {
-		result = *config.Project.Directory
-	}
-
-	if cmd.Count("directory") > 0 {
-		result = cmd.String("directory")
-	}
-
-	return
-}
-
-func determineBuildDir(cmd *cli.Command, config *internal.FileConfig) (result *string) {
-	result = nil
-
-	if config != nil && config.Project.BuildDirectory != nil {
-		result = config.Project.BuildDirectory
-	}
-
-	if cmd.Count("build") > 0 {
-		directory := cmd.String("build")
-		result = &directory
-	}
-
-	return
-}
-
-func determineEnvironment(cmd *cli.Command, config *internal.FileConfig) (*internal.ConfigEnvironment, error) {
-	if cmd.Count("environment") > 0 {
-		return parseEnvironment(cmd.String("environment"))
-	}
-
-	if config != nil && config.Project.Environment != nil {
-		return parseEnvironment(*config.Project.Environment)
-	}
-
-	return nil, nil
-}
-
 func createConfig(cmd *cli.Command) (*internal.Config, error) {
+	config := internal.DefaultConfig()
+
 	fileConfig, err := loadConfigFile(cmd.String("config"))
 	if err != nil {
 		return nil, err
 	}
 
-	projectPath := determineProjectDir(cmd, fileConfig)
-	buildDirectory := determineBuildDir(cmd, fileConfig)
-	environment, err := determineEnvironment(cmd, fileConfig)
-
-	if err != nil {
-		return nil, err
+	if fileConfig != nil {
+		fileConfig.UpdateConfig(&config)
 	}
 
-	return &internal.Config{
-		RootDirectory:  projectPath,
-		BuildDirectory: buildDirectory,
-		Environment:    environment,
-	}, nil
+	if cmd.Count("directory") > 0 {
+		config.RootDirectory = cmd.String("directory")
+	}
+
+	if cmd.Count("build") > 0 {
+		directory := cmd.String("build")
+		config.BuildDirectory = &directory
+	}
+
+	if cmd.Count("environment") > 0 {
+		environment := cmd.String("environment")
+		config.Environment = &environment
+	}
+
+	return &config, nil
 }
 
 func loadConfigFile(configPath string) (*internal.FileConfig, error) {
