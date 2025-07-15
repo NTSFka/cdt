@@ -93,27 +93,27 @@ type testTool struct {
 	ExecutableTool
 }
 
-func TestTool_Tools_Active_Empty(t *testing.T) {
+func TestTool_Tools_OnlyAvailable_Empty(t *testing.T) {
 	tools := Tools{}
 
-	assert.Empty(t, tools.Active())
+	assert.Empty(t, tools.OnlyAvailable())
 }
 
-func TestTool_Tools_Active_NoActive(t *testing.T) {
+func TestTool_Tools_OnlyAvailable_NotAvailable(t *testing.T) {
 	tools := Tools{
 		NewExecutableTool("toolId", "", "", func() *Executable { return nil }),
 	}
 
-	assert.Empty(t, tools.Active())
+	assert.Empty(t, tools.OnlyAvailable())
 }
 
-func TestTool_Tools_Active(t *testing.T) {
+func TestTool_Tools_OnlyAvailable(t *testing.T) {
 	tools := Tools{
 		NewExecutableTool("id1", "", "", func() *Executable { return nil }),
 		NewExecutableTool("id2", "", "", func() *Executable { return &Executable{Path: "/bin/tool"} }),
 	}
 
-	active := tools.Active()
+	active := tools.OnlyAvailable()
 	assert.NotEmpty(t, active)
 	if assert.Len(t, active, 1) {
 		assert.Equal(t, "id2", active[0].Id())

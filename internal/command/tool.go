@@ -42,7 +42,7 @@ func toolCommandListAction(ctx context.Context, cmd *cli.Command) error {
 	if cmd.Bool("all") {
 		c.Tools.PrintTable(cmd.Writer)
 	} else {
-		tools := c.Tools.Active()
+		tools := c.Tools.OnlyAvailable()
 		tools.PrintTable(cmd.Writer)
 	}
 

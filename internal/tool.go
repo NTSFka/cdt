@@ -118,8 +118,8 @@ func (t *ExecutableTool) RunForProject(project Project, args []string) error {
 // Tools is a container for available tools
 type Tools []Tool
 
-// Active returns only tools that are available
-func (t *Tools) Active() (result Tools) {
+// OnlyAvailable returns only tools that are available
+func (t *Tools) OnlyAvailable() (result Tools) {
 	for _, tool := range *t {
 		if tool.IsAvailable() {
 			result = append(result, tool)

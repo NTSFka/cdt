@@ -11,11 +11,6 @@ import (
 	"strings"
 )
 
-var environmentProviders = internal.EnvironmentProviders{
-	tool.DetectDocker(internal.SystemEnvironment),
-	tool.DetectDockerCompose(internal.SystemEnvironment),
-}
-
 func parseEnvironment(environment string) (string, string, error) {
 	parts := strings.SplitN(environment, ":", 2)
 
@@ -26,7 +21,7 @@ func parseEnvironment(environment string) (string, string, error) {
 	return parts[0], parts[1], nil
 }
 
-func initEnvironment(rootDirectory string, environment *string) (internal.Environment, error) {
+func initEnvironment(rootDirectory string, environment *string, environmentProviders internal.EnvironmentProviders) (internal.Environment, error) {
 	if environment != nil {
 		toolName, argument, err := parseEnvironment(*environment)
 
@@ -44,7 +39,7 @@ func initEnvironment(rootDirectory string, environment *string) (internal.Enviro
 	return internal.SystemEnvironment, nil
 }
 
-func detectProject(config internal.Config, tools tool.SupportedTools) internal.Project {
+func detectProject(config internal.Config, tools internal.Tools) internal.Project {
 	// CMake
 	if p := workflow.DetectCMakeProject(config, tools); p != nil {
 		return *p
@@ -59,18 +54,20 @@ func detectProject(config internal.Config, tools tool.SupportedTools) internal.P
 }
 
 func buildContext(config internal.Config) (*internal.Context, error) {
-	env, err := initEnvironment(config.RootDirectory, config.Environment)
+	environmentProviders := tool.InitEnvironmentProviders(internal.SystemEnvironment)
+
+	env, err := initEnvironment(config.RootDirectory, config.Environment, environmentProviders)
 
 	if err != nil {
 		return nil, err
 	}
 
-	tools := tool.NewSupportedTools(env)
+	tools := tool.InitTools(env)
 
 	return &internal.Context{
 		Config:               config,
 		Project:              detectProject(config, tools),
-		Tools:                tools.ToTools(),
+		Tools:                tools,
 		EnvironmentProviders: environmentProviders,
 		Environment:          env,
 	}, nil

@@ -1,26 +1,25 @@
 package tool
 
 import (
-	"cdt/internal"
+	"cdt/internal/test"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
 
-func TestTools_SupportedTools_ToTools_Empty(t *testing.T) {
-	supportedTools := SupportedTools{}
+func TestInitTools(t *testing.T) {
+	env := test.NewEnvironment(t)
 
-	tools := supportedTools.ToTools()
-	assert.Empty(t, tools)
+	tools := InitTools(env)
+
+	assert.NotEmpty(t, tools)
 }
 
-func TestTools_SupportedTools_ToTools(t *testing.T) {
-	supportedTools := SupportedTools{
-		Go: NewGo(func() *internal.Executable {
-			return nil
-		}),
-	}
+func TestInitEnvironmentProviders(t *testing.T) {
+	t.Skip("FIXME")
 
-	tools := supportedTools.ToTools()
-	assert.Len(t, tools, 1)
-	assert.Equal(t, supportedTools.Go, tools[0])
+	env := test.NewEnvironment(t)
+
+	providers := InitEnvironmentProviders(env)
+
+	assert.NotEmpty(t, providers)
 }

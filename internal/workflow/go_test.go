@@ -16,7 +16,7 @@ func createGoModFile(dir string) error {
 }
 
 func TestGo_DetectGoProject_NoModFile(t *testing.T) {
-	tools := tool.SupportedTools{}
+	tools := internal.Tools{}
 
 	p := DetectGoProject(internal.Config{RootDirectory: "dir1"}, tools)
 
@@ -24,9 +24,9 @@ func TestGo_DetectGoProject_NoModFile(t *testing.T) {
 }
 
 func TestGo_DetectGoProject_NoLinter(t *testing.T) {
-	tools := tool.SupportedTools{
-		Go:           tool.NewGo(func() *internal.Executable { return &internal.Executable{Path: "go-test"} }),
-		GolangCILint: tool.NewGolangCILint(func() *internal.Executable { return nil }),
+	tools := internal.Tools{
+		tool.NewGo(func() *internal.Executable { return &internal.Executable{Path: "go-test"} }),
+		tool.NewGolangCILint(func() *internal.Executable { return nil }),
 	}
 
 	dir := t.TempDir()
@@ -48,9 +48,9 @@ func TestGo_DetectGoProject_NoLinter(t *testing.T) {
 }
 
 func TestGo_DetectGoProject_Linter(t *testing.T) {
-	tools := tool.SupportedTools{
-		Go:           tool.NewGo(func() *internal.Executable { return &internal.Executable{Path: "go-test"} }),
-		GolangCILint: tool.NewGolangCILint(func() *internal.Executable { return &internal.Executable{Path: "golangci-lint-test"} }),
+	tools := internal.Tools{
+		tool.NewGo(func() *internal.Executable { return &internal.Executable{Path: "go-test"} }),
+		tool.NewGolangCILint(func() *internal.Executable { return &internal.Executable{Path: "golangci-lint-test"} }),
 	}
 
 	dir := t.TempDir()

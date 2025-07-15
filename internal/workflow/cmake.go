@@ -14,23 +14,28 @@ type cmakeTester struct {
 }
 
 // DetectCMakeProject detects if the project in the directory is a CMake project
-func DetectCMakeProject(config internal.Config, tools tool.SupportedTools) *internal.Project {
+func DetectCMakeProject(config internal.Config, tools internal.Tools) *internal.Project {
 	if !internal.PathExists(filepath.Join(config.RootDirectory, "CMakeLists.txt")) {
 		return nil
 	}
 
+	cmake := internal.GetTool[*tool.CMake](tools)
+	ctest := internal.GetTool[*tool.CTest](tools)
+	clangFormat := internal.GetTool[*tool.ClangFormat](tools)
+	clangTidy := internal.GetTool[*tool.ClangTidy](tools)
+
 	tester := &cmakeTester{
-		cmakeTool: tools.CMake,
-		ctestTool: tools.CTest,
+		cmakeTool: cmake,
+		ctestTool: ctest,
 	}
 
 	workflow := internal.Workflow{
-		Configurator: tools.CMake,
-		Builder:      tools.CMake,
+		Configurator: cmake,
+		Builder:      cmake,
 		Tester:       tester,
-		Formatter:    tools.ClangFormat,
-		Linter:       tools.ClangTidy,
-		Runner:       tools.CMake,
+		Formatter:    clangFormat,
+		Linter:       clangTidy,
+		Runner:       cmake,
 	}
 
 	var buildDirectory string
@@ -41,7 +46,7 @@ func DetectCMakeProject(config internal.Config, tools tool.SupportedTools) *inte
 		buildDirectory = filepath.Join("build", "dev")
 	}
 
-	project := internal.MakeProject(config.RootDirectory, buildDirectory, tools.CMake, workflow)
+	project := internal.MakeProject(config.RootDirectory, buildDirectory, cmake, workflow)
 
 	return &project
 }

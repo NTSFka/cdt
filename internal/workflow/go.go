@@ -7,21 +7,24 @@ import (
 )
 
 // DetectGoProject detects if the project in the directory is a go project
-func DetectGoProject(config internal.Config, tools tool.SupportedTools) *internal.Project {
+func DetectGoProject(config internal.Config, tools internal.Tools) *internal.Project {
 	if !internal.PathExists(filepath.Join(config.RootDirectory, "go.mod")) {
 		return nil
 	}
 
+	goTool := internal.GetTool[*tool.Go](tools)
+	goLint := internal.GetTool[*tool.GolangCILint](tools)
+
 	workflow := internal.Workflow{
 		Configurator: nil,
-		Builder:      tools.Go,
-		Runner:       tools.Go,
-		Tester:       tools.Go,
-		Formatter:    tools.Go,
-		Linter:       tools.GolangCILint,
+		Builder:      goTool,
+		Runner:       goTool,
+		Tester:       goTool,
+		Formatter:    goTool,
+		Linter:       goLint,
 	}
 
-	project := internal.MakeProject(config.RootDirectory, "", tools.Go, workflow)
+	project := internal.MakeProject(config.RootDirectory, "", goTool, workflow)
 
 	return &project
 }
