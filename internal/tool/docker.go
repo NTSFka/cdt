@@ -13,35 +13,24 @@ import (
 
 // A Docker is a tool that wraps docker executable.
 type Docker struct {
-	docker *internal.Executable
-}
-
-func (d *Docker) Id() string {
-	return "docker"
-}
-
-func (d *Docker) Name() string {
-	return "Docker"
-}
-
-func (d *Docker) Info() string {
-	return "Docker image and container command line interface."
-}
-
-func (d *Docker) IsAvailable() bool {
-	return d.docker != nil
+	internal.ExecutableTool
 }
 
 // NewDocker creates a docker tool from a custom executable
-func NewDocker(docker *internal.Executable) *Docker {
-	return &Docker{
-		docker: docker,
-	}
+func NewDocker(detect func() *internal.Executable) *Docker {
+	return &Docker{internal.MakeExecutableTool(
+		"docker",
+		"Docker",
+		"Docker image and container command line interface.",
+		detect,
+	)}
 }
 
 // DetectDocker create a docker tool with a detected docker executable in the given environment.
 func DetectDocker(environment internal.Environment) *Docker {
-	return NewDocker(environment.FindExecutable("docker"))
+	return NewDocker(func() *internal.Executable {
+		return environment.FindExecutable("docker")
+	})
 }
 
 // CreateEnvironment create docker environment where the service is used for running tools
@@ -68,7 +57,7 @@ func (d *dockerEnvironment) Id() string {
 }
 
 func (d *dockerEnvironment) run(ctx context.Context, args []string) error {
-	return d.docker.docker.Run(
+	return d.docker.Run(
 		ctx,
 		internal.RunOptions{Directory: d.directory, Output: os.Stdout, Error: os.Stderr},
 		args,
@@ -77,7 +66,7 @@ func (d *dockerEnvironment) run(ctx context.Context, args []string) error {
 
 func (d *dockerEnvironment) runOutput(ctx context.Context, args []string) (string, error) {
 	output := bytes.Buffer{}
-	err := d.docker.docker.Run(
+	err := d.docker.Run(
 		ctx,
 		internal.RunOptions{Directory: d.directory, Output: &output},
 		args,
@@ -199,5 +188,5 @@ func (d *dockerEnvironment) RunExecutable(ctx context.Context, options internal.
 
 	internal.Assert(d.containerId != "", "container ID is not set")
 
-	return d.docker.docker.Run(ctx, options, append([]string{"exec", d.containerId, path}, args...))
+	return d.docker.Run(ctx, options, append([]string{"exec", d.containerId, path}, args...))
 }

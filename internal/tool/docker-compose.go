@@ -12,35 +12,24 @@ import (
 
 // A DockerCompose wraps docker compose tool to manage tools environment.
 type DockerCompose struct {
-	docker *internal.Executable
-}
-
-func (d *DockerCompose) Id() string {
-	return "docker-compose"
-}
-
-func (d *DockerCompose) Name() string {
-	return "Docker compose"
-}
-
-func (d *DockerCompose) Info() string {
-	return "Define and run multi-container applications with Docker"
-}
-
-func (d *DockerCompose) IsAvailable() bool {
-	return d.docker != nil
+	internal.ExecutableTool
 }
 
 // NewDockerCompose creates a docker compose tool from a custom docker executable
-func NewDockerCompose(docker *internal.Executable) *DockerCompose {
+func NewDockerCompose(detect func() *internal.Executable) *DockerCompose {
 	return &DockerCompose{
-		docker: docker,
+		internal.MakeExecutableTool(
+			"docker-compose",
+			"Docker compose",
+			"Define and run multi-container applications with Docker",
+			detect,
+		),
 	}
 }
 
 // DetectDockerCompose create a docker compose tool with detected docker executable in the given environment.
 func DetectDockerCompose(environment internal.Environment) *DockerCompose {
-	return NewDockerCompose(environment.FindExecutable("docker"))
+	return NewDockerCompose(func() *internal.Executable { return environment.FindExecutable("docker") })
 }
 
 // CreateEnvironment create docker compose environment where the service is used for running tools
@@ -62,7 +51,7 @@ type dockerComposeEnvironment struct {
 }
 
 func (d *dockerComposeEnvironment) run(ctx context.Context, args []string) error {
-	return d.dockerCompose.docker.Run(
+	return d.dockerCompose.Run(
 		ctx,
 		internal.RunOptions{Directory: d.directory, Output: os.Stdout, Error: os.Stderr},
 		append([]string{"compose"}, args...),
@@ -71,7 +60,7 @@ func (d *dockerComposeEnvironment) run(ctx context.Context, args []string) error
 
 func (d *dockerComposeEnvironment) runOutput(ctx context.Context, args []string) (string, error) {
 	output := bytes.Buffer{}
-	err := d.dockerCompose.docker.Run(
+	err := d.dockerCompose.Run(
 		ctx,
 		internal.RunOptions{Directory: d.directory, Output: &output},
 		append([]string{"compose"}, args...),
@@ -161,7 +150,7 @@ func (d *dockerComposeEnvironment) RunExecutable(ctx context.Context, options in
 		return fmt.Errorf("docker compose start failed: %w", err)
 	}
 
-	return d.dockerCompose.docker.Run(
+	return d.dockerCompose.Run(
 		ctx,
 		options,
 		append([]string{"compose", "exec", d.service, path}, args...),

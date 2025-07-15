@@ -15,8 +15,6 @@ func TestInitTools(t *testing.T) {
 }
 
 func TestInitEnvironmentProviders(t *testing.T) {
-	t.Skip("FIXME")
-
 	env := test.NewEnvironment(t)
 
 	providers := InitEnvironmentProviders(env)

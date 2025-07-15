@@ -11,7 +11,7 @@ import (
 )
 
 func TestDockerCompose_NewDockerCompose_NoExecutable(t *testing.T) {
-	tool := NewDockerCompose(nil)
+	tool := NewDockerCompose(func() *internal.Executable { return nil })
 
 	assert.NotNil(t, tool)
 	assert.Equal(t, "docker-compose", tool.Id())
@@ -21,7 +21,7 @@ func TestDockerCompose_NewDockerCompose_NoExecutable(t *testing.T) {
 }
 
 func TestDockerCompose_NewDockerCompose_WithExecutable(t *testing.T) {
-	tool := NewDockerCompose(&internal.Executable{Path: "/bin/docker"})
+	tool := NewDockerCompose(func() *internal.Executable { return &internal.Executable{Path: "/bin/docker"} })
 
 	assert.NotNil(t, tool)
 	assert.Equal(t, "docker-compose", tool.Id())
@@ -55,7 +55,7 @@ func TestDockerCompose_DetectDockerCompose_Found(t *testing.T) {
 }
 
 func TestDockerCompose_CreateEnvironment(t *testing.T) {
-	tool := NewDockerCompose(&internal.Executable{Path: "docker"})
+	tool := NewDockerCompose(func() *internal.Executable { return &internal.Executable{Path: "docker"} })
 	assert.NotNil(t, tool)
 
 	env, err := tool.CreateEnvironment(".", "service1")
@@ -96,7 +96,7 @@ func (m *dockerComposeRunMock) OnState(service string, result bool) *mock.Call {
 func dockerComposePrepare(t *testing.T, service string) (*dockerComposeRunMock, internal.Environment) {
 	runMock := dockerComposeRunMock{}
 
-	tool := NewDockerCompose(runMock.NewExecutable("docker"))
+	tool := NewDockerCompose(runMock.LazyExecutable("docker"))
 	assert.NotNil(t, tool)
 
 	env, err := tool.CreateEnvironment(".", service)

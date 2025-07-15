@@ -13,6 +13,8 @@ func InitTools(environment internal.Environment) internal.Tools {
 		DetectCTest(environment),
 		DetectGo(environment),
 		DetectGolangCILint(environment),
+		DetectDocker(environment),
+		DetectDockerCompose(environment),
 	}
 }
 

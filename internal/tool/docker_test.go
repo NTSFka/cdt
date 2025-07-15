@@ -13,7 +13,7 @@ import (
 )
 
 func TestDocker_NewDocker_NoExecutable(t *testing.T) {
-	tool := NewDocker(nil)
+	tool := NewDocker(func() *internal.Executable { return nil })
 
 	assert.NotNil(t, tool)
 	assert.Equal(t, "docker", tool.Id())
@@ -23,7 +23,7 @@ func TestDocker_NewDocker_NoExecutable(t *testing.T) {
 }
 
 func TestDocker_NewDocker_WithExecutable(t *testing.T) {
-	tool := NewDocker(&internal.Executable{Path: "/bin/docker"})
+	tool := NewDocker(func() *internal.Executable { return &internal.Executable{Path: "/bin/docker"} })
 
 	assert.NotNil(t, tool)
 	assert.Equal(t, "docker", tool.Id())
@@ -57,7 +57,7 @@ func TestDocker_DetectDocker_Found(t *testing.T) {
 }
 
 func TestDocker_CreateEnvironment(t *testing.T) {
-	tool := NewDocker(&internal.Executable{Path: "docker"})
+	tool := NewDocker(func() *internal.Executable { return &internal.Executable{Path: "docker"} })
 	assert.NotNil(t, tool)
 
 	env, err := tool.CreateEnvironment(".", "image1")
@@ -106,7 +106,7 @@ func (m *dockerRunMock) OnInspectResult(containerId string, result bool) *mock.C
 func dockerPrepare(t *testing.T, image string) (*dockerRunMock, internal.Environment) {
 	runMock := dockerRunMock{}
 
-	tool := NewDocker(runMock.NewExecutable("docker"))
+	tool := NewDocker(runMock.LazyExecutable("docker"))
 	assert.NotNil(t, tool)
 
 	env, err := tool.CreateEnvironment(".", image)
