@@ -135,7 +135,7 @@ func TestDocker_Environment_Start_Failed(t *testing.T) {
 		Return(errors.New("failed"))
 
 	err := env.Start(context.Background())
-	assert.EqualError(t, err, "failed")
+	assert.EqualError(t, err, "docker run failed: failed")
 
 	runMock.AssertExpectations(t)
 }
@@ -415,7 +415,7 @@ func TestDocker_Environment_RunExecutable_AutoStart_Failed(t *testing.T) {
 		Once()
 
 	err := env.RunExecutable(context.Background(), internal.RunOptions{}, "/usr/bin/tool1", []string{"arg1", "arg2"})
-	assert.EqualError(t, err, "docker start failed: failed")
+	assert.EqualError(t, err, "docker run failed: failed")
 
 	runMock.AssertExpectations(t)
 }

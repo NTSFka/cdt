@@ -73,8 +73,7 @@ func (d *dockerEnvironment) runOutput(ctx context.Context, args []string) (strin
 	)
 
 	if err != nil {
-		fmt.Printf("docker run failed: %v\n", err)
-		return "", err
+		return "", fmt.Errorf("docker run failed: %w", err)
 	}
 
 	return strings.TrimSpace(output.String()), nil
@@ -183,7 +182,7 @@ func (d *dockerEnvironment) RunExecutable(ctx context.Context, options internal.
 	c := context.Background()
 
 	if err := d.autoStart(c); err != nil {
-		return fmt.Errorf("docker start failed: %w", err)
+		return err
 	}
 
 	internal.Assert(d.containerId != "", "container ID is not set")
