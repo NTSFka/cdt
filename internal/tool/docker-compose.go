@@ -6,6 +6,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log/slog"
 	"os"
 	"strings"
 )
@@ -34,6 +35,8 @@ func DetectDockerCompose(environment internal.Environment) *DockerCompose {
 
 // CreateEnvironment create docker compose environment where the service is used for running tools
 func (d *DockerCompose) CreateEnvironment(directory, service string) (internal.Environment, error) {
+	slog.Debug("docker-compose.create_environment", "directory", directory, "service", service)
+
 	env := dockerComposeEnvironment{
 		dockerCompose: *d,
 		directory:     directory,
@@ -90,38 +93,46 @@ func (d *dockerComposeEnvironment) Id() string {
 }
 
 func (d *dockerComposeEnvironment) Start(ctx context.Context) error {
-	// It starts all services
-	return d.run(ctx, []string{"up", "-d"})
+	return internal.Trace(ctx, "docker-compose.start", func() error {
+		// It starts all services
+		return d.run(ctx, []string{"up", "-d"})
+	}, "service", d.service)
 }
 
 func (d *dockerComposeEnvironment) IsRunning(ctx context.Context) bool {
-	output, err := d.runOutput(ctx, []string{"ps", "--format", "json", d.service})
+	return internal.Trace(ctx, "docker-compose.is_running", func() bool {
+		output, err := d.runOutput(ctx, []string{"ps", "--format", "json", d.service})
 
-	if err != nil {
-		return false
-	}
+		if err != nil {
+			return false
+		}
 
-	var data struct {
-		State string `json:"State"`
-	}
-	if err := json.Unmarshal([]byte(output), &data); err != nil {
-		return false
-	}
+		var data struct {
+			State string `json:"State"`
+		}
+		if err := json.Unmarshal([]byte(output), &data); err != nil {
+			return false
+		}
 
-	return data.State == "running"
+		return data.State == "running"
+	}, "service", d.service)
 }
 
 func (d *dockerComposeEnvironment) Stop(ctx context.Context) error {
 	// It stops all services
-	return d.run(ctx, []string{"stop"})
+	return internal.Trace(ctx, "docker.stop", func() error {
+		return d.run(ctx, []string{"stop"})
+	}, "service", d.service)
 }
 
 func (d *dockerComposeEnvironment) Cleanup(ctx context.Context) error {
-	if d.autoStop {
-		return d.Stop(ctx)
-	}
+	return internal.Trace(ctx, "docker-compose.cleanup", func() error {
+		if d.autoStop {
+			return d.Stop(ctx)
+		}
 
-	return nil
+		return nil
+	}, "service", d.service)
 }
 
 func (d *dockerComposeEnvironment) FindExecutable(name string) *internal.Executable {
@@ -131,16 +142,18 @@ func (d *dockerComposeEnvironment) FindExecutable(name string) *internal.Executa
 		return nil
 	}
 
-	output, err := d.runOutput(ctx, []string{"exec", d.service, "which", name})
+	return internal.Trace(ctx, "docker-compose.find_executable", func() *internal.Executable {
+		output, err := d.runOutput(ctx, []string{"exec", d.service, "which", name})
 
-	if err != nil {
-		return nil
-	}
+		if err != nil {
+			return nil
+		}
 
-	return &internal.Executable{
-		Path:    output,
-		RunFunc: d.RunExecutable,
-	}
+		return &internal.Executable{
+			Path:    output,
+			RunFunc: d.RunExecutable,
+		}
+	}, "service", d.service, "name", name)
 }
 
 func (d *dockerComposeEnvironment) RunExecutable(ctx context.Context, options internal.RunOptions, path string, args []string) error {
@@ -150,9 +163,11 @@ func (d *dockerComposeEnvironment) RunExecutable(ctx context.Context, options in
 		return fmt.Errorf("docker compose start failed: %w", err)
 	}
 
-	return d.dockerCompose.Run(
-		ctx,
-		options,
-		append([]string{"compose", "exec", d.service, path}, args...),
-	)
+	return internal.Trace(ctx, "docker-compose.run", func() error {
+		return d.dockerCompose.Run(
+			ctx,
+			options,
+			append([]string{"compose", "exec", d.service, path}, args...),
+		)
+	}, "path", path, "args", args)
 }

@@ -2,9 +2,7 @@ package internal
 
 import (
 	"context"
-	"fmt"
 	"io"
-	"strings"
 )
 
 // RunOptions are options for executing tool
@@ -25,7 +23,14 @@ type Executable struct {
 
 // Run starts the executable with the given arguments
 func (t *Executable) Run(ctx context.Context, options RunOptions, args []string) error {
-	fmt.Printf("RUN: %s %v\n", t.Path, strings.Join(args, " "))
-
-	return t.RunFunc(ctx, options, t.Path, args)
+	return Trace(
+		ctx,
+		"executable.run",
+		func() error {
+			return t.RunFunc(ctx, options, t.Path, args)
+		},
+		"path", t.Path,
+		"args", args,
+		"directory", options.Directory,
+	)
 }

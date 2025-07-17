@@ -123,12 +123,14 @@ func (s *systemEnvironment) Cleanup(_ context.Context) error {
 }
 
 func (s *systemEnvironment) FindExecutable(name string) *Executable {
-	path, err := exec.LookPath(name)
-	if err != nil {
-		return nil
-	}
+	return Trace(context.Background(), "system.find_executable", func() *Executable {
+		path, err := exec.LookPath(name)
+		if err != nil {
+			return nil
+		}
 
-	return &Executable{Path: path, RunFunc: s.RunExecutable}
+		return &Executable{Path: path, RunFunc: s.RunExecutable}
+	}, "name", name)
 }
 
 func (s *systemEnvironment) RunExecutable(ctx context.Context, options RunOptions, path string, args []string) error {
@@ -137,5 +139,7 @@ func (s *systemEnvironment) RunExecutable(ctx context.Context, options RunOption
 	command.Stdout = options.Output
 	command.Stderr = options.Error
 
-	return command.Run()
+	return Trace(ctx, "system.run", func() error {
+		return command.Run()
+	}, "path", path, "args", args)
 }

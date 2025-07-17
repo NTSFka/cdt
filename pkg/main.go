@@ -6,6 +6,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/urfave/cli/v3"
+	"log/slog"
 	"os"
 )
 
@@ -41,6 +42,10 @@ func RunMain(buildContext func(config internal.Config) (*internal.Context, error
 				Usage:   "configuration file",
 				Value:   "cdt.yml",
 			},
+			&cli.BoolFlag{
+				Name:  "debug",
+				Usage: "enable debug output",
+			},
 		},
 		Commands: []*cli.Command{
 			&command.ProjectCommand,
@@ -55,6 +60,10 @@ func RunMain(buildContext func(config internal.Config) (*internal.Context, error
 			&command.ExecCommand,
 		},
 		Before: func(ctx context.Context, cmd *cli.Command) (context.Context, error) {
+			if cmd.Bool("debug") {
+				slog.SetLogLoggerLevel(slog.LevelDebug)
+			}
+
 			config, err := createConfig(cmd)
 
 			if err != nil {

@@ -6,6 +6,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log/slog"
 	"os"
 	"path/filepath"
 	"strings"
@@ -35,6 +36,8 @@ func DetectDocker(environment internal.Environment) *Docker {
 
 // CreateEnvironment create docker environment where the service is used for running tools
 func (d *Docker) CreateEnvironment(directory, image string) (internal.Environment, error) {
+	slog.Debug("docker.create_environment", "directory", directory, "image", image)
+
 	env := dockerEnvironment{
 		directory: directory,
 		imageName: image,
@@ -99,20 +102,24 @@ func (d *dockerEnvironment) Start(ctx context.Context) error {
 	absPath, err := filepath.Abs(d.directory)
 	internal.Assert(err == nil, "failed to determine absolute path")
 
-	output, err := d.runOutput(ctx, []string{
-		"run", "--rm", "-d",
-		"-v", fmt.Sprintf("%s:/work", absPath),
-		"-w", "/work",
-		d.imageName,
-		// FIXME: only linux
-		"/bin/bash", "-c", "trap : TERM INT; sleep infinity & wait",
-	})
+	slog.Info("Docker start", "image", d.imageName)
 
-	if err == nil {
-		d.containerId = output
-	}
+	return internal.Trace(ctx, "docker.start", func() error {
+		output, err := d.runOutput(ctx, []string{
+			"run", "--rm", "-d",
+			"-v", fmt.Sprintf("%s:/work", absPath),
+			"-w", "/work",
+			d.imageName,
+			// FIXME: only linux
+			"/bin/bash", "-c", "trap : TERM INT; sleep infinity & wait",
+		})
 
-	return err
+		if err == nil {
+			d.containerId = output
+		}
+
+		return err
+	}, "image", d.imageName)
 }
 
 func (d *dockerEnvironment) IsRunning(ctx context.Context) bool {
@@ -121,40 +128,49 @@ func (d *dockerEnvironment) IsRunning(ctx context.Context) bool {
 		return false
 	}
 
-	output, err := d.runOutput(ctx, []string{"inspect", "--format", "json", d.containerId})
+	return internal.Trace(ctx, "docker.is_running", func() bool {
+		output, err := d.runOutput(ctx, []string{"inspect", "--format", "json", d.containerId})
 
-	if err != nil {
-		return false
-	}
+		if err != nil {
+			return false
+		}
 
-	var data []struct {
-		State struct {
-			Running bool `json:"Running"`
-		} `json:"State"`
-	}
-	if err := json.Unmarshal([]byte(output), &data); err != nil {
-		return false
-	}
+		var data []struct {
+			State struct {
+				Running bool `json:"Running"`
+			} `json:"State"`
+		}
+		if err := json.Unmarshal([]byte(output), &data); err != nil {
+			return false
+		}
 
-	if len(data) == 0 {
-		return false
-	}
+		if len(data) == 0 {
+			return false
+		}
 
-	return data[0].State.Running
+		return data[0].State.Running
+	})
 }
 
 func (d *dockerEnvironment) Stop(ctx context.Context) error {
 	internal.Assert(d.containerId != "", "container ID is not set")
 
-	return d.run(ctx, []string{"stop", d.containerId})
+	slog.Info("Docker stop")
+
+	return internal.Trace(ctx, "docker.stop", func() error {
+		_, err := d.runOutput(ctx, []string{"stop", d.containerId})
+		return err
+	}, "container", d.containerId)
 }
 
 func (d *dockerEnvironment) Cleanup(ctx context.Context) error {
-	if d.autoStop {
-		return d.Stop(ctx)
-	}
+	return internal.Trace(ctx, "docker.cleanup", func() error {
+		if d.autoStop {
+			return d.Stop(ctx)
+		}
 
-	return nil
+		return nil
+	}, "container", d.containerId)
 }
 
 func (d *dockerEnvironment) FindExecutable(name string) *internal.Executable {
@@ -166,16 +182,18 @@ func (d *dockerEnvironment) FindExecutable(name string) *internal.Executable {
 
 	internal.Assert(d.containerId != "", "container ID is not set")
 
-	output, err := d.runOutput(ctx, []string{"exec", d.containerId, "which", name})
+	return internal.Trace(ctx, "docker.find_executable", func() *internal.Executable {
+		output, err := d.runOutput(ctx, []string{"exec", d.containerId, "which", name})
 
-	if err != nil {
-		return nil
-	}
+		if err != nil {
+			return nil
+		}
 
-	return &internal.Executable{
-		Path:    output,
-		RunFunc: d.RunExecutable,
-	}
+		return &internal.Executable{
+			Path:    output,
+			RunFunc: d.RunExecutable,
+		}
+	}, "container", d.containerId, "name", name)
 }
 
 func (d *dockerEnvironment) RunExecutable(ctx context.Context, options internal.RunOptions, path string, args []string) error {
@@ -187,5 +205,7 @@ func (d *dockerEnvironment) RunExecutable(ctx context.Context, options internal.
 
 	internal.Assert(d.containerId != "", "container ID is not set")
 
-	return d.docker.Run(ctx, options, append([]string{"exec", d.containerId, path}, args...))
+	return internal.Trace(ctx, "docker.run", func() error {
+		return d.docker.Run(ctx, options, append([]string{"exec", d.containerId, path}, args...))
+	}, "container", d.containerId, "path", path, "args", args)
 }
