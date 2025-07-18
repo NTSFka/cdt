@@ -11,7 +11,10 @@ type Config struct {
 	// RootDirectory is a root directory of the project
 	RootDirectory string
 
-	// BuildDirectory is the project's build directory
+	// WorkDirectory is a directory where tools should run
+	WorkDirectory *string
+
+	// BuildDirectory is the project's intermediate directory
 	BuildDirectory *string
 
 	// Environment defines an environment to use
@@ -32,8 +35,8 @@ type FileConfig struct {
 
 // UpdateConfig updates the given configuration by configuration from a file.
 func (c *FileConfig) UpdateConfig(config *Config) {
-	if c.Project.Directory != nil {
-		config.RootDirectory = *c.Project.Directory
+	if c.Project.WorkDirectory != nil {
+		config.WorkDirectory = c.Project.WorkDirectory
 	}
 
 	if c.Project.BuildDirectory != nil {
@@ -47,9 +50,12 @@ func (c *FileConfig) UpdateConfig(config *Config) {
 
 // FileConfigProject stores configuration from a file: project part
 type FileConfigProject struct {
-	Directory      *string `yaml:"directory"`
+	// WorkDirectory specifies a directory where tools should run. Can be relative to the root directory or absolute.
+	WorkDirectory *string `yaml:"work-directory"`
+	// BuildDirectory specifies a directory where intermediate files can be store.
 	BuildDirectory *string `yaml:"build-directory"`
-	Environment    *string `yaml:"environment"`
+	// Environment specifies which environment to run tools in for the given project
+	Environment *string `yaml:"environment"`
 }
 
 // LoadConfigFile loads configuration from a reader

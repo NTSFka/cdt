@@ -86,6 +86,7 @@ func TestApp_Run_ConfigDefault(t *testing.T) {
 		if assert.NotNil(t, config) {
 			assert.Equal(t, internal.Config{
 				RootDirectory:  ".",
+				WorkDirectory:  nil,
 				BuildDirectory: nil,
 				Environment:    nil,
 			}, *config)
@@ -108,7 +109,7 @@ func TestApp_Run_ConfigFull(t *testing.T) {
 	}})
 
 	err := app.Run(context.Background(), []string{"cdt",
-		"--directory", "/path/to/project",
+		"--root", "/path/to/project",
 		"--build", "/path/to/build",
 		"--environment", "env:arg",
 		"__test__",
@@ -118,6 +119,7 @@ func TestApp_Run_ConfigFull(t *testing.T) {
 		if assert.NotNil(t, config) {
 			assert.Equal(t, internal.Config{
 				RootDirectory:  "/path/to/project",
+				WorkDirectory:  nil,
 				BuildDirectory: strPtr("/path/to/build"),
 				Environment:    strPtr("env:arg"),
 			}, *config)
@@ -140,7 +142,7 @@ func TestApp_Run_ConfigFullAlias(t *testing.T) {
 	}})
 
 	err := app.Run(context.Background(), []string{"cdt",
-		"-d", "/path/to/project",
+		"-r", "/path/to/project",
 		"-b", "/path/to/build",
 		"-e", "env:arg",
 		"__test__",
@@ -150,6 +152,7 @@ func TestApp_Run_ConfigFullAlias(t *testing.T) {
 		if assert.NotNil(t, config) {
 			assert.Equal(t, internal.Config{
 				RootDirectory:  "/path/to/project",
+				WorkDirectory:  nil,
 				BuildDirectory: strPtr("/path/to/build"),
 				Environment:    strPtr("env:arg"),
 			}, *config)
@@ -175,13 +178,13 @@ func TestApp_Run_ConfigFile_DefaultPath(t *testing.T) {
 
 	assert.NoError(t, os.WriteFile(filepath.Join(tempDir, ConfigFileName), []byte(`
 project:
-    directory: /path/to/project
+    work-directory: /path/to/project
     build-directory: /path/to/build
     environment: env:arg
 `), 0666))
 
 	err := app.Run(context.Background(), []string{"cdt",
-		"-d", tempDir,
+		"-r", tempDir,
 		"__test__",
 	})
 
@@ -189,6 +192,7 @@ project:
 		if assert.NotNil(t, config) {
 			assert.Equal(t, internal.Config{
 				RootDirectory:  tempDir,
+				WorkDirectory:  strPtr("/path/to/project"),
 				BuildDirectory: strPtr("/path/to/build"),
 				Environment:    strPtr("env:arg"),
 			}, *config)
@@ -214,7 +218,7 @@ func TestApp_Run_ConfigFile_CustomPath(t *testing.T) {
 
 	assert.NoError(t, os.WriteFile(configFilePath, []byte(`
 project:
-    directory: /path/to/project
+    work-directory: /path/to/work
     build-directory: /path/to/build
     environment: env:arg
 `), 0666))
@@ -227,7 +231,8 @@ project:
 	if assert.NoError(t, err) {
 		if assert.NotNil(t, config) {
 			assert.Equal(t, internal.Config{
-				RootDirectory:  "/path/to/project",
+				RootDirectory:  ".",
+				WorkDirectory:  strPtr("/path/to/work"),
 				BuildDirectory: strPtr("/path/to/build"),
 				Environment:    strPtr("env:arg"),
 			}, *config)
@@ -253,7 +258,7 @@ func TestApp_Run_ConfigFile_CustomPath_Alias(t *testing.T) {
 
 	assert.NoError(t, os.WriteFile(configFilePath, []byte(`
 project:
-    directory: /path/to/project
+    work-directory: /path/to/project
     build-directory: /path/to/build
     environment: env:arg
 `), 0666))
@@ -266,7 +271,8 @@ project:
 	if assert.NoError(t, err) {
 		if assert.NotNil(t, config) {
 			assert.Equal(t, internal.Config{
-				RootDirectory:  "/path/to/project",
+				RootDirectory:  ".",
+				WorkDirectory:  strPtr("/path/to/project"),
 				BuildDirectory: strPtr("/path/to/build"),
 				Environment:    strPtr("env:arg"),
 			}, *config)

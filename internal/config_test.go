@@ -23,7 +23,7 @@ func TestLoadConfigFile_EmptyProject(t *testing.T) {
 
 	if assert.NotNil(t, config) {
 		if assert.NotNil(t, config.Project) {
-			assert.Nil(t, config.Project.Directory)
+			assert.Nil(t, config.Project.WorkDirectory)
 			assert.Nil(t, config.Project.BuildDirectory)
 			assert.Nil(t, config.Project.Environment)
 		}
@@ -33,7 +33,7 @@ func TestLoadConfigFile_EmptyProject(t *testing.T) {
 func TestLoadConfigFile_Whole(t *testing.T) {
 	reader := strings.NewReader(`
 project:
-    directory: /path/to/project
+    work-directory: /path/to/project
     build-directory: /path/to/build
     environment: docker:golang
 `,
@@ -44,8 +44,8 @@ project:
 
 	if assert.NotNil(t, config) {
 		if assert.NotNil(t, config.Project) {
-			if assert.NotNil(t, config.Project.Directory) {
-				assert.Equal(t, "/path/to/project", *config.Project.Directory)
+			if assert.NotNil(t, config.Project.WorkDirectory) {
+				assert.Equal(t, "/path/to/project", *config.Project.WorkDirectory)
 			}
 
 			if assert.NotNil(t, config.Project.BuildDirectory) {
@@ -80,7 +80,7 @@ func TestFileConfig_UpdateConfig(t *testing.T) {
 
 	fileConfig := FileConfig{
 		Project: FileConfigProject{
-			Directory:      strPtr("/project/dir"),
+			WorkDirectory:  strPtr("/project/work"),
 			BuildDirectory: strPtr("/project/build"),
 			Environment:    strPtr("env:arg"),
 		},
@@ -88,7 +88,11 @@ func TestFileConfig_UpdateConfig(t *testing.T) {
 
 	fileConfig.UpdateConfig(&config)
 
-	assert.Equal(t, "/project/dir", config.RootDirectory)
+	assert.Equal(t, ".", config.RootDirectory)
+
+	if assert.NotNil(t, config.WorkDirectory) {
+		assert.Equal(t, "/project/work", *config.WorkDirectory)
+	}
 
 	if assert.NotNil(t, config.BuildDirectory) {
 		assert.Equal(t, "/project/build", *config.BuildDirectory)

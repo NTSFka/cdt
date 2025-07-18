@@ -22,32 +22,37 @@ func NewApp(buildContext func(config internal.Config) (*internal.Context, error)
 		EnableShellCompletion: true,
 		Flags: []cli.Flag{
 			&cli.StringFlag{
-				Name:    "directory",
-				Aliases: []string{"d"},
-				Usage:   "project directory",
+				Name:    "root",
+				Aliases: []string{"r"},
+				Usage:   "project root directory. If contains " + ConfigFileName + " file, it will be used as a configuration file.",
 				Value:   ".",
+				Local:   true,
 			},
 			&cli.StringFlag{
 				Name:    "build",
 				Aliases: []string{"b"},
-				Usage:   "build directory",
+				Usage:   "build directory for intermediate data",
 				Value:   "build",
+				Local:   true,
 			},
 			&cli.StringFlag{
 				Name:    "environment",
 				Aliases: []string{"e"},
-				Usage:   "environment to use",
-				Value:   "",
+				Usage:   "environment to use, e.g. `docker:image`. If not specified the system environment will be used.",
+				Value:   "system",
+				Local:   true,
 			},
 			&cli.StringFlag{
 				Name:    "config",
 				Aliases: []string{"c"},
 				Usage:   "configuration file",
 				Value:   "cdt.yml",
+				Local:   true,
 			},
 			&cli.BoolFlag{
 				Name:  "debug",
 				Usage: "enable debug output",
+				Local: true,
 			},
 		},
 		Commands: []*cli.Command{
@@ -97,16 +102,15 @@ func createConfig(cmd *cli.Command) (*internal.Config, error) {
 	config := internal.DefaultConfig()
 	var configPath string
 
+	// The root directory is not affected by the configuration file (it's used as a search path)
+	if cmd.Count("root") > 0 {
+		config.RootDirectory = cmd.String("root")
+	}
+
 	if cmd.Count("config") > 0 {
 		configPath = cmd.String("config")
 	} else {
-		projectDirectory := "."
-
-		if cmd.Count("directory") > 0 {
-			projectDirectory = cmd.String("directory")
-		}
-
-		configPath = filepath.Join(projectDirectory, ConfigFileName)
+		configPath = filepath.Join(config.RootDirectory, ConfigFileName)
 	}
 
 	fileConfig, err := loadConfigFile(configPath)
@@ -118,10 +122,7 @@ func createConfig(cmd *cli.Command) (*internal.Config, error) {
 		fileConfig.UpdateConfig(&config)
 	}
 
-	if cmd.Count("directory") > 0 {
-		config.RootDirectory = cmd.String("directory")
-	}
-
+	// Override configuration file
 	if cmd.Count("build") > 0 {
 		directory := cmd.String("build")
 		config.BuildDirectory = &directory
