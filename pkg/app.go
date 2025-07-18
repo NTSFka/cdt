@@ -8,11 +8,14 @@ import (
 	"github.com/urfave/cli/v3"
 	"log/slog"
 	"os"
+	"path/filepath"
 )
 
-// RunMain is the main function of the application
-func RunMain(buildContext func(config internal.Config) (*internal.Context, error), args []string) error {
-	cmd := &cli.Command{
+const ConfigFileName = "cdt.yml"
+
+// NewApp creates the main CLI application
+func NewApp(buildContext func(config internal.Config) (*internal.Context, error)) *cli.Command {
+	return &cli.Command{
 		Name:                  "cdt",
 		Usage:                 "A common developer tool",
 		Version:               "0.1.0",
@@ -88,14 +91,25 @@ func RunMain(buildContext func(config internal.Config) (*internal.Context, error
 			return nil
 		},
 	}
-
-	return cmd.Run(context.Background(), args)
 }
 
 func createConfig(cmd *cli.Command) (*internal.Config, error) {
 	config := internal.DefaultConfig()
+	var configPath string
 
-	fileConfig, err := loadConfigFile(cmd.String("config"))
+	if cmd.Count("config") > 0 {
+		configPath = cmd.String("config")
+	} else {
+		projectDirectory := "."
+
+		if cmd.Count("directory") > 0 {
+			projectDirectory = cmd.String("directory")
+		}
+
+		configPath = filepath.Join(projectDirectory, ConfigFileName)
+	}
+
+	fileConfig, err := loadConfigFile(configPath)
 	if err != nil {
 		return nil, err
 	}

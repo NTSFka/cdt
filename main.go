@@ -5,6 +5,7 @@ import (
 	"cdt/internal/tool"
 	"cdt/internal/workflow"
 	"cdt/pkg"
+	"context"
 	"errors"
 	"fmt"
 	"os"
@@ -74,7 +75,9 @@ func buildContext(config internal.Config) (*internal.Context, error) {
 }
 
 func main() {
-	if err := pkg.RunMain(buildContext, os.Args); err != nil {
+	app := pkg.NewApp(buildContext)
+
+	if err := app.Run(context.Background(), os.Args); err != nil {
 		fmt.Printf("ERROR: %v\n", err)
 	}
 }
