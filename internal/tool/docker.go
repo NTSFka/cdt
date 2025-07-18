@@ -7,7 +7,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"log/slog"
-	"os"
 	"path/filepath"
 	"strings"
 )
@@ -57,14 +56,6 @@ type dockerEnvironment struct {
 
 func (d *dockerEnvironment) Id() string {
 	return "docker"
-}
-
-func (d *dockerEnvironment) run(ctx context.Context, args []string) error {
-	return d.docker.Run(
-		ctx,
-		internal.RunOptions{Directory: d.directory, Input: os.Stdin, Output: os.Stdout, Error: os.Stderr},
-		args,
-	)
 }
 
 func (d *dockerEnvironment) runOutput(ctx context.Context, args []string) (string, error) {
