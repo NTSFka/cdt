@@ -62,7 +62,7 @@ func (d *dockerEnvironment) Id() string {
 func (d *dockerEnvironment) run(ctx context.Context, args []string) error {
 	return d.docker.Run(
 		ctx,
-		internal.RunOptions{Directory: d.directory, Output: os.Stdout, Error: os.Stderr},
+		internal.RunOptions{Directory: d.directory, Input: os.Stdin, Output: os.Stdout, Error: os.Stderr},
 		args,
 	)
 }

@@ -57,6 +57,7 @@ func toolCommandRunAction(ctx context.Context, cmd *cli.Command) error {
 	if tool := c.Tools.Get(toolId); tool != nil {
 		options := internal.RunOptions{
 			Directory: c.Project.RootDirectory(),
+			Input:     cmd.Reader,
 			Output:    cmd.Writer,
 			Error:     cmd.ErrWriter,
 		}

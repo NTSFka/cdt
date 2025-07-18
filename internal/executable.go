@@ -8,6 +8,7 @@ import (
 // RunOptions are options for executing tool
 type RunOptions struct {
 	Directory string
+	Input     io.Reader
 	Output    io.Writer
 	Error     io.Writer
 }

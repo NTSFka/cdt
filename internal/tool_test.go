@@ -81,6 +81,7 @@ func TestTool_ExecutableTool_RunForProject(t *testing.T) {
 
 	runMock.On("1", mock.Anything, RunOptions{
 		Directory: "",
+		Input:     os.Stdin,
 		Output:    os.Stdout,
 		Error:     os.Stderr,
 	}, "echo", []string{"arg1", "arg2"}).Return(nil)

@@ -136,6 +136,7 @@ func (s *systemEnvironment) FindExecutable(name string) *Executable {
 func (s *systemEnvironment) RunExecutable(ctx context.Context, options RunOptions, path string, args []string) error {
 	command := exec.CommandContext(ctx, path, args...)
 	command.Dir = options.Directory
+	command.Stdin = options.Input
 	command.Stdout = options.Output
 	command.Stderr = options.Error
 

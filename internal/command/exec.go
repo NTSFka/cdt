@@ -35,6 +35,7 @@ func execCommandAction(ctx context.Context, cmd *cli.Command) error {
 
 	options := internal.RunOptions{
 		Directory: c.Project.RootDirectory(),
+		Input:     cmd.Reader,
 		Output:    cmd.Writer,
 		Error:     cmd.ErrWriter,
 	}
