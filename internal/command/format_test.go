@@ -10,7 +10,7 @@ import (
 )
 
 func runFormat(formatter internal.ProjectFormatter, args ...string) error {
-	return test.RunCommand(FormatCommand, internal.Context{
+	return test.RunCommand(NewFormatCommand(), internal.Context{
 		Project: internal.Project{
 			Workflow: internal.Workflow{
 				Formatter: formatter,

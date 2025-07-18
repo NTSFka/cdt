@@ -8,17 +8,19 @@ import (
 	"github.com/urfave/cli/v3"
 )
 
-var LintCommand = cli.Command{
-	Name:   "lint",
-	Usage:  "Lint the project",
-	Action: lintCommandAction,
-	Arguments: []cli.Argument{
-		&cli.StringArgs{
-			Name: "files",
-			Min:  0,
-			Max:  -1,
+func NewLintCommand() *cli.Command {
+	return &cli.Command{
+		Name:   "lint",
+		Usage:  "Lint the project",
+		Action: lintCommandAction,
+		Arguments: []cli.Argument{
+			&cli.StringArgs{
+				Name: "files",
+				Min:  0,
+				Max:  -1,
+			},
 		},
-	},
+	}
 }
 
 func lintCommandAction(ctx context.Context, cmd *cli.Command) error {

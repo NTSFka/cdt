@@ -10,7 +10,7 @@ import (
 )
 
 func runConfigure(configurator internal.ProjectConfigurator, args ...string) error {
-	return test.RunCommand(ConfigureCommand, internal.Context{
+	return test.RunCommand(NewConfigureCommand(), internal.Context{
 		Project: internal.Project{
 			Workflow: internal.Workflow{
 				Configurator: configurator,

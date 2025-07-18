@@ -8,17 +8,19 @@ import (
 	"github.com/urfave/cli/v3"
 )
 
-var TestCommand = cli.Command{
-	Name:   "test",
-	Usage:  "Test the project",
-	Action: testCommandAction,
-	Arguments: []cli.Argument{
-		&cli.StringArgs{
-			Name: "pattern",
-			Min:  0,
-			Max:  1,
+func NewTestCommand() *cli.Command {
+	return &cli.Command{
+		Name:   "test",
+		Usage:  "Test the project",
+		Action: testCommandAction,
+		Arguments: []cli.Argument{
+			&cli.StringArgs{
+				Name: "pattern",
+				Min:  0,
+				Max:  1,
+			},
 		},
-	},
+	}
 }
 
 func testCommandAction(ctx context.Context, cmd *cli.Command) error {

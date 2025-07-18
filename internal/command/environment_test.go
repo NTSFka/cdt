@@ -10,7 +10,7 @@ import (
 )
 
 func runWithEnvironment(environment internal.Environment, args ...string) error {
-	return test.RunCommand(EnvironmentCommand, internal.Context{
+	return test.RunCommand(NewEnvironmentCommand(), internal.Context{
 		Environment: environment,
 	}, args...)
 }

@@ -7,21 +7,23 @@ import (
 	"github.com/urfave/cli/v3"
 )
 
-var ProjectCommand = cli.Command{
-	Name:  "project",
-	Usage: "Show project information",
-	Commands: []*cli.Command{
-		{
-			Name:   "targets",
-			Usage:  "show available targets",
-			Action: projectCommandTargetsAction,
+func NewProjectCommand() *cli.Command {
+	return &cli.Command{
+		Name:  "project",
+		Usage: "Show project information",
+		Commands: []*cli.Command{
+			{
+				Name:   "targets",
+				Usage:  "show available targets",
+				Action: projectCommandTargetsAction,
+			},
+			{
+				Name:   "files",
+				Usage:  "show project files",
+				Action: projectCommandFilesAction,
+			},
 		},
-		{
-			Name:   "files",
-			Usage:  "show project files",
-			Action: projectCommandFilesAction,
-		},
-	},
+	}
 }
 
 func projectCommandTargetsAction(ctx context.Context, cmd *cli.Command) error {

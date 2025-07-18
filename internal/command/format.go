@@ -8,24 +8,26 @@ import (
 	"github.com/urfave/cli/v3"
 )
 
-var FormatCommand = cli.Command{
-	Name:   "format",
-	Usage:  "Format files in the project",
-	Action: formatCommandAction,
-	Flags: []cli.Flag{
-		&cli.BoolFlag{
-			Name:  "check",
-			Value: false,
-			Usage: "Check if the project or given files are formatted",
+func NewFormatCommand() *cli.Command {
+	return &cli.Command{
+		Name:   "format",
+		Usage:  "Format files in the project",
+		Action: formatCommandAction,
+		Flags: []cli.Flag{
+			&cli.BoolFlag{
+				Name:  "check",
+				Value: false,
+				Usage: "Check if the project or given files are formatted",
+			},
 		},
-	},
-	Arguments: []cli.Argument{
-		&cli.StringArgs{
-			Name: "files",
-			Min:  0,
-			Max:  -1,
+		Arguments: []cli.Argument{
+			&cli.StringArgs{
+				Name: "files",
+				Min:  0,
+				Max:  -1,
+			},
 		},
-	},
+	}
 }
 
 func formatCommandAction(ctx context.Context, cmd *cli.Command) error {

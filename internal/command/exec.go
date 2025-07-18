@@ -8,20 +8,22 @@ import (
 	"github.com/urfave/cli/v3"
 )
 
-var ExecCommand = cli.Command{
-	Name:   "exec",
-	Usage:  "Execute a command in the environment",
-	Action: execCommandAction,
-	Arguments: []cli.Argument{
-		&cli.StringArg{
-			Name: "command",
+func NewExecCommand() *cli.Command {
+	return &cli.Command{
+		Name:   "exec",
+		Usage:  "Execute a command in the environment",
+		Action: execCommandAction,
+		Arguments: []cli.Argument{
+			&cli.StringArg{
+				Name: "command",
+			},
+			&cli.StringArgs{
+				Name: "args",
+				Min:  0,
+				Max:  -1,
+			},
 		},
-		&cli.StringArgs{
-			Name: "args",
-			Min:  0,
-			Max:  -1,
-		},
-	},
+	}
 }
 
 func execCommandAction(ctx context.Context, cmd *cli.Command) error {

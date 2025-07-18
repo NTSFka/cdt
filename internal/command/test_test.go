@@ -10,7 +10,7 @@ import (
 )
 
 func runTest(tester internal.ProjectTester, args ...string) error {
-	return test.RunCommand(TestCommand, internal.Context{
+	return test.RunCommand(NewTestCommand(), internal.Context{
 		Project: internal.Project{
 			Workflow: internal.Workflow{
 				Tester: tester,

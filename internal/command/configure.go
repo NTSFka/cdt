@@ -8,10 +8,12 @@ import (
 	"github.com/urfave/cli/v3"
 )
 
-var ConfigureCommand = cli.Command{
-	Name:   "configure",
-	Usage:  "Configure the project",
-	Action: configureCommandAction,
+func NewConfigureCommand() *cli.Command {
+	return &cli.Command{
+		Name:   "configure",
+		Usage:  "Configure the project",
+		Action: configureCommandAction,
+	}
 }
 
 func configureCommandAction(ctx context.Context, cmd *cli.Command) error {

@@ -10,7 +10,7 @@ import (
 )
 
 func execRun(environment internal.Environment, args ...string) error {
-	return test.RunCommand(ExecCommand, internal.Context{
+	return test.RunCommand(NewExecCommand(), internal.Context{
 		Environment: environment,
 	}, args...)
 }

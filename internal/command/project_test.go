@@ -9,7 +9,7 @@ import (
 )
 
 func runProject(structureProvider internal.ProjectStructureProvider, args ...string) error {
-	return test.RunCommand(ProjectCommand, internal.Context{
+	return test.RunCommand(NewProjectCommand(), internal.Context{
 		Project: internal.MakeProject("", "", structureProvider, internal.Workflow{}),
 	}, args...)
 }

@@ -7,28 +7,30 @@ import (
 	"github.com/urfave/cli/v3"
 )
 
-var EnvironmentCommand = cli.Command{
-	Name:    "environment",
-	Aliases: []string{"env"},
-	Usage:   "manage runtime environment",
-	Commands: []*cli.Command{
-		{
-			Name:   "list",
-			Action: environmentCommandActionList,
+func NewEnvironmentCommand() *cli.Command {
+	return &cli.Command{
+		Name:    "environment",
+		Aliases: []string{"env"},
+		Usage:   "Manage runtime environment",
+		Commands: []*cli.Command{
+			{
+				Name:   "list",
+				Action: environmentCommandActionList,
+			},
+			{
+				Name:   "status",
+				Action: environmentCommandActionStatus,
+			},
+			{
+				Name:   "start",
+				Action: environmentCommandActionStart,
+			},
+			{
+				Name:   "stop",
+				Action: environmentCommandActionStop,
+			},
 		},
-		{
-			Name:   "status",
-			Action: environmentCommandActionStatus,
-		},
-		{
-			Name:   "start",
-			Action: environmentCommandActionStart,
-		},
-		{
-			Name:   "stop",
-			Action: environmentCommandActionStop,
-		},
-	},
+	}
 }
 
 func environmentCommandActionList(ctx context.Context, cmd *cli.Command) error {

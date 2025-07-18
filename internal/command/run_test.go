@@ -10,7 +10,7 @@ import (
 )
 
 func runRun(runner internal.ProjectRunner, args ...string) error {
-	return test.RunCommand(RunCommand, internal.Context{
+	return test.RunCommand(NewRunCommand(), internal.Context{
 		Project: internal.Project{
 			Workflow: internal.Workflow{
 				Runner: runner,

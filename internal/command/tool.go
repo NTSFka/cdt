@@ -7,33 +7,35 @@ import (
 	"github.com/urfave/cli/v3"
 )
 
-var ToolCommand = cli.Command{
-	Name:  "tool",
-	Usage: "work with supported tools",
-	Commands: []*cli.Command{
-		{
-			Name:   "list",
-			Usage:  "list available tools",
-			Action: toolCommandListAction,
-			Flags: []cli.Flag{
-				&cli.BoolFlag{
-					Name:    "all",
-					Aliases: []string{"a"},
-					Usage:   "list all supported tools",
+func NewToolCommand() *cli.Command {
+	return &cli.Command{
+		Name:  "tool",
+		Usage: "work with supported tools",
+		Commands: []*cli.Command{
+			{
+				Name:   "list",
+				Usage:  "list available tools",
+				Action: toolCommandListAction,
+				Flags: []cli.Flag{
+					&cli.BoolFlag{
+						Name:    "all",
+						Aliases: []string{"a"},
+						Usage:   "list all supported tools",
+					},
+				},
+			},
+			{
+				Name:   "run",
+				Usage:  "run a tool",
+				Action: toolCommandRunAction,
+				Arguments: []cli.Argument{
+					&cli.StringArg{
+						Name: "toolId",
+					},
 				},
 			},
 		},
-		{
-			Name:   "run",
-			Usage:  "run a tool",
-			Action: toolCommandRunAction,
-			Arguments: []cli.Argument{
-				&cli.StringArg{
-					Name: "toolId",
-				},
-			},
-		},
-	},
+	}
 }
 
 func toolCommandListAction(ctx context.Context, cmd *cli.Command) error {

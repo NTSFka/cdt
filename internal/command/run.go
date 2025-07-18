@@ -8,15 +8,17 @@ import (
 	"github.com/urfave/cli/v3"
 )
 
-var RunCommand = cli.Command{
-	Name:   "run",
-	Usage:  "Run an application in the project",
-	Action: runCommandAction,
-	Arguments: []cli.Argument{
-		&cli.StringArg{
-			Name: "target",
+func NewRunCommand() *cli.Command {
+	return &cli.Command{
+		Name:   "run",
+		Usage:  "Run an application in the project",
+		Action: runCommandAction,
+		Arguments: []cli.Argument{
+			&cli.StringArg{
+				Name: "target",
+			},
 		},
-	},
+	}
 }
 
 func runCommandAction(ctx context.Context, cmd *cli.Command) error {

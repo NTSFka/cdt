@@ -8,17 +8,19 @@ import (
 	"github.com/urfave/cli/v3"
 )
 
-var BuildCommand = cli.Command{
-	Name:   "build",
-	Usage:  "build the whole project or target(s) in the project",
-	Action: buildCommandAction,
-	Arguments: []cli.Argument{
-		&cli.StringArgs{
-			Name: "targets",
-			Min:  0,
-			Max:  -1,
+func NewBuildCommand() *cli.Command {
+	return &cli.Command{
+		Name:   "build",
+		Usage:  "build the whole project or target(s) in the project",
+		Action: buildCommandAction,
+		Arguments: []cli.Argument{
+			&cli.StringArgs{
+				Name: "targets",
+				Min:  0,
+				Max:  -1,
+			},
 		},
-	},
+	}
 }
 
 func buildCommandAction(ctx context.Context, cmd *cli.Command) error {
