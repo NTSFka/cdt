@@ -9,10 +9,9 @@ import (
 )
 
 var ConfigureCommand = cli.Command{
-	Name:      "configure",
-	Usage:     "Configure the project",
-	UsageText: "cdt [OPTIONS] configure",
-	Action:    configureCommandAction,
+	Name:   "configure",
+	Usage:  "Configure the project",
+	Action: configureCommandAction,
 }
 
 func configureCommandAction(ctx context.Context, cmd *cli.Command) error {

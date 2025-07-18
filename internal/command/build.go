@@ -9,10 +9,9 @@ import (
 )
 
 var BuildCommand = cli.Command{
-	Name:      "build",
-	Usage:     "build the whole project or target(s) in the project",
-	Action:    buildCommandAction,
-	UsageText: "cdt [OPTIONS] build [TARGETS...]",
+	Name:   "build",
+	Usage:  "build the whole project or target(s) in the project",
+	Action: buildCommandAction,
 	Arguments: []cli.Argument{
 		&cli.StringArgs{
 			Name: "targets",

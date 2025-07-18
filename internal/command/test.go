@@ -9,10 +9,9 @@ import (
 )
 
 var TestCommand = cli.Command{
-	Name:      "test",
-	Usage:     "Test the project",
-	Action:    testCommandAction,
-	UsageText: "cdt [OPTIONS] test [PATTERNS...]",
+	Name:   "test",
+	Usage:  "Test the project",
+	Action: testCommandAction,
 	Arguments: []cli.Argument{
 		&cli.StringArgs{
 			Name: "pattern",

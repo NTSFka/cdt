@@ -9,10 +9,9 @@ import (
 )
 
 var RunCommand = cli.Command{
-	Name:      "run",
-	Usage:     "Run an application in the project",
-	UsageText: "cdt run TARGET",
-	Action:    runCommandAction,
+	Name:   "run",
+	Usage:  "Run an application in the project",
+	Action: runCommandAction,
 	Arguments: []cli.Argument{
 		&cli.StringArg{
 			Name: "target",
