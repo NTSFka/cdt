@@ -239,7 +239,7 @@ func TestDocker_Environment_Stop_Failed(t *testing.T) {
 		Return(errors.New("failed"))
 
 	err := env.Stop(context.Background())
-	assert.EqualError(t, err, "failed")
+	assert.EqualError(t, err, "docker run failed: failed")
 
 	runMock.AssertExpectations(t)
 }
@@ -276,7 +276,7 @@ func TestDocker_Environment_Cleanup_Running_Failed(t *testing.T) {
 		Return(errors.New("failed"))
 
 	err := env.Cleanup(context.Background())
-	assert.EqualError(t, err, "failed")
+	assert.EqualError(t, err, "docker run failed: failed")
 
 	runMock.AssertExpectations(t)
 }
