@@ -19,7 +19,16 @@ func runFormat(formatter internal.ProjectFormatter, args ...string) error {
 	}, args...)
 }
 
-func TestFormatCannotBeFormatted(t *testing.T) {
+func runFormatTool(formatter internal.Tool, args ...string) error {
+	return test.RunCommand(NewFormatCommand(), internal.Context{
+		Project: internal.Project{},
+		Tools: []internal.Tool{
+			formatter,
+		},
+	}, args...)
+}
+
+func TestFormat_CannotBeFormatted(t *testing.T) {
 	err := runFormat(nil)
 
 	if assert.Error(t, err) {
@@ -27,7 +36,7 @@ func TestFormatCannotBeFormatted(t *testing.T) {
 	}
 }
 
-func TestFormatAllSuccess(t *testing.T) {
+func TestFormat_FormatAll_Success(t *testing.T) {
 	formatter := test.ProjectFormatter{}
 	formatter.On("FormatAll", mock.Anything, []string{}).Return(nil)
 
@@ -37,7 +46,7 @@ func TestFormatAllSuccess(t *testing.T) {
 	formatter.AssertExpectations(t)
 }
 
-func TestFormatAllFailure(t *testing.T) {
+func TestFormat_FormatAll_Failure(t *testing.T) {
 	formatter := test.ProjectFormatter{}
 	formatter.On("FormatAll", mock.Anything, []string{}).Return(errors.New("failed"))
 
@@ -49,7 +58,72 @@ func TestFormatAllFailure(t *testing.T) {
 	formatter.AssertExpectations(t)
 }
 
-func TestFormatFilesSuccess(t *testing.T) {
+func TestFormat_Tool_Success(t *testing.T) {
+	linter := struct {
+		internal.ExecutableTool
+		test.ProjectFormatter
+	}{
+		internal.MakeExecutableTool("tool1", "", "", nil),
+		test.ProjectFormatter{},
+	}
+	linter.On("FormatAll", mock.Anything, []string{}).Return(nil)
+
+	err := runFormatTool(&linter, "--tool", "tool1")
+
+	assert.NoError(t, err)
+	linter.AssertExpectations(t)
+}
+
+func TestFormat_Tool_Failed(t *testing.T) {
+	linter := struct {
+		internal.ExecutableTool
+		test.ProjectFormatter
+	}{
+		internal.MakeExecutableTool("tool1", "", "", nil),
+		test.ProjectFormatter{},
+	}
+	linter.On("FormatAll", mock.Anything, []string{}).Return(errors.New("failed"))
+
+	err := runFormatTool(&linter, "--tool", "tool1")
+
+	if assert.Error(t, err) {
+		assert.Equal(t, "failed", err.Error())
+	}
+	linter.AssertExpectations(t)
+}
+
+func TestFormat_Tool_NotFound(t *testing.T) {
+	linter := struct {
+		internal.ExecutableTool
+		test.ProjectFormatter
+	}{
+		internal.MakeExecutableTool("tool1", "", "", nil),
+		test.ProjectFormatter{},
+	}
+
+	err := runFormatTool(&linter, "--tool", "tool2")
+
+	if assert.Error(t, err) {
+		assert.Equal(t, "tool 'tool2' not found", err.Error())
+	}
+	linter.AssertExpectations(t)
+}
+
+func TestFormat_Tool_NotSupported(t *testing.T) {
+	linter := struct {
+		internal.ExecutableTool
+	}{
+		internal.MakeExecutableTool("tool1", "", "", nil),
+	}
+
+	err := runFormatTool(&linter, "--tool", "tool1")
+
+	if assert.Error(t, err) {
+		assert.Equal(t, "tool 'tool1' doesn't support formatting", err.Error())
+	}
+}
+
+func TestFormat_FormatFiles_Success(t *testing.T) {
 	formatter := test.ProjectFormatter{}
 	formatter.On("FormatFiles", mock.Anything, []string{"file1", "file2"}, []string{}).Return(nil)
 
@@ -59,7 +133,7 @@ func TestFormatFilesSuccess(t *testing.T) {
 	formatter.AssertExpectations(t)
 }
 
-func TestFormatFilesFailure(t *testing.T) {
+func TestFormat_FormatFiles_Failure(t *testing.T) {
 	formatter := test.ProjectFormatter{}
 	formatter.On("FormatFiles", mock.Anything, []string{"file1", "file2"}, []string{}).Return(errors.New("failed"))
 
@@ -71,7 +145,7 @@ func TestFormatFilesFailure(t *testing.T) {
 	formatter.AssertExpectations(t)
 }
 
-func TestFormatCheckAllSuccess(t *testing.T) {
+func TestFormat_FormatCheckAll_Success(t *testing.T) {
 	formatter := test.ProjectFormatter{}
 	formatter.On("FormatCheckAll", mock.Anything, []string{}).Return(nil)
 
@@ -81,7 +155,7 @@ func TestFormatCheckAllSuccess(t *testing.T) {
 	formatter.AssertExpectations(t)
 }
 
-func TestFormatCheckAllFailure(t *testing.T) {
+func TestFormat_FormatCheckAll_Failure(t *testing.T) {
 	formatter := test.ProjectFormatter{}
 	formatter.On("FormatCheckAll", mock.Anything, []string{}).Return(errors.New("failed"))
 
@@ -93,7 +167,7 @@ func TestFormatCheckAllFailure(t *testing.T) {
 	formatter.AssertExpectations(t)
 }
 
-func TestFormatCheckFilesSuccess(t *testing.T) {
+func TestFormat_FormatCheckFiles_Success(t *testing.T) {
 	formatter := test.ProjectFormatter{}
 	formatter.On("FormatCheckFiles", mock.Anything, []string{"file1", "file2"}, []string{}).Return(nil)
 
@@ -103,7 +177,7 @@ func TestFormatCheckFilesSuccess(t *testing.T) {
 	formatter.AssertExpectations(t)
 }
 
-func TestFormatCheckFilesFailure(t *testing.T) {
+func TestFormat_FormatCheckFiles_Failure(t *testing.T) {
 	formatter := test.ProjectFormatter{}
 	formatter.On("FormatCheckFiles", mock.Anything, []string{"file1", "file2"}, []string{}).Return(errors.New("failed"))
 

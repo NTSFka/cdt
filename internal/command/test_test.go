@@ -19,7 +19,16 @@ func runTest(tester internal.ProjectTester, args ...string) error {
 	}, args...)
 }
 
-func TestTestCannotBeTested(t *testing.T) {
+func runTestTool(tester internal.Tool, args ...string) error {
+	return test.RunCommand(NewTestCommand(), internal.Context{
+		Project: internal.Project{},
+		Tools: []internal.Tool{
+			tester,
+		},
+	}, args...)
+}
+
+func TestTest_CannotBeTested(t *testing.T) {
 	err := runTest(nil)
 
 	if assert.Error(t, err) {
@@ -27,7 +36,7 @@ func TestTestCannotBeTested(t *testing.T) {
 	}
 }
 
-func TestTestAllSuccess(t *testing.T) {
+func TestTest_TestAll_Success(t *testing.T) {
 	tester := test.ProjectTester{}
 	tester.On("TestAll", mock.Anything, []string{}).Return(nil)
 
@@ -37,7 +46,7 @@ func TestTestAllSuccess(t *testing.T) {
 	tester.AssertExpectations(t)
 }
 
-func TestTestAllFailure(t *testing.T) {
+func TestTest_TestAll_Failure(t *testing.T) {
 	tester := test.ProjectTester{}
 	tester.On("TestAll", mock.Anything, []string{}).Return(errors.New("failed"))
 
@@ -49,7 +58,72 @@ func TestTestAllFailure(t *testing.T) {
 	tester.AssertExpectations(t)
 }
 
-func TestTestTargetsSuccess(t *testing.T) {
+func TestTest_Tool_Success(t *testing.T) {
+	linter := struct {
+		internal.ExecutableTool
+		test.ProjectTester
+	}{
+		internal.MakeExecutableTool("tool1", "", "", nil),
+		test.ProjectTester{},
+	}
+	linter.On("TestAll", mock.Anything, []string{}).Return(nil)
+
+	err := runTestTool(&linter, "--tool", "tool1")
+
+	assert.NoError(t, err)
+	linter.AssertExpectations(t)
+}
+
+func TestTest_Tool_Failed(t *testing.T) {
+	linter := struct {
+		internal.ExecutableTool
+		test.ProjectTester
+	}{
+		internal.MakeExecutableTool("tool1", "", "", nil),
+		test.ProjectTester{},
+	}
+	linter.On("TestAll", mock.Anything, []string{}).Return(errors.New("failed"))
+
+	err := runTestTool(&linter, "--tool", "tool1")
+
+	if assert.Error(t, err) {
+		assert.Equal(t, "failed", err.Error())
+	}
+	linter.AssertExpectations(t)
+}
+
+func TestTest_Tool_NotFound(t *testing.T) {
+	linter := struct {
+		internal.ExecutableTool
+		test.ProjectTester
+	}{
+		internal.MakeExecutableTool("tool1", "", "", nil),
+		test.ProjectTester{},
+	}
+
+	err := runTestTool(&linter, "--tool", "tool2")
+
+	if assert.Error(t, err) {
+		assert.Equal(t, "tool 'tool2' not found", err.Error())
+	}
+	linter.AssertExpectations(t)
+}
+
+func TestTest_Tool_NotSupported(t *testing.T) {
+	linter := struct {
+		internal.ExecutableTool
+	}{
+		internal.MakeExecutableTool("tool1", "", "", nil),
+	}
+
+	err := runTestTool(&linter, "--tool", "tool1")
+
+	if assert.Error(t, err) {
+		assert.Equal(t, "tool 'tool1' doesn't support testing", err.Error())
+	}
+}
+
+func TestTest_TestTargets_Success(t *testing.T) {
 	tester := test.ProjectTester{}
 	tester.On("Test", mock.Anything, "pattern", []string{}).Return(nil)
 
@@ -59,7 +133,7 @@ func TestTestTargetsSuccess(t *testing.T) {
 	tester.AssertExpectations(t)
 }
 
-func TestTestTargetsFailure(t *testing.T) {
+func TestTest_TestTargets_Failure(t *testing.T) {
 	tester := test.ProjectTester{}
 	tester.On("Test", mock.Anything, "pattern", []string{}).Return(errors.New("failed"))
 

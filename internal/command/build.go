@@ -13,6 +13,12 @@ func NewBuildCommand() *cli.Command {
 		Name:   "build",
 		Usage:  "build the whole project or target(s) in the project",
 		Action: buildCommandAction,
+		Flags: []cli.Flag{
+			&cli.StringFlag{
+				Name:  "tool",
+				Usage: "Use specific build tool",
+			},
+		},
 		Arguments: []cli.Argument{
 			&cli.StringArgs{
 				Name: "targets",
@@ -26,6 +32,23 @@ func NewBuildCommand() *cli.Command {
 func buildCommandAction(ctx context.Context, cmd *cli.Command) error {
 	c := ctx.Value("context").(internal.Context)
 	builder := c.Project.Workflow.Builder
+
+	if cmd.IsSet("tool") {
+		toolName := cmd.String("tool")
+		tool := c.Tools.Get(toolName)
+
+		if tool == nil {
+			return fmt.Errorf("tool '%s' not found", toolName)
+		}
+
+		builderTool, ok := tool.(internal.ProjectBuilder)
+
+		if ok {
+			builder = builderTool
+		} else {
+			return fmt.Errorf("tool '%s' doesn't support building", toolName)
+		}
+	}
 
 	if builder == nil {
 		return errors.New("project doesn't support building")

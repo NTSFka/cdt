@@ -13,6 +13,12 @@ func NewTestCommand() *cli.Command {
 		Name:   "test",
 		Usage:  "Test the project",
 		Action: testCommandAction,
+		Flags: []cli.Flag{
+			&cli.StringFlag{
+				Name:  "tool",
+				Usage: "Use specific test tool",
+			},
+		},
 		Arguments: []cli.Argument{
 			&cli.StringArgs{
 				Name: "pattern",
@@ -26,6 +32,23 @@ func NewTestCommand() *cli.Command {
 func testCommandAction(ctx context.Context, cmd *cli.Command) error {
 	c := ctx.Value("context").(internal.Context)
 	tester := c.Project.Workflow.Tester
+
+	if cmd.IsSet("tool") {
+		toolName := cmd.String("tool")
+		tool := c.Tools.Get(toolName)
+
+		if tool == nil {
+			return fmt.Errorf("tool '%s' not found", toolName)
+		}
+
+		testerTool, ok := tool.(internal.ProjectTester)
+
+		if ok {
+			tester = testerTool
+		} else {
+			return fmt.Errorf("tool '%s' doesn't support testing", toolName)
+		}
+	}
 
 	if tester == nil {
 		return errors.New("project doesn't support testing")

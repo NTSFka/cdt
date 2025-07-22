@@ -19,7 +19,16 @@ func runBuild(builder internal.ProjectBuilder, args ...string) error {
 	}, args...)
 }
 
-func TestBuildNotSupported(t *testing.T) {
+func runBuildTool(builder internal.Tool, args ...string) error {
+	return test.RunCommand(NewBuildCommand(), internal.Context{
+		Project: internal.Project{},
+		Tools: []internal.Tool{
+			builder,
+		},
+	}, args...)
+}
+
+func TestBuild_NotSupported(t *testing.T) {
 	err := runBuild(nil)
 
 	if assert.Error(t, err) {
@@ -27,7 +36,7 @@ func TestBuildNotSupported(t *testing.T) {
 	}
 }
 
-func TestBuildAllSuccess(t *testing.T) {
+func TestBuild_BuildAll_Success(t *testing.T) {
 	builder := test.ProjectBuilder{}
 	builder.On("BuildAll", mock.Anything, []string{}).Return(nil)
 
@@ -37,7 +46,7 @@ func TestBuildAllSuccess(t *testing.T) {
 	builder.AssertExpectations(t)
 }
 
-func TestBuildAllFailure(t *testing.T) {
+func TestBuild_BuildAll_Failure(t *testing.T) {
 	builder := test.ProjectBuilder{}
 	builder.On("BuildAll", mock.Anything, []string{}).Return(errors.New("failed"))
 
@@ -49,7 +58,72 @@ func TestBuildAllFailure(t *testing.T) {
 	builder.AssertExpectations(t)
 }
 
-func TestBuildTargetsSuccess(t *testing.T) {
+func TestBuild_Tool_Success(t *testing.T) {
+	linter := struct {
+		internal.ExecutableTool
+		test.ProjectBuilder
+	}{
+		internal.MakeExecutableTool("tool1", "", "", nil),
+		test.ProjectBuilder{},
+	}
+	linter.On("BuildAll", mock.Anything, []string{}).Return(nil)
+
+	err := runBuildTool(&linter, "--tool", "tool1")
+
+	assert.NoError(t, err)
+	linter.AssertExpectations(t)
+}
+
+func TestBuild_Tool_Failed(t *testing.T) {
+	linter := struct {
+		internal.ExecutableTool
+		test.ProjectBuilder
+	}{
+		internal.MakeExecutableTool("tool1", "", "", nil),
+		test.ProjectBuilder{},
+	}
+	linter.On("BuildAll", mock.Anything, []string{}).Return(errors.New("failed"))
+
+	err := runBuildTool(&linter, "--tool", "tool1")
+
+	if assert.Error(t, err) {
+		assert.Equal(t, "failed", err.Error())
+	}
+	linter.AssertExpectations(t)
+}
+
+func TestBuild_Tool_NotFound(t *testing.T) {
+	linter := struct {
+		internal.ExecutableTool
+		test.ProjectBuilder
+	}{
+		internal.MakeExecutableTool("tool1", "", "", nil),
+		test.ProjectBuilder{},
+	}
+
+	err := runBuildTool(&linter, "--tool", "tool2")
+
+	if assert.Error(t, err) {
+		assert.Equal(t, "tool 'tool2' not found", err.Error())
+	}
+	linter.AssertExpectations(t)
+}
+
+func TestBuild_Tool_NotSupported(t *testing.T) {
+	linter := struct {
+		internal.ExecutableTool
+	}{
+		internal.MakeExecutableTool("tool1", "", "", nil),
+	}
+
+	err := runBuildTool(&linter, "--tool", "tool1")
+
+	if assert.Error(t, err) {
+		assert.Equal(t, "tool 'tool1' doesn't support building", err.Error())
+	}
+}
+
+func TestBuild_BuildTargets_Success(t *testing.T) {
 	builder := test.ProjectBuilder{}
 	builder.On("BuildTargets", mock.Anything, []string{"target1", "target2"}, []string{}).Return(nil)
 
@@ -59,7 +133,7 @@ func TestBuildTargetsSuccess(t *testing.T) {
 	builder.AssertExpectations(t)
 }
 
-func TestBuildTargetsFailure(t *testing.T) {
+func TestBuild_BuildTargets_Failure(t *testing.T) {
 	builder := test.ProjectBuilder{}
 	builder.On("BuildTargets", mock.Anything, []string{"target1", "target2"}, []string{}).Return(errors.New("failed"))
 

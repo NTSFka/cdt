@@ -19,6 +19,10 @@ func NewFormatCommand() *cli.Command {
 				Value: false,
 				Usage: "Check if the project or given files are formatted",
 			},
+			&cli.StringFlag{
+				Name:  "tool",
+				Usage: "Use specific formatter tool",
+			},
 		},
 		Arguments: []cli.Argument{
 			&cli.StringArgs{
@@ -33,6 +37,23 @@ func NewFormatCommand() *cli.Command {
 func formatCommandAction(ctx context.Context, cmd *cli.Command) error {
 	c := ctx.Value("context").(internal.Context)
 	formatter := c.Project.Workflow.Formatter
+
+	if cmd.IsSet("tool") {
+		toolName := cmd.String("tool")
+		tool := c.Tools.Get(toolName)
+
+		if tool == nil {
+			return fmt.Errorf("tool '%s' not found", toolName)
+		}
+
+		formatterTool, ok := tool.(internal.ProjectFormatter)
+
+		if ok {
+			formatter = formatterTool
+		} else {
+			return fmt.Errorf("tool '%s' doesn't support formatting", toolName)
+		}
+	}
 
 	if formatter == nil {
 		return errors.New("project doesn't support source formatting")
