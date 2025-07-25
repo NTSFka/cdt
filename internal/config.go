@@ -19,6 +19,9 @@ type Config struct {
 
 	// Environment defines an environment to use
 	Environment *string
+
+	// Workflow defines tools to use
+	Workflow *ConfigWorkflow
 }
 
 // DefaultConfig returns default configuration.
@@ -26,6 +29,16 @@ func DefaultConfig() Config {
 	return Config{
 		RootDirectory: ".",
 	}
+}
+
+// ConfigWorkflow stores the project's workflow tools
+type ConfigWorkflow struct {
+	Configure *string
+	Build     *string
+	Test      *string
+	Format    *string
+	Lint      *string
+	Run       *string
 }
 
 // FileConfig stores configuration from file
@@ -46,6 +59,17 @@ func (c *FileConfig) UpdateConfig(config *Config) {
 	if c.Project.Environment != nil {
 		config.Environment = c.Project.Environment
 	}
+
+	if c.Project.Workflow != nil {
+		config.Workflow = &ConfigWorkflow{
+			Configure: c.Project.Workflow.Configure,
+			Build:     c.Project.Workflow.Build,
+			Test:      c.Project.Workflow.Test,
+			Format:    c.Project.Workflow.Format,
+			Lint:      c.Project.Workflow.Lint,
+			Run:       c.Project.Workflow.Run,
+		}
+	}
 }
 
 // FileConfigProject stores configuration from a file: project part
@@ -56,6 +80,24 @@ type FileConfigProject struct {
 	BuildDirectory *string `yaml:"build-directory"`
 	// Environment specifies which environment to run tools in for the given project
 	Environment *string `yaml:"environment"`
+	// Workflow specifies the project workflow
+	Workflow *FileConfigProjectWorkflow `yaml:"workflow"`
+}
+
+// FileConfigProjectWorkflow stores configuration from a file: project, workflow part
+type FileConfigProjectWorkflow struct {
+	// Configure stores ID of a tool that be used as ProjectConfigurator
+	Configure *string `yaml:"configure"`
+	// Build stores ID of a tool that be used as ProjectBuilder
+	Build *string `yaml:"build"`
+	// Test stores ID of a tool that be used as ProjectTester
+	Test *string `yaml:"test"`
+	// Format stores ID of a tool that be used as ProjectFormatter
+	Format *string `yaml:"format"`
+	// Lint stores ID of a tool that be used as ProjectLinter
+	Lint *string `yaml:"lint"`
+	// Run stores ID of a tool that be used as ProjectRunner
+	Run *string `yaml:"run"`
 }
 
 // LoadConfigFile loads configuration from a reader
