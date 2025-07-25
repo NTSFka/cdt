@@ -20,3 +20,8 @@ func Assert(condition bool, message string) {
 		panic(message)
 	}
 }
+
+// StrPtr returns a pointer to a given string
+func StrPtr(s string) *string {
+	return &s
+}

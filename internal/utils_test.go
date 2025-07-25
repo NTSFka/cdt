@@ -31,3 +31,9 @@ func TestAssert_Fails(t *testing.T) {
 		Assert(false, "failed")
 	}, "failed")
 }
+
+func TestStrPtr(t *testing.T) {
+	s := "test"
+
+	assert.Equal(t, &s, StrPtr(s))
+}

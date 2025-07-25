@@ -106,24 +106,20 @@ func TestFileConfig_UpdateConfig_Empty(t *testing.T) {
 }
 
 func TestFileConfig_UpdateConfig(t *testing.T) {
-	strPtr := func(s string) *string {
-		return &s
-	}
-
 	config := DefaultConfig()
 
 	fileConfig := FileConfig{
 		Project: FileConfigProject{
-			WorkDirectory:  strPtr("/project/work"),
-			BuildDirectory: strPtr("/project/build"),
-			Environment:    strPtr("env:arg"),
+			WorkDirectory:  StrPtr("/project/work"),
+			BuildDirectory: StrPtr("/project/build"),
+			Environment:    StrPtr("env:arg"),
 			Workflow: &FileConfigProjectWorkflow{
-				Configure: strPtr("tool1"),
-				Build:     strPtr("tool2"),
-				Test:      strPtr("tool3"),
-				Format:    strPtr("tool4"),
-				Lint:      strPtr("tool5"),
-				Run:       strPtr("tool6"),
+				Configure: StrPtr("tool1"),
+				Build:     StrPtr("tool2"),
+				Test:      StrPtr("tool3"),
+				Format:    StrPtr("tool4"),
+				Lint:      StrPtr("tool5"),
+				Run:       StrPtr("tool6"),
 			},
 		},
 	}

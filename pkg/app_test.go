@@ -120,8 +120,8 @@ func TestApp_Run_ConfigFull(t *testing.T) {
 			assert.Equal(t, internal.Config{
 				RootDirectory:  "/path/to/project",
 				WorkDirectory:  nil,
-				BuildDirectory: strPtr("/path/to/build"),
-				Environment:    strPtr("env:arg"),
+				BuildDirectory: internal.StrPtr("/path/to/build"),
+				Environment:    internal.StrPtr("env:arg"),
 			}, *config)
 		}
 	}
@@ -153,8 +153,8 @@ func TestApp_Run_ConfigFullAlias(t *testing.T) {
 			assert.Equal(t, internal.Config{
 				RootDirectory:  "/path/to/project",
 				WorkDirectory:  nil,
-				BuildDirectory: strPtr("/path/to/build"),
-				Environment:    strPtr("env:arg"),
+				BuildDirectory: internal.StrPtr("/path/to/build"),
+				Environment:    internal.StrPtr("env:arg"),
 			}, *config)
 		}
 	}
@@ -192,9 +192,9 @@ project:
 		if assert.NotNil(t, config) {
 			assert.Equal(t, internal.Config{
 				RootDirectory:  tempDir,
-				WorkDirectory:  strPtr("/path/to/project"),
-				BuildDirectory: strPtr("/path/to/build"),
-				Environment:    strPtr("env:arg"),
+				WorkDirectory:  internal.StrPtr("/path/to/project"),
+				BuildDirectory: internal.StrPtr("/path/to/build"),
+				Environment:    internal.StrPtr("env:arg"),
 			}, *config)
 		}
 	}
@@ -232,9 +232,9 @@ project:
 		if assert.NotNil(t, config) {
 			assert.Equal(t, internal.Config{
 				RootDirectory:  ".",
-				WorkDirectory:  strPtr("/path/to/work"),
-				BuildDirectory: strPtr("/path/to/build"),
-				Environment:    strPtr("env:arg"),
+				WorkDirectory:  internal.StrPtr("/path/to/work"),
+				BuildDirectory: internal.StrPtr("/path/to/build"),
+				Environment:    internal.StrPtr("env:arg"),
 			}, *config)
 		}
 	}
@@ -272,9 +272,9 @@ project:
 		if assert.NotNil(t, config) {
 			assert.Equal(t, internal.Config{
 				RootDirectory:  ".",
-				WorkDirectory:  strPtr("/path/to/project"),
-				BuildDirectory: strPtr("/path/to/build"),
-				Environment:    strPtr("env:arg"),
+				WorkDirectory:  internal.StrPtr("/path/to/project"),
+				BuildDirectory: internal.StrPtr("/path/to/build"),
+				Environment:    internal.StrPtr("env:arg"),
 			}, *config)
 		}
 	}
@@ -326,8 +326,4 @@ Hello world!
 	})
 
 	assert.ErrorContains(t, err, "failed to load configuration file: config load failed: yaml")
-}
-
-func strPtr(s string) *string {
-	return &s
 }
