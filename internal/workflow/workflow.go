@@ -2,6 +2,7 @@ package workflow
 
 import (
 	"cdt/internal"
+	"errors"
 	"fmt"
 )
 
@@ -72,11 +73,34 @@ func FromConfig(config internal.ConfigWorkflow, tools internal.Tools) (*internal
 func BuildProject(config internal.Config, tools internal.Tools) (*internal.Project, error) {
 	// User-defined workflow
 	if config.Workflow != nil {
-		if wf, err := FromConfig(*config.Workflow, tools); err == nil {
-			project := internal.MakeProject(config.RootDirectory, "", &internal.EmptyProjectStructureProvider{}, *wf)
-			return &project, nil
-		} else {
-			return nil, err
+		switch cfg := config.Workflow.(type) {
+		case *internal.ConfigWorkflow:
+			if wf, err := FromConfig(*cfg, tools); err == nil {
+				project := internal.MakeProject(config.RootDirectory, "", &internal.EmptyProjectStructureProvider{}, *wf)
+				return &project, nil
+			} else {
+				return nil, err
+			}
+		case string:
+			// TODO: redesign
+			switch cfg {
+			case "cmake":
+				if p := DetectCMakeProject(config, tools); p != nil {
+					return p, nil
+				} else {
+					return nil, errors.New("cmake workflow requires CMakeLists.txt to be present in the project directory")
+				}
+			case "go":
+				if p := DetectGoProject(config, tools); p != nil {
+					return p, nil
+				} else {
+					return nil, errors.New("go workflow requires go.mod to be present in the project directory")
+				}
+			}
+
+			return nil, fmt.Errorf("workflow '%s' not found", cfg)
+		default:
+			panic(fmt.Sprintf("unknown workflow type: %T", cfg))
 		}
 	}
 

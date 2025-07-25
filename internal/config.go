@@ -20,8 +20,8 @@ type Config struct {
 	// Environment defines an environment to use
 	Environment *string
 
-	// Workflow defines tools to use
-	Workflow *ConfigWorkflow
+	// Workflow defines tools to use in a workflow. Can be ConfigWorkflow or string.
+	Workflow any
 }
 
 // DefaultConfig returns default configuration.
@@ -61,13 +61,20 @@ func (c *FileConfig) UpdateConfig(config *Config) {
 	}
 
 	if c.Project.Workflow != nil {
-		config.Workflow = &ConfigWorkflow{
-			Configure: c.Project.Workflow.Configure,
-			Build:     c.Project.Workflow.Build,
-			Test:      c.Project.Workflow.Test,
-			Format:    c.Project.Workflow.Format,
-			Lint:      c.Project.Workflow.Lint,
-			Run:       c.Project.Workflow.Run,
+		switch workflow := c.Project.Workflow.(type) {
+		case *FileConfigProjectWorkflow:
+			config.Workflow = &ConfigWorkflow{
+				Configure: workflow.Configure,
+				Build:     workflow.Build,
+				Test:      workflow.Test,
+				Format:    workflow.Format,
+				Lint:      workflow.Lint,
+				Run:       workflow.Run,
+			}
+		case string:
+			config.Workflow = workflow
+		default:
+			panic(fmt.Sprintf("invalid workflow type: %T", workflow))
 		}
 	}
 }
@@ -80,8 +87,8 @@ type FileConfigProject struct {
 	BuildDirectory *string `yaml:"build-directory"`
 	// Environment specifies which environment to run tools in for the given project
 	Environment *string `yaml:"environment"`
-	// Workflow specifies the project workflow
-	Workflow *FileConfigProjectWorkflow `yaml:"workflow"`
+	// Workflow specifies the project workflow, can be FileConfigProjectWorkflow or string
+	Workflow any `yaml:"workflow"`
 }
 
 // FileConfigProjectWorkflow stores configuration from a file: project, workflow part
@@ -104,9 +111,30 @@ type FileConfigProjectWorkflow struct {
 func LoadConfigFile(reader io.Reader) (*FileConfig, error) {
 	result := FileConfig{}
 
-	err := yaml.NewDecoder(reader).Decode(&result)
-	if err != nil {
+	if err := yaml.NewDecoder(reader).Decode(&result); err != nil {
 		return nil, fmt.Errorf("config load failed: %w", err)
+	}
+
+	// Check if Workflow is FileConfigProjectWorkflow or string
+	if result.Project.Workflow != nil {
+		switch value := result.Project.Workflow.(type) {
+		case map[string]any:
+			workflow := FileConfigProjectWorkflow{}
+			var node yaml.Node
+
+			// Can't fail
+			_ = node.Encode(value)
+
+			if err := node.Decode(&workflow); err != nil {
+				return nil, err
+			}
+
+			result.Project.Workflow = &workflow
+		case string:
+			break
+		default:
+			return nil, fmt.Errorf("invalid workflow type: %T", value)
+		}
 	}
 
 	return &result, nil

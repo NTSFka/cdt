@@ -385,6 +385,29 @@ func TestBuildProject_Custom_Fail(t *testing.T) {
 	assert.Nil(t, project)
 }
 
+func TestBuildProject_Custom_UnknownWorkflow(t *testing.T) {
+	config := internal.Config{
+		RootDirectory: "dir1",
+		Workflow:      99,
+	}
+
+	assert.PanicsWithValue(t, "unknown workflow type: int", func() {
+		_, _ = BuildProject(config, internal.Tools{})
+	})
+}
+
+func TestBuildProject_Custom_StringWorkflow_Unsupported(t *testing.T) {
+	config := internal.Config{
+		RootDirectory: "dir1",
+		Workflow:      "my-workflow",
+	}
+
+	workflow, err := BuildProject(config, internal.Tools{})
+
+	assert.EqualError(t, err, "workflow 'my-workflow' not found")
+	assert.Nil(t, workflow)
+}
+
 func TestBuildProject_CMake(t *testing.T) {
 	env := test.NewEnvironment(t)
 
