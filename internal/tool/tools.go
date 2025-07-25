@@ -15,6 +15,11 @@ func InitTools(environment internal.Environment) internal.Tools {
 		DetectGolangCILint(environment),
 		DetectDocker(environment),
 		DetectDockerCompose(environment),
+		DetectPHP(environment),
+		DetectPHPUnit(environment),
+		DetectParaTest(environment),
+		DetectPHPStan(environment),
+		DetectPHPCSFixer(environment),
 	}
 }
 

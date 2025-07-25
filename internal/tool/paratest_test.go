@@ -1,0 +1,99 @@
+package tool
+
+import (
+	"cdt/internal"
+	"cdt/internal/test"
+	"github.com/stretchr/testify/assert"
+	"testing"
+)
+
+func TestParaTest_DetectParaTest_Composer(t *testing.T) {
+	env := test.NewEnvironment(t)
+
+	// Composer installation
+	env.OnFindExecutable("vendor/bin/paratest").
+		Return(env.NewExecutable("/bin/tool"))
+
+	tool := DetectParaTest(env)
+	assert.NotNil(t, tool)
+	assert.Equal(t, "paratest", tool.Id())
+	assert.True(t, tool.IsAvailable())
+
+	if path := tool.ExecutablePath(); assert.NotNil(t, path) {
+		assert.Equal(t, "/bin/tool", *path)
+	}
+
+	env.AssertExpectations(t)
+}
+
+func TestParaTest_DetectParaTest_System(t *testing.T) {
+	env := test.NewEnvironment(t)
+
+	// Composer installation
+	env.OnFindExecutable("vendor/bin/paratest").
+		Return(nil)
+
+	// System installation
+	env.OnFindExecutable("paratest").
+		Return(env.NewExecutable("/bin/tool"))
+
+	tool := DetectParaTest(env)
+	assert.NotNil(t, tool)
+	assert.Equal(t, "paratest", tool.Id())
+	assert.True(t, tool.IsAvailable())
+
+	if path := tool.ExecutablePath(); assert.NotNil(t, path) {
+		assert.Equal(t, "/bin/tool", *path)
+	}
+
+	env.AssertExpectations(t)
+}
+
+func TestParaTest_DetectParaTest_NotFound(t *testing.T) {
+	env := test.NewEnvironment(t)
+
+	env.OnFindExecutable("vendor/bin/paratest").
+		Return(nil)
+	env.OnFindExecutable("paratest").
+		Return(nil)
+
+	tool := DetectParaTest(env)
+	assert.NotNil(t, tool)
+	assert.Equal(t, "paratest", tool.Id())
+	assert.False(t, tool.IsAvailable())
+	assert.Nil(t, tool.ExecutablePath())
+
+	env.AssertExpectations(t)
+}
+
+func TestParaTest_ParaTest_TestAll(t *testing.T) {
+	exec := test.NewExecutable(t)
+
+	tool := NewParaTest(exec.LazyExecutable("test"))
+
+	p := internal.MakeProject(".", "", nil, internal.Workflow{Tester: tool})
+
+	exec.OnRun("test", []string{}).
+		Return(nil)
+
+	err := tool.TestAll(p, []string{})
+	assert.NoError(t, err)
+
+	exec.AssertExpectations(t)
+}
+
+func TestParaTest_ParaTest_Test(t *testing.T) {
+	exec := test.NewExecutable(t)
+
+	tool := NewParaTest(exec.LazyExecutable("test"))
+
+	p := internal.MakeProject(".", "", nil, internal.Workflow{Tester: tool})
+
+	exec.OnRun("test", []string{"tests/*"}).
+		Return(nil)
+
+	err := tool.Test(p, "tests/*", []string{})
+	assert.NoError(t, err)
+
+	exec.AssertExpectations(t)
+}

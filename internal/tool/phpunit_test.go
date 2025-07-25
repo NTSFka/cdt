@@ -1,0 +1,99 @@
+package tool
+
+import (
+	"cdt/internal"
+	"cdt/internal/test"
+	"github.com/stretchr/testify/assert"
+	"testing"
+)
+
+func TestPHPUnit_DetectPHPUnit_Composer(t *testing.T) {
+	env := test.NewEnvironment(t)
+
+	// Composer installation
+	env.OnFindExecutable("vendor/bin/phpunit").
+		Return(env.NewExecutable("/bin/tool"))
+
+	tool := DetectPHPUnit(env)
+	assert.NotNil(t, tool)
+	assert.Equal(t, "phpunit", tool.Id())
+	assert.True(t, tool.IsAvailable())
+
+	if path := tool.ExecutablePath(); assert.NotNil(t, path) {
+		assert.Equal(t, "/bin/tool", *path)
+	}
+
+	env.AssertExpectations(t)
+}
+
+func TestPHPUnit_DetectPHPUnit_System(t *testing.T) {
+	env := test.NewEnvironment(t)
+
+	// Composer installation
+	env.OnFindExecutable("vendor/bin/phpunit").
+		Return(nil)
+
+	// System installation
+	env.OnFindExecutable("phpunit").
+		Return(env.NewExecutable("/bin/tool"))
+
+	tool := DetectPHPUnit(env)
+	assert.NotNil(t, tool)
+	assert.Equal(t, "phpunit", tool.Id())
+	assert.True(t, tool.IsAvailable())
+
+	if path := tool.ExecutablePath(); assert.NotNil(t, path) {
+		assert.Equal(t, "/bin/tool", *path)
+	}
+
+	env.AssertExpectations(t)
+}
+
+func TestPHPUnit_DetectPHPUnit_NotFound(t *testing.T) {
+	env := test.NewEnvironment(t)
+
+	env.OnFindExecutable("vendor/bin/phpunit").
+		Return(nil)
+	env.OnFindExecutable("phpunit").
+		Return(nil)
+
+	tool := DetectPHPUnit(env)
+	assert.NotNil(t, tool)
+	assert.Equal(t, "phpunit", tool.Id())
+	assert.False(t, tool.IsAvailable())
+	assert.Nil(t, tool.ExecutablePath())
+
+	env.AssertExpectations(t)
+}
+
+func TestPHPUnit_PHPUnit_TestAll(t *testing.T) {
+	exec := test.NewExecutable(t)
+
+	tool := NewPHPUnit(exec.LazyExecutable("test"))
+
+	p := internal.MakeProject(".", "", nil, internal.Workflow{Tester: tool})
+
+	exec.OnRun("test", []string{}).
+		Return(nil)
+
+	err := tool.TestAll(p, []string{})
+	assert.NoError(t, err)
+
+	exec.AssertExpectations(t)
+}
+
+func TestPHPUnit_PHPUnit_Test(t *testing.T) {
+	exec := test.NewExecutable(t)
+
+	tool := NewPHPUnit(exec.LazyExecutable("test"))
+
+	p := internal.MakeProject(".", "", nil, internal.Workflow{Tester: tool})
+
+	exec.OnRun("test", []string{"tests/*"}).
+		Return(nil)
+
+	err := tool.Test(p, "tests/*", []string{})
+	assert.NoError(t, err)
+
+	exec.AssertExpectations(t)
+}
