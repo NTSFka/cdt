@@ -1,4 +1,4 @@
-package workflow
+package project
 
 import (
 	"cdt/internal"
@@ -15,7 +15,7 @@ import (
 func TestCMake_DetectCMakeProject_NoCMakeLists(t *testing.T) {
 	tools := internal.Tools{}
 
-	p := DetectCMakeProject(internal.Config{RootDirectory: "dir1"}, tools)
+	p, _ := DetectCMakeProject(internal.Config{RootDirectory: "dir1"}, tools)
 
 	assert.Nil(t, p)
 }
@@ -35,7 +35,7 @@ func TestCMake_DetectCMakeProject_CustomBuildDirectory(t *testing.T) {
 
 	buildDirectory := "my-build-directory"
 
-	p := DetectCMakeProject(internal.Config{RootDirectory: dir, BuildDirectory: &buildDirectory}, tools)
+	p, _ := DetectCMakeProject(internal.Config{RootDirectory: dir, BuildDirectory: &buildDirectory}, tools)
 
 	if assert.NotNil(t, p) {
 		assert.Equal(t, buildDirectory, p.BuildDirectory())
@@ -58,7 +58,7 @@ func TestCMake_DetectCMakeProject_NoFormatterAndLinters(t *testing.T) {
 	_, err := os.OpenFile(filepath.Join(dir, "CMakeLists.txt"), os.O_RDONLY|os.O_CREATE, 0644)
 	assert.NoError(t, err)
 
-	p := DetectCMakeProject(internal.Config{RootDirectory: dir}, tools)
+	p, _ := DetectCMakeProject(internal.Config{RootDirectory: dir}, tools)
 
 	if assert.NotNil(t, p) {
 		assert.Equal(t, filepath.Join("build", "dev"), p.BuildDirectory())
@@ -81,7 +81,7 @@ func TestCMake_DetectCMakeProject_FormatterAndLinters(t *testing.T) {
 	_, err := os.OpenFile(filepath.Join(dir, "CMakeLists.txt"), os.O_RDONLY|os.O_CREATE, 0644)
 	assert.NoError(t, err)
 
-	p := DetectCMakeProject(internal.Config{RootDirectory: dir}, tools)
+	p, _ := DetectCMakeProject(internal.Config{RootDirectory: dir}, tools)
 
 	if assert.NotNil(t, p) {
 		assert.Equal(t, filepath.Join("build", "dev"), p.BuildDirectory())
@@ -108,7 +108,7 @@ func TestCMake_DetectCMakeProject_TestAll(t *testing.T) {
 
 	buildDir := filepath.Join(dir, "build")
 
-	p := DetectCMakeProject(internal.Config{RootDirectory: dir, BuildDirectory: &buildDir}, tools)
+	p, _ := DetectCMakeProject(internal.Config{RootDirectory: dir, BuildDirectory: &buildDir}, tools)
 
 	if assert.NotNil(t, p) && assert.NotNil(t, p.Workflow.Tester) {
 		cmakeMock.OnRunAnything("cmake-test").Return(nil)
@@ -140,7 +140,7 @@ func TestCMake_DetectCMakeProject_TestAll_BuildFailed(t *testing.T) {
 
 	buildDir := filepath.Join(dir, "build")
 
-	p := DetectCMakeProject(internal.Config{RootDirectory: dir, BuildDirectory: &buildDir}, tools)
+	p, _ := DetectCMakeProject(internal.Config{RootDirectory: dir, BuildDirectory: &buildDir}, tools)
 
 	if assert.NotNil(t, p) && assert.NotNil(t, p.Workflow.Tester) {
 		cmakeMock.OnRunAnything("cmake-test").Return(errors.New("failed"))
@@ -171,7 +171,7 @@ func TestCMake_DetectCMakeProject_Test(t *testing.T) {
 
 	buildDir := filepath.Join(dir, "build")
 
-	p := DetectCMakeProject(internal.Config{RootDirectory: dir, BuildDirectory: &buildDir}, tools)
+	p, _ := DetectCMakeProject(internal.Config{RootDirectory: dir, BuildDirectory: &buildDir}, tools)
 
 	if assert.NotNil(t, p) && assert.NotNil(t, p.Workflow.Tester) {
 		cmakeMock.OnRunAnything("cmake-test").Return(nil)
@@ -203,7 +203,7 @@ func TestCMake_DetectCMakeProject_TestBuild_Failed(t *testing.T) {
 
 	buildDir := filepath.Join(dir, "build")
 
-	p := DetectCMakeProject(internal.Config{RootDirectory: dir, BuildDirectory: &buildDir}, tools)
+	p, _ := DetectCMakeProject(internal.Config{RootDirectory: dir, BuildDirectory: &buildDir}, tools)
 
 	if assert.NotNil(t, p) && assert.NotNil(t, p.Workflow.Tester) {
 		cmakeMock.OnRunAnything("cmake-test").Return(errors.New("failed"))

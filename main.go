@@ -2,8 +2,8 @@ package main
 
 import (
 	"cdt/internal"
+	"cdt/internal/project"
 	"cdt/internal/tool"
-	"cdt/internal/workflow"
 	"cdt/pkg"
 	"context"
 	"errors"
@@ -51,7 +51,7 @@ func buildContext(config internal.Config) (*internal.Context, error) {
 
 	tools := tool.InitTools(env)
 
-	project, err := workflow.BuildProject(config, tools)
+	p, err := project.BuildProject(config, tools)
 
 	if err != nil {
 		return nil, err
@@ -59,7 +59,7 @@ func buildContext(config internal.Config) (*internal.Context, error) {
 
 	return &internal.Context{
 		Config:               config,
-		Project:              *project,
+		Project:              *p,
 		Tools:                tools,
 		EnvironmentProviders: environmentProviders,
 		Environment:          env,

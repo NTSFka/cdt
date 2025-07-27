@@ -1,8 +1,9 @@
-package workflow
+package project
 
 import (
 	"cdt/internal"
 	"cdt/internal/tool"
+	"errors"
 	"fmt"
 	"path/filepath"
 )
@@ -14,9 +15,9 @@ type cmakeTester struct {
 }
 
 // DetectCMakeProject detects if the project in the directory is a CMake project
-func DetectCMakeProject(config internal.Config, tools internal.Tools) *internal.Project {
+func DetectCMakeProject(config internal.Config, tools internal.Tools) (*internal.Project, error) {
 	if !internal.PathExists(filepath.Join(config.RootDirectory, "CMakeLists.txt")) {
-		return nil
+		return nil, errors.New("cmake workflow requires CMakeLists.txt to be present in the project directory")
 	}
 
 	cmake := internal.GetTool[*tool.CMake](tools)
@@ -48,7 +49,7 @@ func DetectCMakeProject(config internal.Config, tools internal.Tools) *internal.
 
 	project := internal.MakeProject(config.RootDirectory, buildDirectory, cmake, workflow)
 
-	return &project
+	return &project, nil
 }
 
 func (t *cmakeTester) TestAll(project internal.Project, args []string) error {

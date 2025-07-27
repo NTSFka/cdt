@@ -1,4 +1,4 @@
-package workflow
+package project
 
 import (
 	"cdt/internal"
@@ -18,7 +18,7 @@ func createGoModFile(dir string) error {
 func TestGo_DetectGoProject_NoModFile(t *testing.T) {
 	tools := internal.Tools{}
 
-	p := DetectGoProject(internal.Config{RootDirectory: "dir1"}, tools)
+	p, _ := DetectGoProject(internal.Config{RootDirectory: "dir1"}, tools)
 
 	assert.Nil(t, p)
 }
@@ -35,7 +35,7 @@ func TestGo_DetectGoProject_NoLinter(t *testing.T) {
 	assert.NoError(t, err)
 
 	assert.True(t, internal.PathExists(filepath.Join(dir, "go.mod")))
-	p := DetectGoProject(internal.Config{RootDirectory: dir}, tools)
+	p, _ := DetectGoProject(internal.Config{RootDirectory: dir}, tools)
 
 	if assert.NotNil(t, p) {
 		assert.Nil(t, p.Workflow.Configurator)
@@ -59,7 +59,7 @@ func TestGo_DetectGoProject_Linter(t *testing.T) {
 	assert.NoError(t, err)
 
 	assert.True(t, internal.PathExists(filepath.Join(dir, "go.mod")))
-	p := DetectGoProject(internal.Config{RootDirectory: dir}, tools)
+	p, _ := DetectGoProject(internal.Config{RootDirectory: dir}, tools)
 
 	if assert.NotNil(t, p) {
 		assert.Nil(t, p.Workflow.Configurator)
