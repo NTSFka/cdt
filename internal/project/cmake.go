@@ -3,23 +3,21 @@ package project
 import (
 	"cdt/internal"
 	"cdt/internal/tool"
-	"errors"
 	"fmt"
 	"path/filepath"
 )
 
-// A cmakeTester is a special project tester that will invoke cmake before ctest
-type cmakeTester struct {
-	cmakeTool *tool.CMake
-	ctestTool *tool.CTest
+type CMakeType struct{}
+
+func (c *CMakeType) Id() string {
+	return "cmake"
 }
 
-// DetectCMakeProject detects if the project in the directory is a CMake project
-func DetectCMakeProject(config internal.Config, tools internal.Tools) (*internal.Project, error) {
-	if !internal.PathExists(filepath.Join(config.RootDirectory, "CMakeLists.txt")) {
-		return nil, errors.New("cmake workflow requires CMakeLists.txt to be present in the project directory")
-	}
+func (c *CMakeType) Detect(directory string) bool {
+	return internal.PathExists(filepath.Join(directory, "CMakeLists.txt"))
+}
 
+func (c *CMakeType) Create(config Config, tools internal.Tools) internal.Project {
 	cmake := internal.GetTool[*tool.CMake](tools)
 	ctest := internal.GetTool[*tool.CTest](tools)
 	clangFormat := internal.GetTool[*tool.ClangFormat](tools)
@@ -47,9 +45,13 @@ func DetectCMakeProject(config internal.Config, tools internal.Tools) (*internal
 		buildDirectory = filepath.Join("build", "dev")
 	}
 
-	project := internal.MakeProject(config.RootDirectory, buildDirectory, cmake, workflow)
+	return internal.MakeProject(config.Directory, buildDirectory, cmake, workflow)
+}
 
-	return &project, nil
+// A cmakeTester is a special project tester that will invoke cmake before ctest
+type cmakeTester struct {
+	cmakeTool *tool.CMake
+	ctestTool *tool.CTest
 }
 
 func (t *cmakeTester) TestAll(project internal.Project, args []string) error {

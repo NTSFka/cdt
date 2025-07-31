@@ -5,9 +5,26 @@ import (
 	"fmt"
 )
 
-var projectTypes = map[string]func(internal.Config, internal.Tools) (*internal.Project, error){
-	"go":    DetectGoProject,
-	"cmake": DetectCMakeProject,
+var projectTypes = []Type{
+	&GoType{},
+	&CMakeType{},
+}
+
+type Config struct {
+	Directory      string
+	BuildDirectory *string
+}
+
+// Type specifies a predefined project type
+type Type interface {
+	// Id returns project type unique identifier.
+	Id() string
+
+	// Detect detects if a project of this type is in a given directory.
+	Detect(directory string) bool
+
+	// Create a project from a directory with a given tool set.
+	Create(config Config, tools internal.Tools) internal.Project
 }
 
 func buildProjectConfigCustom(config internal.Config, cwf internal.ConfigWorkflow, tools internal.Tools) (*internal.Project, error) {
@@ -20,13 +37,10 @@ func buildProjectConfigCustom(config internal.Config, cwf internal.ConfigWorkflo
 }
 
 func buildProjectConfigName(config internal.Config, workflow string, tools internal.Tools) (*internal.Project, error) {
-	for name, f := range projectTypes {
-		if workflow == name {
-			if p, err := f(config, tools); p != nil {
-				return p, nil
-			} else {
-				return nil, err
-			}
+	for _, pt := range projectTypes {
+		if workflow == pt.Id() {
+			project := pt.Create(Config{Directory: config.RootDirectory, BuildDirectory: config.BuildDirectory}, tools)
+			return &project, nil
 		}
 	}
 
@@ -34,9 +48,10 @@ func buildProjectConfigName(config internal.Config, workflow string, tools inter
 }
 
 func buildProjectDetect(config internal.Config, tools internal.Tools) (*internal.Project, error) {
-	for _, f := range projectTypes {
-		if p, _ := f(config, tools); p != nil {
-			return p, nil
+	for _, pt := range projectTypes {
+		if pt.Detect(config.RootDirectory) {
+			project := pt.Create(Config{Directory: config.RootDirectory, BuildDirectory: config.BuildDirectory}, tools)
+			return &project, nil
 		}
 	}
 

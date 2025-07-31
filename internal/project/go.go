@@ -3,16 +3,21 @@ package project
 import (
 	"cdt/internal"
 	"cdt/internal/tool"
-	"errors"
 	"path/filepath"
 )
 
-// DetectGoProject detects if the project in the directory is a go project
-func DetectGoProject(config internal.Config, tools internal.Tools) (*internal.Project, error) {
-	if !internal.PathExists(filepath.Join(config.RootDirectory, "go.mod")) {
-		return nil, errors.New("go workflow requires go.mod to be present in the project directory")
-	}
+type GoType struct {
+}
 
+func (g *GoType) Id() string {
+	return "go"
+}
+
+func (g *GoType) Detect(directory string) bool {
+	return internal.PathExists(filepath.Join(directory, "go.mod"))
+}
+
+func (g *GoType) Create(config Config, tools internal.Tools) internal.Project {
 	goTool := internal.GetTool[*tool.Go](tools)
 	goLint := internal.GetTool[*tool.GolangCILint](tools)
 
@@ -25,7 +30,5 @@ func DetectGoProject(config internal.Config, tools internal.Tools) (*internal.Pr
 		Linter:       goLint,
 	}
 
-	project := internal.MakeProject(config.RootDirectory, "", goTool, workflow)
-
-	return &project, nil
+	return internal.MakeProject(config.Directory, "", goTool, workflow)
 }

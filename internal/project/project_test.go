@@ -138,21 +138,6 @@ func TestBuildProject_Custom_StringWorkflow_Go(t *testing.T) {
 	assert.NotNil(t, project)
 }
 
-func TestBuildProject_Custom_StringWorkflow_Go_NotSupported(t *testing.T) {
-	env := test.NewEnvironment(t)
-
-	rootDir := t.TempDir()
-
-	config := internal.Config{RootDirectory: rootDir, Workflow: "go"}
-	project, err := BuildProject(config, internal.Tools{
-		tool.DetectGo(env),
-		tool.DetectGolangCILint(env),
-	})
-
-	assert.EqualError(t, err, "go workflow requires go.mod to be present in the project directory")
-	assert.Nil(t, project)
-}
-
 func TestBuildProject_CMake(t *testing.T) {
 	env := test.NewEnvironment(t)
 

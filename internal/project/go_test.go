@@ -15,51 +15,36 @@ func createGoModFile(dir string) error {
 	return err
 }
 
-func TestGo_DetectGoProject_NoModFile(t *testing.T) {
-	tools := internal.Tools{}
+func TestGoType_Detect_NoModFile(t *testing.T) {
+	projectType := GoType{}
 
-	p, _ := DetectGoProject(internal.Config{RootDirectory: "dir1"}, tools)
+	res := projectType.Detect("dir1")
 
-	assert.Nil(t, p)
+	assert.False(t, res)
 }
 
-func TestGo_DetectGoProject_NoLinter(t *testing.T) {
+func TestGoType_Detect_ModFile(t *testing.T) {
+	projectType := GoType{}
+
+	dir := t.TempDir()
+
+	err := createGoModFile(dir)
+	assert.NoError(t, err)
+
+	res := projectType.Detect(dir)
+
+	assert.True(t, res)
+}
+
+func TestGoType_Create(t *testing.T) {
+	projectType := GoType{}
+
 	tools := internal.Tools{
 		tool.NewGo(func() *internal.Executable { return &internal.Executable{Path: "go-test"} }),
 		tool.NewGolangCILint(func() *internal.Executable { return nil }),
 	}
 
-	dir := t.TempDir()
-
-	err := createGoModFile(dir)
-	assert.NoError(t, err)
-
-	assert.True(t, internal.PathExists(filepath.Join(dir, "go.mod")))
-	p, _ := DetectGoProject(internal.Config{RootDirectory: dir}, tools)
-
-	if assert.NotNil(t, p) {
-		assert.Nil(t, p.Workflow.Configurator)
-		assert.NotNil(t, p.Workflow.Builder)
-		assert.NotNil(t, p.Workflow.Tester)
-		assert.NotNil(t, p.Workflow.Linter)
-		assert.NotNil(t, p.Workflow.Formatter)
-		assert.NotNil(t, p.Workflow.Runner)
-	}
-}
-
-func TestGo_DetectGoProject_Linter(t *testing.T) {
-	tools := internal.Tools{
-		tool.NewGo(func() *internal.Executable { return &internal.Executable{Path: "go-test"} }),
-		tool.NewGolangCILint(func() *internal.Executable { return &internal.Executable{Path: "golangci-lint-test"} }),
-	}
-
-	dir := t.TempDir()
-
-	err := createGoModFile(dir)
-	assert.NoError(t, err)
-
-	assert.True(t, internal.PathExists(filepath.Join(dir, "go.mod")))
-	p, _ := DetectGoProject(internal.Config{RootDirectory: dir}, tools)
+	p := projectType.Create(Config{Directory: "dir1"}, tools)
 
 	if assert.NotNil(t, p) {
 		assert.Nil(t, p.Workflow.Configurator)
