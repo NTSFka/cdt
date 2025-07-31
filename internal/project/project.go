@@ -8,6 +8,7 @@ import (
 var projectTypes = []Type{
 	&GoType{},
 	&CMakeType{},
+	&PHPType{},
 }
 
 type Config struct {
