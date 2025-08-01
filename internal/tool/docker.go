@@ -62,7 +62,7 @@ func (d *dockerEnvironment) runOutput(ctx context.Context, args []string) (strin
 	output := bytes.Buffer{}
 	err := d.docker.Run(
 		ctx,
-		internal.RunOptions{Directory: d.directory, Output: &output},
+		internal.RunOptions{Directory: d.directory, Output: &output, Silent: true},
 		args,
 	)
 
@@ -188,9 +188,7 @@ func (d *dockerEnvironment) FindExecutable(name string) *internal.Executable {
 }
 
 func (d *dockerEnvironment) RunExecutable(ctx context.Context, options internal.RunOptions, path string, args []string) error {
-	c := context.Background()
-
-	if err := d.autoStart(c); err != nil {
+	if err := d.autoStart(ctx); err != nil {
 		return err
 	}
 

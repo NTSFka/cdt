@@ -65,7 +65,7 @@ func (d *dockerComposeEnvironment) runOutput(ctx context.Context, args []string)
 	output := bytes.Buffer{}
 	err := d.dockerCompose.Run(
 		ctx,
-		internal.RunOptions{Directory: d.directory, Output: &output},
+		internal.RunOptions{Directory: d.directory, Output: &output, Silent: true},
 		append([]string{"compose"}, args...),
 	)
 
@@ -157,9 +157,7 @@ func (d *dockerComposeEnvironment) FindExecutable(name string) *internal.Executa
 }
 
 func (d *dockerComposeEnvironment) RunExecutable(ctx context.Context, options internal.RunOptions, path string, args []string) error {
-	c := context.Background()
-
-	if err := d.autoStart(c); err != nil {
+	if err := d.autoStart(ctx); err != nil {
 		return fmt.Errorf("docker compose start failed: %w", err)
 	}
 

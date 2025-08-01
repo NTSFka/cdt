@@ -2,35 +2,62 @@ package internal
 
 import (
 	"context"
+	"github.com/fatih/color"
 	"io"
+	"strings"
 )
 
 // RunOptions are options for executing tool
 type RunOptions struct {
+	// Directory in which executable should be run
 	Directory string
-	Input     io.Reader
-	Output    io.Writer
-	Error     io.Writer
+	// Input provides executable input
+	Input io.Reader
+	// Output captures executable output
+	Output io.Writer
+	// Error captures executable error output
+	Error io.Writer
+	// Silent is a flag that disables cdt run info
+	Silent bool
 }
 
-// Executable is a structure that stores information about executable
+// Executable represent an executable
 type Executable struct {
 	// Path to executable
 	Path string
+
+	// Args stores additional arguments that will be used always
+	Args []string
 
 	// RunFunc is a function that will run the executable
 	RunFunc func(ctx context.Context, options RunOptions, path string, args []string) error
 }
 
+func (e *Executable) buildArgs(args []string) []string {
+	eArgs := e.Args
+
+	if eArgs == nil {
+		eArgs = []string{}
+	}
+
+	return append(eArgs, args...)
+}
+
 // Run starts the executable with the given arguments
-func (t *Executable) Run(ctx context.Context, options RunOptions, args []string) error {
+func (e *Executable) Run(ctx context.Context, options RunOptions, args []string) error {
+	runArgs := e.buildArgs(args)
+
+	if !options.Silent {
+		_, _ = color.New(color.FgCyan).Printf("[cdt] %v %v\n", e.Path, strings.Join(runArgs, " "))
+	}
+
 	return Trace(
 		ctx,
 		"executable.run",
 		func() error {
-			return t.RunFunc(ctx, options, t.Path, args)
+			return e.RunFunc(ctx, options, e.Path, runArgs)
 		},
-		"path", t.Path,
+		"path", e.Path,
 		"args", args,
 		"directory", options.Directory,
 	)
