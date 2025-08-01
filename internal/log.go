@@ -2,10 +2,22 @@ package internal
 
 import (
 	"context"
+	"fmt"
+	"github.com/fatih/color"
 	"log/slog"
 	"strings"
 	"time"
 )
+
+// Info prints CDT action
+func Info(format string, a ...any) {
+	_, _ = color.New(color.FgCyan).Printf("[cdt] %v\n", fmt.Sprintf(format, a...))
+}
+
+// Debug logs debug message
+func Debug(msg string, args ...any) {
+	slog.Debug(msg, args...)
+}
 
 var traceIndent = 0
 

@@ -2,7 +2,6 @@ package internal
 
 import (
 	"context"
-	"github.com/fatih/color"
 	"io"
 	"strings"
 )
@@ -48,7 +47,7 @@ func (e *Executable) Run(ctx context.Context, options RunOptions, args []string)
 	runArgs := e.buildArgs(args)
 
 	if !options.Silent {
-		_, _ = color.New(color.FgCyan).Printf("[cdt] %v %v\n", e.Path, strings.Join(runArgs, " "))
+		Info("%v %v", e.Path, strings.Join(runArgs, " "))
 	}
 
 	return Trace(

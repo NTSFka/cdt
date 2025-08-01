@@ -6,7 +6,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"log/slog"
 	"os"
 	"strings"
 )
@@ -39,7 +38,7 @@ func (d *DockerCompose) IdShort() string {
 
 // CreateEnvironment create docker compose environment where the service is used for running tools
 func (d *DockerCompose) CreateEnvironment(directory, service string) (internal.Environment, error) {
-	slog.Debug("docker-compose.create_environment", "directory", directory, "service", service)
+	internal.Debug("docker-compose.create_environment", "directory", directory, "service", service)
 
 	env := dockerComposeEnvironment{
 		dockerCompose: *d,
@@ -60,7 +59,7 @@ type dockerComposeEnvironment struct {
 func (d *dockerComposeEnvironment) run(ctx context.Context, args []string) error {
 	return d.dockerCompose.Run(
 		ctx,
-		internal.RunOptions{Directory: d.directory, Input: os.Stdin, Output: os.Stdout, Error: os.Stderr},
+		internal.RunOptions{Directory: d.directory, Input: os.Stdin, Output: os.Stdout, Error: os.Stderr, Silent: true},
 		append([]string{"compose"}, args...),
 	)
 }
@@ -97,6 +96,8 @@ func (d *dockerComposeEnvironment) Id() string {
 }
 
 func (d *dockerComposeEnvironment) Start(ctx context.Context) error {
+	internal.Info("Docker compose start: %v", d.service)
+
 	return internal.Trace(ctx, "docker-compose.start", func() error {
 		// It starts all services
 		return d.run(ctx, []string{"up", "-d"})
@@ -123,6 +124,8 @@ func (d *dockerComposeEnvironment) IsRunning(ctx context.Context) bool {
 }
 
 func (d *dockerComposeEnvironment) Stop(ctx context.Context) error {
+	internal.Info("Docker compose stop: %v", d.service)
+
 	// It stops all services
 	return internal.Trace(ctx, "docker.stop", func() error {
 		return d.run(ctx, []string{"stop"})
@@ -166,9 +169,12 @@ func (d *dockerComposeEnvironment) RunExecutable(ctx context.Context, options in
 	}
 
 	return internal.Trace(ctx, "docker-compose.run", func() error {
+		opts := options
+		opts.Silent = true
+
 		return d.dockerCompose.Run(
 			ctx,
-			options,
+			opts,
 			append([]string{"compose", "exec", d.service, path}, args...),
 		)
 	}, "path", path, "args", args)

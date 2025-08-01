@@ -6,7 +6,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"log/slog"
 	"path/filepath"
 	"strings"
 )
@@ -39,7 +38,7 @@ func (d *Docker) IdShort() string {
 
 // CreateEnvironment create docker environment where the service is used for running tools
 func (d *Docker) CreateEnvironment(directory, image string) (internal.Environment, error) {
-	slog.Debug("docker.create_environment", "directory", directory, "image", image)
+	internal.Debug("docker.create_environment", "directory", directory, "image", image)
 
 	env := dockerEnvironment{
 		directory: directory,
@@ -97,7 +96,7 @@ func (d *dockerEnvironment) Start(ctx context.Context) error {
 	absPath, err := filepath.Abs(d.directory)
 	internal.Assert(err == nil, "failed to determine absolute path")
 
-	slog.Info("Docker start", "image", d.imageName)
+	internal.Info("Docker start: %v", d.imageName)
 
 	return internal.Trace(ctx, "docker.start", func() error {
 		output, err := d.runOutput(ctx, []string{
@@ -150,7 +149,7 @@ func (d *dockerEnvironment) IsRunning(ctx context.Context) bool {
 func (d *dockerEnvironment) Stop(ctx context.Context) error {
 	internal.Assert(d.containerId != "", "container ID is not set")
 
-	slog.Info("Docker stop")
+	internal.Info("Docker stop")
 
 	return internal.Trace(ctx, "docker.stop", func() error {
 		_, err := d.runOutput(ctx, []string{"stop", d.containerId})
@@ -199,6 +198,13 @@ func (d *dockerEnvironment) RunExecutable(ctx context.Context, options internal.
 	internal.Assert(d.containerId != "", "container ID is not set")
 
 	return internal.Trace(ctx, "docker.run", func() error {
-		return d.docker.Run(ctx, options, append([]string{"exec", d.containerId, path}, args...))
+		opts := options
+		opts.Silent = true
+
+		return d.docker.Run(
+			ctx,
+			opts,
+			append([]string{"exec", d.containerId, path}, args...),
+		)
 	}, "container", d.containerId, "path", path, "args", args)
 }
