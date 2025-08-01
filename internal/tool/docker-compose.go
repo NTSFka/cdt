@@ -33,6 +33,10 @@ func DetectDockerCompose(environment internal.Environment) *DockerCompose {
 	return NewDockerCompose(func() *internal.Executable { return environment.FindExecutable("docker") })
 }
 
+func (d *DockerCompose) IdShort() string {
+	return "dc"
+}
+
 // CreateEnvironment create docker compose environment where the service is used for running tools
 func (d *DockerCompose) CreateEnvironment(directory, service string) (internal.Environment, error) {
 	slog.Debug("docker-compose.create_environment", "directory", directory, "service", service)

@@ -33,6 +33,10 @@ func DetectDocker(environment internal.Environment) *Docker {
 	})
 }
 
+func (d *Docker) IdShort() string {
+	return "d"
+}
+
 // CreateEnvironment create docker environment where the service is used for running tools
 func (d *Docker) CreateEnvironment(directory, image string) (internal.Environment, error) {
 	slog.Debug("docker.create_environment", "directory", directory, "image", image)

@@ -31,10 +31,12 @@ func initEnvironment(rootDirectory string, environment *string, environmentProvi
 		}
 
 		for _, provider := range environmentProviders {
-			if provider.IsAvailable() && provider.Id() == toolName {
+			if provider.IsAvailable() && (provider.Id() == toolName || provider.IdShort() == toolName) {
 				return provider.CreateEnvironment(rootDirectory, argument)
 			}
 		}
+
+		return nil, fmt.Errorf("environment '%s' not found", toolName)
 	}
 
 	return internal.SystemEnvironment, nil

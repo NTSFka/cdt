@@ -2,6 +2,7 @@ package internal
 
 import (
 	"context"
+	"fmt"
 	"github.com/jedib0t/go-pretty/v6/table"
 	"io"
 	"os/exec"
@@ -9,7 +10,7 @@ import (
 
 // Environment represents an environment where the tools are located and can be executed.
 type Environment interface {
-	// The Id returns provider unique identifier
+	// The Id returns environment unique identifier
 	Id() string
 
 	// Start the environment
@@ -36,6 +37,9 @@ type EnvironmentProvider interface {
 	// The Id returns provider unique identifier
 	Id() string
 
+	// The IdShort returns provider short unique identifier
+	IdShort() string
+
 	// Name returns provider name
 	Name() string
 
@@ -59,10 +63,15 @@ func (p *EnvironmentProviders) PrintTable(writer io.Writer) {
 
 	t := table.NewWriter()
 	t.SetOutputMirror(writer)
-	t.AppendHeader(table.Row{"ID", "Name", "Available", "Info"})
+	t.AppendHeader(table.Row{"ID (short)", "Name", "Available", "Info"})
 
 	for _, tool := range *p {
-		t.AppendRow(table.Row{tool.Id(), tool.Name(), tool.IsAvailable(), tool.Info()})
+		t.AppendRow(table.Row{
+			fmt.Sprintf("%v (%v)", tool.Id(), tool.IdShort()),
+			tool.Name(),
+			tool.IsAvailable(),
+			tool.Info(),
+		})
 	}
 
 	t.Render()
@@ -74,6 +83,10 @@ type systemEnvironmentProvider struct{}
 
 func (s *systemEnvironmentProvider) Id() string {
 	return "system"
+}
+
+func (s *systemEnvironmentProvider) IdShort() string {
+	return "s"
 }
 
 func (s *systemEnvironmentProvider) Name() string {
