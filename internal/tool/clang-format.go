@@ -7,43 +7,15 @@ import (
 	"path/filepath"
 )
 
-const clangFormatMinVersion = 1
-const clangFormatMaxVersion = 22
-
 // ClangFormat is a formatter for the clang-format tool
 type ClangFormat struct {
 	internal.ExecutableTool
 }
 
-func detectClangFormat(environment internal.Environment) *internal.Executable {
-	return environment.FindExecutable("clang-format")
-}
-
-func detectClangFormatVersion(environment internal.Environment, version int) *internal.Executable {
-	return environment.FindExecutable(fmt.Sprintf("clang-format-%d", version))
-}
-
 // DetectClangFormat CreateEnvironment clang-format tool can be used in the project
-func DetectClangFormat(environment internal.Environment, preferredVersion *int) *ClangFormat {
+func DetectClangFormat(environment internal.Environment) *ClangFormat {
 	return NewClangFormat(func() *internal.Executable {
-		if preferredVersion != nil {
-			if executable := detectClangFormatVersion(environment, *preferredVersion); executable != nil {
-				return executable
-			}
-		}
-
-		// Detect unversioned (system default)
-		if executable := detectClangFormat(environment); executable != nil {
-			return executable
-		}
-
-		for version := clangFormatMaxVersion; version >= clangFormatMinVersion; version-- {
-			if executable := detectClangFormatVersion(environment, version); executable != nil {
-				return executable
-			}
-		}
-
-		return nil
+		return environment.FindExecutable("clang-format")
 	})
 }
 

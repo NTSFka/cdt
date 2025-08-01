@@ -16,50 +16,13 @@ func TestClangTidy_DetectClangTidy(t *testing.T) {
 	env.OnFindExecutable("clang-tidy").
 		Return(env.NewExecutable("/bin/clang-tidy"))
 
-	tool := DetectClangTidy(env, nil)
+	tool := DetectClangTidy(env)
 	assert.NotNil(t, tool)
 	assert.Equal(t, "clang-tidy", tool.Id())
 	assert.True(t, tool.IsAvailable())
 
 	if path := tool.ExecutablePath(); assert.NotNil(t, path) {
 		assert.Equal(t, "/bin/clang-tidy", *path)
-	}
-
-	env.AssertExpectations(t)
-}
-
-func TestClangTidy_DetectClangTidy_Version(t *testing.T) {
-	env := test.NewEnvironment(t)
-	env.OnFindExecutable("clang-tidy").
-		Return(nil)
-	env.OnFindExecutable(fmt.Sprintf("clang-tidy-%v", clangTidyMaxVersion)).
-		Return(env.NewExecutable("/bin/clang-tidy"))
-
-	tool := DetectClangTidy(env, nil)
-	assert.NotNil(t, tool)
-	assert.Equal(t, "clang-tidy", tool.Id())
-	assert.True(t, tool.IsAvailable())
-
-	if path := tool.ExecutablePath(); assert.NotNil(t, path) {
-		assert.Equal(t, "/bin/clang-tidy", *path)
-	}
-
-	env.AssertExpectations(t)
-}
-
-func TestClangTidy_DetectClangTidy_Preferred(t *testing.T) {
-	env := test.NewEnvironment(t)
-	env.OnFindExecutable("clang-tidy-20").
-		Return(env.NewExecutable("/bin/clang-tidy-20"))
-
-	version := 20
-	tool := DetectClangTidy(env, &version)
-	assert.NotNil(t, tool)
-	assert.Equal(t, "clang-tidy", tool.Id())
-	assert.True(t, tool.IsAvailable())
-
-	if path := tool.ExecutablePath(); assert.NotNil(t, path) {
-		assert.Equal(t, "/bin/clang-tidy-20", *path)
 	}
 
 	env.AssertExpectations(t)
@@ -70,11 +33,7 @@ func TestClangTidy_DetectClangTidy_NotFound(t *testing.T) {
 	env.OnFindExecutable("clang-tidy").
 		Return(nil)
 
-	for version := clangTidyMaxVersion; version >= clangTidyMinVersion; version-- {
-		env.OnFindExecutable(fmt.Sprintf("clang-tidy-%v", version)).Return(nil)
-	}
-
-	tool := DetectClangTidy(env, nil)
+	tool := DetectClangTidy(env)
 	assert.NotNil(t, tool)
 	assert.Equal(t, "clang-tidy", tool.Id())
 	assert.False(t, tool.IsAvailable())

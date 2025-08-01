@@ -16,50 +16,13 @@ func TestClangFormat_DetectClangFormat(t *testing.T) {
 	env.OnFindExecutable("clang-format").
 		Return(env.NewExecutable("/bin/clang-format"))
 
-	tool := DetectClangFormat(env, nil)
+	tool := DetectClangFormat(env)
 	assert.NotNil(t, tool)
 	assert.Equal(t, "clang-format", tool.Id())
 	assert.True(t, tool.IsAvailable())
 
 	if path := tool.ExecutablePath(); assert.NotNil(t, path) {
 		assert.Equal(t, "/bin/clang-format", *path)
-	}
-
-	env.AssertExpectations(t)
-}
-
-func TestClangFormat_DetectClangFormat_Version(t *testing.T) {
-	env := test.NewEnvironment(t)
-	env.OnFindExecutable("clang-format").
-		Return(nil)
-	env.OnFindExecutable(fmt.Sprintf("clang-format-%v", clangTidyMaxVersion)).
-		Return(env.NewExecutable("/bin/clang-format"))
-
-	tool := DetectClangFormat(env, nil)
-	assert.NotNil(t, tool)
-	assert.Equal(t, "clang-format", tool.Id())
-	assert.True(t, tool.IsAvailable())
-
-	if path := tool.ExecutablePath(); assert.NotNil(t, path) {
-		assert.Equal(t, "/bin/clang-format", *path)
-	}
-
-	env.AssertExpectations(t)
-}
-
-func TestClangFormat_DetectClangFormat_Preferred(t *testing.T) {
-	env := test.NewEnvironment(t)
-	env.OnFindExecutable("clang-format-20").
-		Return(env.NewExecutable("/bin/clang-format-20"))
-
-	version := 20
-	tool := DetectClangFormat(env, &version)
-	assert.NotNil(t, tool)
-	assert.Equal(t, "clang-format", tool.Id())
-	assert.True(t, tool.IsAvailable())
-
-	if path := tool.ExecutablePath(); assert.NotNil(t, path) {
-		assert.Equal(t, "/bin/clang-format-20", *path)
 	}
 
 	env.AssertExpectations(t)
@@ -70,12 +33,7 @@ func TestClangFormat_DetectClangFormat_NotFound(t *testing.T) {
 	env.OnFindExecutable("clang-format").
 		Return(nil)
 
-	for version := clangTidyMaxVersion; version >= clangTidyMinVersion; version-- {
-		env.OnFindExecutable(fmt.Sprintf("clang-format-%v", version)).
-			Return(nil)
-	}
-
-	tool := DetectClangFormat(env, nil)
+	tool := DetectClangFormat(env)
 	assert.NotNil(t, tool)
 	assert.Equal(t, "clang-format", tool.Id())
 	assert.False(t, tool.IsAvailable())

@@ -151,8 +151,8 @@ func TestBuildProject_CMake(t *testing.T) {
 	project, err := BuildProject(config, internal.Tools{
 		tool.DetectCMake(env),
 		tool.DetectCTest(env),
-		tool.DetectClangFormat(env, nil),
-		tool.DetectClangTidy(env, nil),
+		tool.DetectClangFormat(env),
+		tool.DetectClangTidy(env),
 	})
 
 	assert.NoError(t, err)

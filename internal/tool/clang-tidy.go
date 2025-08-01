@@ -7,38 +7,14 @@ import (
 	"path/filepath"
 )
 
-const clangTidyMinVersion = 1
-const clangTidyMaxVersion = 22
-
 type ClangTidy struct {
 	internal.ExecutableTool
 }
 
-func detectClangTidyVersion(environment internal.Environment, version int) *internal.Executable {
-	return environment.FindExecutable(fmt.Sprintf("clang-tidy-%d", version))
-}
-
 // DetectClangTidy create a tool for clang-tidy
-func DetectClangTidy(environment internal.Environment, preferredVersion *int) *ClangTidy {
+func DetectClangTidy(environment internal.Environment) *ClangTidy {
 	return NewClangTidy(func() *internal.Executable {
-		if preferredVersion != nil {
-			if executable := detectClangTidyVersion(environment, *preferredVersion); executable != nil {
-				return executable
-			}
-		}
-
-		// Detect unversioned (system default)
-		if executable := environment.FindExecutable("clang-tidy"); executable != nil {
-			return executable
-		}
-
-		for version := clangTidyMaxVersion; version >= clangTidyMinVersion; version-- {
-			if executable := detectClangTidyVersion(environment, version); executable != nil {
-				return executable
-			}
-		}
-
-		return nil
+		return environment.FindExecutable("clang-tidy")
 	})
 }
 

@@ -7,8 +7,8 @@ import (
 // InitTools initializes all supported tools for a given environment
 func InitTools(environment internal.Environment) internal.Tools {
 	return internal.Tools{
-		DetectClangFormat(environment, nil),
-		DetectClangTidy(environment, nil),
+		DetectClangFormat(environment),
+		DetectClangTidy(environment),
 		DetectCMake(environment),
 		DetectCTest(environment),
 		DetectGo(environment),
