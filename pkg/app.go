@@ -62,6 +62,7 @@ func NewApp(buildContext func(config internal.Config) (*internal.Context, error)
 			command.NewRunCommand(),
 			command.NewEnvironmentCommand(),
 			command.NewExecCommand(),
+			command.NewDependencyCommand(),
 		},
 		Before: func(ctx context.Context, cmd *cli.Command) (context.Context, error) {
 			if cmd.Bool("debug") {

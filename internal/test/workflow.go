@@ -85,3 +85,31 @@ func (t *StructureProvider) Structure(project internal.Project) (*internal.Proje
 	called := t.Called(project)
 	return called.Get(0).(*internal.ProjectStructure), called.Error(1)
 }
+
+type DependencyManager struct {
+	mock.Mock
+}
+
+func (d *DependencyManager) AddDependencies(project internal.Project, dependency ...string) error {
+	return d.Called(project, dependency).Error(0)
+}
+
+func (d *DependencyManager) RemoveDependencies(project internal.Project, dependencies ...string) error {
+	return d.Called(project, dependencies).Error(0)
+}
+
+func (d *DependencyManager) UpdateDependencies(project internal.Project, dependency ...string) error {
+	return d.Called(project, dependency).Error(0)
+}
+
+func (d *DependencyManager) FetchDependencies(project internal.Project) error {
+	return d.Called(project).Error(0)
+}
+
+func (d *DependencyManager) ListDependencies(project internal.Project) error {
+	return d.Called(project).Error(0)
+}
+
+func (d *DependencyManager) AuditDependencies(project internal.Project) error {
+	return d.Called(project).Error(0)
+}

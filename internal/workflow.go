@@ -54,23 +54,47 @@ type ProjectRunner interface {
 	RunTarget(project Project, target string, args []string) error
 }
 
+// ProjectDependencyManager manages project dependencies (libraries, packaged, etc.)
+type ProjectDependencyManager interface {
+	// AddDependencies adds new dependencies to the project
+	AddDependencies(project Project, dependency ...string) error
+
+	// RemoveDependencies removes the dependencies from the project
+	RemoveDependencies(project Project, dependencies ...string) error
+
+	// UpdateDependencies updates specified dependency in the project (empty dependency list means update all)
+	UpdateDependencies(project Project, dependency ...string) error
+
+	// FetchDependencies fetches all specified dependencies to the project
+	FetchDependencies(project Project) error
+
+	// ListDependencies lists all specified dependencies in the project
+	ListDependencies(project Project) error
+
+	// AuditDependencies audits all specified dependencies in the project for security issues
+	AuditDependencies(project Project) error
+}
+
 // A Workflow describes how to work on a project
 type Workflow struct {
-	// Configurator returns a configurator for the project
+	// Configurator stores a configurator for the project
 	Configurator ProjectConfigurator
 
-	// Builder returns a builder for the project
+	// Builder stores a builder for the project
 	Builder ProjectBuilder
 
-	// Tester returns a tester for the project
+	// Tester stores a tester for the project
 	Tester ProjectTester
 
-	// Formatter returns a formatter for the project
+	// Formatter stores a formatter for the project
 	Formatter ProjectFormatter
 
-	// Linter returns a linter for the project
+	// Linter stores a linter for the project
 	Linter ProjectLinter
 
-	// Runner returns a runner of the project
+	// Runner stores a runner of the project
 	Runner ProjectRunner
+
+	// DependencyManager stores a dependency manager of the project
+	DependencyManager ProjectDependencyManager
 }
