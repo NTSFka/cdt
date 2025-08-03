@@ -37,13 +37,13 @@ func TestDependency_NotSupported(t *testing.T) {
 }
 
 func TestDependency_AddDependencies_Success(t *testing.T) {
-	configurator := test.DependencyManager{}
-	configurator.On("AddDependencies", mock.Anything, []string{"dep1", "dep2"}).Return(nil)
+	manager := test.DependencyManager{}
+	manager.On("AddDependencies", mock.Anything, []string{"dep1", "dep2"}).Return(nil)
 
-	err := runDependency(&configurator, "add", "dep1", "dep2")
+	err := runDependency(&manager, "add", "dep1", "dep2")
 
 	assert.NoError(t, err)
-	configurator.AssertExpectations(t)
+	manager.AssertExpectations(t)
 }
 
 func TestDependency_AddDependencies_Failure(t *testing.T) {

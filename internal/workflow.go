@@ -57,13 +57,13 @@ type ProjectRunner interface {
 // ProjectDependencyManager manages project dependencies (libraries, packaged, etc.)
 type ProjectDependencyManager interface {
 	// AddDependencies adds new dependencies to the project
-	AddDependencies(project Project, dependency ...string) error
+	AddDependencies(project Project, dependencies []string) error
 
 	// RemoveDependencies removes the dependencies from the project
-	RemoveDependencies(project Project, dependencies ...string) error
+	RemoveDependencies(project Project, dependencies []string) error
 
-	// UpdateDependencies updates specified dependency in the project (empty dependency list means update all)
-	UpdateDependencies(project Project, dependency ...string) error
+	// UpdateDependencies updates specified dependencies in the project (empty dependencies mean update all)
+	UpdateDependencies(project Project, dependencies []string) error
 
 	// FetchDependencies fetches all specified dependencies to the project
 	FetchDependencies(project Project) error

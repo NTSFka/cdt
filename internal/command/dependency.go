@@ -10,8 +10,9 @@ import (
 
 func NewDependencyCommand() *cli.Command {
 	return &cli.Command{
-		Name:  "dependency",
-		Usage: "manage project dependencies",
+		Name:    "dependency",
+		Usage:   "manage project dependencies",
+		Aliases: []string{"dep", "d"},
 		Commands: []*cli.Command{
 			{
 				Name:   "add",
@@ -84,7 +85,7 @@ func dependencyAddCommandAction(ctx context.Context, cmd *cli.Command) error {
 
 	dependencies := cmd.StringArgs("dependencies")
 
-	if err := manager.AddDependencies(c.Project, dependencies...); err != nil {
+	if err := manager.AddDependencies(c.Project, dependencies); err != nil {
 		return fmt.Errorf("failed to add dependencies: %w", err)
 	}
 
@@ -101,7 +102,7 @@ func dependencyRemoveCommandAction(ctx context.Context, cmd *cli.Command) error 
 
 	dependencies := cmd.StringArgs("dependencies")
 
-	if err := manager.RemoveDependencies(c.Project, dependencies...); err != nil {
+	if err := manager.RemoveDependencies(c.Project, dependencies); err != nil {
 		return fmt.Errorf("failed to remove dependencies: %w", err)
 	}
 
@@ -118,7 +119,7 @@ func dependencyUpdateCommandAction(ctx context.Context, cmd *cli.Command) error 
 
 	dependencies := cmd.StringArgs("dependencies")
 
-	if err := manager.UpdateDependencies(c.Project, dependencies...); err != nil {
+	if err := manager.UpdateDependencies(c.Project, dependencies); err != nil {
 		return fmt.Errorf("failed to update dependencies: %w", err)
 	}
 

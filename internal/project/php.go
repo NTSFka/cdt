@@ -22,14 +22,16 @@ func (p *PHPType) Create(config Config, tools internal.Tools) internal.Project {
 	phpCsFixer := internal.GetTool[*tool.PHPCSFixer](tools)
 	paratest := internal.GetTool[*tool.ParaTest](tools)
 	phpUnit := internal.GetTool[*tool.PHPUnit](tools)
+	composer := internal.GetTool[*tool.Composer](tools)
 
 	workflow := internal.Workflow{
-		Configurator: nil,
-		Builder:      nil,
-		Runner:       php,
-		Tester:       &phpTester{paratest: paratest, phpunit: phpUnit},
-		Formatter:    phpCsFixer,
-		Linter:       phpStan,
+		Configurator:      nil,
+		Builder:           nil,
+		Runner:            php,
+		Tester:            &phpTester{paratest: paratest, phpunit: phpUnit},
+		Formatter:         phpCsFixer,
+		Linter:            phpStan,
+		DependencyManager: composer,
 	}
 
 	return internal.MakeProject(config.Directory, "", &internal.EmptyProjectStructureProvider{}, workflow)

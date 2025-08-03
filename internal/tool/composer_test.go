@@ -1,0 +1,163 @@
+package tool
+
+import (
+	"cdt/internal"
+	"cdt/internal/test"
+	"github.com/stretchr/testify/assert"
+	"testing"
+)
+
+func TestComposer_DetectComposer_Phar(t *testing.T) {
+	env := test.NewEnvironment(t)
+
+	// Composer installation
+	env.OnFindExecutable("composer.phar").
+		Return(env.NewExecutable("/bin/tool"))
+
+	tool := DetectComposer(env)
+	assert.NotNil(t, tool)
+	assert.Equal(t, "composer", tool.Id())
+	assert.True(t, tool.IsAvailable())
+
+	if path := tool.ExecutablePath(); assert.NotNil(t, path) {
+		assert.Equal(t, "/bin/tool", *path)
+	}
+
+	env.AssertExpectations(t)
+}
+
+func TestComposer_DetectComposer_System(t *testing.T) {
+	env := test.NewEnvironment(t)
+
+	// Composer installation
+	env.OnFindExecutable("composer.phar").
+		Return(nil)
+
+	// System installation
+	env.OnFindExecutable("composer").
+		Return(env.NewExecutable("/bin/tool"))
+
+	tool := DetectComposer(env)
+	assert.NotNil(t, tool)
+	assert.Equal(t, "composer", tool.Id())
+	assert.True(t, tool.IsAvailable())
+
+	if path := tool.ExecutablePath(); assert.NotNil(t, path) {
+		assert.Equal(t, "/bin/tool", *path)
+	}
+
+	env.AssertExpectations(t)
+}
+
+func TestComposer_DetectComposer_NotFound(t *testing.T) {
+	env := test.NewEnvironment(t)
+
+	env.OnFindExecutable("composer.phar").
+		Return(nil)
+	env.OnFindExecutable("composer").
+		Return(nil)
+
+	tool := DetectComposer(env)
+	assert.NotNil(t, tool)
+	assert.Equal(t, "composer", tool.Id())
+	assert.False(t, tool.IsAvailable())
+	assert.Nil(t, tool.ExecutablePath())
+
+	env.AssertExpectations(t)
+}
+
+func TestComposer_Composer_AddDependencies(t *testing.T) {
+	exec := test.NewExecutable(t)
+
+	tool := NewComposer(exec.LazyExecutable("composer"))
+
+	p := internal.MakeProject(".", "", nil, internal.Workflow{DependencyManager: tool})
+
+	exec.OnRun("composer", []string{"require", "dep1"}).
+		Return(nil)
+
+	err := tool.AddDependencies(p, []string{"dep1"})
+	assert.NoError(t, err)
+
+	exec.AssertExpectations(t)
+}
+
+func TestComposer_Composer_RemoveDependencies(t *testing.T) {
+	exec := test.NewExecutable(t)
+
+	tool := NewComposer(exec.LazyExecutable("composer"))
+
+	p := internal.MakeProject(".", "", nil, internal.Workflow{DependencyManager: tool})
+
+	exec.OnRun("composer", []string{"remove", "dep1"}).
+		Return(nil)
+
+	err := tool.RemoveDependencies(p, []string{"dep1"})
+	assert.NoError(t, err)
+
+	exec.AssertExpectations(t)
+}
+
+func TestComposer_Composer_UpdateDependencies(t *testing.T) {
+	exec := test.NewExecutable(t)
+
+	tool := NewComposer(exec.LazyExecutable("composer"))
+
+	p := internal.MakeProject(".", "", nil, internal.Workflow{DependencyManager: tool})
+
+	exec.OnRun("composer", []string{"update", "dep1"}).
+		Return(nil)
+
+	err := tool.UpdateDependencies(p, []string{"dep1"})
+	assert.NoError(t, err)
+
+	exec.AssertExpectations(t)
+}
+
+func TestComposer_Composer_FetchDependencies(t *testing.T) {
+	exec := test.NewExecutable(t)
+
+	tool := NewComposer(exec.LazyExecutable("composer"))
+
+	p := internal.MakeProject(".", "", nil, internal.Workflow{DependencyManager: tool})
+
+	exec.OnRun("composer", []string{"install"}).
+		Return(nil)
+
+	err := tool.FetchDependencies(p)
+	assert.NoError(t, err)
+
+	exec.AssertExpectations(t)
+}
+
+func TestComposer_Composer_ListDependencies(t *testing.T) {
+	exec := test.NewExecutable(t)
+
+	tool := NewComposer(exec.LazyExecutable("composer"))
+
+	p := internal.MakeProject(".", "", nil, internal.Workflow{DependencyManager: tool})
+
+	exec.OnRun("composer", []string{"show"}).
+		Return(nil)
+
+	err := tool.ListDependencies(p)
+	assert.NoError(t, err)
+
+	exec.AssertExpectations(t)
+}
+
+func TestComposer_Composer_AuditDependencies(t *testing.T) {
+	exec := test.NewExecutable(t)
+
+	tool := NewComposer(exec.LazyExecutable("composer"))
+
+	p := internal.MakeProject(".", "", nil, internal.Workflow{DependencyManager: tool})
+
+	exec.OnRun("composer", []string{"audit"}).
+		Return(nil)
+
+	err := tool.AuditDependencies(p)
+	assert.NoError(t, err)
+
+	exec.AssertExpectations(t)
+}

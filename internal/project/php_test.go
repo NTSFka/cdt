@@ -40,6 +40,7 @@ func TestPHPType_Create(t *testing.T) {
 		tool.NewParaTest(func() *internal.Executable { return &internal.Executable{Path: "paratest-test"} }),
 		tool.NewPHPStan(func() *internal.Executable { return &internal.Executable{Path: "phpstan-test"} }),
 		tool.NewPHPCSFixer(func() *internal.Executable { return &internal.Executable{Path: "php-cs-fixer-test"} }),
+		tool.NewComposer(func() *internal.Executable { return &internal.Executable{Path: "composer-test"} }),
 	}
 
 	p := projectType.Create(Config{Directory: "dir1"}, tools)
@@ -65,6 +66,7 @@ func TestPHPType_Project_TestAll_Paratest(t *testing.T) {
 		tool.NewParaTest(paratestMock.LazyExecutable("paratest-test")),
 		tool.NewPHPStan(func() *internal.Executable { return &internal.Executable{Path: "phpstan-test"} }),
 		tool.NewPHPCSFixer(func() *internal.Executable { return &internal.Executable{Path: "php-cs-fixer-test"} }),
+		tool.NewComposer(func() *internal.Executable { return &internal.Executable{Path: "composer-test"} }),
 	}
 
 	dir := t.TempDir()
@@ -93,6 +95,7 @@ func TestPHPType_Project_TestAll_PHPUnit(t *testing.T) {
 		tool.NewParaTest(func() *internal.Executable { return nil }),
 		tool.NewPHPStan(func() *internal.Executable { return &internal.Executable{Path: "phpstan-test"} }),
 		tool.NewPHPCSFixer(func() *internal.Executable { return &internal.Executable{Path: "php-cs-fixer-test"} }),
+		tool.NewComposer(func() *internal.Executable { return &internal.Executable{Path: "composer-test"} }),
 	}
 
 	dir := t.TempDir()
@@ -121,6 +124,7 @@ func TestPHPType_Project_Test_Paratest(t *testing.T) {
 		tool.NewParaTest(paratestMock.LazyExecutable("paratest-test")),
 		tool.NewPHPStan(func() *internal.Executable { return &internal.Executable{Path: "phpstan-test"} }),
 		tool.NewPHPCSFixer(func() *internal.Executable { return &internal.Executable{Path: "php-cs-fixer-test"} }),
+		tool.NewComposer(func() *internal.Executable { return &internal.Executable{Path: "composer-test"} }),
 	}
 
 	dir := t.TempDir()
@@ -149,6 +153,7 @@ func TestPHPType_Project_Test_PHPUnit(t *testing.T) {
 		tool.NewParaTest(func() *internal.Executable { return nil }),
 		tool.NewPHPStan(func() *internal.Executable { return &internal.Executable{Path: "phpstan-test"} }),
 		tool.NewPHPCSFixer(func() *internal.Executable { return &internal.Executable{Path: "php-cs-fixer-test"} }),
+		tool.NewComposer(func() *internal.Executable { return &internal.Executable{Path: "composer-test"} }),
 	}
 
 	dir := t.TempDir()

@@ -20,6 +20,7 @@ func InitTools(environment internal.Environment) internal.Tools {
 		DetectParaTest(environment),
 		DetectPHPStan(environment),
 		DetectPHPCSFixer(environment),
+		DetectComposer(environment),
 	}
 }
 
