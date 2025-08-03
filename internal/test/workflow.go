@@ -90,20 +90,20 @@ type DependencyManager struct {
 	mock.Mock
 }
 
-func (d *DependencyManager) AddDependencies(project internal.Project, dependencies []string) error {
-	return d.Called(project, dependencies).Error(0)
+func (d *DependencyManager) AddDependencies(project internal.Project, dependencies []string, dev bool) error {
+	return d.Called(project, dependencies, dev).Error(0)
 }
 
-func (d *DependencyManager) RemoveDependencies(project internal.Project, dependencies []string) error {
-	return d.Called(project, dependencies).Error(0)
+func (d *DependencyManager) RemoveDependencies(project internal.Project, dependencies []string, dev bool) error {
+	return d.Called(project, dependencies, dev).Error(0)
 }
 
 func (d *DependencyManager) UpdateDependencies(project internal.Project, dependencies []string) error {
 	return d.Called(project, dependencies).Error(0)
 }
 
-func (d *DependencyManager) FetchDependencies(project internal.Project) error {
-	return d.Called(project).Error(0)
+func (d *DependencyManager) FetchDependencies(project internal.Project, noDev bool) error {
+	return d.Called(project, noDev).Error(0)
 }
 
 func (d *DependencyManager) ListDependencies(project internal.Project) error {

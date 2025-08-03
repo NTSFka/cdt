@@ -76,7 +76,23 @@ func TestComposer_Composer_AddDependencies(t *testing.T) {
 	exec.OnRun("composer", []string{"require", "dep1"}).
 		Return(nil)
 
-	err := tool.AddDependencies(p, []string{"dep1"})
+	err := tool.AddDependencies(p, []string{"dep1"}, false)
+	assert.NoError(t, err)
+
+	exec.AssertExpectations(t)
+}
+
+func TestComposer_Composer_AddDependencies_Dev(t *testing.T) {
+	exec := test.NewExecutable(t)
+
+	tool := NewComposer(exec.LazyExecutable("composer"))
+
+	p := internal.MakeProject(".", "", nil, internal.Workflow{DependencyManager: tool})
+
+	exec.OnRun("composer", []string{"require", "--dev", "dep1"}).
+		Return(nil)
+
+	err := tool.AddDependencies(p, []string{"dep1"}, true)
 	assert.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -92,7 +108,23 @@ func TestComposer_Composer_RemoveDependencies(t *testing.T) {
 	exec.OnRun("composer", []string{"remove", "dep1"}).
 		Return(nil)
 
-	err := tool.RemoveDependencies(p, []string{"dep1"})
+	err := tool.RemoveDependencies(p, []string{"dep1"}, false)
+	assert.NoError(t, err)
+
+	exec.AssertExpectations(t)
+}
+
+func TestComposer_Composer_RemoveDependencies_Dev(t *testing.T) {
+	exec := test.NewExecutable(t)
+
+	tool := NewComposer(exec.LazyExecutable("composer"))
+
+	p := internal.MakeProject(".", "", nil, internal.Workflow{DependencyManager: tool})
+
+	exec.OnRun("composer", []string{"remove", "--dev", "dep1"}).
+		Return(nil)
+
+	err := tool.RemoveDependencies(p, []string{"dep1"}, true)
 	assert.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -124,7 +156,23 @@ func TestComposer_Composer_FetchDependencies(t *testing.T) {
 	exec.OnRun("composer", []string{"install"}).
 		Return(nil)
 
-	err := tool.FetchDependencies(p)
+	err := tool.FetchDependencies(p, false)
+	assert.NoError(t, err)
+
+	exec.AssertExpectations(t)
+}
+
+func TestComposer_Composer_FetchDependencies_NoDev(t *testing.T) {
+	exec := test.NewExecutable(t)
+
+	tool := NewComposer(exec.LazyExecutable("composer"))
+
+	p := internal.MakeProject(".", "", nil, internal.Workflow{DependencyManager: tool})
+
+	exec.OnRun("composer", []string{"install", "--no-dev"}).
+		Return(nil)
+
+	err := tool.FetchDependencies(p, true)
 	assert.NoError(t, err)
 
 	exec.AssertExpectations(t)

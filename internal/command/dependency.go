@@ -18,6 +18,13 @@ func NewDependencyCommand() *cli.Command {
 				Name:   "add",
 				Usage:  "add dependencies to the project",
 				Action: dependencyAddCommandAction,
+				Flags: []cli.Flag{
+					&cli.BoolFlag{
+						Name:  "dev",
+						Usage: "add dependencies to the project development dependencies",
+						Value: false,
+					},
+				},
 				Arguments: []cli.Argument{
 					&cli.StringArgs{
 						Name: "dependencies",
@@ -30,6 +37,13 @@ func NewDependencyCommand() *cli.Command {
 				Name:   "remove",
 				Usage:  "remove dependencies from the project",
 				Action: dependencyRemoveCommandAction,
+				Flags: []cli.Flag{
+					&cli.BoolFlag{
+						Name:  "dev",
+						Usage: "remove dependencies from the project development dependencies",
+						Value: false,
+					},
+				},
 				Arguments: []cli.Argument{
 					&cli.StringArgs{
 						Name: "dependencies",
@@ -51,8 +65,15 @@ func NewDependencyCommand() *cli.Command {
 				},
 			},
 			{
-				Name:   "fetch",
-				Usage:  "fetch the project dependencies",
+				Name:  "fetch",
+				Usage: "fetch the project dependencies",
+				Flags: []cli.Flag{
+					&cli.BoolFlag{
+						Name:  "no-dev",
+						Usage: "fetch the project dependencies without development dependencies",
+						Value: false,
+					},
+				},
 				Action: dependencyFetchCommandAction,
 			},
 			{
@@ -84,8 +105,9 @@ func dependencyAddCommandAction(ctx context.Context, cmd *cli.Command) error {
 	}
 
 	dependencies := cmd.StringArgs("dependencies")
+	dev := cmd.Bool("dev")
 
-	if err := manager.AddDependencies(c.Project, dependencies); err != nil {
+	if err := manager.AddDependencies(c.Project, dependencies, dev); err != nil {
 		return fmt.Errorf("failed to add dependencies: %w", err)
 	}
 
@@ -101,8 +123,9 @@ func dependencyRemoveCommandAction(ctx context.Context, cmd *cli.Command) error 
 	}
 
 	dependencies := cmd.StringArgs("dependencies")
+	dev := cmd.Bool("dev")
 
-	if err := manager.RemoveDependencies(c.Project, dependencies); err != nil {
+	if err := manager.RemoveDependencies(c.Project, dependencies, dev); err != nil {
 		return fmt.Errorf("failed to remove dependencies: %w", err)
 	}
 
@@ -134,7 +157,9 @@ func dependencyFetchCommandAction(ctx context.Context, cmd *cli.Command) error {
 		return err
 	}
 
-	if err := manager.FetchDependencies(c.Project); err != nil {
+	noDev := cmd.Bool("no-dev")
+
+	if err := manager.FetchDependencies(c.Project, noDev); err != nil {
 		return fmt.Errorf("failed to fetch dependencies: %w", err)
 	}
 

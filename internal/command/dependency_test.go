@@ -38,7 +38,7 @@ func TestDependency_NotSupported(t *testing.T) {
 
 func TestDependency_AddDependencies_Success(t *testing.T) {
 	manager := test.DependencyManager{}
-	manager.On("AddDependencies", mock.Anything, []string{"dep1", "dep2"}).Return(nil)
+	manager.On("AddDependencies", mock.Anything, []string{"dep1", "dep2"}, false).Return(nil)
 
 	err := runDependency(&manager, "add", "dep1", "dep2")
 
@@ -46,9 +46,21 @@ func TestDependency_AddDependencies_Success(t *testing.T) {
 	manager.AssertExpectations(t)
 }
 
+func TestDependency_AddDependencies_Success_Dev(t *testing.T) {
+	manager := test.DependencyManager{}
+	manager.On("AddDependencies", mock.Anything, []string{"dep1", "dep2"}, true).
+		Return(nil)
+
+	err := runDependency(&manager, "add", "--dev", "dep1", "dep2")
+
+	assert.NoError(t, err)
+	manager.AssertExpectations(t)
+}
+
 func TestDependency_AddDependencies_Failure(t *testing.T) {
 	configurator := test.DependencyManager{}
-	configurator.On("AddDependencies", mock.Anything, []string{"dep1"}).Return(errors.New("failed"))
+	configurator.On("AddDependencies", mock.Anything, []string{"dep1"}, false).
+		Return(errors.New("failed"))
 
 	err := runDependency(&configurator, "add", "dep1")
 
@@ -60,7 +72,8 @@ func TestDependency_AddDependencies_Failure(t *testing.T) {
 
 func TestDependency_RemoveDependencies_Success(t *testing.T) {
 	configurator := test.DependencyManager{}
-	configurator.On("RemoveDependencies", mock.Anything, []string{"dep1", "dep2"}).Return(nil)
+	configurator.On("RemoveDependencies", mock.Anything, []string{"dep1", "dep2"}, false).
+		Return(nil)
 
 	err := runDependency(&configurator, "remove", "dep1", "dep2")
 
@@ -68,9 +81,21 @@ func TestDependency_RemoveDependencies_Success(t *testing.T) {
 	configurator.AssertExpectations(t)
 }
 
+func TestDependency_RemoveDependencies_Success_Dev(t *testing.T) {
+	configurator := test.DependencyManager{}
+	configurator.On("RemoveDependencies", mock.Anything, []string{"dep1", "dep2"}, true).
+		Return(nil)
+
+	err := runDependency(&configurator, "remove", "--dev", "dep1", "dep2")
+
+	assert.NoError(t, err)
+	configurator.AssertExpectations(t)
+}
+
 func TestDependency_UpdateDependencies_Success(t *testing.T) {
 	configurator := test.DependencyManager{}
-	configurator.On("UpdateDependencies", mock.Anything, []string{"dep1", "dep2"}).Return(nil)
+	configurator.On("UpdateDependencies", mock.Anything, []string{"dep1", "dep2"}).
+		Return(nil)
 
 	err := runDependency(&configurator, "update", "dep1", "dep2")
 
@@ -80,7 +105,8 @@ func TestDependency_UpdateDependencies_Success(t *testing.T) {
 
 func TestDependency_UpdateDependencies_Failure(t *testing.T) {
 	configurator := test.DependencyManager{}
-	configurator.On("UpdateDependencies", mock.Anything, []string{"dep1"}).Return(errors.New("failed"))
+	configurator.On("UpdateDependencies", mock.Anything, []string{"dep1"}).
+		Return(errors.New("failed"))
 
 	err := runDependency(&configurator, "update", "dep1")
 
@@ -92,7 +118,8 @@ func TestDependency_UpdateDependencies_Failure(t *testing.T) {
 
 func TestDependency_FetchDependencies_Success(t *testing.T) {
 	configurator := test.DependencyManager{}
-	configurator.On("FetchDependencies", mock.Anything).Return(nil)
+	configurator.On("FetchDependencies", mock.Anything, false).
+		Return(nil)
 
 	err := runDependency(&configurator, "fetch")
 
@@ -100,9 +127,21 @@ func TestDependency_FetchDependencies_Success(t *testing.T) {
 	configurator.AssertExpectations(t)
 }
 
+func TestDependency_FetchDependencies_Success_NoDev(t *testing.T) {
+	configurator := test.DependencyManager{}
+	configurator.On("FetchDependencies", mock.Anything, true).
+		Return(nil)
+
+	err := runDependency(&configurator, "fetch", "--no-dev")
+
+	assert.NoError(t, err)
+	configurator.AssertExpectations(t)
+}
+
 func TestDependency_FetchDependencies_Failure(t *testing.T) {
 	configurator := test.DependencyManager{}
-	configurator.On("FetchDependencies", mock.Anything).Return(errors.New("failed"))
+	configurator.On("FetchDependencies", mock.Anything, false).
+		Return(errors.New("failed"))
 
 	err := runDependency(&configurator, "fetch")
 
@@ -114,7 +153,8 @@ func TestDependency_FetchDependencies_Failure(t *testing.T) {
 
 func TestDependency_ListDependencies_Success(t *testing.T) {
 	configurator := test.DependencyManager{}
-	configurator.On("ListDependencies", mock.Anything).Return(nil)
+	configurator.On("ListDependencies", mock.Anything).
+		Return(nil)
 
 	err := runDependency(&configurator, "list")
 
@@ -124,7 +164,8 @@ func TestDependency_ListDependencies_Success(t *testing.T) {
 
 func TestDependency_ListDependencies_Failure(t *testing.T) {
 	configurator := test.DependencyManager{}
-	configurator.On("ListDependencies", mock.Anything).Return(errors.New("failed"))
+	configurator.On("ListDependencies", mock.Anything).
+		Return(errors.New("failed"))
 
 	err := runDependency(&configurator, "list")
 
@@ -136,7 +177,8 @@ func TestDependency_ListDependencies_Failure(t *testing.T) {
 
 func TestDependency_AuditDependencies_Success(t *testing.T) {
 	configurator := test.DependencyManager{}
-	configurator.On("AuditDependencies", mock.Anything).Return(nil)
+	configurator.On("AuditDependencies", mock.Anything).
+		Return(nil)
 
 	err := runDependency(&configurator, "audit")
 
@@ -146,7 +188,8 @@ func TestDependency_AuditDependencies_Success(t *testing.T) {
 
 func TestDependency_AuditDependencies_Failure(t *testing.T) {
 	configurator := test.DependencyManager{}
-	configurator.On("AuditDependencies", mock.Anything).Return(errors.New("failed"))
+	configurator.On("AuditDependencies", mock.Anything).
+		Return(errors.New("failed"))
 
 	err := runDependency(&configurator, "audit")
 
@@ -158,7 +201,8 @@ func TestDependency_AuditDependencies_Failure(t *testing.T) {
 
 func TestDependency_RemoveDependencies_Failure(t *testing.T) {
 	configurator := test.DependencyManager{}
-	configurator.On("RemoveDependencies", mock.Anything, []string{"dep1"}).Return(errors.New("failed"))
+	configurator.On("RemoveDependencies", mock.Anything, []string{"dep1"}, false).
+		Return(errors.New("failed"))
 
 	err := runDependency(&configurator, "remove", "dep1")
 
@@ -176,7 +220,8 @@ func TestDependency_Tool_Success(t *testing.T) {
 		internal.MakeExecutableTool("tool1", "", "", nil),
 		test.DependencyManager{},
 	}
-	linter.On("ListDependencies", mock.Anything).Return(nil)
+	linter.On("ListDependencies", mock.Anything).
+		Return(nil)
 
 	err := runDependencyTool(&linter, "--tool", "tool1", "list")
 
@@ -192,7 +237,8 @@ func TestDependency_Tool_Failed(t *testing.T) {
 		internal.MakeExecutableTool("tool1", "", "", nil),
 		test.DependencyManager{},
 	}
-	linter.On("ListDependencies", mock.Anything).Return(errors.New("failed"))
+	linter.On("ListDependencies", mock.Anything).
+		Return(errors.New("failed"))
 
 	err := runDependencyTool(&linter, "--tool", "tool1", "list")
 

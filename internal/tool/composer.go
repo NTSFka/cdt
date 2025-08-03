@@ -35,20 +35,38 @@ func NewComposer(detect func() *internal.Executable) *Composer {
 	}
 }
 
-func (c *Composer) AddDependencies(project internal.Project, dependencies []string) error {
-	return c.RunForProject(project, append([]string{"require"}, dependencies...))
+func (c *Composer) AddDependencies(project internal.Project, dependencies []string, dev bool) error {
+	args := []string{"require"}
+
+	if dev {
+		args = append(args, "--dev")
+	}
+
+	return c.RunForProject(project, append(args, dependencies...))
 }
 
-func (c *Composer) RemoveDependencies(project internal.Project, dependencies []string) error {
-	return c.RunForProject(project, append([]string{"remove"}, dependencies...))
+func (c *Composer) RemoveDependencies(project internal.Project, dependencies []string, dev bool) error {
+	args := []string{"remove"}
+
+	if dev {
+		args = append(args, "--dev")
+	}
+
+	return c.RunForProject(project, append(args, dependencies...))
 }
 
 func (c *Composer) UpdateDependencies(project internal.Project, dependencies []string) error {
 	return c.RunForProject(project, append([]string{"update"}, dependencies...))
 }
 
-func (c *Composer) FetchDependencies(project internal.Project) error {
-	return c.RunForProject(project, []string{"install"})
+func (c *Composer) FetchDependencies(project internal.Project, noDev bool) error {
+	args := []string{"install"}
+
+	if noDev {
+		args = append(args, "--no-dev")
+	}
+
+	return c.RunForProject(project, args)
 }
 
 func (c *Composer) ListDependencies(project internal.Project) error {
