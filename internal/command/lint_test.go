@@ -37,20 +37,22 @@ func TestLint_Lint_CannotBeLinted(t *testing.T) {
 }
 
 func TestLint_LintAll_Success(t *testing.T) {
-	linter := test.ProjectLinter{}
-	linter.On("LintAll", mock.Anything, []string{}).Return(nil)
+	linter := test.NewProjectLinter(t)
+	linter.On("LintAll", mock.Anything, []string{}).
+		Return(nil)
 
-	err := runLint(&linter)
+	err := runLint(linter)
 
 	assert.NoError(t, err)
 	linter.AssertExpectations(t)
 }
 
 func TestLint_LintAll_Failure(t *testing.T) {
-	linter := test.ProjectLinter{}
-	linter.On("LintAll", mock.Anything, []string{}).Return(errors.New("failed"))
+	linter := test.NewProjectLinter(t)
+	linter.On("LintAll", mock.Anything, []string{}).
+		Return(errors.New("failed"))
 
-	err := runLint(&linter)
+	err := runLint(linter)
 
 	if assert.Error(t, err) {
 		assert.Equal(t, "failed", err.Error())
@@ -58,33 +60,37 @@ func TestLint_LintAll_Failure(t *testing.T) {
 	linter.AssertExpectations(t)
 }
 
-func TestLint_Tool_Success(t *testing.T) {
-	linter := struct {
-		internal.ExecutableTool
-		test.ProjectLinter
-	}{
+type testLinterTool struct {
+	internal.ExecutableTool
+	test.ProjectLinter
+}
+
+func newTestLinterTool(t *testing.T) *testLinterTool {
+	linter := &testLinterTool{
 		internal.MakeExecutableTool("tool1", "", "", nil),
 		test.ProjectLinter{},
 	}
-	linter.On("LintAll", mock.Anything, []string{}).Return(nil)
+	linter.Test(t)
+	return linter
+}
 
-	err := runLintTool(&linter, "--tool", "tool1")
+func TestLint_Tool_Success(t *testing.T) {
+	linter := newTestLinterTool(t)
+	linter.On("LintAll", mock.Anything, []string{}).
+		Return(nil)
+
+	err := runLintTool(linter, "--tool", "tool1")
 
 	assert.NoError(t, err)
 	linter.AssertExpectations(t)
 }
 
 func TestLint_Tool_Failed(t *testing.T) {
-	linter := struct {
-		internal.ExecutableTool
-		test.ProjectLinter
-	}{
-		internal.MakeExecutableTool("tool1", "", "", nil),
-		test.ProjectLinter{},
-	}
-	linter.On("LintAll", mock.Anything, []string{}).Return(errors.New("failed"))
+	linter := newTestLinterTool(t)
+	linter.On("LintAll", mock.Anything, []string{}).
+		Return(errors.New("failed"))
 
-	err := runLintTool(&linter, "--tool", "tool1")
+	err := runLintTool(linter, "--tool", "tool1")
 
 	if assert.Error(t, err) {
 		assert.Equal(t, "failed", err.Error())
@@ -93,15 +99,9 @@ func TestLint_Tool_Failed(t *testing.T) {
 }
 
 func TestLint_Tool_NotFound(t *testing.T) {
-	linter := struct {
-		internal.ExecutableTool
-		test.ProjectLinter
-	}{
-		internal.MakeExecutableTool("tool1", "", "", nil),
-		test.ProjectLinter{},
-	}
+	linter := newTestLinterTool(t)
 
-	err := runLintTool(&linter, "--tool", "tool2")
+	err := runLintTool(linter, "--tool", "tool2")
 
 	if assert.Error(t, err) {
 		assert.Equal(t, "tool 'tool2' not found", err.Error())
@@ -124,20 +124,22 @@ func TestLint_Tool_NotSupported(t *testing.T) {
 }
 
 func TestLint_LintFiles_Success(t *testing.T) {
-	linter := test.ProjectLinter{}
-	linter.On("LintFiles", mock.Anything, []string{"file1", "file2"}, []string{}).Return(nil)
+	linter := test.NewProjectLinter(t)
+	linter.On("LintFiles", mock.Anything, []string{"file1", "file2"}, []string{}).
+		Return(nil)
 
-	err := runLint(&linter, "file1", "file2")
+	err := runLint(linter, "file1", "file2")
 
 	assert.NoError(t, err)
 	linter.AssertExpectations(t)
 }
 
 func TestLint_LintFiles_Failure(t *testing.T) {
-	linter := test.ProjectLinter{}
-	linter.On("LintFiles", mock.Anything, []string{"file1", "file2"}, []string{}).Return(errors.New("failed"))
+	linter := test.NewProjectLinter(t)
+	linter.On("LintFiles", mock.Anything, []string{"file1", "file2"}, []string{}).
+		Return(errors.New("failed"))
 
-	err := runLint(&linter, "file1", "file2")
+	err := runLint(linter, "file1", "file2")
 
 	if assert.Error(t, err) {
 		assert.Equal(t, "failed", err.Error())

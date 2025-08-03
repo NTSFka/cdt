@@ -37,29 +37,31 @@ func TestRun_NotSupported(t *testing.T) {
 }
 
 func TestRun_Target_NoTarget(t *testing.T) {
-	runner := test.ProjectRunner{}
+	runner := test.NewProjectRunner(t)
 
-	err := runRun(&runner)
+	err := runRun(runner)
 
 	assert.EqualError(t, err, "target is required")
 	runner.AssertExpectations(t)
 }
 
 func TestRun_Target_Success(t *testing.T) {
-	runner := test.ProjectRunner{}
-	runner.On("RunTarget", mock.Anything, "target1", []string{}).Return(nil)
+	runner := test.NewProjectRunner(t)
+	runner.On("RunTarget", mock.Anything, "target1", []string{}).
+		Return(nil)
 
-	err := runRun(&runner, "target1")
+	err := runRun(runner, "target1")
 
 	assert.NoError(t, err)
 	runner.AssertExpectations(t)
 }
 
 func TestRun_Target_Failure(t *testing.T) {
-	runner := test.ProjectRunner{}
-	runner.On("RunTarget", mock.Anything, "target1", []string{}).Return(errors.New("failed"))
+	runner := test.NewProjectRunner(t)
+	runner.On("RunTarget", mock.Anything, "target1", []string{}).
+		Return(errors.New("failed"))
 
-	err := runRun(&runner, "target1")
+	err := runRun(runner, "target1")
 
 	if assert.Error(t, err) {
 		assert.Equal(t, "failed", err.Error())
@@ -67,55 +69,53 @@ func TestRun_Target_Failure(t *testing.T) {
 	runner.AssertExpectations(t)
 }
 
-func TestRun_Tool_Success(t *testing.T) {
-	linter := struct {
-		internal.ExecutableTool
-		test.ProjectRunner
-	}{
+type testRunnerTool struct {
+	internal.ExecutableTool
+	test.ProjectRunner
+}
+
+func newTestRunnerTool(t *testing.T) *testRunnerTool {
+	runner := &testRunnerTool{
 		internal.MakeExecutableTool("tool1", "", "", nil),
 		test.ProjectRunner{},
 	}
-	linter.On("RunTarget", mock.Anything, "target1", []string{}).Return(nil)
+	runner.Test(t)
+	return runner
+}
 
-	err := runRunTool(&linter, "--tool", "tool1", "target1")
+func TestRun_Tool_Success(t *testing.T) {
+	runner := newTestRunnerTool(t)
+	runner.On("RunTarget", mock.Anything, "target1", []string{}).
+		Return(nil)
+
+	err := runRunTool(runner, "--tool", "tool1", "target1")
 
 	assert.NoError(t, err)
-	linter.AssertExpectations(t)
+	runner.AssertExpectations(t)
 }
 
 func TestRun_Tool_Failed(t *testing.T) {
-	linter := struct {
-		internal.ExecutableTool
-		test.ProjectRunner
-	}{
-		internal.MakeExecutableTool("tool1", "", "", nil),
-		test.ProjectRunner{},
-	}
-	linter.On("RunTarget", mock.Anything, "target1", []string{}).Return(errors.New("failed"))
+	runner := newTestRunnerTool(t)
+	runner.On("RunTarget", mock.Anything, "target1", []string{}).
+		Return(errors.New("failed"))
 
-	err := runRunTool(&linter, "--tool", "tool1", "target1")
+	err := runRunTool(runner, "--tool", "tool1", "target1")
 
 	if assert.Error(t, err) {
 		assert.Equal(t, "failed", err.Error())
 	}
-	linter.AssertExpectations(t)
+	runner.AssertExpectations(t)
 }
 
 func TestRun_Tool_NotFound(t *testing.T) {
-	linter := struct {
-		internal.ExecutableTool
-		test.ProjectRunner
-	}{
-		internal.MakeExecutableTool("tool1", "", "", nil),
-		test.ProjectRunner{},
-	}
+	runner := newTestRunnerTool(t)
 
-	err := runRunTool(&linter, "--tool", "tool2")
+	err := runRunTool(runner, "--tool", "tool2")
 
 	if assert.Error(t, err) {
 		assert.Equal(t, "tool 'tool2' not found", err.Error())
 	}
-	linter.AssertExpectations(t)
+	runner.AssertExpectations(t)
 }
 
 func TestRun_Tool_NotSupported(t *testing.T) {

@@ -15,20 +15,20 @@ func runProject(structureProvider internal.ProjectStructureProvider, args ...str
 }
 
 func TestProjectTargets(t *testing.T) {
-	structure := test.StructureProvider{}
+	structure := test.NewStructureProvider(t)
 	structure.On("Structure", mock.Anything).Return(&internal.ProjectStructure{}, nil)
 
-	err := runProject(&structure, "targets")
+	err := runProject(structure, "targets")
 
 	assert.NoError(t, err)
 	structure.AssertExpectations(t)
 }
 
 func TestProjectFiles(t *testing.T) {
-	structure := test.StructureProvider{}
+	structure := test.NewStructureProvider(t)
 	structure.On("Structure", mock.Anything).Return(&internal.ProjectStructure{}, nil)
 
-	err := runProject(&structure, "files")
+	err := runProject(structure, "files")
 
 	assert.NoError(t, err)
 	structure.AssertExpectations(t)

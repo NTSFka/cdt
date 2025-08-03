@@ -37,20 +37,22 @@ func TestBuild_NotSupported(t *testing.T) {
 }
 
 func TestBuild_BuildAll_Success(t *testing.T) {
-	builder := test.ProjectBuilder{}
-	builder.On("BuildAll", mock.Anything, []string{}).Return(nil)
+	builder := test.NewProjectBuilder(t)
+	builder.On("BuildAll", mock.Anything, []string{}).
+		Return(nil)
 
-	err := runBuild(&builder)
+	err := runBuild(builder)
 
 	assert.NoError(t, err)
 	builder.AssertExpectations(t)
 }
 
 func TestBuild_BuildAll_Failure(t *testing.T) {
-	builder := test.ProjectBuilder{}
-	builder.On("BuildAll", mock.Anything, []string{}).Return(errors.New("failed"))
+	builder := test.NewProjectBuilder(t)
+	builder.On("BuildAll", mock.Anything, []string{}).
+		Return(errors.New("failed"))
 
-	err := runBuild(&builder)
+	err := runBuild(builder)
 
 	if assert.Error(t, err) {
 		assert.Equal(t, "failed", err.Error())
@@ -58,55 +60,53 @@ func TestBuild_BuildAll_Failure(t *testing.T) {
 	builder.AssertExpectations(t)
 }
 
-func TestBuild_Tool_Success(t *testing.T) {
-	linter := struct {
-		internal.ExecutableTool
-		test.ProjectBuilder
-	}{
+type testBuilderTool struct {
+	internal.ExecutableTool
+	test.ProjectBuilder
+}
+
+func newTestBuilderTool(t *testing.T) *testBuilderTool {
+	builder := testBuilderTool{
 		internal.MakeExecutableTool("tool1", "", "", nil),
 		test.ProjectBuilder{},
 	}
-	linter.On("BuildAll", mock.Anything, []string{}).Return(nil)
+	builder.Test(t)
+	return &builder
+}
 
-	err := runBuildTool(&linter, "--tool", "tool1")
+func TestBuild_Tool_Success(t *testing.T) {
+	builder := newTestBuilderTool(t)
+	builder.On("BuildAll", mock.Anything, []string{}).
+		Return(nil)
+
+	err := runBuildTool(builder, "--tool", "tool1")
 
 	assert.NoError(t, err)
-	linter.AssertExpectations(t)
+	builder.AssertExpectations(t)
 }
 
 func TestBuild_Tool_Failed(t *testing.T) {
-	linter := struct {
-		internal.ExecutableTool
-		test.ProjectBuilder
-	}{
-		internal.MakeExecutableTool("tool1", "", "", nil),
-		test.ProjectBuilder{},
-	}
-	linter.On("BuildAll", mock.Anything, []string{}).Return(errors.New("failed"))
+	builder := newTestBuilderTool(t)
+	builder.On("BuildAll", mock.Anything, []string{}).
+		Return(errors.New("failed"))
 
-	err := runBuildTool(&linter, "--tool", "tool1")
+	err := runBuildTool(builder, "--tool", "tool1")
 
 	if assert.Error(t, err) {
 		assert.Equal(t, "failed", err.Error())
 	}
-	linter.AssertExpectations(t)
+	builder.AssertExpectations(t)
 }
 
 func TestBuild_Tool_NotFound(t *testing.T) {
-	linter := struct {
-		internal.ExecutableTool
-		test.ProjectBuilder
-	}{
-		internal.MakeExecutableTool("tool1", "", "", nil),
-		test.ProjectBuilder{},
-	}
+	builder := newTestBuilderTool(t)
 
-	err := runBuildTool(&linter, "--tool", "tool2")
+	err := runBuildTool(builder, "--tool", "tool2")
 
 	if assert.Error(t, err) {
 		assert.Equal(t, "tool 'tool2' not found", err.Error())
 	}
-	linter.AssertExpectations(t)
+	builder.AssertExpectations(t)
 }
 
 func TestBuild_Tool_NotSupported(t *testing.T) {
@@ -124,20 +124,24 @@ func TestBuild_Tool_NotSupported(t *testing.T) {
 }
 
 func TestBuild_BuildTargets_Success(t *testing.T) {
-	builder := test.ProjectBuilder{}
-	builder.On("BuildTargets", mock.Anything, []string{"target1", "target2"}, []string{}).Return(nil)
+	builder := test.NewProjectBuilder(t)
 
-	err := runBuild(&builder, "target1", "target2")
+	builder.On("BuildTargets", mock.Anything, []string{"target1", "target2"}, []string{}).
+		Return(nil)
+
+	err := runBuild(builder, "target1", "target2")
 
 	assert.NoError(t, err)
 	builder.AssertExpectations(t)
 }
 
 func TestBuild_BuildTargets_Failure(t *testing.T) {
-	builder := test.ProjectBuilder{}
-	builder.On("BuildTargets", mock.Anything, []string{"target1", "target2"}, []string{}).Return(errors.New("failed"))
+	builder := test.NewProjectBuilder(t)
 
-	err := runBuild(&builder, "target1", "target2")
+	builder.On("BuildTargets", mock.Anything, []string{"target1", "target2"}, []string{}).
+		Return(errors.New("failed"))
+
+	err := runBuild(builder, "target1", "target2")
 
 	if assert.Error(t, err) {
 		assert.Equal(t, "failed", err.Error())

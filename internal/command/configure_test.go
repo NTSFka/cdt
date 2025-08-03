@@ -37,20 +37,22 @@ func TestConfigure_NotSupported(t *testing.T) {
 }
 
 func TestConfigure_Configure_Success(t *testing.T) {
-	configurator := test.ProjectConfigurator{}
-	configurator.On("Configure", mock.Anything, []string{}).Return(nil)
+	configurator := test.NewProjectConfigurator(t)
+	configurator.On("Configure", mock.Anything, []string{}).
+		Return(nil)
 
-	err := runConfigure(&configurator)
+	err := runConfigure(configurator)
 
 	assert.NoError(t, err)
 	configurator.AssertExpectations(t)
 }
 
 func TestConfigure_Configure_Failure(t *testing.T) {
-	configurator := test.ProjectConfigurator{}
-	configurator.On("Configure", mock.Anything, []string{}).Return(errors.New("failed"))
+	configurator := test.NewProjectConfigurator(t)
+	configurator.On("Configure", mock.Anything, []string{}).
+		Return(errors.New("failed"))
 
-	err := runConfigure(&configurator)
+	err := runConfigure(configurator)
 
 	if assert.Error(t, err) {
 		assert.Equal(t, "failed", err.Error())
@@ -58,65 +60,64 @@ func TestConfigure_Configure_Failure(t *testing.T) {
 	configurator.AssertExpectations(t)
 }
 
-func TestConfigure_Tool_Success(t *testing.T) {
-	linter := struct {
-		internal.ExecutableTool
-		test.ProjectConfigurator
-	}{
+type newConfiguratorTool struct {
+	internal.ExecutableTool
+	test.ProjectConfigurator
+}
+
+func newTestConfiguratorTool(t *testing.T) *newConfiguratorTool {
+	tool := newConfiguratorTool{
 		internal.MakeExecutableTool("tool1", "", "", nil),
 		test.ProjectConfigurator{},
 	}
-	linter.On("Configure", mock.Anything, []string{}).Return(nil)
+	tool.Test(t)
 
-	err := runConfigureTool(&linter, "--tool", "tool1")
+	return &tool
+}
+
+func TestConfigure_Tool_Success(t *testing.T) {
+	configurator := newTestConfiguratorTool(t)
+	configurator.On("Configure", mock.Anything, []string{}).
+		Return(nil)
+
+	err := runConfigureTool(configurator, "--tool", "tool1")
 
 	assert.NoError(t, err)
-	linter.AssertExpectations(t)
+	configurator.AssertExpectations(t)
 }
 
 func TestConfigure_Tool_Failed(t *testing.T) {
-	linter := struct {
-		internal.ExecutableTool
-		test.ProjectConfigurator
-	}{
-		internal.MakeExecutableTool("tool1", "", "", nil),
-		test.ProjectConfigurator{},
-	}
-	linter.On("Configure", mock.Anything, []string{}).Return(errors.New("failed"))
+	configurator := newTestConfiguratorTool(t)
+	configurator.On("Configure", mock.Anything, []string{}).
+		Return(errors.New("failed"))
 
-	err := runConfigureTool(&linter, "--tool", "tool1")
+	err := runConfigureTool(configurator, "--tool", "tool1")
 
 	if assert.Error(t, err) {
 		assert.Equal(t, "failed", err.Error())
 	}
-	linter.AssertExpectations(t)
+	configurator.AssertExpectations(t)
 }
 
 func TestConfigure_Tool_NotFound(t *testing.T) {
-	linter := struct {
-		internal.ExecutableTool
-		test.ProjectConfigurator
-	}{
-		internal.MakeExecutableTool("tool1", "", "", nil),
-		test.ProjectConfigurator{},
-	}
+	configurator := newTestConfiguratorTool(t)
 
-	err := runConfigureTool(&linter, "--tool", "tool2")
+	err := runConfigureTool(configurator, "--tool", "tool2")
 
 	if assert.Error(t, err) {
 		assert.Equal(t, "tool 'tool2' not found", err.Error())
 	}
-	linter.AssertExpectations(t)
+	configurator.AssertExpectations(t)
 }
 
 func TestConfigure_Tool_NotSupported(t *testing.T) {
-	linter := struct {
+	configurator := &struct {
 		internal.ExecutableTool
 	}{
 		internal.MakeExecutableTool("tool1", "", "", nil),
 	}
 
-	err := runConfigureTool(&linter, "--tool", "tool1")
+	err := runConfigureTool(configurator, "--tool", "tool1")
 
 	if assert.Error(t, err) {
 		assert.Equal(t, "tool 'tool1' doesn't support configuration", err.Error())
