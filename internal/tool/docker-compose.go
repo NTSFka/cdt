@@ -158,7 +158,7 @@ func (d *dockerComposeEnvironment) FindExecutable(name string) *internal.Executa
 
 		return &internal.Executable{
 			Path:    output,
-			RunFunc: d.RunExecutable,
+			Runtime: d,
 		}
 	}, "service", d.service, "name", name)
 }

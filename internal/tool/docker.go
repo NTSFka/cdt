@@ -185,7 +185,7 @@ func (d *dockerEnvironment) FindExecutable(name string) *internal.Executable {
 
 		return &internal.Executable{
 			Path:    output,
-			RunFunc: d.RunExecutable,
+			Runtime: d,
 		}
 	}, "container", d.containerId, "name", name)
 }

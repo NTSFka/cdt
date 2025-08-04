@@ -19,7 +19,7 @@ func NewEnvironment(t *testing.T) *Environment {
 }
 
 func (e *Environment) NewExecutable(path string) *internal.Executable {
-	return &internal.Executable{Path: path, RunFunc: e.RunExecutable}
+	return &internal.Executable{Path: path, Runtime: e}
 }
 
 func (e *Environment) Id() string {

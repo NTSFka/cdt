@@ -110,7 +110,7 @@ func (c *CMake) RunTarget(project internal.Project, target string, args []string
 			// TODO: run environment?
 			executable := internal.Executable{
 				Path:    filepath.Join(project.BuildDirectory(), t.Name),
-				RunFunc: internal.SystemEnvironment.RunExecutable,
+				Runtime: internal.SystemEnvironment,
 			}
 
 			return executable.Run(context.Background(), internal.RunOptions{Directory: project.RootDirectory()}, args)

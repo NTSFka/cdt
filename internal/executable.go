@@ -20,6 +20,15 @@ type RunOptions struct {
 	Silent bool
 }
 
+// ExecutableRuntime represents the runtime in which the executable runs
+type ExecutableRuntime interface {
+	// The Id returns the runtime unique identifier
+	Id() string
+
+	// RunExecutable runs the executable
+	RunExecutable(ctx context.Context, options RunOptions, path string, args []string) error
+}
+
 // Executable represent an executable
 type Executable struct {
 	// Path to executable
@@ -28,8 +37,8 @@ type Executable struct {
 	// Args stores additional arguments that will be used always
 	Args []string
 
-	// RunFunc is a function that will run the executable
-	RunFunc func(ctx context.Context, options RunOptions, path string, args []string) error
+	// Runtime in which the executable will be run
+	Runtime ExecutableRuntime
 }
 
 func (e *Executable) buildArgs(args []string) []string {
@@ -47,14 +56,14 @@ func (e *Executable) Run(ctx context.Context, options RunOptions, args []string)
 	runArgs := e.buildArgs(args)
 
 	if !options.Silent {
-		Info("%v %v", e.Path, strings.Join(runArgs, " "))
+		Info("%v: %v %v", e.Runtime.Id(), e.Path, strings.Join(runArgs, " "))
 	}
 
 	return Trace(
 		ctx,
 		"executable.run",
 		func() error {
-			return e.RunFunc(ctx, options, e.Path, runArgs)
+			return e.Runtime.RunExecutable(ctx, options, e.Path, runArgs)
 		},
 		"path", e.Path,
 		"args", args,

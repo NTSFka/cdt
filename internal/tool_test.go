@@ -56,30 +56,29 @@ func TestTool_NewExecutableTool(t *testing.T) {
 }
 
 func TestTool_ExecutableTool_Run(t *testing.T) {
-	var runMock mock.Mock
+	runtime := &testExecutableRuntime{}
 
 	tool := MakeExecutableTool("id", "", "", func() *Executable {
-		return &Executable{Path: "echo", RunFunc: func(ctx context.Context, options RunOptions, path string, args []string) error {
-			return runMock.Called(ctx, options, path, args).Error(0)
-		}}
+		return &Executable{Path: "echo", Runtime: runtime}
 	})
 
-	runMock.On("1", mock.Anything, RunOptions{}, "echo", []string{"arg1", "arg2"}).Return(nil)
+	runtime.On("RunExecutable", mock.Anything, RunOptions{}, "echo", []string{"arg1", "arg2"}).
+		Return(nil)
 
 	err := tool.Run(context.Background(), RunOptions{}, []string{"arg1", "arg2"})
 	assert.NoError(t, err)
+
+	runtime.AssertExpectations(t)
 }
 
 func TestTool_ExecutableTool_RunForProject(t *testing.T) {
-	var runMock mock.Mock
+	runtime := &testExecutableRuntime{}
 
 	tool := MakeExecutableTool("id", "", "", func() *Executable {
-		return &Executable{Path: "echo", RunFunc: func(ctx context.Context, options RunOptions, path string, args []string) error {
-			return runMock.Called(ctx, options, path, args).Error(0)
-		}}
+		return &Executable{Path: "echo", Runtime: runtime}
 	})
 
-	runMock.On("1", mock.Anything, RunOptions{
+	runtime.On("RunExecutable", mock.Anything, RunOptions{
 		Directory: "",
 		Input:     os.Stdin,
 		Output:    os.Stdout,
@@ -88,6 +87,8 @@ func TestTool_ExecutableTool_RunForProject(t *testing.T) {
 
 	err := tool.RunForProject(Project{}, []string{"arg1", "arg2"})
 	assert.NoError(t, err)
+
+	runtime.AssertExpectations(t)
 }
 
 type testTool struct {

@@ -68,7 +68,7 @@ func TestEnvironment_SystemEnvironment_FindExecutable(t *testing.T) {
 	executable := SystemEnvironment.FindExecutable("echo")
 
 	if assert.NotNil(t, executable) {
-		assert.NotNil(t, executable.RunFunc)
+		assert.NotNil(t, executable.Runtime)
 		assert.Contains(t, executable.Path, "echo")
 	}
 }

@@ -142,7 +142,7 @@ func (s *systemEnvironment) FindExecutable(name string) *Executable {
 			return nil
 		}
 
-		return &Executable{Path: path, RunFunc: s.RunExecutable}
+		return &Executable{Path: path, Runtime: s}
 	}, "name", name)
 }
 
