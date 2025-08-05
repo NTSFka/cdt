@@ -28,32 +28,11 @@ func (p *PHPType) Create(config Config, tools internal.Tools) internal.Project {
 		Configurator:      nil,
 		Builder:           nil,
 		Runner:            php,
-		Tester:            &phpTester{paratest: paratest, phpunit: phpUnit},
+		Tester:            &TesterFallback{paratest, phpUnit},
 		Formatter:         phpCsFixer,
 		Linter:            phpStan,
 		DependencyManager: composer,
 	}
 
 	return internal.MakeProject(config.Directory, "", &internal.EmptyProjectStructureProvider{}, workflow)
-}
-
-type phpTester struct {
-	paratest *tool.ParaTest
-	phpunit  *tool.PHPUnit
-}
-
-func (p *phpTester) TestAll(project internal.Project, args []string) error {
-	if p.paratest.IsAvailable() {
-		return p.paratest.TestAll(project, args)
-	}
-
-	return p.phpunit.TestAll(project, args)
-}
-
-func (p *phpTester) Test(project internal.Project, pattern string, args []string) error {
-	if p.paratest.IsAvailable() {
-		return p.paratest.Test(project, pattern, args)
-	}
-
-	return p.phpunit.Test(project, pattern, args)
 }
