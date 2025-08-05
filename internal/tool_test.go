@@ -57,6 +57,8 @@ func TestTool_NewExecutableTool(t *testing.T) {
 
 func TestTool_ExecutableTool_Run(t *testing.T) {
 	runtime := &testExecutableRuntime{}
+	runtime.Test(t)
+	runtime.On("Id").Return("test")
 
 	tool := MakeExecutableTool("id", "", "", func() *Executable {
 		return &Executable{Path: "echo", Runtime: runtime}
@@ -73,6 +75,8 @@ func TestTool_ExecutableTool_Run(t *testing.T) {
 
 func TestTool_ExecutableTool_RunForProject(t *testing.T) {
 	runtime := &testExecutableRuntime{}
+	runtime.Test(t)
+	runtime.On("Id").Return("test")
 
 	tool := MakeExecutableTool("id", "", "", func() *Executable {
 		return &Executable{Path: "echo", Runtime: runtime}

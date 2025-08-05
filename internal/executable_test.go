@@ -22,6 +22,7 @@ func (t *testExecutableRuntime) RunExecutable(ctx context.Context, options RunOp
 
 func TestExecutable_Run(t *testing.T) {
 	runtime := &testExecutableRuntime{}
+	runtime.On("Id").Return("test")
 
 	executable := Executable{Path: "echo", Runtime: runtime}
 
@@ -36,6 +37,8 @@ func TestExecutable_Run(t *testing.T) {
 
 func TestExecutable_Run_Failed(t *testing.T) {
 	runtime := &testExecutableRuntime{}
+	runtime.Test(t)
+	runtime.On("Id").Return("test")
 
 	executable := Executable{Path: "echo", Runtime: runtime}
 
@@ -50,6 +53,8 @@ func TestExecutable_Run_Failed(t *testing.T) {
 
 func TestExecutable_Run_Args(t *testing.T) {
 	runtime := &testExecutableRuntime{}
+	runtime.Test(t)
+	runtime.On("Id").Return("test")
 
 	executable := Executable{Path: "echo", Runtime: runtime}
 
@@ -64,6 +69,8 @@ func TestExecutable_Run_Args(t *testing.T) {
 
 func TestExecutable_Run_ArgsExtra(t *testing.T) {
 	runtime := &testExecutableRuntime{}
+	runtime.Test(t)
+	runtime.On("Id").Return("test")
 
 	executable := Executable{
 		Path:    "print",

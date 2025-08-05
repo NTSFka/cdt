@@ -54,8 +54,8 @@ func TestCMakeType_Create_CustomBuildDirectory(t *testing.T) {
 
 func TestCMakeType_Project_TestAll(t *testing.T) {
 	projectType := CMakeType{}
-	var cmakeMock test.Executable
-	var ctestMock test.Executable
+	cmakeMock := test.NewExecutable(t)
+	ctestMock := test.NewExecutable(t)
 
 	tools := internal.Tools{
 		tool.NewCMake(cmakeMock.LazyExecutable("cmake-test")),
@@ -87,8 +87,8 @@ func TestCMakeType_Project_TestAll(t *testing.T) {
 
 func TestCMakeType_Project_TestAll_BuildFailed(t *testing.T) {
 	projectType := CMakeType{}
-	var cmakeMock test.Executable
-	var ctestMock test.Executable
+	cmakeMock := test.NewExecutable(t)
+	ctestMock := test.NewExecutable(t)
 
 	tools := internal.Tools{
 		tool.NewCMake(cmakeMock.LazyExecutable("cmake-test")),
@@ -119,8 +119,8 @@ func TestCMakeType_Project_TestAll_BuildFailed(t *testing.T) {
 
 func TestCMakeProject_Project_Test(t *testing.T) {
 	projectType := CMakeType{}
-	var cmakeMock test.Executable
-	var ctestMock test.Executable
+	cmakeMock := test.NewExecutable(t)
+	ctestMock := test.NewExecutable(t)
 
 	tools := internal.Tools{
 		tool.NewCMake(cmakeMock.LazyExecutable("cmake-test")),
@@ -152,8 +152,8 @@ func TestCMakeProject_Project_Test(t *testing.T) {
 
 func TestCMakeProject_Project_TestBuild_Failed(t *testing.T) {
 	projectType := CMakeType{}
-	var cmakeMock test.Executable
-	var ctestMock test.Executable
+	cmakeMock := test.NewExecutable(t)
+	ctestMock := test.NewExecutable(t)
 
 	tools := internal.Tools{
 		tool.NewCMake(cmakeMock.LazyExecutable("cmake-test")),

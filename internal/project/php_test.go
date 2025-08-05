@@ -57,8 +57,8 @@ func TestPHPType_Create(t *testing.T) {
 
 func TestPHPType_Project_TestAll_Paratest(t *testing.T) {
 	projectType := PHPType{}
-	var paratestMock test.Executable
-	var phpunitMock test.Executable
+	paratestMock := test.NewExecutable(t)
+	phpunitMock := test.NewExecutable(t)
 
 	tools := internal.Tools{
 		tool.NewPHP(func() *internal.Executable { return &internal.Executable{Path: "php-test"} }),
@@ -86,8 +86,8 @@ func TestPHPType_Project_TestAll_Paratest(t *testing.T) {
 
 func TestPHPType_Project_TestAll_PHPUnit(t *testing.T) {
 	projectType := PHPType{}
-	var paratestMock test.Executable
-	var phpunitMock test.Executable
+	paratestMock := test.NewExecutable(t)
+	phpunitMock := test.NewExecutable(t)
 
 	tools := internal.Tools{
 		tool.NewPHP(func() *internal.Executable { return &internal.Executable{Path: "php-test"} }),
@@ -115,8 +115,8 @@ func TestPHPType_Project_TestAll_PHPUnit(t *testing.T) {
 
 func TestPHPType_Project_Test_Paratest(t *testing.T) {
 	projectType := PHPType{}
-	var paratestMock test.Executable
-	var phpunitMock test.Executable
+	paratestMock := test.NewExecutable(t)
+	phpunitMock := test.NewExecutable(t)
 
 	tools := internal.Tools{
 		tool.NewPHP(func() *internal.Executable { return &internal.Executable{Path: "php-test"} }),
@@ -144,8 +144,8 @@ func TestPHPType_Project_Test_Paratest(t *testing.T) {
 
 func TestPHPType_Project_Test_PHPUnit(t *testing.T) {
 	projectType := PHPType{}
-	var paratestMock test.Executable
-	var phpunitMock test.Executable
+	paratestMock := test.NewExecutable(t)
+	phpunitMock := test.NewExecutable(t)
 
 	tools := internal.Tools{
 		tool.NewPHP(func() *internal.Executable { return &internal.Executable{Path: "php-test"} }),

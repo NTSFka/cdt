@@ -18,6 +18,7 @@ func NewExecutable(t *testing.T) *Executable {
 	executable := Executable{}
 	executable.Test(t)
 	executable.Runtime.Test(t)
+	executable.Runtime.On("Id").Return("test")
 	return &executable
 }
 
