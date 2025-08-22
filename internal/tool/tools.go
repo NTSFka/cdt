@@ -21,6 +21,7 @@ func InitTools(environment internal.Environment) internal.Tools {
 		DetectPHPStan(environment),
 		DetectPHPCSFixer(environment),
 		DetectComposer(environment),
+		DetectPython(environment),
 	}
 }
 
@@ -30,5 +31,6 @@ func InitEnvironmentProviders(environment internal.Environment) internal.Environ
 		internal.SystemEnvironmentProvider,
 		DetectDocker(environment),
 		DetectDockerCompose(environment),
+		DetectPython(environment),
 	}
 }
