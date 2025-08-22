@@ -22,6 +22,7 @@ func InitTools(environment internal.Environment) internal.Tools {
 		DetectPHPCSFixer(environment),
 		DetectComposer(environment),
 		DetectPython(environment),
+		DetectPyTest(environment),
 	}
 }
 
