@@ -23,6 +23,7 @@ func InitTools(environment internal.Environment) internal.Tools {
 		DetectComposer(environment),
 		DetectPython(environment),
 		DetectPyTest(environment),
+		DetectPip(environment),
 	}
 }
 
