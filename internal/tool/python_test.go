@@ -46,39 +46,41 @@ func TestPython_DetectPython_NotFound(t *testing.T) {
 }
 
 func TestPython_Python_RunTarget(t *testing.T) {
-	exec := test.NewExecutable(t)
+	python := test.NewExecutable(t)
 
-	tool := NewPython(exec.LazyExecutable("python3"))
+	tool := NewPython(python.LazyExecutable("python3"))
 
 	p := internal.MakeProject(".", "", nil, internal.Workflow{Runner: tool})
 
-	exec.OnRun("python3", []string{"main.py"}).
+	python.OnRun("python3", []string{"main.py"}).
 		Return(nil)
 
 	err := tool.RunTarget(p, "main.py", []string{})
 	assert.NoError(t, err)
 
-	exec.AssertExpectations(t)
+	python.AssertExpectations(t)
 }
 
 func TestPython_Python_RunTarget_Fail(t *testing.T) {
-	exec := test.NewExecutable(t)
+	python := test.NewExecutable(t)
 
-	tool := NewPython(exec.LazyExecutable("python3"))
+	tool := NewPython(python.LazyExecutable("python3"))
 
 	p := internal.MakeProject(".", "", nil, internal.Workflow{Runner: tool})
 
-	exec.OnRun("python3", []string{"main.py"}).
+	python.OnRun("python3", []string{"main.py"}).
 		Return(errors.New("failed"))
 
 	err := tool.RunTarget(p, "main.py", []string{})
 	assert.EqualError(t, err, "failed")
 
-	exec.AssertExpectations(t)
+	python.AssertExpectations(t)
 }
 
 func TestPython_CreateEnvironment(t *testing.T) {
-	tool := NewPython(func() *internal.Executable { return &internal.Executable{Path: "python"} })
+	python := test.NewExecutable(t)
+
+	tool := NewPython(python.LazyExecutable("python"))
 	assert.NotNil(t, tool)
 	assert.Equal(t, "pyenv", tool.IdShort())
 
@@ -87,21 +89,31 @@ func TestPython_CreateEnvironment(t *testing.T) {
 	assert.NotNil(t, env)
 
 	assert.Equal(t, "pyenv", env.Id())
+
+	python.AssertExpectations(t)
 }
 
 func TestPython_Environment_Start(t *testing.T) {
-	tool := NewPython(func() *internal.Executable { return &internal.Executable{Path: "python"} })
+	python := test.NewExecutable(t)
+
+	tool := NewPython(python.LazyExecutable("python"))
 	assert.NotNil(t, tool)
 
 	env, err := tool.CreateEnvironment(".", ".venv")
 	assert.NoError(t, err)
 
+	python.OnRun("python", []string{"-m", "venv", ".venv"}).Return(nil)
+
 	err = env.Start(context.Background())
 	assert.NoError(t, err)
+
+	python.AssertExpectations(t)
 }
 
 func TestPython_Environment_IsRunning_True(t *testing.T) {
-	tool := NewPython(func() *internal.Executable { return &internal.Executable{Path: "python"} })
+	python := test.NewExecutable(t)
+
+	tool := NewPython(python.LazyExecutable("python"))
 	assert.NotNil(t, tool)
 
 	env, err := tool.CreateEnvironment(".", ".venv")
@@ -109,11 +121,14 @@ func TestPython_Environment_IsRunning_True(t *testing.T) {
 
 	result := env.IsRunning(context.Background())
 	assert.True(t, result)
+
+	python.AssertExpectations(t)
 }
 
 func TestPython_Environment_Stop(t *testing.T) {
+	python := test.NewExecutable(t)
 
-	tool := NewPython(func() *internal.Executable { return &internal.Executable{Path: "python"} })
+	tool := NewPython(python.LazyExecutable("python"))
 	assert.NotNil(t, tool)
 
 	env, err := tool.CreateEnvironment(".", ".venv")
@@ -121,10 +136,14 @@ func TestPython_Environment_Stop(t *testing.T) {
 
 	err = env.Stop(context.Background())
 	assert.NoError(t, err)
+
+	python.AssertExpectations(t)
 }
 
 func TestPython_Environment_Cleanup(t *testing.T) {
-	tool := NewPython(func() *internal.Executable { return &internal.Executable{Path: "python"} })
+	python := test.NewExecutable(t)
+
+	tool := NewPython(python.LazyExecutable("python"))
 	assert.NotNil(t, tool)
 
 	env, err := tool.CreateEnvironment(".", ".venv")
@@ -132,6 +151,8 @@ func TestPython_Environment_Cleanup(t *testing.T) {
 
 	err = env.Cleanup(context.Background())
 	assert.NoError(t, err)
+
+	python.AssertExpectations(t)
 }
 
 func TestPython_Environment_FindExecutable(t *testing.T) {
@@ -150,7 +171,7 @@ func TestPython_Environment_FindExecutable(t *testing.T) {
 
 	executable := env.FindExecutable("tool1")
 	if assert.NotNil(t, executable) {
-		assert.Equal(t, filepath.Join(testDir, "bin", "tool1"), executable.Path)
+		assert.Equal(t, "tool1", executable.Path)
 	}
 }
 
@@ -170,7 +191,7 @@ func TestPython_Environment_FindExecutable_Windows(t *testing.T) {
 
 	executable := env.FindExecutable("tool1")
 	if assert.NotNil(t, executable) {
-		assert.Equal(t, filepath.Join(testDir, "Scripts", "tool1"), executable.Path)
+		assert.Equal(t, "tool1", executable.Path)
 	}
 }
 
@@ -187,7 +208,7 @@ func TestPython_Environment_FindExecutable_Failed(t *testing.T) {
 	assert.Nil(t, executable)
 }
 
-func TestPython_Environment_RunExecutable(t *testing.T) {
+func TestPython_Environment_RunExecutable_NotFound(t *testing.T) {
 	tool := NewPython(func() *internal.Executable { return &internal.Executable{Path: "python"} })
 	assert.NotNil(t, tool)
 
@@ -197,5 +218,5 @@ func TestPython_Environment_RunExecutable(t *testing.T) {
 	assert.NoError(t, err)
 
 	err = env.RunExecutable(context.Background(), internal.RunOptions{}, "echo", []string{"arg1", "arg2"})
-	assert.NoError(t, err)
+	assert.EqualError(t, err, "executable not found")
 }

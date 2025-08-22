@@ -3,6 +3,7 @@ package tool
 import (
 	"cdt/internal"
 	"context"
+	"errors"
 	"os/exec"
 	"path/filepath"
 )
@@ -45,6 +46,7 @@ func (p *Python) CreateEnvironment(directory, path string) (internal.Environment
 	env := pythonVirtualEnvironment{
 		directory:     directory,
 		venvDirectory: path,
+		python:        p,
 	}
 
 	return &env, nil
@@ -53,6 +55,7 @@ func (p *Python) CreateEnvironment(directory, path string) (internal.Environment
 type pythonVirtualEnvironment struct {
 	directory     string
 	venvDirectory string
+	python        *Python
 }
 
 func (e *pythonVirtualEnvironment) Id() string {
@@ -60,7 +63,21 @@ func (e *pythonVirtualEnvironment) Id() string {
 }
 
 func (e *pythonVirtualEnvironment) Start(_ context.Context) error {
-	// Environment is always running
+	// Check if the environment already exists
+	if !internal.PathExists(filepath.Join(e.venvDirectory, "pyvenv.cfg")) {
+		options := internal.RunOptions{
+			Directory: e.directory,
+			Input:     nil,
+			Output:    nil,
+			Error:     nil,
+			Silent:    true,
+		}
+
+		if err := e.python.Run(context.Background(), options, []string{"-m", "venv", e.venvDirectory}); err != nil {
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -98,7 +115,7 @@ func (e *pythonVirtualEnvironment) FindExecutable(name string) *internal.Executa
 	return internal.Trace(ctx, "pyenv.find_executable", func() *internal.Executable {
 		if path := e.findPath(name); path != nil {
 			return &internal.Executable{
-				Path:    *path,
+				Path:    name,
 				Runtime: e,
 			}
 		}
@@ -107,8 +124,14 @@ func (e *pythonVirtualEnvironment) FindExecutable(name string) *internal.Executa
 	}, "venv", e.venvDirectory, "name", name)
 }
 
-func (e *pythonVirtualEnvironment) RunExecutable(ctx context.Context, options internal.RunOptions, path string, args []string) error {
-	command := exec.CommandContext(ctx, path, args...)
+func (e *pythonVirtualEnvironment) RunExecutable(ctx context.Context, options internal.RunOptions, name string, args []string) error {
+	path := e.findPath(name)
+
+	if path == nil {
+		return errors.New("executable not found")
+	}
+
+	command := exec.CommandContext(ctx, *path, args...)
 	command.Dir = options.Directory
 	command.Stdin = options.Input
 	command.Stdout = options.Output
@@ -116,5 +139,5 @@ func (e *pythonVirtualEnvironment) RunExecutable(ctx context.Context, options in
 
 	return internal.Trace(ctx, "pyenv.run", func() error {
 		return command.Run()
-	}, "venv", e.venvDirectory, "path", path, "args", args)
+	}, "venv", e.venvDirectory, "path", *path, "args", args)
 }
