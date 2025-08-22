@@ -9,6 +9,7 @@ var projectTypes = []Type{
 	&GoType{},
 	&CMakeType{},
 	&PHPType{},
+	&PythonType{},
 }
 
 type Config struct {
