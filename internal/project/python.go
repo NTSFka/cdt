@@ -20,6 +20,11 @@ func (p *PythonType) Create(config Config, tools internal.Tools) internal.Projec
 	python := internal.GetTool[*tool.Python](tools)
 	pyTest := internal.GetTool[*tool.PyTest](tools)
 	pip := internal.GetTool[*tool.Pip](tools)
+	pylint := internal.GetTool[*tool.Pylint](tools)
+	flake := internal.GetTool[*tool.Flake8](tools)
+	mypy := internal.GetTool[*tool.MyPy](tools)
+	ruff := internal.GetTool[*tool.Ruff](tools)
+	bandit := internal.GetTool[*tool.Bandit](tools)
 
 	workflow := internal.Workflow{
 		Configurator:      nil,
@@ -27,7 +32,7 @@ func (p *PythonType) Create(config Config, tools internal.Tools) internal.Projec
 		Runner:            python,
 		Tester:            pyTest,
 		Formatter:         nil,
-		Linter:            nil,
+		Linter:            &LinterList{pylint, flake, mypy, ruff, bandit},
 		DependencyManager: pip,
 	}
 

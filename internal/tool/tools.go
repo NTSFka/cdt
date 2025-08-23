@@ -21,9 +21,15 @@ func InitTools(environment internal.Environment) internal.Tools {
 		DetectPHPStan(environment),
 		DetectPHPCSFixer(environment),
 		DetectComposer(environment),
+		// Python
 		DetectPython(environment),
 		DetectPyTest(environment),
 		DetectPip(environment),
+		DetectPylint(environment),
+		DetectFlake8(environment),
+		DetectMyPy(environment),
+		DetectRuff(environment),
+		DetectBandit(environment),
 	}
 }
 
