@@ -2,8 +2,9 @@ package internal
 
 import (
 	"fmt"
-	"gopkg.in/yaml.v3"
 	"io"
+
+	"gopkg.in/yaml.v3"
 )
 
 // Config is an application configuration passed via flags or configuration file

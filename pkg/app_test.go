@@ -5,12 +5,13 @@ import (
 	"cdt/internal/test"
 	"context"
 	"errors"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
-	"github.com/urfave/cli/v3"
 	"os"
 	"path/filepath"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
+	"github.com/urfave/cli/v3"
 )
 
 func TestApp_Run_ContextBuild_Failed(t *testing.T) {
@@ -89,6 +90,7 @@ func TestApp_Run_ConfigDefault(t *testing.T) {
 				WorkDirectory:  nil,
 				BuildDirectory: nil,
 				Environment:    nil,
+				Workflow:       nil,
 			}, *config)
 		}
 	}
@@ -112,6 +114,7 @@ func TestApp_Run_ConfigFull(t *testing.T) {
 		"--root", "/path/to/project",
 		"--build", "/path/to/build",
 		"--environment", "env:arg",
+		"--type", "go",
 		"__test__",
 	})
 
@@ -122,6 +125,7 @@ func TestApp_Run_ConfigFull(t *testing.T) {
 				WorkDirectory:  nil,
 				BuildDirectory: internal.StrPtr("/path/to/build"),
 				Environment:    internal.StrPtr("env:arg"),
+				Workflow:       "go",
 			}, *config)
 		}
 	}
@@ -145,6 +149,7 @@ func TestApp_Run_ConfigFullAlias(t *testing.T) {
 		"-r", "/path/to/project",
 		"-b", "/path/to/build",
 		"-e", "env:arg",
+		"-t", "go",
 		"__test__",
 	})
 
@@ -155,6 +160,7 @@ func TestApp_Run_ConfigFullAlias(t *testing.T) {
 				WorkDirectory:  nil,
 				BuildDirectory: internal.StrPtr("/path/to/build"),
 				Environment:    internal.StrPtr("env:arg"),
+				Workflow:       "go",
 			}, *config)
 		}
 	}

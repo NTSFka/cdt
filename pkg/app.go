@@ -5,10 +5,11 @@ import (
 	"cdt/internal/command"
 	"context"
 	"fmt"
-	"github.com/urfave/cli/v3"
 	"log/slog"
 	"os"
 	"path/filepath"
+
+	"github.com/urfave/cli/v3"
 )
 
 const ConfigFileName = "cdt.yml"
@@ -39,6 +40,11 @@ func NewApp(buildContext func(config internal.Config) (*internal.Context, error)
 				Aliases: []string{"e"},
 				Usage:   "Environment to use, e.g. `docker:image`. If not specified the value from configuration file or system environment will be used.",
 				Value:   "system",
+			},
+			&cli.StringFlag{
+				Name:    "type",
+				Aliases: []string{"t"},
+				Usage:   "What project type to use, e.g. `go`. If not specified the value from configuration file or detected type will be used.",
 			},
 			&cli.StringFlag{
 				Name:    "config",
@@ -117,6 +123,11 @@ func createConfig(cmd *cli.Command) (*internal.Config, error) {
 
 	if fileConfig != nil {
 		fileConfig.UpdateConfig(&config)
+	}
+
+	// Override configuration file
+	if cmd.Count("type") > 0 {
+		config.Workflow = cmd.String("type")
 	}
 
 	// Override configuration file
