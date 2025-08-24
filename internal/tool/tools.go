@@ -30,6 +30,7 @@ func InitTools(environment internal.Environment) internal.Tools {
 		DetectMyPy(environment),
 		DetectRuff(environment),
 		DetectBandit(environment),
+		DetectBlack(environment),
 	}
 }
 

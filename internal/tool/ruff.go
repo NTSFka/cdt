@@ -51,3 +51,23 @@ func (r *Ruff) LintFiles(project internal.Project, filenames []string, args []st
 
 	return r.RunForProject(project, append(append([]string{"check"}, args...), paths...))
 }
+
+func (r *Ruff) FormatAll(project internal.Project, args []string) error {
+	return r.RunForProject(project, append([]string{"format"}, args...))
+}
+
+func (r *Ruff) FormatFiles(project internal.Project, filenames []string, args []string) error {
+	paths := r.buildPaths(project.RootDirectory(), filenames)
+
+	return r.RunForProject(project, append(append([]string{"format"}, args...), paths...))
+}
+
+func (r *Ruff) FormatCheckAll(project internal.Project, args []string) error {
+	return r.RunForProject(project, append([]string{"format", "--check"}, args...))
+}
+
+func (r *Ruff) FormatCheckFiles(project internal.Project, filenames []string, args []string) error {
+	paths := r.buildPaths(project.RootDirectory(), filenames)
+
+	return r.RunForProject(project, append(append([]string{"format", "--check"}, args...), paths...))
+}

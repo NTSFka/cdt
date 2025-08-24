@@ -25,13 +25,14 @@ func (p *PythonType) Create(config Config, tools internal.Tools) internal.Projec
 	mypy := internal.GetTool[*tool.MyPy](tools)
 	ruff := internal.GetTool[*tool.Ruff](tools)
 	bandit := internal.GetTool[*tool.Bandit](tools)
+	black := internal.GetTool[*tool.Black](tools)
 
 	workflow := internal.Workflow{
 		Configurator:      nil,
 		Builder:           nil,
 		Runner:            python,
 		Tester:            pyTest,
-		Formatter:         nil,
+		Formatter:         &FormatterFallback{ruff, black},
 		Linter:            &LinterList{pylint, flake, mypy, ruff, bandit},
 		DependencyManager: pip,
 	}

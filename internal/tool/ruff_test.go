@@ -72,3 +72,67 @@ func TestRuff_Ruff_Lint(t *testing.T) {
 
 	exec.AssertExpectations(t)
 }
+
+func TestRuff_Ruff_FormatAll(t *testing.T) {
+	exec := test.NewExecutable(t)
+
+	tool := NewRuff(exec.LazyExecutable("format"))
+
+	p := internal.MakeProject(".", "", nil, internal.Workflow{Formatter: tool})
+
+	exec.OnRun("format", []string{"format"}).
+		Return(nil)
+
+	err := tool.FormatAll(p, []string{})
+	assert.NoError(t, err)
+
+	exec.AssertExpectations(t)
+}
+
+func TestRuff_Ruff_FormatFiles(t *testing.T) {
+	exec := test.NewExecutable(t)
+
+	tool := NewRuff(exec.LazyExecutable("format"))
+
+	p := internal.MakeProject(".", "", nil, internal.Workflow{Formatter: tool})
+
+	exec.OnRun("format", []string{"format", "tests/*"}).
+		Return(nil)
+
+	err := tool.FormatFiles(p, []string{"tests/*"}, []string{})
+	assert.NoError(t, err)
+
+	exec.AssertExpectations(t)
+}
+
+func TestRuff_Ruff_FormatCheckAll(t *testing.T) {
+	exec := test.NewExecutable(t)
+
+	tool := NewRuff(exec.LazyExecutable("format"))
+
+	p := internal.MakeProject(".", "", nil, internal.Workflow{Formatter: tool})
+
+	exec.OnRun("format", []string{"format", "--check"}).
+		Return(nil)
+
+	err := tool.FormatCheckAll(p, []string{})
+	assert.NoError(t, err)
+
+	exec.AssertExpectations(t)
+}
+
+func TestRuff_Ruff_FormatCheckFiles(t *testing.T) {
+	exec := test.NewExecutable(t)
+
+	tool := NewRuff(exec.LazyExecutable("format"))
+
+	p := internal.MakeProject(".", "", nil, internal.Workflow{Formatter: tool})
+
+	exec.OnRun("format", []string{"format", "--check", "tests/*", "/path/to/file.py"}).
+		Return(nil)
+
+	err := tool.FormatCheckFiles(p, []string{"tests/*", "/path/to/file.py"}, []string{})
+	assert.NoError(t, err)
+
+	exec.AssertExpectations(t)
+}

@@ -38,6 +38,12 @@ func TestPythonType_Create(t *testing.T) {
 		tool.NewPython(func() *internal.Executable { return &internal.Executable{Path: "php-test"} }),
 		tool.NewPyTest(func() *internal.Executable { return &internal.Executable{Path: "pytest-test"} }),
 		tool.NewPip(func() *internal.Executable { return &internal.Executable{Path: "pip-test"} }),
+		tool.NewPylint(func() *internal.Executable { return &internal.Executable{Path: "pylint-test"} }),
+		tool.NewFlake8(func() *internal.Executable { return &internal.Executable{Path: "flake8-test"} }),
+		tool.NewMyPy(func() *internal.Executable { return &internal.Executable{Path: "mypy-test"} }),
+		tool.NewRuff(func() *internal.Executable { return &internal.Executable{Path: "ruff-test"} }),
+		tool.NewBandit(func() *internal.Executable { return &internal.Executable{Path: "bandit-test"} }),
+		tool.NewBlack(func() *internal.Executable { return &internal.Executable{Path: "black-test"} }),
 	}
 
 	p := projectType.Create(Config{Directory: "dir1"}, tools)
@@ -46,8 +52,8 @@ func TestPythonType_Create(t *testing.T) {
 		assert.Nil(t, p.Workflow.Configurator)
 		assert.Nil(t, p.Workflow.Builder)
 		assert.NotNil(t, p.Workflow.Tester)
-		assert.Nil(t, p.Workflow.Linter)
-		assert.Nil(t, p.Workflow.Formatter)
+		assert.NotNil(t, p.Workflow.Linter)
+		assert.NotNil(t, p.Workflow.Formatter)
 		assert.NotNil(t, p.Workflow.Runner)
 	}
 }
