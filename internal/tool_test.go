@@ -3,14 +3,15 @@ package internal
 import (
 	"bytes"
 	"context"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
 	"os"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 )
 
 func TestTool_MakeExecutableTool_NotAvailable(t *testing.T) {
-	tool := MakeExecutableTool("toolId", "Tool Name", "Tool Info", func() *Executable { return nil })
+	tool := MakeExecutableTool("toolId", "Tool Name", "Tool Info", Tags{}, func() *Executable { return nil })
 
 	assert.Equal(t, "toolId", tool.Id())
 	assert.Equal(t, "Tool Name", tool.Name())
@@ -21,7 +22,7 @@ func TestTool_MakeExecutableTool_NotAvailable(t *testing.T) {
 }
 
 func TestTool_MakeExecutableTool(t *testing.T) {
-	tool := MakeExecutableTool("toolId", "Tool Name", "Tool Info", func() *Executable { return &Executable{Path: "/bin/tool"} })
+	tool := MakeExecutableTool("toolId", "Tool Name", "Tool Info", Tags{}, func() *Executable { return &Executable{Path: "/bin/tool"} })
 
 	assert.Equal(t, "toolId", tool.Id())
 	assert.Equal(t, "Tool Name", tool.Name())
@@ -33,7 +34,7 @@ func TestTool_MakeExecutableTool(t *testing.T) {
 }
 
 func TestTool_NewExecutableTool_NotAvailable(t *testing.T) {
-	tool := NewExecutableTool("toolId", "Tool Name", "Tool Info", func() *Executable { return nil })
+	tool := NewExecutableTool("toolId", "Tool Name", "Tool Info", Tags{}, func() *Executable { return nil })
 
 	assert.Equal(t, "toolId", tool.Id())
 	assert.Equal(t, "Tool Name", tool.Name())
@@ -44,7 +45,7 @@ func TestTool_NewExecutableTool_NotAvailable(t *testing.T) {
 }
 
 func TestTool_NewExecutableTool(t *testing.T) {
-	tool := NewExecutableTool("toolId", "Tool Name", "Tool Info", func() *Executable { return &Executable{Path: "/bin/tool"} })
+	tool := NewExecutableTool("toolId", "Tool Name", "Tool Info", Tags{}, func() *Executable { return &Executable{Path: "/bin/tool"} })
 
 	assert.Equal(t, "toolId", tool.Id())
 	assert.Equal(t, "Tool Name", tool.Name())
@@ -60,7 +61,7 @@ func TestTool_ExecutableTool_Run(t *testing.T) {
 	runtime.Test(t)
 	runtime.On("Id").Return("test")
 
-	tool := MakeExecutableTool("id", "", "", func() *Executable {
+	tool := MakeExecutableTool("id", "", "", Tags{}, func() *Executable {
 		return &Executable{Path: "echo", Runtime: runtime}
 	})
 
@@ -78,7 +79,7 @@ func TestTool_ExecutableTool_RunForProject(t *testing.T) {
 	runtime.Test(t)
 	runtime.On("Id").Return("test")
 
-	tool := MakeExecutableTool("id", "", "", func() *Executable {
+	tool := MakeExecutableTool("id", "", "", Tags{}, func() *Executable {
 		return &Executable{Path: "echo", Runtime: runtime}
 	})
 
@@ -107,7 +108,7 @@ func TestTool_Tools_OnlyAvailable_Empty(t *testing.T) {
 
 func TestTool_Tools_OnlyAvailable_NotAvailable(t *testing.T) {
 	tools := Tools{
-		NewExecutableTool("toolId", "", "", func() *Executable { return nil }),
+		NewExecutableTool("toolId", "", "", Tags{}, func() *Executable { return nil }),
 	}
 
 	assert.Empty(t, tools.OnlyAvailable())
@@ -115,8 +116,8 @@ func TestTool_Tools_OnlyAvailable_NotAvailable(t *testing.T) {
 
 func TestTool_Tools_OnlyAvailable(t *testing.T) {
 	tools := Tools{
-		NewExecutableTool("id1", "", "", func() *Executable { return nil }),
-		NewExecutableTool("id2", "", "", func() *Executable { return &Executable{Path: "/bin/tool"} }),
+		NewExecutableTool("id1", "", "", Tags{}, func() *Executable { return nil }),
+		NewExecutableTool("id2", "", "", Tags{}, func() *Executable { return &Executable{Path: "/bin/tool"} }),
 	}
 
 	active := tools.OnlyAvailable()
@@ -136,7 +137,7 @@ func TestTool_Tools_Get_NotFound(t *testing.T) {
 
 func TestTool_Tools_Get(t *testing.T) {
 	tools := Tools{
-		NewExecutableTool("toolId", "", "", nil),
+		NewExecutableTool("toolId", "", "", Tags{}, nil),
 	}
 
 	tool := tools.Get("toolId")
@@ -155,7 +156,7 @@ func TestTool_Tools_GetTool_NotFound(t *testing.T) {
 
 func TestTool_Tools_GetTool(t *testing.T) {
 	tools := Tools{
-		&testTool{MakeExecutableTool("toolId", "", "", nil)},
+		&testTool{MakeExecutableTool("toolId", "", "", Tags{}, nil)},
 	}
 
 	tool := GetTool[*testTool](tools)
@@ -175,8 +176,8 @@ func TestTool_PrintTable_Empty(t *testing.T) {
 
 func TestTool_PrintTable(t *testing.T) {
 	tools := Tools{
-		NewExecutableTool("id1", "Tool 1", "", func() *Executable { return nil }),
-		NewExecutableTool("id2", "Tool 2", "", func() *Executable { return &Executable{Path: "/bin/tool"} }),
+		NewExecutableTool("id1", "Tool 1", "", Tags{}, func() *Executable { return nil }),
+		NewExecutableTool("id2", "Tool 2", "", Tags{}, func() *Executable { return &Executable{Path: "/bin/tool"} }),
 	}
 
 	var output bytes.Buffer

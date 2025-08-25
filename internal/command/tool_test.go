@@ -4,8 +4,9 @@ import (
 	"cdt/internal"
 	"cdt/internal/test"
 	"errors"
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestTool_List_Empty(t *testing.T) {
@@ -22,7 +23,7 @@ func TestTool_ListAll_Empty(t *testing.T) {
 
 func TestTool_ListAll(t *testing.T) {
 	tools := internal.Tools{
-		internal.NewExecutableTool("tool", "Tool", "Some tool", func() *internal.Executable {
+		internal.NewExecutableTool("tool", "Tool", "Some tool", internal.Tags{}, func() *internal.Executable {
 			return nil
 		}),
 	}
@@ -40,7 +41,7 @@ func TestTool_Run_Unknown(t *testing.T) {
 
 func TestTool_Run_Unavailable(t *testing.T) {
 	tools := internal.Tools{
-		internal.NewExecutableTool("tool", "Tool", "Some tool", func() *internal.Executable {
+		internal.NewExecutableTool("tool", "Tool", "Some tool", internal.Tags{}, func() *internal.Executable {
 			return nil
 		}),
 	}
@@ -54,7 +55,7 @@ func TestTool_Run_Success(t *testing.T) {
 	exec := test.NewExecutable(t)
 
 	tools := internal.Tools{
-		internal.NewExecutableTool("tool", "Tool", "Some tool", exec.LazyExecutable("/usr/bin/tool")),
+		internal.NewExecutableTool("tool", "Tool", "Some tool", internal.Tags{}, exec.LazyExecutable("/usr/bin/tool")),
 	}
 
 	exec.OnRun("/usr/bin/tool", []string{}).
@@ -71,7 +72,7 @@ func TestTool_Run_Failed(t *testing.T) {
 	exec := test.NewExecutable(t)
 
 	tools := internal.Tools{
-		internal.NewExecutableTool("tool", "Tool", "Some tool", exec.LazyExecutable("/usr/bin/tool")),
+		internal.NewExecutableTool("tool", "Tool", "Some tool", internal.Tags{}, exec.LazyExecutable("/usr/bin/tool")),
 	}
 
 	exec.OnRun("/usr/bin/tool", []string{}).

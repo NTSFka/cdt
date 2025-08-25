@@ -4,9 +4,10 @@ import (
 	"cdt/internal"
 	"cdt/internal/test"
 	"errors"
+	"testing"
+
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
-	"testing"
 )
 
 func runConfigure(configurator internal.ProjectConfigurator, args ...string) error {
@@ -67,7 +68,7 @@ type newConfiguratorTool struct {
 
 func newTestConfiguratorTool(t *testing.T) *newConfiguratorTool {
 	tool := newConfiguratorTool{
-		internal.MakeExecutableTool("tool1", "", "", nil),
+		internal.MakeExecutableTool("tool1", "", "", internal.Tags{}, nil),
 		test.ProjectConfigurator{},
 	}
 	tool.Test(t)
@@ -114,7 +115,7 @@ func TestConfigure_Tool_NotSupported(t *testing.T) {
 	configurator := &struct {
 		internal.ExecutableTool
 	}{
-		internal.MakeExecutableTool("tool1", "", "", nil),
+		internal.MakeExecutableTool("tool1", "", "", internal.Tags{}, nil),
 	}
 
 	err := runConfigureTool(configurator, "--tool", "tool1")

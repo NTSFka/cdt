@@ -23,6 +23,7 @@ func NewBandit(detect func() *internal.Executable) *Bandit {
 			"bandit",
 			"Bandit",
 			"A security linter from PyCQA.",
+			internal.Tags{internal.ToolTagPython, internal.ToolTagLint},
 			detect,
 		),
 	}

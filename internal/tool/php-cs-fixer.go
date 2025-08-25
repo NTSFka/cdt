@@ -33,6 +33,7 @@ func NewPHPCSFixer(detect func() *internal.Executable) *PHPCSFixer {
 			"php-cs-fixer",
 			"PHP-CS-Fixer",
 			"PHP Coding Standards Fixer",
+			internal.Tags{internal.ToolTagPhp, internal.ToolTagFormat},
 			detect,
 		),
 	}

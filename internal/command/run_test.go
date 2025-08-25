@@ -4,9 +4,10 @@ import (
 	"cdt/internal"
 	"cdt/internal/test"
 	"errors"
+	"testing"
+
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
-	"testing"
 )
 
 func runRun(runner internal.ProjectRunner, args ...string) error {
@@ -76,7 +77,7 @@ type testRunnerTool struct {
 
 func newTestRunnerTool(t *testing.T) *testRunnerTool {
 	runner := &testRunnerTool{
-		internal.MakeExecutableTool("tool1", "", "", nil),
+		internal.MakeExecutableTool("tool1", "", "", internal.Tags{}, nil),
 		test.ProjectRunner{},
 	}
 	runner.Test(t)
@@ -122,7 +123,7 @@ func TestRun_Tool_NotSupported(t *testing.T) {
 	linter := struct {
 		internal.ExecutableTool
 	}{
-		internal.MakeExecutableTool("tool1", "", "", nil),
+		internal.MakeExecutableTool("tool1", "", "", internal.Tags{}, nil),
 	}
 
 	err := runRunTool(&linter, "--tool", "tool1")

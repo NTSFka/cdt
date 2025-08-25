@@ -23,6 +23,7 @@ func NewPyTest(detect func() *internal.Executable) *PyTest {
 			"PyTest",
 			"The pytest framework makes it easy to write small, readable tests, and can scale to support complex "+
 				"functional testing for applications and libraries.",
+			internal.Tags{internal.ToolTagPython, internal.ToolTagTest},
 			detect,
 		),
 	}

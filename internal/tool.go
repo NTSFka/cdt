@@ -3,10 +3,32 @@ package internal
 import (
 	"context"
 	"fmt"
-	"github.com/jedib0t/go-pretty/v6/table"
 	"io"
 	"os"
+
+	"github.com/jedib0t/go-pretty/v6/table"
 )
+
+const (
+	// Commands
+	ToolTagConfigure   Tag = "configure"
+	ToolTagBuild       Tag = "build"
+	ToolTagTest        Tag = "test"
+	ToolTagLint        Tag = "lint"
+	ToolTagFormat      Tag = "format"
+	ToolTagRun         Tag = "run"
+	ToolTagDependency  Tag = "dependency"
+	ToolTagEnvironment Tag = "environment"
+	// Languages
+	ToolTagGo     Tag = "go"
+	ToolTagC      Tag = "c"
+	ToolTagCpp    Tag = "c++"
+	ToolTagPython Tag = "python"
+	ToolTagPhp    Tag = "php"
+)
+
+type Tag string
+type Tags []Tag
 
 // A Tool is an interface for Tools
 type Tool interface {
@@ -18,6 +40,9 @@ type Tool interface {
 
 	// Info Get tool information
 	Info() string
+
+	// Tags returns tool tags that can be used to filter tools
+	Tags() Tags
 
 	// ExecutablePath returns tool executable path
 	ExecutablePath() *string
@@ -34,17 +59,19 @@ type ExecutableTool struct {
 	id         string
 	name       string
 	info       string
+	tags       Tags
 	detected   bool
 	detect     func() *Executable
 	executable *Executable
 }
 
 // MakeExecutableTool creates an executable tool
-func MakeExecutableTool(id string, name string, info string, detect func() *Executable) ExecutableTool {
+func MakeExecutableTool(id string, name string, info string, tags Tags, detect func() *Executable) ExecutableTool {
 	return ExecutableTool{
 		id:         id,
 		name:       name,
 		info:       info,
+		tags:       tags,
 		detected:   false,
 		detect:     detect,
 		executable: nil,
@@ -52,8 +79,8 @@ func MakeExecutableTool(id string, name string, info string, detect func() *Exec
 }
 
 // NewExecutableTool creates an executable tool
-func NewExecutableTool(id string, name string, info string, detect func() *Executable) *ExecutableTool {
-	executable := MakeExecutableTool(id, name, info, detect)
+func NewExecutableTool(id string, name string, info string, tags Tags, detect func() *Executable) *ExecutableTool {
+	executable := MakeExecutableTool(id, name, info, tags, detect)
 
 	return &executable
 }
@@ -72,6 +99,10 @@ func (t *ExecutableTool) Name() string {
 
 func (t *ExecutableTool) Info() string {
 	return t.info
+}
+
+func (t *ExecutableTool) Tags() Tags {
+	return t.tags
 }
 
 func (t *ExecutableTool) ExecutablePath() *string {

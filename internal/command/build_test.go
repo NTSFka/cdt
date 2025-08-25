@@ -4,9 +4,10 @@ import (
 	"cdt/internal"
 	"cdt/internal/test"
 	"errors"
+	"testing"
+
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
-	"testing"
 )
 
 func runBuild(builder internal.ProjectBuilder, args ...string) error {
@@ -67,7 +68,7 @@ type testBuilderTool struct {
 
 func newTestBuilderTool(t *testing.T) *testBuilderTool {
 	builder := testBuilderTool{
-		internal.MakeExecutableTool("tool1", "", "", nil),
+		internal.MakeExecutableTool("tool1", "", "", internal.Tags{}, nil),
 		test.ProjectBuilder{},
 	}
 	builder.Test(t)
@@ -113,7 +114,7 @@ func TestBuild_Tool_NotSupported(t *testing.T) {
 	linter := struct {
 		internal.ExecutableTool
 	}{
-		internal.MakeExecutableTool("tool1", "", "", nil),
+		internal.MakeExecutableTool("tool1", "", "", internal.Tags{}, nil),
 	}
 
 	err := runBuildTool(&linter, "--tool", "tool1")

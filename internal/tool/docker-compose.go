@@ -22,6 +22,7 @@ func NewDockerCompose(detect func() *internal.Executable) *DockerCompose {
 			"docker-compose",
 			"Docker compose",
 			"Define and run multi-container applications with Docker",
+			internal.Tags{internal.ToolTagEnvironment},
 			detect,
 		),
 	}

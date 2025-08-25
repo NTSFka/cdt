@@ -30,6 +30,7 @@ func NewComposer(detect func() *internal.Executable) *Composer {
 			"composer",
 			"Composer",
 			"A Dependency Manager for PHP",
+			internal.Tags{internal.ToolTagPhp, internal.ToolTagDependency},
 			detect,
 		),
 	}

@@ -4,10 +4,11 @@ import (
 	"cdt/internal"
 	"cdt/internal/test"
 	"cdt/internal/tool"
-	"github.com/stretchr/testify/assert"
 	"os"
 	"path/filepath"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestBuildProject_Default(t *testing.T) {
@@ -41,27 +42,27 @@ func TestBuildProject_Custom(t *testing.T) {
 	tool1 := &struct {
 		internal.ExecutableTool
 		internal.ProjectConfigurator
-	}{internal.MakeExecutableTool("tool1", "Test", "Test", nil), nil}
+	}{internal.MakeExecutableTool("tool1", "Test", "Test", internal.Tags{}, nil), nil}
 	tool2 := &struct {
 		internal.ExecutableTool
 		internal.ProjectBuilder
-	}{internal.MakeExecutableTool("tool2", "Test", "Test", nil), nil}
+	}{internal.MakeExecutableTool("tool2", "Test", "Test", internal.Tags{}, nil), nil}
 	tool3 := &struct {
 		internal.ExecutableTool
 		internal.ProjectTester
-	}{internal.MakeExecutableTool("tool3", "Test", "Test", nil), nil}
+	}{internal.MakeExecutableTool("tool3", "Test", "Test", internal.Tags{}, nil), nil}
 	tool4 := &struct {
 		internal.ExecutableTool
 		internal.ProjectFormatter
-	}{internal.MakeExecutableTool("tool4", "Test", "Test", nil), nil}
+	}{internal.MakeExecutableTool("tool4", "Test", "Test", internal.Tags{}, nil), nil}
 	tool5 := &struct {
 		internal.ExecutableTool
 		internal.ProjectLinter
-	}{internal.MakeExecutableTool("tool5", "Test", "Test", nil), nil}
+	}{internal.MakeExecutableTool("tool5", "Test", "Test", internal.Tags{}, nil), nil}
 	tool6 := &struct {
 		internal.ExecutableTool
 		internal.ProjectRunner
-	}{internal.MakeExecutableTool("tool6", "Test", "Test", nil), nil}
+	}{internal.MakeExecutableTool("tool6", "Test", "Test", internal.Tags{}, nil), nil}
 
 	project, err := BuildProject(config, internal.Tools{tool1, tool2, tool3, tool4, tool5, tool6})
 

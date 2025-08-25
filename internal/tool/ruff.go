@@ -23,6 +23,7 @@ func NewRuff(detect func() *internal.Executable) *Ruff {
 			"ruff",
 			"Ruff",
 			"An extremely fast Python linter and code formatter, written in Rust.",
+			internal.Tags{internal.ToolTagPython, internal.ToolTagLint, internal.ToolTagFormat},
 			detect,
 		),
 	}

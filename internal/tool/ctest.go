@@ -16,6 +16,7 @@ func NewCTest(detect func() *internal.Executable) *CTest {
 			"ctest",
 			"CTest",
 			"The ctest executable is the CMake test driver program.",
+			internal.Tags{internal.ToolTagC, internal.ToolTagCpp, internal.ToolTagTest},
 			detect,
 		),
 	}

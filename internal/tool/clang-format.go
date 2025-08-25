@@ -26,6 +26,7 @@ func NewClangFormat(detect func() *internal.Executable) *ClangFormat {
 			"clang-format",
 			"Clang Format",
 			"A tool to format C/C++/Java/JavaScript/JSON/Objective-C/Protobuf/C# code.",
+			internal.Tags{internal.ToolTagC, internal.ToolTagCpp, internal.ToolTagFormat},
 			detect,
 		),
 	}

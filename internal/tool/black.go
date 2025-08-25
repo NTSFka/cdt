@@ -23,6 +23,7 @@ func NewBlack(detect func() *internal.Executable) *Black {
 			"black",
 			"Black",
 			"Black is the uncompromising Python code formatter.",
+			internal.Tags{internal.ToolTagPython, internal.ToolTagFormat},
 			detect,
 		),
 	}

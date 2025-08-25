@@ -21,6 +21,13 @@ func NewGo(detect func() *internal.Executable) *Go {
 			"go",
 			"Go",
 			"tool for managing Go source code",
+			internal.Tags{
+				internal.ToolTagGo,
+				internal.ToolTagBuild,
+				internal.ToolTagRun,
+				internal.ToolTagTest,
+				internal.ToolTagFormat,
+			},
 			detect,
 		),
 	}

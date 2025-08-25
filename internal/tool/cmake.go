@@ -19,6 +19,7 @@ func NewCMake(detect func() *internal.Executable) *CMake {
 			"cmake",
 			"CMake",
 			"A Powerful Software Build System",
+			internal.Tags{internal.ToolTagC, internal.ToolTagCpp, internal.ToolTagConfigure, internal.ToolTagBuild},
 			detect,
 		),
 	}
