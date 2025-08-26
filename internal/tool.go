@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"slices"
 
 	"github.com/jedib0t/go-pretty/v6/table"
 )
@@ -154,6 +155,24 @@ type Tools []Tool
 func (t *Tools) OnlyAvailable() (result Tools) {
 	for _, tool := range *t {
 		if tool.IsAvailable() {
+			result = append(result, tool)
+		}
+	}
+
+	return
+}
+
+func (t *Tools) FilterByTags(tags []string) (result Tools) {
+	Assert(len(tags) > 0, "tags is empty")
+
+	for _, tool := range *t {
+		contains := true
+
+		for _, tag := range tags {
+			contains = contains && slices.Contains(tool.Tags(), Tag(tag))
+		}
+
+		if contains {
 			result = append(result, tool)
 		}
 	}

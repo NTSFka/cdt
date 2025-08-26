@@ -127,6 +127,78 @@ func TestTool_Tools_OnlyAvailable(t *testing.T) {
 	}
 }
 
+func TestTool_Tools_FilterByTags_NotFound(t *testing.T) {
+	tools := Tools{
+		NewExecutableTool("id1", "", "", Tags{"tag1"}, func() *Executable { return nil }),
+		NewExecutableTool("id2", "", "", Tags{"tag2"}, func() *Executable { return &Executable{Path: "/bin/tool"} }),
+	}
+
+	active := tools.FilterByTags([]string{"tag0"})
+	assert.Empty(t, active)
+}
+
+func TestTool_Tools_FilterByTags_Found(t *testing.T) {
+	tools := Tools{
+		NewExecutableTool("id1", "", "", Tags{"tag1", "tag11"}, func() *Executable { return nil }),
+		NewExecutableTool("id2", "", "", Tags{"tag2", "tag21"}, func() *Executable { return &Executable{Path: "/bin/tool"} }),
+	}
+
+	data := []struct {
+		tags []string
+		id   string
+	}{
+		{
+			tags: []string{"tag1"},
+			id:   "id1",
+		},
+		{
+			tags: []string{"tag2"},
+			id:   "id2",
+		},
+	}
+
+	for _, d := range data {
+		t.Run(d.id, func(t *testing.T) {
+			active := tools.FilterByTags(d.tags)
+			assert.NotEmpty(t, active)
+			if assert.Len(t, active, 1) {
+				assert.Equal(t, d.id, active[0].Id())
+			}
+		})
+	}
+}
+
+func TestTool_Tools_FilterByTags_Found_MultipleTags(t *testing.T) {
+	tools := Tools{
+		NewExecutableTool("id1", "", "", Tags{"tag1", "tag2"}, func() *Executable { return nil }),
+		NewExecutableTool("id2", "", "", Tags{"tag3", "tag4"}, func() *Executable { return &Executable{Path: "/bin/tool"} }),
+	}
+
+	data := []struct {
+		tags []string
+		id   string
+	}{
+		{
+			tags: []string{"tag1", "tag2"},
+			id:   "id1",
+		},
+		{
+			tags: []string{"tag3", "tag4"},
+			id:   "id2",
+		},
+	}
+
+	for _, d := range data {
+		t.Run(d.id, func(t *testing.T) {
+			active := tools.FilterByTags(d.tags)
+			assert.NotEmpty(t, active)
+			if assert.Len(t, active, 1) {
+				assert.Equal(t, d.id, active[0].Id())
+			}
+		})
+	}
+}
+
 func TestTool_Tools_Get_NotFound(t *testing.T) {
 	tools := Tools{}
 

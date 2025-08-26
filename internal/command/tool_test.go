@@ -15,6 +15,18 @@ func TestTool_List_Empty(t *testing.T) {
 	assert.NoError(t, err)
 }
 
+func TestTool_List_Tags(t *testing.T) {
+	tools := internal.Tools{
+		internal.NewExecutableTool("tool", "Tool", "Some tool", internal.Tags{"tag1"}, func() *internal.Executable {
+			return nil
+		}),
+	}
+
+	err := test.RunCommand(NewToolCommand(), internal.Context{Tools: tools}, "list", "--tag", "tag1")
+
+	assert.NoError(t, err)
+}
+
 func TestTool_ListAll_Empty(t *testing.T) {
 	err := test.RunCommand(NewToolCommand(), internal.Context{}, "list", "--all")
 

@@ -4,6 +4,7 @@ import (
 	"cdt/internal"
 	"context"
 	"fmt"
+
 	"github.com/urfave/cli/v3"
 )
 
@@ -17,6 +18,11 @@ func NewToolCommand() *cli.Command {
 				Usage:  "list available tools",
 				Action: toolCommandListAction,
 				Flags: []cli.Flag{
+					&cli.StringSliceFlag{
+						Name:    "tag",
+						Usage:   "list tools with specific tag",
+						Aliases: []string{"t"},
+					},
 					&cli.BoolFlag{
 						Name:    "all",
 						Aliases: []string{"a"},
@@ -41,12 +47,20 @@ func NewToolCommand() *cli.Command {
 func toolCommandListAction(ctx context.Context, cmd *cli.Command) error {
 	c := ctx.Value("context").(internal.Context)
 
+	var tools internal.Tools
+
 	if cmd.Bool("all") {
-		c.Tools.PrintTable(cmd.Writer)
+		tools = c.Tools
 	} else {
-		tools := c.Tools.OnlyAvailable()
-		tools.PrintTable(cmd.Writer)
+		tools = c.Tools.OnlyAvailable()
 	}
+
+	if cmd.IsSet("tag") {
+		tags := cmd.StringSlice("tag")
+		tools = tools.FilterByTags(tags)
+	}
+
+	tools.PrintTable(cmd.Writer)
 
 	return nil
 }
