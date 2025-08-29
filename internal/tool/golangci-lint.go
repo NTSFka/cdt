@@ -16,6 +16,7 @@ func NewGolangCILint(detect func() *internal.Executable) *GolangCILint {
 			"golangci-lint",
 			"Golangci-lint",
 			"Smart, fast linters runner.",
+			internal.Tags{internal.ToolTagGo, internal.ToolTagLint},
 			detect,
 		),
 	}

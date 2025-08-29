@@ -31,6 +31,7 @@ func NewPip(detect func() *internal.Executable) *Pip {
 			"pip",
 			"pip",
 			"pip is the package installer for Python. ",
+			internal.Tags{internal.ToolTagPython, internal.ToolTagDependency},
 			detect,
 		),
 	}

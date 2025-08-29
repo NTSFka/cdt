@@ -23,6 +23,7 @@ func NewMyPy(detect func() *internal.Executable) *MyPy {
 			"mypy",
 			"MyPy",
 			"Mypy is a static type checker for Python.",
+			internal.Tags{internal.ToolTagPython, internal.ToolTagLint},
 			detect,
 		),
 	}

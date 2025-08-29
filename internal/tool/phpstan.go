@@ -33,6 +33,7 @@ func NewPHPStan(detect func() *internal.Executable) *PHPStan {
 			"phpstan",
 			"PHPStan",
 			"Analyses source code.",
+			internal.Tags{internal.ToolTagPhp, internal.ToolTagLint},
 			detect,
 		),
 	}

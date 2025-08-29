@@ -4,9 +4,10 @@ import (
 	"cdt/internal"
 	"cdt/internal/test"
 	"errors"
+	"testing"
+
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
-	"testing"
 )
 
 func runFormat(formatter internal.ProjectFormatter, args ...string) error {
@@ -67,7 +68,7 @@ type testFormatterTool struct {
 
 func newFormatterTool(t *testing.T) *testFormatterTool {
 	formatter := &testFormatterTool{
-		internal.MakeExecutableTool("tool1", "", "", nil),
+		internal.MakeExecutableTool("tool1", "", "", internal.Tags{}, nil),
 		test.ProjectFormatter{},
 	}
 	formatter.Test(t)
@@ -113,7 +114,7 @@ func TestFormat_Tool_NotSupported(t *testing.T) {
 	formatter := struct {
 		internal.ExecutableTool
 	}{
-		internal.MakeExecutableTool("tool1", "", "", nil),
+		internal.MakeExecutableTool("tool1", "", "", internal.Tags{}, nil),
 	}
 
 	err := runFormatTool(&formatter, "--tool", "tool1")

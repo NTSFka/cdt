@@ -25,6 +25,7 @@ func NewClangTidy(detect func() *internal.Executable) *ClangTidy {
 			"clang-tidy",
 			"Clang Tidy",
 			"A clang-based C++ “linter” tool.",
+			internal.Tags{internal.ToolTagC, internal.ToolTagCpp, internal.ToolTagLint},
 			detect,
 		),
 	}

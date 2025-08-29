@@ -21,7 +21,8 @@ func NewPHP(detect func() *internal.Executable) *PHP {
 		ExecutableTool: internal.MakeExecutableTool(
 			"php",
 			"PHP",
-			" popular general-purpose scripting language that is especially suited to web development.",
+			"Popular general-purpose scripting language that is especially suited to web development.",
+			internal.Tags{internal.ToolTagPhp, internal.ToolTagRun},
 			detect,
 		),
 	}

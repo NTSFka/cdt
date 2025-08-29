@@ -2,8 +2,9 @@ package project
 
 import (
 	"cdt/internal"
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestFromConfig_Empty(t *testing.T) {
@@ -26,7 +27,7 @@ func TestFromConfig_Configure_NotFound(t *testing.T) {
 func TestFromConfig_Configure_NotSupported(t *testing.T) {
 	config := internal.ConfigWorkflow{Configure: internal.StrPtr("configure")}
 	tools := internal.Tools{
-		internal.NewExecutableTool("configure", "Test", "Test", nil),
+		internal.NewExecutableTool("configure", "Test", "Test", internal.Tags{}, nil),
 	}
 
 	tool, err := FromConfig(config, tools)
@@ -43,7 +44,7 @@ func TestFromConfig_Configure(t *testing.T) {
 
 	config := internal.ConfigWorkflow{Configure: internal.StrPtr("configure")}
 	tool := &toolType{
-		internal.MakeExecutableTool("configure", "Test", "Test", nil),
+		internal.MakeExecutableTool("configure", "Test", "Test", internal.Tags{}, nil),
 		nil,
 	}
 
@@ -73,7 +74,7 @@ func TestFromConfig_Build_NotFound(t *testing.T) {
 func TestFromConfig_Build_NotSupported(t *testing.T) {
 	config := internal.ConfigWorkflow{Build: internal.StrPtr("build")}
 	tools := internal.Tools{
-		internal.NewExecutableTool("build", "Test", "Test", nil),
+		internal.NewExecutableTool("build", "Test", "Test", internal.Tags{}, nil),
 	}
 
 	tool, err := FromConfig(config, tools)
@@ -90,7 +91,7 @@ func TestFromConfig_Build(t *testing.T) {
 
 	config := internal.ConfigWorkflow{Build: internal.StrPtr("build")}
 	tool := &toolType{
-		internal.MakeExecutableTool("build", "Test", "Test", nil),
+		internal.MakeExecutableTool("build", "Test", "Test", internal.Tags{}, nil),
 		nil,
 	}
 
@@ -120,7 +121,7 @@ func TestFromConfig_Test_NotFound(t *testing.T) {
 func TestFromConfig_Test_NotSupported(t *testing.T) {
 	config := internal.ConfigWorkflow{Test: internal.StrPtr("test")}
 	tools := internal.Tools{
-		internal.NewExecutableTool("test", "Test", "Test", nil),
+		internal.NewExecutableTool("test", "Test", "Test", internal.Tags{}, nil),
 	}
 
 	tool, err := FromConfig(config, tools)
@@ -137,7 +138,7 @@ func TestFromConfig_Test(t *testing.T) {
 
 	config := internal.ConfigWorkflow{Test: internal.StrPtr("test")}
 	tool := &toolType{
-		internal.MakeExecutableTool("test", "Test", "Test", nil),
+		internal.MakeExecutableTool("test", "Test", "Test", internal.Tags{}, nil),
 		nil,
 	}
 
@@ -167,7 +168,7 @@ func TestFromConfig_Format_NotFound(t *testing.T) {
 func TestFromConfig_Format_NotSupported(t *testing.T) {
 	config := internal.ConfigWorkflow{Format: internal.StrPtr("format")}
 	tools := internal.Tools{
-		internal.NewExecutableTool("format", "Test", "Test", nil),
+		internal.NewExecutableTool("format", "Test", "Test", internal.Tags{}, nil),
 	}
 
 	tool, err := FromConfig(config, tools)
@@ -184,7 +185,7 @@ func TestFromConfig_Format(t *testing.T) {
 
 	config := internal.ConfigWorkflow{Format: internal.StrPtr("format")}
 	tool := &toolType{
-		internal.MakeExecutableTool("format", "Test", "Test", nil),
+		internal.MakeExecutableTool("format", "Test", "Test", internal.Tags{}, nil),
 		nil,
 	}
 
@@ -214,7 +215,7 @@ func TestFromConfig_Lint_NotFound(t *testing.T) {
 func TestFromConfig_Lint_NotSupported(t *testing.T) {
 	config := internal.ConfigWorkflow{Lint: internal.StrPtr("lint")}
 	tools := internal.Tools{
-		internal.NewExecutableTool("lint", "Test", "Test", nil),
+		internal.NewExecutableTool("lint", "Test", "Test", internal.Tags{}, nil),
 	}
 
 	tool, err := FromConfig(config, tools)
@@ -231,7 +232,7 @@ func TestFromConfig_Lint(t *testing.T) {
 
 	config := internal.ConfigWorkflow{Lint: internal.StrPtr("lint")}
 	tool := &toolType{
-		internal.MakeExecutableTool("lint", "Test", "Test", nil),
+		internal.MakeExecutableTool("lint", "Test", "Test", internal.Tags{}, nil),
 		nil,
 	}
 
@@ -261,7 +262,7 @@ func TestFromConfig_Run_NotFound(t *testing.T) {
 func TestFromConfig_Run_NotSupported(t *testing.T) {
 	config := internal.ConfigWorkflow{Run: internal.StrPtr("run")}
 	tools := internal.Tools{
-		internal.NewExecutableTool("run", "Test", "Test", nil),
+		internal.NewExecutableTool("run", "Test", "Test", internal.Tags{}, nil),
 	}
 
 	tool, err := FromConfig(config, tools)
@@ -278,7 +279,7 @@ func TestFromConfig_Run(t *testing.T) {
 
 	config := internal.ConfigWorkflow{Run: internal.StrPtr("run")}
 	tool := &toolType{
-		internal.MakeExecutableTool("run", "Test", "Test", nil),
+		internal.MakeExecutableTool("run", "Test", "Test", internal.Tags{}, nil),
 		nil,
 	}
 

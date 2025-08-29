@@ -23,6 +23,7 @@ func NewFlake8(detect func() *internal.Executable) *Flake8 {
 			"flake8",
 			"Flake8",
 			"Flake8 is a wrapper around these tools: PyFlakes, pycodestyle, Ned Batchelder's McCabe script.",
+			internal.Tags{internal.ToolTagPython, internal.ToolTagLint},
 			detect,
 		),
 	}

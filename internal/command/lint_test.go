@@ -4,9 +4,10 @@ import (
 	"cdt/internal"
 	"cdt/internal/test"
 	"errors"
+	"testing"
+
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
-	"testing"
 )
 
 func runLint(linter internal.ProjectLinter, args ...string) error {
@@ -67,7 +68,7 @@ type testLinterTool struct {
 
 func newTestLinterTool(t *testing.T) *testLinterTool {
 	linter := &testLinterTool{
-		internal.MakeExecutableTool("tool1", "", "", nil),
+		internal.MakeExecutableTool("tool1", "", "", internal.Tags{}, nil),
 		test.ProjectLinter{},
 	}
 	linter.Test(t)
@@ -113,7 +114,7 @@ func TestLint_Tool_NotSupported(t *testing.T) {
 	linter := struct {
 		internal.ExecutableTool
 	}{
-		internal.MakeExecutableTool("tool1", "", "", nil),
+		internal.MakeExecutableTool("tool1", "", "", internal.Tags{}, nil),
 	}
 
 	err := runLintTool(&linter, "--tool", "tool1")

@@ -4,9 +4,10 @@ import (
 	"cdt/internal"
 	"cdt/internal/test"
 	"errors"
+	"testing"
+
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
-	"testing"
 )
 
 func runDependency(manager internal.ProjectDependencyManager, args ...string) error {
@@ -220,7 +221,7 @@ type testDependencyTool struct {
 
 func newTestDependencyTool(t *testing.T) *testDependencyTool {
 	manager := &testDependencyTool{
-		internal.MakeExecutableTool("tool1", "", "", nil),
+		internal.MakeExecutableTool("tool1", "", "", internal.Tags{}, nil),
 		test.DependencyManager{},
 	}
 	manager.Test(t)
@@ -279,7 +280,7 @@ func TestDependency_Tool_NotSupported(t *testing.T) {
 	linter := struct {
 		internal.ExecutableTool
 	}{
-		internal.MakeExecutableTool("tool1", "", "", nil),
+		internal.MakeExecutableTool("tool1", "", "", internal.Tags{}, nil),
 	}
 
 	dataSet := [][]string{

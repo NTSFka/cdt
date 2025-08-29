@@ -26,6 +26,7 @@ func NewPython(detect func() *internal.Executable) *Python {
 			"python",
 			"Python",
 			"Python is a programming language that lets you work quickly and integrate systems more effectively.",
+			internal.Tags{internal.ToolTagPython, internal.ToolTagRun, internal.ToolTagEnvironment},
 			detect,
 		),
 	}

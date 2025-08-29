@@ -21,6 +21,7 @@ func NewDocker(detect func() *internal.Executable) *Docker {
 		"docker",
 		"Docker",
 		"Docker image and container command line interface.",
+		internal.Tags{internal.ToolTagEnvironment},
 		detect,
 	)}
 }

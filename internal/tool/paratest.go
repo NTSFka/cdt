@@ -32,6 +32,7 @@ func NewParaTest(detect func() *internal.Executable) *ParaTest {
 			"paratest",
 			"ParaTest",
 			"The objective of ParaTest is to support parallel testing in PHPUnit.",
+			internal.Tags{internal.ToolTagPhp, internal.ToolTagTest},
 			detect,
 		),
 	}

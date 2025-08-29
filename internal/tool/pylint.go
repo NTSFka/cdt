@@ -23,6 +23,7 @@ func NewPylint(detect func() *internal.Executable) *Pylint {
 			"pylint",
 			"Pylint",
 			"Pylint is a static code analyser.",
+			internal.Tags{internal.ToolTagPython, internal.ToolTagLint},
 			detect,
 		),
 	}

@@ -32,6 +32,7 @@ func NewPHPUnit(detect func() *internal.Executable) *PHPUnit {
 			"phpunit",
 			"PHPUnit",
 			"PHPUnit is a programmer-oriented testing framework for PHP.",
+			internal.Tags{internal.ToolTagPhp, internal.ToolTagTest},
 			detect,
 		),
 	}
