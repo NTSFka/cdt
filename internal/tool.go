@@ -6,6 +6,7 @@ import (
 	"io"
 	"os"
 	"slices"
+	"strings"
 
 	"github.com/jedib0t/go-pretty/v6/table"
 )
@@ -199,7 +200,7 @@ func (t *Tools) PrintTable(writer io.Writer) {
 
 	w := table.NewWriter()
 	w.SetOutputMirror(writer)
-	w.AppendHeader(table.Row{"ID", "Name", "Available", "Info", "Executable"})
+	w.AppendHeader(table.Row{"ID", "Name", "Available", "Tags", "Info", "Executable"})
 
 	for _, tool := range *t {
 		var executable string
@@ -210,7 +211,13 @@ func (t *Tools) PrintTable(writer io.Writer) {
 			executable = "-"
 		}
 
-		w.AppendRow(table.Row{tool.Id(), tool.Name(), tool.IsAvailable(), tool.Info(), executable})
+		var tags []string
+
+		for _, tag := range tool.Tags() {
+			tags = append(tags, string(tag))
+		}
+
+		w.AppendRow(table.Row{tool.Id(), tool.Name(), tool.IsAvailable(), strings.Join(tags, ", "), tool.Info(), executable})
 	}
 
 	w.Render()
