@@ -33,8 +33,13 @@ func DetectDocker(environment internal.Environment) *Docker {
 	})
 }
 
-func (d *Docker) IdShort() string {
-	return "d"
+func (d *Docker) Aliases() []string {
+	return []string{"d"}
+}
+
+func (d *Docker) Detect(_ string) *internal.Environment {
+	// No way to detect an environment (yet)
+	return nil
 }
 
 // CreateEnvironment create docker environment where the service is used for running tools

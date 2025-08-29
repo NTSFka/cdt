@@ -33,8 +33,13 @@ func DetectDockerCompose(environment internal.Environment) *DockerCompose {
 	return NewDockerCompose(func() *internal.Executable { return environment.FindExecutable("docker") })
 }
 
-func (d *DockerCompose) IdShort() string {
-	return "dc"
+func (d *DockerCompose) Aliases() []string {
+	return []string{"dc"}
+}
+
+func (d *DockerCompose) Detect(_ string) *internal.Environment {
+	// In docker compose there might be multiple environments, which one is the one?
+	return nil
 }
 
 // CreateEnvironment create docker compose environment where the service is used for running tools

@@ -36,8 +36,20 @@ func (p *Python) RunTarget(project internal.Project, target string, args []strin
 	return p.RunForProject(project, append([]string{target}, args...))
 }
 
-func (p *Python) IdShort() string {
-	return "pyenv"
+func (p *Python) Aliases() []string {
+	return []string{"pyenv"}
+}
+
+func (p *Python) Detect(directory string) *internal.Environment {
+	// Check if the directory contains a venv
+	for _, dir := range []string{"venv", ".venv"} {
+		if internal.PathExists(filepath.Join(directory, dir)) {
+			env, _ := p.CreateEnvironment(directory, dir)
+			return &env
+		}
+	}
+
+	return nil
 }
 
 // CreateEnvironment create python virtual environment where the service is used for running tools

@@ -6,37 +6,40 @@ import (
 	"cdt/internal/tool"
 	"cdt/pkg"
 	"context"
-	"errors"
 	"fmt"
 	"os"
+	"slices"
 	"strings"
 )
 
-func parseEnvironment(environment string) (string, string, error) {
+func parseEnvironment(environment string) (string, string) {
 	parts := strings.SplitN(environment, ":", 2)
 
-	if len(parts) != 2 {
-		return "", "", errors.New("invalid environment string")
+	if len(parts) == 1 {
+		return parts[0], ""
 	}
 
-	return parts[0], parts[1], nil
+	return parts[0], parts[1]
 }
 
-func initEnvironment(rootDirectory string, environment *string, environmentProviders internal.EnvironmentProviders) (internal.Environment, error) {
+func initEnvironment(directory string, environment *string, envProviders internal.EnvironmentProviders) (internal.Environment, error) {
 	if environment != nil {
-		toolName, argument, err := parseEnvironment(*environment)
+		toolName, argument := parseEnvironment(*environment)
 
-		if err != nil {
-			return nil, err
-		}
-
-		for _, provider := range environmentProviders {
-			if provider.IsAvailable() && (provider.Id() == toolName || provider.IdShort() == toolName) {
-				return provider.CreateEnvironment(rootDirectory, argument)
+		for _, provider := range envProviders {
+			if provider.IsAvailable() && (provider.Id() == toolName || slices.Contains(provider.Aliases(), toolName)) {
+				return provider.CreateEnvironment(directory, argument)
 			}
 		}
 
 		return nil, fmt.Errorf("environment '%s' not found", toolName)
+	}
+
+	// Try to detect environment automatically
+	for _, provider := range envProviders {
+		if env := provider.Detect(directory); env != nil {
+			return *env, nil
+		}
 	}
 
 	return internal.SystemEnvironment, nil

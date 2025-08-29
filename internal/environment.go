@@ -3,9 +3,11 @@ package internal
 import (
 	"context"
 	"fmt"
-	"github.com/jedib0t/go-pretty/v6/table"
 	"io"
 	"os/exec"
+	"strings"
+
+	"github.com/jedib0t/go-pretty/v6/table"
 )
 
 // Environment represents an environment where the tools are located and can be executed.
@@ -37,8 +39,11 @@ type EnvironmentProvider interface {
 	// The Id returns provider unique identifier
 	Id() string
 
-	// The IdShort returns provider short unique identifier
-	IdShort() string
+	// Aliases returns provider alternative unique identifiers
+	Aliases() []string
+
+	// Detect try to detect an environment in the directory.
+	Detect(directory string) *Environment
 
 	// Name returns provider name
 	Name() string
@@ -63,11 +68,19 @@ func (p *EnvironmentProviders) PrintTable(writer io.Writer) {
 
 	t := table.NewWriter()
 	t.SetOutputMirror(writer)
-	t.AppendHeader(table.Row{"ID (short)", "Name", "Available", "Info"})
+	t.AppendHeader(table.Row{"ID (aliases)", "Name", "Available", "Info"})
 
 	for _, tool := range *p {
+		var id string
+
+		if len(tool.Aliases()) > 0 {
+			id = fmt.Sprintf("%v (%v)", tool.Id(), strings.Join(tool.Aliases(), ", "))
+		} else {
+			id = tool.Id()
+		}
+
 		t.AppendRow(table.Row{
-			fmt.Sprintf("%v (%v)", tool.Id(), tool.IdShort()),
+			id,
 			tool.Name(),
 			tool.IsAvailable(),
 			tool.Info(),
@@ -85,8 +98,13 @@ func (s *systemEnvironmentProvider) Id() string {
 	return "system"
 }
 
-func (s *systemEnvironmentProvider) IdShort() string {
-	return "s"
+func (s *systemEnvironmentProvider) Aliases() []string {
+	return []string{"s"}
+}
+
+func (s *systemEnvironmentProvider) Detect(_ string) *Environment {
+	// System environment is a special case that is always available, and there is no need to detect it
+	return nil
 }
 
 func (s *systemEnvironmentProvider) Name() string {

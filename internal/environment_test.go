@@ -3,8 +3,9 @@ package internal
 import (
 	"bytes"
 	"context"
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestEnvironment_EnvironmentProviders_PrintTable_Empty(t *testing.T) {
@@ -16,9 +17,41 @@ func TestEnvironment_EnvironmentProviders_PrintTable_Empty(t *testing.T) {
 	assert.Empty(t, output.String())
 }
 
+type testEnvironmentProvider struct {
+}
+
+func (t *testEnvironmentProvider) Id() string {
+	return "test"
+}
+
+func (t *testEnvironmentProvider) Aliases() []string {
+	return []string{}
+}
+
+func (t *testEnvironmentProvider) Detect(_ string) *Environment {
+	return nil
+}
+
+func (t *testEnvironmentProvider) Name() string {
+	return "Test"
+}
+
+func (t *testEnvironmentProvider) Info() string {
+	return "Test env provider"
+}
+
+func (t *testEnvironmentProvider) IsAvailable() bool {
+	return false
+}
+
+func (t *testEnvironmentProvider) CreateEnvironment(_ string, _ string) (Environment, error) {
+	return nil, nil
+}
+
 func TestEnvironment_EnvironmentProviders_PrintTable(t *testing.T) {
 	providers := EnvironmentProviders{
 		SystemEnvironmentProvider,
+		&testEnvironmentProvider{},
 	}
 
 	output := bytes.Buffer{}
@@ -31,11 +64,16 @@ func TestEnvironment_SystemEnvironmentProvider_Data(t *testing.T) {
 	assert.Equal(t, "system", SystemEnvironmentProvider.Id())
 	assert.Equal(t, "System", SystemEnvironmentProvider.Name())
 	assert.Equal(t, "Native OS system environment", SystemEnvironmentProvider.Info())
+	assert.Equal(t, []string{"s"}, SystemEnvironmentProvider.Aliases())
 	assert.True(t, SystemEnvironmentProvider.IsAvailable())
 
 	env, err := SystemEnvironmentProvider.CreateEnvironment(".", "test")
 	assert.NoError(t, err)
 	assert.Equal(t, SystemEnvironment, env)
+}
+
+func TestEnvironment_SystemEnvironmentProvider_Detect(t *testing.T) {
+	assert.Nil(t, SystemEnvironmentProvider.Detect("."))
 }
 
 func TestEnvironment_SystemEnvironment_Id(t *testing.T) {

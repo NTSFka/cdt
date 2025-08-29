@@ -82,7 +82,7 @@ func TestPython_CreateEnvironment(t *testing.T) {
 
 	tool := NewPython(python.LazyExecutable("python"))
 	assert.NotNil(t, tool)
-	assert.Equal(t, "pyenv", tool.IdShort())
+	assert.Equal(t, []string{"pyenv"}, tool.Aliases())
 
 	env, err := tool.CreateEnvironment(".", ".venv")
 	assert.NoError(t, err)
