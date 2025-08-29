@@ -17,7 +17,7 @@ func TestTool_MakeExecutableTool_NotAvailable(t *testing.T) {
 	assert.Equal(t, "Tool Name", tool.Name())
 	assert.Equal(t, "Tool Info", tool.Info())
 	assert.False(t, tool.IsAvailable())
-	assert.Nil(t, tool.ExecutablePath())
+	assert.Nil(t, tool.Executable())
 	assert.EqualError(t, tool.Run(context.Background(), RunOptions{}, []string{}), tool.NotFoundError().Error())
 }
 
@@ -28,8 +28,8 @@ func TestTool_MakeExecutableTool(t *testing.T) {
 	assert.Equal(t, "Tool Name", tool.Name())
 	assert.Equal(t, "Tool Info", tool.Info())
 
-	if path := tool.ExecutablePath(); assert.NotNil(t, path) {
-		assert.Equal(t, "/bin/tool", *path)
+	if executable := tool.Executable(); assert.NotNil(t, executable) {
+		assert.Equal(t, "/bin/tool", executable.Path)
 	}
 }
 
@@ -40,7 +40,7 @@ func TestTool_NewExecutableTool_NotAvailable(t *testing.T) {
 	assert.Equal(t, "Tool Name", tool.Name())
 	assert.Equal(t, "Tool Info", tool.Info())
 	assert.False(t, tool.IsAvailable())
-	assert.Nil(t, tool.ExecutablePath())
+	assert.Nil(t, tool.Executable())
 	assert.EqualError(t, tool.Run(context.Background(), RunOptions{}, []string{}), tool.NotFoundError().Error())
 }
 
@@ -51,8 +51,8 @@ func TestTool_NewExecutableTool(t *testing.T) {
 	assert.Equal(t, "Tool Name", tool.Name())
 	assert.Equal(t, "Tool Info", tool.Info())
 
-	if path := tool.ExecutablePath(); assert.NotNil(t, path) {
-		assert.Equal(t, "/bin/tool", *path)
+	if executable := tool.Executable(); assert.NotNil(t, executable) {
+		assert.Equal(t, "/bin/tool", executable.Path)
 	}
 }
 
@@ -246,10 +246,23 @@ func TestTool_PrintTable_Empty(t *testing.T) {
 	assert.Empty(t, output.String())
 }
 
+type testRuntime struct {
+}
+
+func (t *testRuntime) Id() string {
+	return "test"
+}
+
+func (t *testRuntime) RunExecutable(_ context.Context, _ RunOptions, _ string, _ []string) error {
+	return nil
+}
+
 func TestTool_PrintTable(t *testing.T) {
+	runtime := testRuntime{}
+
 	tools := Tools{
 		NewExecutableTool("id1", "Tool 1", "", Tags{}, func() *Executable { return nil }),
-		NewExecutableTool("id2", "Tool 2", "", Tags{}, func() *Executable { return &Executable{Path: "/bin/tool"} }),
+		NewExecutableTool("id2", "Tool 2", "", Tags{}, func() *Executable { return &Executable{Path: "/bin/tool", Runtime: &runtime} }),
 	}
 
 	var output bytes.Buffer

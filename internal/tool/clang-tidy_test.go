@@ -5,10 +5,11 @@ import (
 	"cdt/internal/test"
 	"errors"
 	"fmt"
-	"github.com/stretchr/testify/assert"
 	"os"
 	"path/filepath"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestClangTidy_DetectClangTidy(t *testing.T) {
@@ -21,8 +22,8 @@ func TestClangTidy_DetectClangTidy(t *testing.T) {
 	assert.Equal(t, "clang-tidy", tool.Id())
 	assert.True(t, tool.IsAvailable())
 
-	if path := tool.ExecutablePath(); assert.NotNil(t, path) {
-		assert.Equal(t, "/bin/clang-tidy", *path)
+	if executable := tool.Executable(); assert.NotNil(t, executable) {
+		assert.Equal(t, "/bin/clang-tidy", executable.Path)
 	}
 
 	env.AssertExpectations(t)
@@ -37,7 +38,7 @@ func TestClangTidy_DetectClangTidy_NotFound(t *testing.T) {
 	assert.NotNil(t, tool)
 	assert.Equal(t, "clang-tidy", tool.Id())
 	assert.False(t, tool.IsAvailable())
-	assert.Nil(t, tool.ExecutablePath())
+	assert.Nil(t, tool.Executable())
 
 	env.AssertExpectations(t)
 }

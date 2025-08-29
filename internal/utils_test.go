@@ -1,10 +1,12 @@
 package internal
 
 import (
-	"github.com/stretchr/testify/assert"
+	"bytes"
 	"os"
 	"path/filepath"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestUtils_PathExists_NotFound(t *testing.T) {
@@ -36,4 +38,18 @@ func TestStrPtr(t *testing.T) {
 	s := "test"
 
 	assert.Equal(t, &s, StrPtr(s))
+}
+
+func TestDetectTermWidth_NotTerminal(t *testing.T) {
+	writer := &bytes.Buffer{}
+
+	width := DetectTermWidth(writer)
+
+	assert.Nil(t, width)
+}
+
+func TestDetectTermWidth_StdOut(t *testing.T) {
+	width := DetectTermWidth(os.Stdout)
+
+	assert.Nil(t, width)
 }

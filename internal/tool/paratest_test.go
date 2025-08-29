@@ -3,8 +3,9 @@ package tool
 import (
 	"cdt/internal"
 	"cdt/internal/test"
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestParaTest_DetectParaTest_Composer(t *testing.T) {
@@ -19,8 +20,8 @@ func TestParaTest_DetectParaTest_Composer(t *testing.T) {
 	assert.Equal(t, "paratest", tool.Id())
 	assert.True(t, tool.IsAvailable())
 
-	if path := tool.ExecutablePath(); assert.NotNil(t, path) {
-		assert.Equal(t, "/bin/tool", *path)
+	if executable := tool.Executable(); assert.NotNil(t, executable) {
+		assert.Equal(t, "/bin/tool", executable.Path)
 	}
 
 	env.AssertExpectations(t)
@@ -42,8 +43,8 @@ func TestParaTest_DetectParaTest_System(t *testing.T) {
 	assert.Equal(t, "paratest", tool.Id())
 	assert.True(t, tool.IsAvailable())
 
-	if path := tool.ExecutablePath(); assert.NotNil(t, path) {
-		assert.Equal(t, "/bin/tool", *path)
+	if executable := tool.Executable(); assert.NotNil(t, executable) {
+		assert.Equal(t, "/bin/tool", executable.Path)
 	}
 
 	env.AssertExpectations(t)
@@ -61,7 +62,7 @@ func TestParaTest_DetectParaTest_NotFound(t *testing.T) {
 	assert.NotNil(t, tool)
 	assert.Equal(t, "paratest", tool.Id())
 	assert.False(t, tool.IsAvailable())
-	assert.Nil(t, tool.ExecutablePath())
+	assert.Nil(t, tool.Executable())
 
 	env.AssertExpectations(t)
 }

@@ -4,8 +4,9 @@ import (
 	"cdt/internal"
 	"cdt/internal/test"
 	"errors"
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestCMake_CMakeDetect(t *testing.T) {
@@ -18,8 +19,8 @@ func TestCMake_CMakeDetect(t *testing.T) {
 	assert.Equal(t, "cmake", cmake.Id())
 	assert.True(t, cmake.IsAvailable())
 
-	if path := cmake.ExecutablePath(); assert.NotNil(t, path) {
-		assert.Equal(t, "/bin/cmake", *path)
+	if executable := cmake.Executable(); assert.NotNil(t, executable) {
+		assert.Equal(t, "/bin/cmake", executable.Path)
 	}
 
 	env.AssertExpectations(t)
@@ -34,7 +35,7 @@ func TestCMake_CMakeDetect_NotFound(t *testing.T) {
 	assert.NotNil(t, cmake)
 	assert.Equal(t, "cmake", cmake.Id())
 	assert.False(t, cmake.IsAvailable())
-	assert.Nil(t, cmake.ExecutablePath())
+	assert.Nil(t, cmake.Executable())
 
 	env.AssertExpectations(t)
 }

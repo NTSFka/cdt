@@ -19,8 +19,8 @@ func TestFlake8_DetectFlake8(t *testing.T) {
 	assert.Equal(t, "flake8", tool.Id())
 	assert.True(t, tool.IsAvailable())
 
-	if path := tool.ExecutablePath(); assert.NotNil(t, path) {
-		assert.Equal(t, "/bin/tool", *path)
+	if executable := tool.Executable(); assert.NotNil(t, executable) {
+		assert.Equal(t, "/bin/tool", executable.Path)
 	}
 
 	env.AssertExpectations(t)
@@ -36,7 +36,7 @@ func TestFlake8_DetectFlake8_NotFound(t *testing.T) {
 	assert.NotNil(t, tool)
 	assert.Equal(t, "flake8", tool.Id())
 	assert.False(t, tool.IsAvailable())
-	assert.Nil(t, tool.ExecutablePath())
+	assert.Nil(t, tool.Executable())
 
 	env.AssertExpectations(t)
 }

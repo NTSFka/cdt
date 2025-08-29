@@ -70,6 +70,10 @@ func (p *EnvironmentProviders) PrintTable(writer io.Writer) {
 	t.SetOutputMirror(writer)
 	t.AppendHeader(table.Row{"ID (aliases)", "Name", "Available", "Info"})
 
+	if width := DetectTermWidth(writer); width != nil {
+		t.SetAllowedRowLength(*width)
+	}
+
 	for _, tool := range *p {
 		var id string
 

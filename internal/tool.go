@@ -46,11 +46,11 @@ type Tool interface {
 	// Tags returns tool tags that can be used to filter tools
 	Tags() Tags
 
-	// ExecutablePath returns tool executable path
-	ExecutablePath() *string
-
 	// IsAvailable return if the tool is available on the system
 	IsAvailable() bool
+
+	// Executable returns tool executable
+	Executable() *Executable
 
 	// Run Execute the tool on the project
 	Run(ctx context.Context, options RunOptions, args []string) error
@@ -105,14 +105,6 @@ func (t *ExecutableTool) Info() string {
 
 func (t *ExecutableTool) Tags() Tags {
 	return t.tags
-}
-
-func (t *ExecutableTool) ExecutablePath() *string {
-	if executable := t.Executable(); executable != nil {
-		return &executable.Path
-	}
-
-	return nil
 }
 
 func (t *ExecutableTool) IsAvailable() bool {
@@ -200,13 +192,17 @@ func (t *Tools) PrintTable(writer io.Writer) {
 
 	w := table.NewWriter()
 	w.SetOutputMirror(writer)
-	w.AppendHeader(table.Row{"ID", "Name", "Available", "Tags", "Info", "Executable"})
+	w.AppendHeader(table.Row{"ID", "Name", "Available", "Tags", "Executable", "Info"})
+
+	if width := DetectTermWidth(writer); width != nil {
+		w.SetAllowedRowLength(*width)
+	}
 
 	for _, tool := range *t {
 		var executable string
 
-		if path := tool.ExecutablePath(); path != nil {
-			executable = *path
+		if exe := tool.Executable(); exe != nil {
+			executable = fmt.Sprintf("%v:%v", exe.Runtime.Id(), exe.Path)
 		} else {
 			executable = "-"
 		}
@@ -217,7 +213,14 @@ func (t *Tools) PrintTable(writer io.Writer) {
 			tags = append(tags, string(tag))
 		}
 
-		w.AppendRow(table.Row{tool.Id(), tool.Name(), tool.IsAvailable(), strings.Join(tags, ", "), tool.Info(), executable})
+		w.AppendRow(table.Row{
+			tool.Id(),
+			tool.Name(),
+			tool.IsAvailable(),
+			strings.Join(tags, ", "),
+			executable,
+			tool.Info(),
+		})
 	}
 
 	w.Render()

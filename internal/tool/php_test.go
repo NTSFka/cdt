@@ -4,8 +4,9 @@ import (
 	"cdt/internal"
 	"cdt/internal/test"
 	"errors"
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestPHP_DetectPHP(t *testing.T) {
@@ -19,8 +20,8 @@ func TestPHP_DetectPHP(t *testing.T) {
 	assert.Equal(t, "php", tool.Id())
 	assert.True(t, tool.IsAvailable())
 
-	if path := tool.ExecutablePath(); assert.NotNil(t, path) {
-		assert.Equal(t, "/bin/tool", *path)
+	if executable := tool.Executable(); assert.NotNil(t, executable) {
+		assert.Equal(t, "/bin/tool", executable.Path)
 	}
 
 	env.AssertExpectations(t)
@@ -36,7 +37,7 @@ func TestPHP_DetectPHP_NotFound(t *testing.T) {
 	assert.NotNil(t, tool)
 	assert.Equal(t, "php", tool.Id())
 	assert.False(t, tool.IsAvailable())
-	assert.Nil(t, tool.ExecutablePath())
+	assert.Nil(t, tool.Executable())
 
 	env.AssertExpectations(t)
 }

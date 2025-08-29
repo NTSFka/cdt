@@ -4,8 +4,9 @@ import (
 	"cdt/internal"
 	"cdt/internal/test"
 	"errors"
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestGo_DetectGo(t *testing.T) {
@@ -18,8 +19,8 @@ func TestGo_DetectGo(t *testing.T) {
 	assert.Equal(t, "go", tool.Id())
 	assert.True(t, tool.IsAvailable())
 
-	if path := tool.ExecutablePath(); assert.NotNil(t, path) {
-		assert.Equal(t, "/bin/go", *path)
+	if executable := tool.Executable(); assert.NotNil(t, executable) {
+		assert.Equal(t, "/bin/go", executable.Path)
 	}
 
 	env.AssertExpectations(t)
@@ -34,7 +35,7 @@ func TestGo_DetectGo_NotFound(t *testing.T) {
 	assert.NotNil(t, tool)
 	assert.Equal(t, "go", tool.Id())
 	assert.False(t, tool.IsAvailable())
-	assert.Nil(t, tool.ExecutablePath())
+	assert.Nil(t, tool.Executable())
 
 	env.AssertExpectations(t)
 }
