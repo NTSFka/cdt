@@ -17,7 +17,7 @@ func (g *GoType) Detect(directory string) bool {
 	return internal.PathExists(filepath.Join(directory, "go.mod"))
 }
 
-func (g *GoType) Create(config Config, tools internal.Tools) internal.Project {
+func (g *GoType) Create(config Config, tools internal.Tools) Project {
 	goTool := internal.GetTool[*tool.Go](tools)
 	goLint := internal.GetTool[*tool.GolangCILint](tools)
 
@@ -30,5 +30,8 @@ func (g *GoType) Create(config Config, tools internal.Tools) internal.Project {
 		Linter:       &LinterList{goTool, goLint},
 	}
 
-	return internal.MakeProject(config.Directory, "", goTool, workflow)
+	return Project{
+		Desc:     internal.Project{Directory: config.Directory, StructureProvider: goTool},
+		Workflow: workflow,
+	}
 }

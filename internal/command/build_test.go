@@ -12,10 +12,8 @@ import (
 
 func runBuild(builder internal.ProjectBuilder, args ...string) error {
 	return test.RunCommand(NewBuildCommand(), internal.Context{
-		Project: internal.Project{
-			Workflow: internal.Workflow{
-				Builder: builder,
-			},
+		Workflow: internal.Workflow{
+			Builder: builder,
 		},
 	}, args...)
 }

@@ -35,35 +35,28 @@ func (p *ProjectStructure) GetFiles() []string {
 
 // A Project describes a project in a specific directory
 type Project struct {
-	rootDirectory     string
-	buildDirectory    string
-	structureProvider ProjectStructureProvider
-	Workflow          Workflow
-}
-
-// MakeProject creates a new project
-func MakeProject(rootDirectory string, buildDirectory string, structureProvider ProjectStructureProvider, workflow Workflow) Project {
-	return Project{
-		rootDirectory:     rootDirectory,
-		buildDirectory:    buildDirectory,
-		structureProvider: structureProvider,
-		Workflow:          workflow,
-	}
+	Directory             string
+	IntermediateDirectory *string
+	StructureProvider     ProjectStructureProvider
 }
 
 // RootDirectory returns the project root directory
 func (p *Project) RootDirectory() string {
-	return p.rootDirectory
+	return p.Directory
 }
 
 // BuildDirectory returns the project build directory
 func (p *Project) BuildDirectory() string {
-	return p.buildDirectory
+	if p.IntermediateDirectory == nil {
+		panic("intermediate directory is not set")
+	}
+
+	return *p.IntermediateDirectory
 }
 
 // Structure returns project structure
 func (p *Project) Structure() (*ProjectStructure, error) {
-	return p.structureProvider.Structure(*p)
+	return p.StructureProvider.Structure(*p)
 }
 
 // A EmptyProjectStructureProvider provides detailed empty project structure

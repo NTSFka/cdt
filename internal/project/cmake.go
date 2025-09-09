@@ -17,7 +17,7 @@ func (c *CMakeType) Detect(directory string) bool {
 	return internal.PathExists(filepath.Join(directory, "CMakeLists.txt"))
 }
 
-func (c *CMakeType) Create(config Config, tools internal.Tools) internal.Project {
+func (c *CMakeType) Create(config Config, tools internal.Tools) Project {
 	cmake := internal.GetTool[*tool.CMake](tools)
 	ctest := internal.GetTool[*tool.CTest](tools)
 	clangFormat := internal.GetTool[*tool.ClangFormat](tools)
@@ -45,7 +45,10 @@ func (c *CMakeType) Create(config Config, tools internal.Tools) internal.Project
 		buildDirectory = filepath.Join("build", "dev")
 	}
 
-	return internal.MakeProject(config.Directory, buildDirectory, cmake, workflow)
+	return Project{
+		Desc:     internal.Project{Directory: config.Directory, IntermediateDirectory: &buildDirectory, StructureProvider: cmake},
+		Workflow: workflow,
+	}
 }
 
 // A cmakeTester is a special project tester that will invoke cmake before ctest

@@ -5,6 +5,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+
 	"github.com/urfave/cli/v3"
 )
 
@@ -31,7 +32,7 @@ func NewLintCommand() *cli.Command {
 
 func lintCommandAction(ctx context.Context, cmd *cli.Command) error {
 	c := ctx.Value("context").(internal.Context)
-	linter := c.Project.Workflow.Linter
+	linter := c.Workflow.Linter
 
 	if cmd.IsSet("tool") {
 		toolName := cmd.String("tool")

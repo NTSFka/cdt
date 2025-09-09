@@ -16,7 +16,7 @@ func (p *PythonType) Detect(directory string) bool {
 	return internal.PathExists(filepath.Join(directory, "pyproject.toml"))
 }
 
-func (p *PythonType) Create(config Config, tools internal.Tools) internal.Project {
+func (p *PythonType) Create(config Config, tools internal.Tools) Project {
 	python := internal.GetTool[*tool.Python](tools)
 	pyTest := internal.GetTool[*tool.PyTest](tools)
 	pip := internal.GetTool[*tool.Pip](tools)
@@ -37,5 +37,8 @@ func (p *PythonType) Create(config Config, tools internal.Tools) internal.Projec
 		DependencyManager: pip,
 	}
 
-	return internal.MakeProject(config.Directory, "", &internal.EmptyProjectStructureProvider{}, workflow)
+	return Project{
+		Desc:     internal.Project{Directory: config.Directory, StructureProvider: &internal.EmptyProjectStructureProvider{}},
+		Workflow: workflow,
+	}
 }

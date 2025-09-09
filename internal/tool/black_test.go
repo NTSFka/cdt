@@ -46,12 +46,12 @@ func TestBlack_Black_FormatAll(t *testing.T) {
 
 	tool := NewBlack(exec.LazyExecutable("format"))
 
-	p := internal.MakeProject(".", "", nil, internal.Workflow{Formatter: tool})
+	desc := internal.Project{Directory: "."}
 
 	exec.OnRun("format", []string{}).
 		Return(nil)
 
-	err := tool.FormatAll(p, []string{})
+	err := tool.FormatAll(desc, []string{})
 	assert.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -62,12 +62,12 @@ func TestBlack_Black_FormatFiles(t *testing.T) {
 
 	tool := NewBlack(exec.LazyExecutable("format"))
 
-	p := internal.MakeProject(".", "", nil, internal.Workflow{Formatter: tool})
+	desc := internal.Project{Directory: "."}
 
 	exec.OnRun("format", []string{"tests/*"}).
 		Return(nil)
 
-	err := tool.FormatFiles(p, []string{"tests/*"}, []string{})
+	err := tool.FormatFiles(desc, []string{"tests/*"}, []string{})
 	assert.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -78,12 +78,12 @@ func TestBlack_Black_FormatCheckAll(t *testing.T) {
 
 	tool := NewBlack(exec.LazyExecutable("format"))
 
-	p := internal.MakeProject(".", "", nil, internal.Workflow{Formatter: tool})
+	desc := internal.Project{Directory: "."}
 
 	exec.OnRun("format", []string{"--check"}).
 		Return(nil)
 
-	err := tool.FormatCheckAll(p, []string{})
+	err := tool.FormatCheckAll(desc, []string{})
 	assert.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -94,12 +94,12 @@ func TestBlack_Black_FormatCheckFiles(t *testing.T) {
 
 	tool := NewBlack(exec.LazyExecutable("format"))
 
-	p := internal.MakeProject(".", "", nil, internal.Workflow{Formatter: tool})
+	desc := internal.Project{Directory: "."}
 
 	exec.OnRun("format", []string{"--check", "tests/*", "/path/to/file.py"}).
 		Return(nil)
 
-	err := tool.FormatCheckFiles(p, []string{"tests/*", "/path/to/file.py"}, []string{})
+	err := tool.FormatCheckFiles(desc, []string{"tests/*", "/path/to/file.py"}, []string{})
 	assert.NoError(t, err)
 
 	exec.AssertExpectations(t)

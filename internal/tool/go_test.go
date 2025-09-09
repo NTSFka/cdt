@@ -45,7 +45,7 @@ func TestGo_Structure(t *testing.T) {
 
 	tool := NewGo(exec.LazyExecutable("go"))
 
-	p := internal.MakeProject("project", "", tool, internal.Workflow{})
+	p := internal.Project{Directory: "."}
 
 	exec.OnRunOutput(
 		"go", []string{"list", "-json=ImportPath,GoFiles", "./..."},
@@ -79,7 +79,7 @@ func TestGo_Structure_Failed(t *testing.T) {
 
 	tool := NewGo(exec.LazyExecutable("go"))
 
-	p := internal.MakeProject("project", "", tool, internal.Workflow{})
+	p := internal.Project{Directory: "."}
 
 	exec.OnRun("go", []string{"list", "-json=ImportPath,GoFiles", "./..."}).
 		Return(errors.New("failed"))
@@ -96,7 +96,7 @@ func TestGo_Structure_InvalidJson(t *testing.T) {
 
 	tool := NewGo(exec.LazyExecutable("go"))
 
-	p := internal.MakeProject("project", "", tool, internal.Workflow{})
+	p := internal.Project{Directory: "."}
 
 	exec.OnRunOutput("go", []string{"list", "-json=ImportPath,GoFiles", "./..."}, `{]}`).
 		Return(nil)
@@ -113,7 +113,7 @@ func TestGo_BuildAll(t *testing.T) {
 
 	tool := NewGo(exec.LazyExecutable("go"))
 
-	p := internal.MakeProject("project", "", tool, internal.Workflow{})
+	p := internal.Project{Directory: "."}
 
 	exec.OnRun("go", []string{"build"}).
 		Return(nil)
@@ -129,7 +129,7 @@ func TestGo_BuildAll_Failed(t *testing.T) {
 
 	tool := NewGo(exec.LazyExecutable("go"))
 
-	p := internal.MakeProject("project", "", tool, internal.Workflow{})
+	p := internal.Project{Directory: "."}
 
 	exec.OnRun("go", []string{"build"}).
 		Return(errors.New("failed"))
@@ -145,7 +145,7 @@ func TestGo_BuildTargets(t *testing.T) {
 
 	tool := NewGo(exec.LazyExecutable("go"))
 
-	p := internal.MakeProject("project", "", tool, internal.Workflow{})
+	p := internal.Project{Directory: "."}
 
 	exec.OnRun("go", []string{"build", "target1", "target2"}).
 		Return(nil)
@@ -161,7 +161,7 @@ func TestGo_BuildTargets_Failed(t *testing.T) {
 
 	tool := NewGo(exec.LazyExecutable("go"))
 
-	p := internal.MakeProject("project", "", tool, internal.Workflow{})
+	p := internal.Project{Directory: "."}
 
 	exec.OnRun("go", []string{"build", "target1", "target2"}).
 		Return(errors.New("failed"))
@@ -177,7 +177,7 @@ func TestGo_RunTarget(t *testing.T) {
 
 	tool := NewGo(exec.LazyExecutable("go"))
 
-	p := internal.MakeProject("project", "", tool, internal.Workflow{})
+	p := internal.Project{Directory: "."}
 
 	exec.OnRun("go", []string{"run", "target1"}).
 		Return(nil)
@@ -193,7 +193,7 @@ func TestGo_RunTarget_Failed(t *testing.T) {
 
 	tool := NewGo(exec.LazyExecutable("go"))
 
-	p := internal.MakeProject("project", "", tool, internal.Workflow{})
+	p := internal.Project{Directory: "."}
 
 	exec.OnRun("go", []string{"run", "target1"}).
 		Return(errors.New("failed"))
@@ -209,7 +209,7 @@ func TestGo_TestAll(t *testing.T) {
 
 	tool := NewGo(exec.LazyExecutable("go"))
 
-	p := internal.MakeProject("project", "", tool, internal.Workflow{})
+	p := internal.Project{Directory: "."}
 
 	exec.OnRun("go", []string{"test", "./..."}).
 		Return(nil)
@@ -225,7 +225,7 @@ func TestGo_TestAll_Failed(t *testing.T) {
 
 	tool := NewGo(exec.LazyExecutable("go"))
 
-	p := internal.MakeProject("project", "", tool, internal.Workflow{})
+	p := internal.Project{Directory: "."}
 
 	exec.OnRun("go", []string{"test", "./..."}).
 		Return(errors.New("failed"))
@@ -241,7 +241,7 @@ func TestGo_Test(t *testing.T) {
 
 	tool := NewGo(exec.LazyExecutable("go"))
 
-	p := internal.MakeProject("project", "", tool, internal.Workflow{})
+	p := internal.Project{Directory: "."}
 
 	exec.OnRun("go", []string{"test", "test1"}).
 		Return(nil)
@@ -257,7 +257,7 @@ func TestGo_Test_Failed(t *testing.T) {
 
 	tool := NewGo(exec.LazyExecutable("go"))
 
-	p := internal.MakeProject("project", "", tool, internal.Workflow{})
+	p := internal.Project{Directory: "."}
 
 	exec.OnRun("go", []string{"test", "test1"}).
 		Return(errors.New("failed"))
@@ -273,7 +273,7 @@ func TestGo_FormatAll(t *testing.T) {
 
 	tool := NewGo(exec.LazyExecutable("go"))
 
-	p := internal.MakeProject("project", "", tool, internal.Workflow{})
+	p := internal.Project{Directory: "."}
 
 	exec.OnRun("go", []string{"fmt", "./..."}).
 		Return(nil)
@@ -289,7 +289,7 @@ func TestGo_FormatAll_Failed(t *testing.T) {
 
 	tool := NewGo(exec.LazyExecutable("go"))
 
-	p := internal.MakeProject("project", "", tool, internal.Workflow{})
+	p := internal.Project{Directory: "."}
 
 	exec.OnRun("go", []string{"fmt", "./..."}).
 		Return(errors.New("failed"))
@@ -305,7 +305,7 @@ func TestGo_FormatFiles(t *testing.T) {
 
 	tool := NewGo(exec.LazyExecutable("go"))
 
-	p := internal.MakeProject("project", "", tool, internal.Workflow{})
+	p := internal.Project{Directory: "."}
 
 	exec.OnRun("go", []string{"fmt", "file1"}).
 		Return(nil)
@@ -321,7 +321,7 @@ func TestGo_FormatFiles_Failed(t *testing.T) {
 
 	tool := NewGo(exec.LazyExecutable("go"))
 
-	p := internal.MakeProject("project", "", tool, internal.Workflow{})
+	p := internal.Project{Directory: "."}
 
 	exec.OnRun("go", []string{"fmt", "file1"}).
 		Return(errors.New("failed"))
@@ -337,7 +337,7 @@ func TestGo_FormatCheckAll(t *testing.T) {
 
 	tool := NewGo(exec.LazyExecutable("go"))
 
-	p := internal.MakeProject("project", "", tool, internal.Workflow{})
+	p := internal.Project{Directory: "."}
 
 	err := tool.FormatCheckAll(p, []string{})
 	assert.EqualError(t, err, "go fmt doesn't support check mode")
@@ -350,7 +350,7 @@ func TestGo_FormatCheckFiles(t *testing.T) {
 
 	tool := NewGo(exec.LazyExecutable("go"))
 
-	p := internal.MakeProject("project", "", tool, internal.Workflow{})
+	p := internal.Project{Directory: "."}
 
 	err := tool.FormatCheckFiles(p, []string{"file1"}, []string{})
 	assert.EqualError(t, err, "go fmt doesn't support check mode")
@@ -363,7 +363,7 @@ func TestGo_Go_LintAll(t *testing.T) {
 
 	tool := NewGo(exec.LazyExecutable("lint"))
 
-	p := internal.MakeProject("project", "", nil, internal.Workflow{Linter: tool})
+	p := internal.Project{Directory: "."}
 
 	exec.OnRun("lint", []string{"vet", "./..."}).
 		Return(nil)
@@ -379,7 +379,7 @@ func TestGo_Go_Lint(t *testing.T) {
 
 	tool := NewGo(exec.LazyExecutable("lint"))
 
-	p := internal.MakeProject("project", "", nil, internal.Workflow{Linter: tool})
+	p := internal.Project{Directory: "."}
 
 	exec.OnRun("lint", []string{"vet", "mod1"}).
 		Return(nil)

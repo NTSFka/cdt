@@ -5,6 +5,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+
 	"github.com/urfave/cli/v3"
 )
 
@@ -29,7 +30,7 @@ func NewRunCommand() *cli.Command {
 
 func runCommandAction(ctx context.Context, cmd *cli.Command) error {
 	c := ctx.Value("context").(internal.Context)
-	runner := c.Project.Workflow.Runner
+	runner := c.Workflow.Runner
 
 	if cmd.IsSet("tool") {
 		toolName := cmd.String("tool")

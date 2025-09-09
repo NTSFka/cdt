@@ -3,14 +3,15 @@ package command
 import (
 	"cdt/internal"
 	"cdt/internal/test"
+	"testing"
+
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
-	"testing"
 )
 
 func runProject(structureProvider internal.ProjectStructureProvider, args ...string) error {
 	return test.RunCommand(NewProjectCommand(), internal.Context{
-		Project: internal.MakeProject("", "", structureProvider, internal.Workflow{}),
+		Project: internal.Project{Directory: "", StructureProvider: structureProvider},
 	}, args...)
 }
 

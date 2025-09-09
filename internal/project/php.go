@@ -16,7 +16,7 @@ func (p *PHPType) Detect(directory string) bool {
 	return internal.PathExists(filepath.Join(directory, "composer.json"))
 }
 
-func (p *PHPType) Create(config Config, tools internal.Tools) internal.Project {
+func (p *PHPType) Create(config Config, tools internal.Tools) Project {
 	php := internal.GetTool[*tool.PHP](tools)
 	phpStan := internal.GetTool[*tool.PHPStan](tools)
 	phpCsFixer := internal.GetTool[*tool.PHPCSFixer](tools)
@@ -34,5 +34,8 @@ func (p *PHPType) Create(config Config, tools internal.Tools) internal.Project {
 		DependencyManager: composer,
 	}
 
-	return internal.MakeProject(config.Directory, "", &internal.EmptyProjectStructureProvider{}, workflow)
+	return Project{
+		Desc:     internal.Project{Directory: config.Directory, StructureProvider: &internal.EmptyProjectStructureProvider{}},
+		Workflow: workflow,
+	}
 }

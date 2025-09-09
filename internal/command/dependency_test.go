@@ -12,10 +12,8 @@ import (
 
 func runDependency(manager internal.ProjectDependencyManager, args ...string) error {
 	return test.RunCommand(NewDependencyCommand(), internal.Context{
-		Project: internal.Project{
-			Workflow: internal.Workflow{
-				DependencyManager: manager,
-			},
+		Workflow: internal.Workflow{
+			DependencyManager: manager,
 		},
 	}, args...)
 }

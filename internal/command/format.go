@@ -5,6 +5,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+
 	"github.com/urfave/cli/v3"
 )
 
@@ -36,7 +37,7 @@ func NewFormatCommand() *cli.Command {
 
 func formatCommandAction(ctx context.Context, cmd *cli.Command) error {
 	c := ctx.Value("context").(internal.Context)
-	formatter := c.Project.Workflow.Formatter
+	formatter := c.Workflow.Formatter
 
 	if cmd.IsSet("tool") {
 		toolName := cmd.String("tool")

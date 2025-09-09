@@ -5,6 +5,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+
 	"github.com/urfave/cli/v3"
 )
 
@@ -197,7 +198,7 @@ func dependencyAuditCommandAction(ctx context.Context, cmd *cli.Command) error {
 }
 
 func getDependencyManager(c internal.Context, cmd *cli.Command) (internal.ProjectDependencyManager, error) {
-	manager := c.Project.Workflow.DependencyManager
+	manager := c.Workflow.DependencyManager
 
 	if cmd.IsSet("tool") {
 		toolName := cmd.String("tool")

@@ -17,7 +17,7 @@ func TestBuildProject_Default(t *testing.T) {
 	assert.NoError(t, err)
 
 	if assert.NotNil(t, project) {
-		assert.Equal(t, "dir1", project.RootDirectory())
+		assert.Equal(t, "dir1", project.Desc.RootDirectory())
 		assert.Nil(t, project.Workflow.Configurator)
 		assert.Nil(t, project.Workflow.Builder)
 		assert.Nil(t, project.Workflow.Tester)
@@ -69,7 +69,7 @@ func TestBuildProject_Custom(t *testing.T) {
 	assert.NoError(t, err)
 
 	if assert.NotNil(t, project) {
-		assert.Equal(t, "dir1", project.RootDirectory())
+		assert.Equal(t, "dir1", project.Desc.RootDirectory())
 		assert.Equal(t, tool1, project.Workflow.Configurator)
 		assert.Equal(t, tool2, project.Workflow.Builder)
 		assert.Equal(t, tool3, project.Workflow.Tester)

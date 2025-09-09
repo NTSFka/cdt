@@ -45,12 +45,12 @@ func TestCTest_Run(t *testing.T) {
 
 	tool := NewCTest(exec.LazyExecutable("ctest"))
 
-	p := internal.MakeProject("project", "build", nil, internal.Workflow{})
+	desc := internal.Project{Directory: "project", IntermediateDirectory: internal.StrPtr("build")}
 
 	exec.OnRun("ctest", []string{"--test-dir", "build"}).
 		Return(nil)
 
-	err := tool.RunForProject(p, []string{})
+	err := tool.RunForProject(desc, []string{})
 	assert.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -61,12 +61,12 @@ func TestCTest_Run_Failed(t *testing.T) {
 
 	tool := NewCTest(exec.LazyExecutable("ctest"))
 
-	p := internal.MakeProject("project", "build", nil, internal.Workflow{})
+	desc := internal.Project{Directory: "project", IntermediateDirectory: internal.StrPtr("build")}
 
 	exec.OnRun("ctest", []string{"--test-dir", "build"}).
 		Return(errors.New("failed"))
 
-	err := tool.RunForProject(p, []string{})
+	err := tool.RunForProject(desc, []string{})
 	assert.EqualError(t, err, "failed")
 
 	exec.AssertExpectations(t)

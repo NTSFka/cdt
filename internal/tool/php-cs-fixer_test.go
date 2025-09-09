@@ -72,12 +72,12 @@ func TestPHPCSFixer_PHPCSFixer_FormatAll(t *testing.T) {
 
 	tool := NewPHPCSFixer(exec.LazyExecutable("format"))
 
-	p := internal.MakeProject(".", "", nil, internal.Workflow{Formatter: tool})
+	desc := internal.Project{Directory: "."}
 
 	exec.OnRun("format", []string{"fix"}).
 		Return(nil)
 
-	err := tool.FormatAll(p, []string{})
+	err := tool.FormatAll(desc, []string{})
 	assert.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -88,12 +88,12 @@ func TestPHPCSFixer_PHPCSFixer_FormatFiles(t *testing.T) {
 
 	tool := NewPHPCSFixer(exec.LazyExecutable("format"))
 
-	p := internal.MakeProject(".", "", nil, internal.Workflow{Formatter: tool})
+	desc := internal.Project{Directory: "."}
 
 	exec.OnRun("format", []string{"fix", "tests/*"}).
 		Return(nil)
 
-	err := tool.FormatFiles(p, []string{"tests/*"}, []string{})
+	err := tool.FormatFiles(desc, []string{"tests/*"}, []string{})
 	assert.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -104,12 +104,12 @@ func TestPHPCSFixer_PHPCSFixer_FormatCheckAll(t *testing.T) {
 
 	tool := NewPHPCSFixer(exec.LazyExecutable("format"))
 
-	p := internal.MakeProject(".", "", nil, internal.Workflow{Formatter: tool})
+	desc := internal.Project{Directory: "."}
 
 	exec.OnRun("format", []string{"fix", "--dry-run"}).
 		Return(nil)
 
-	err := tool.FormatCheckAll(p, []string{})
+	err := tool.FormatCheckAll(desc, []string{})
 	assert.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -120,12 +120,12 @@ func TestPHPCSFixer_PHPCSFixer_FormatCheckFiles(t *testing.T) {
 
 	tool := NewPHPCSFixer(exec.LazyExecutable("format"))
 
-	p := internal.MakeProject(".", "", nil, internal.Workflow{Formatter: tool})
+	desc := internal.Project{Directory: "."}
 
 	exec.OnRun("format", []string{"fix", "--dry-run", "tests/*", "/path/to/file.php"}).
 		Return(nil)
 
-	err := tool.FormatCheckFiles(p, []string{"tests/*", "/path/to/file.php"}, []string{})
+	err := tool.FormatCheckFiles(desc, []string{"tests/*", "/path/to/file.php"}, []string{})
 	assert.NoError(t, err)
 
 	exec.AssertExpectations(t)

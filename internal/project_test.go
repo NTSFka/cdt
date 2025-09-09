@@ -1,8 +1,9 @@
 package internal
 
 import (
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestProject_ProjectStructure_GetFiles(t *testing.T) {
@@ -18,18 +19,6 @@ func TestProject_ProjectStructure_GetFiles(t *testing.T) {
 	}
 
 	assert.Equal(t, []string{"file1.go", "file2.go", "file3.go"}, structure.GetFiles())
-}
-
-func TestProject_MakeProject(t *testing.T) {
-	p := MakeProject("project", "build", &EmptyProjectStructureProvider{}, Workflow{})
-
-	assert.Equal(t, "project", p.RootDirectory())
-	assert.Equal(t, "build", p.BuildDirectory())
-	assert.Equal(t, Workflow{}, p.Workflow)
-
-	structure, err := p.Structure()
-	assert.NoError(t, err)
-	assert.NotNil(t, structure)
 }
 
 func TestProject_EmptyStructureProvider(t *testing.T) {

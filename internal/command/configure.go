@@ -5,6 +5,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+
 	"github.com/urfave/cli/v3"
 )
 
@@ -24,7 +25,7 @@ func NewConfigureCommand() *cli.Command {
 
 func configureCommandAction(ctx context.Context, cmd *cli.Command) error {
 	c := ctx.Value("context").(internal.Context)
-	configurator := c.Project.Workflow.Configurator
+	configurator := c.Workflow.Configurator
 
 	if cmd.IsSet("tool") {
 		toolName := cmd.String("tool")

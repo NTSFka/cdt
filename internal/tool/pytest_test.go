@@ -46,12 +46,12 @@ func TestPyTest_PyTest_TestAll(t *testing.T) {
 
 	tool := NewPyTest(exec.LazyExecutable("test"))
 
-	p := internal.MakeProject(".", "", nil, internal.Workflow{Tester: tool})
+	desc := internal.Project{Directory: "."}
 
 	exec.OnRun("test", []string{}).
 		Return(nil)
 
-	err := tool.TestAll(p, []string{})
+	err := tool.TestAll(desc, []string{})
 	assert.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -62,12 +62,12 @@ func TestPyTest_PyTest_Test(t *testing.T) {
 
 	tool := NewPyTest(exec.LazyExecutable("test"))
 
-	p := internal.MakeProject(".", "", nil, internal.Workflow{Tester: tool})
+	desc := internal.Project{Directory: "."}
 
 	exec.OnRun("test", []string{"tests/*"}).
 		Return(nil)
 
-	err := tool.Test(p, "tests/*", []string{})
+	err := tool.Test(desc, "tests/*", []string{})
 	assert.NoError(t, err)
 
 	exec.AssertExpectations(t)
