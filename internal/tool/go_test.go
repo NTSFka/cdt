@@ -357,3 +357,35 @@ func TestGo_FormatCheckFiles(t *testing.T) {
 
 	exec.AssertExpectations(t)
 }
+
+func TestGo_Go_LintAll(t *testing.T) {
+	exec := test.NewExecutable(t)
+
+	tool := NewGo(exec.LazyExecutable("lint"))
+
+	p := internal.MakeProject("project", "", nil, internal.Workflow{Linter: tool})
+
+	exec.OnRun("lint", []string{"vet", "./..."}).
+		Return(nil)
+
+	err := tool.LintAll(p, []string{})
+	assert.NoError(t, err)
+
+	exec.AssertExpectations(t)
+}
+
+func TestGo_Go_Lint(t *testing.T) {
+	exec := test.NewExecutable(t)
+
+	tool := NewGo(exec.LazyExecutable("lint"))
+
+	p := internal.MakeProject("project", "", nil, internal.Workflow{Linter: tool})
+
+	exec.OnRun("lint", []string{"vet", "mod1"}).
+		Return(nil)
+
+	err := tool.LintFiles(p, []string{"mod1"}, []string{})
+	assert.NoError(t, err)
+
+	exec.AssertExpectations(t)
+}

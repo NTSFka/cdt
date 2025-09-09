@@ -27,7 +27,7 @@ func (g *GoType) Create(config Config, tools internal.Tools) internal.Project {
 		Runner:       goTool,
 		Tester:       goTool,
 		Formatter:    goTool,
-		Linter:       goLint,
+		Linter:       &LinterList{goTool, goLint},
 	}
 
 	return internal.MakeProject(config.Directory, "", goTool, workflow)
