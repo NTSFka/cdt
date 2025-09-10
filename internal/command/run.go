@@ -30,7 +30,7 @@ func NewRunCommand() *cli.Command {
 
 func runCommandAction(ctx context.Context, cmd *cli.Command) error {
 	c := ctx.Value("context").(internal.Context)
-	runner := c.Workflow.Runner
+	runner := c.Project.Workflow.Runner
 
 	if cmd.IsSet("tool") {
 		toolName := cmd.String("tool")
@@ -59,7 +59,7 @@ func runCommandAction(ctx context.Context, cmd *cli.Command) error {
 		return errors.New("target is required")
 	}
 
-	if err := runner.RunTarget(c.ProjectInfo, target, cmd.Args().Slice()); err != nil {
+	if err := runner.RunTarget(c.Project.Info, target, cmd.Args().Slice()); err != nil {
 		return fmt.Errorf("%w", err)
 	}
 

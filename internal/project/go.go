@@ -32,7 +32,7 @@ func (g *GoType) Create(config Config, tools internal.Tools) internal.Project {
 
 	return internal.Project{
 		Type:     "go",
-		Desc:     internal.ProjectInfo{Directory: config.Directory, StructureProvider: goTool},
+		Info:     internal.ProjectInfo{Directory: config.Directory, StructureProvider: goTool},
 		Workflow: workflow,
 	}
 }

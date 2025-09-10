@@ -37,7 +37,7 @@ func NewFormatCommand() *cli.Command {
 
 func formatCommandAction(ctx context.Context, cmd *cli.Command) error {
 	c := ctx.Value("context").(internal.Context)
-	formatter := c.Workflow.Formatter
+	formatter := c.Project.Workflow.Formatter
 
 	if cmd.IsSet("tool") {
 		toolName := cmd.String("tool")
@@ -63,15 +63,15 @@ func formatCommandAction(ctx context.Context, cmd *cli.Command) error {
 	var err error
 	if cmd.Bool("check") {
 		if files := cmd.StringArgs("files"); len(files) > 0 {
-			err = formatter.FormatCheckFiles(c.ProjectInfo, files, cmd.Args().Tail())
+			err = formatter.FormatCheckFiles(c.Project.Info, files, cmd.Args().Tail())
 		} else {
-			err = formatter.FormatCheckAll(c.ProjectInfo, cmd.Args().Tail())
+			err = formatter.FormatCheckAll(c.Project.Info, cmd.Args().Tail())
 		}
 	} else {
 		if files := cmd.StringArgs("files"); len(files) > 0 {
-			err = formatter.FormatFiles(c.ProjectInfo, files, cmd.Args().Tail())
+			err = formatter.FormatFiles(c.Project.Info, files, cmd.Args().Tail())
 		} else {
-			err = formatter.FormatAll(c.ProjectInfo, cmd.Args().Tail())
+			err = formatter.FormatAll(c.Project.Info, cmd.Args().Tail())
 		}
 	}
 

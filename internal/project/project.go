@@ -33,7 +33,7 @@ func buildProjectConfigCustom(config internal.Config, cwf internal.ConfigWorkflo
 	if wf, err := FromConfig(cwf, tools); wf != nil {
 		return &internal.Project{
 			Type: "custom",
-			Desc: internal.ProjectInfo{
+			Info: internal.ProjectInfo{
 				Directory:         config.RootDirectory,
 				StructureProvider: &internal.EmptyProjectStructureProvider{},
 			},
@@ -65,7 +65,7 @@ func buildProjectDetect(config internal.Config, tools internal.Tools) (*internal
 
 	return &internal.Project{
 		Type: "unknown",
-		Desc: internal.ProjectInfo{
+		Info: internal.ProjectInfo{
 			Directory:         config.RootDirectory,
 			StructureProvider: &internal.EmptyProjectStructureProvider{},
 		},

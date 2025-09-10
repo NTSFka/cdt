@@ -47,7 +47,7 @@ func (c *CMakeType) Create(config Config, tools internal.Tools) internal.Project
 
 	return internal.Project{
 		Type:     "cmake",
-		Desc:     internal.ProjectInfo{Directory: config.Directory, IntermediateDirectory: &buildDirectory, StructureProvider: cmake},
+		Info:     internal.ProjectInfo{Directory: config.Directory, IntermediateDirectory: &buildDirectory, StructureProvider: cmake},
 		Workflow: workflow,
 	}
 }

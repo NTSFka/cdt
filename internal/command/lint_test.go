@@ -12,15 +12,16 @@ import (
 
 func runLint(linter internal.ProjectLinter, args ...string) error {
 	return test.RunCommand(NewLintCommand(), internal.Context{
-		Workflow: internal.Workflow{
-			Linter: linter,
+		Project: internal.Project{
+			Workflow: internal.Workflow{
+				Linter: linter,
+			},
 		},
 	}, args...)
 }
 
 func runLintTool(linter internal.Tool, args ...string) error {
 	return test.RunCommand(NewLintCommand(), internal.Context{
-		ProjectInfo: internal.ProjectInfo{},
 		Tools: []internal.Tool{
 			linter,
 		},

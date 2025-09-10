@@ -12,15 +12,16 @@ import (
 
 func runTest(tester internal.ProjectTester, args ...string) error {
 	return test.RunCommand(NewTestCommand(), internal.Context{
-		Workflow: internal.Workflow{
-			Tester: tester,
+		Project: internal.Project{
+			Workflow: internal.Workflow{
+				Tester: tester,
+			},
 		},
 	}, args...)
 }
 
 func runTestTool(tester internal.Tool, args ...string) error {
 	return test.RunCommand(NewTestCommand(), internal.Context{
-		ProjectInfo: internal.ProjectInfo{},
 		Tools: []internal.Tool{
 			tester,
 		},

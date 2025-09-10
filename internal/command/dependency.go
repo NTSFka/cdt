@@ -108,7 +108,7 @@ func dependencyAddCommandAction(ctx context.Context, cmd *cli.Command) error {
 	dependencies := cmd.StringArgs("dependencies")
 	dev := cmd.Bool("dev")
 
-	if err := manager.AddDependencies(c.ProjectInfo, dependencies, dev); err != nil {
+	if err := manager.AddDependencies(c.Project.Info, dependencies, dev); err != nil {
 		return fmt.Errorf("failed to add dependencies: %w", err)
 	}
 
@@ -126,7 +126,7 @@ func dependencyRemoveCommandAction(ctx context.Context, cmd *cli.Command) error 
 	dependencies := cmd.StringArgs("dependencies")
 	dev := cmd.Bool("dev")
 
-	if err := manager.RemoveDependencies(c.ProjectInfo, dependencies, dev); err != nil {
+	if err := manager.RemoveDependencies(c.Project.Info, dependencies, dev); err != nil {
 		return fmt.Errorf("failed to remove dependencies: %w", err)
 	}
 
@@ -143,7 +143,7 @@ func dependencyUpdateCommandAction(ctx context.Context, cmd *cli.Command) error 
 
 	dependencies := cmd.StringArgs("dependencies")
 
-	if err := manager.UpdateDependencies(c.ProjectInfo, dependencies); err != nil {
+	if err := manager.UpdateDependencies(c.Project.Info, dependencies); err != nil {
 		return fmt.Errorf("failed to update dependencies: %w", err)
 	}
 
@@ -160,7 +160,7 @@ func dependencyFetchCommandAction(ctx context.Context, cmd *cli.Command) error {
 
 	noDev := cmd.Bool("no-dev")
 
-	if err := manager.FetchDependencies(c.ProjectInfo, noDev); err != nil {
+	if err := manager.FetchDependencies(c.Project.Info, noDev); err != nil {
 		return fmt.Errorf("failed to fetch dependencies: %w", err)
 	}
 
@@ -175,7 +175,7 @@ func dependencyListCommandAction(ctx context.Context, cmd *cli.Command) error {
 		return err
 	}
 
-	if err := manager.ListDependencies(c.ProjectInfo); err != nil {
+	if err := manager.ListDependencies(c.Project.Info); err != nil {
 		return fmt.Errorf("failed to list dependencies: %w", err)
 	}
 
@@ -190,7 +190,7 @@ func dependencyAuditCommandAction(ctx context.Context, cmd *cli.Command) error {
 		return err
 	}
 
-	if err := manager.AuditDependencies(c.ProjectInfo); err != nil {
+	if err := manager.AuditDependencies(c.Project.Info); err != nil {
 		return fmt.Errorf("failed to audit dependencies: %w", err)
 	}
 
@@ -198,7 +198,7 @@ func dependencyAuditCommandAction(ctx context.Context, cmd *cli.Command) error {
 }
 
 func getDependencyManager(c internal.Context, cmd *cli.Command) (internal.ProjectDependencyManager, error) {
-	manager := c.Workflow.DependencyManager
+	manager := c.Project.Workflow.DependencyManager
 
 	if cmd.IsSet("tool") {
 		toolName := cmd.String("tool")

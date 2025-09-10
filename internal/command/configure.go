@@ -25,7 +25,7 @@ func NewConfigureCommand() *cli.Command {
 
 func configureCommandAction(ctx context.Context, cmd *cli.Command) error {
 	c := ctx.Value("context").(internal.Context)
-	configurator := c.Workflow.Configurator
+	configurator := c.Project.Workflow.Configurator
 
 	if cmd.IsSet("tool") {
 		toolName := cmd.String("tool")
@@ -48,7 +48,7 @@ func configureCommandAction(ctx context.Context, cmd *cli.Command) error {
 		return errors.New("project doesn't support configuration")
 	}
 
-	if err := configurator.Configure(c.ProjectInfo, cmd.Args().Tail()); err != nil {
+	if err := configurator.Configure(c.Project.Info, cmd.Args().Tail()); err != nil {
 		return fmt.Errorf("%w", err)
 	}
 

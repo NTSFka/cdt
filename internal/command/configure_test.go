@@ -12,15 +12,16 @@ import (
 
 func runConfigure(configurator internal.ProjectConfigurator, args ...string) error {
 	return test.RunCommand(NewConfigureCommand(), internal.Context{
-		Workflow: internal.Workflow{
-			Configurator: configurator,
+		Project: internal.Project{
+			Workflow: internal.Workflow{
+				Configurator: configurator,
+			},
 		},
 	}, args...)
 }
 
 func runConfigureTool(configurator internal.Tool, args ...string) error {
 	return test.RunCommand(NewConfigureCommand(), internal.Context{
-		ProjectInfo: internal.ProjectInfo{},
 		Tools: []internal.Tool{
 			configurator,
 		},

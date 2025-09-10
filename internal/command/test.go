@@ -32,7 +32,7 @@ func NewTestCommand() *cli.Command {
 
 func testCommandAction(ctx context.Context, cmd *cli.Command) error {
 	c := ctx.Value("context").(internal.Context)
-	tester := c.Workflow.Tester
+	tester := c.Project.Workflow.Tester
 
 	if cmd.IsSet("tool") {
 		toolName := cmd.String("tool")
@@ -58,9 +58,9 @@ func testCommandAction(ctx context.Context, cmd *cli.Command) error {
 	var err error
 
 	if pattern := cmd.StringArgs("pattern"); len(pattern) != 0 {
-		err = tester.Test(c.ProjectInfo, pattern[0], cmd.Args().Tail())
+		err = tester.Test(c.Project.Info, pattern[0], cmd.Args().Tail())
 	} else {
-		err = tester.TestAll(c.ProjectInfo, cmd.Args().Tail())
+		err = tester.TestAll(c.Project.Info, cmd.Args().Tail())
 	}
 
 	if err != nil {

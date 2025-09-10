@@ -36,7 +36,7 @@ func (p *PHPType) Create(config Config, tools internal.Tools) internal.Project {
 
 	return internal.Project{
 		Type:     "php",
-		Desc:     internal.ProjectInfo{Directory: config.Directory, StructureProvider: &internal.EmptyProjectStructureProvider{}},
+		Info:     internal.ProjectInfo{Directory: config.Directory, StructureProvider: &internal.EmptyProjectStructureProvider{}},
 		Workflow: workflow,
 	}
 }

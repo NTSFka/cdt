@@ -77,7 +77,12 @@ func (p *FixedProjectStructureProvider) Structure(_ ProjectInfo) (*ProjectStruct
 
 // A Project describes a project and its workflow
 type Project struct {
-	Type     string
-	Desc     ProjectInfo
+	// Type is the type of the project
+	Type string
+
+	// Info provides information about the project
+	Info ProjectInfo
+
+	// Workflow describes a project workflow
 	Workflow Workflow
 }

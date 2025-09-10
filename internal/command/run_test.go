@@ -12,15 +12,16 @@ import (
 
 func runRun(runner internal.ProjectRunner, args ...string) error {
 	return test.RunCommand(NewRunCommand(), internal.Context{
-		Workflow: internal.Workflow{
-			Runner: runner,
+		Project: internal.Project{
+			Workflow: internal.Workflow{
+				Runner: runner,
+			},
 		},
 	}, args...)
 }
 
 func runRunTool(runner internal.Tool, args ...string) error {
 	return test.RunCommand(NewRunCommand(), internal.Context{
-		ProjectInfo: internal.ProjectInfo{},
 		Tools: []internal.Tool{
 			runner,
 		},

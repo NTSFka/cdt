@@ -32,7 +32,7 @@ func NewLintCommand() *cli.Command {
 
 func lintCommandAction(ctx context.Context, cmd *cli.Command) error {
 	c := ctx.Value("context").(internal.Context)
-	linter := c.Workflow.Linter
+	linter := c.Project.Workflow.Linter
 
 	if cmd.IsSet("tool") {
 		toolName := cmd.String("tool")
@@ -57,9 +57,9 @@ func lintCommandAction(ctx context.Context, cmd *cli.Command) error {
 
 	var err error
 	if files := cmd.StringArgs("files"); len(files) > 0 {
-		err = linter.LintFiles(c.ProjectInfo, files, cmd.Args().Tail())
+		err = linter.LintFiles(c.Project.Info, files, cmd.Args().Tail())
 	} else {
-		err = linter.LintAll(c.ProjectInfo, cmd.Args().Tail())
+		err = linter.LintAll(c.Project.Info, cmd.Args().Tail())
 	}
 
 	if err != nil {

@@ -5,11 +5,8 @@ type Context struct {
 	// Config is an initial project configuration.
 	Config Config
 
-	// ProjectInfo describes a project
-	ProjectInfo ProjectInfo
-
-	// Workflow is a workflow to use
-	Workflow Workflow
+	// Project describes a project with its workflow
+	Project Project
 
 	// Tools store all supported tools
 	Tools Tools

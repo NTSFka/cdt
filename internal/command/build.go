@@ -32,7 +32,7 @@ func NewBuildCommand() *cli.Command {
 
 func buildCommandAction(ctx context.Context, cmd *cli.Command) error {
 	c := ctx.Value("context").(internal.Context)
-	builder := c.Workflow.Builder
+	builder := c.Project.Workflow.Builder
 
 	if cmd.IsSet("tool") {
 		toolName := cmd.String("tool")
@@ -58,9 +58,9 @@ func buildCommandAction(ctx context.Context, cmd *cli.Command) error {
 	var err error
 
 	if targets := cmd.StringArgs("targets"); len(targets) > 0 {
-		err = builder.BuildTargets(c.ProjectInfo, targets, cmd.Args().Tail())
+		err = builder.BuildTargets(c.Project.Info, targets, cmd.Args().Tail())
 	} else {
-		err = builder.BuildAll(c.ProjectInfo, cmd.Args().Tail())
+		err = builder.BuildAll(c.Project.Info, cmd.Args().Tail())
 	}
 
 	if err != nil {

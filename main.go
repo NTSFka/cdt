@@ -64,8 +64,7 @@ func buildContext(config internal.Config) (*internal.Context, error) {
 
 	return &internal.Context{
 		Config:               config,
-		ProjectInfo:          p.Desc,
-		Workflow:             p.Workflow,
+		Project:              *p,
 		Tools:                tools,
 		EnvironmentProviders: environmentProviders,
 		Environment:          env,

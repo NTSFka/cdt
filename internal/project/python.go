@@ -39,7 +39,7 @@ func (p *PythonType) Create(config Config, tools internal.Tools) internal.Projec
 
 	return internal.Project{
 		Type:     "python",
-		Desc:     internal.ProjectInfo{Directory: config.Directory, StructureProvider: &internal.EmptyProjectStructureProvider{}},
+		Info:     internal.ProjectInfo{Directory: config.Directory, StructureProvider: &internal.EmptyProjectStructureProvider{}},
 		Workflow: workflow,
 	}
 }

@@ -12,15 +12,16 @@ import (
 
 func runFormat(formatter internal.ProjectFormatter, args ...string) error {
 	return test.RunCommand(NewFormatCommand(), internal.Context{
-		Workflow: internal.Workflow{
-			Formatter: formatter,
+		Project: internal.Project{
+			Workflow: internal.Workflow{
+				Formatter: formatter,
+			},
 		},
 	}, args...)
 }
 
 func runFormatTool(formatter internal.Tool, args ...string) error {
 	return test.RunCommand(NewFormatCommand(), internal.Context{
-		ProjectInfo: internal.ProjectInfo{},
 		Tools: []internal.Tool{
 			formatter,
 		},

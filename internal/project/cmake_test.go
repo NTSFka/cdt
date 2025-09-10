@@ -47,9 +47,9 @@ func TestCMakeType_Create_CustomBuildDirectory(t *testing.T) {
 
 	p := projectType.Create(Config{Directory: "dir1", BuildDirectory: &buildDirectory}, tools)
 
-	assert.Equal(t, "dir1", p.Desc.Directory)
-	if assert.NotNil(t, p.Desc.IntermediateDirectory) {
-		assert.Equal(t, buildDirectory, *p.Desc.IntermediateDirectory)
+	assert.Equal(t, "dir1", p.Info.Directory)
+	if assert.NotNil(t, p.Info.IntermediateDirectory) {
+		assert.Equal(t, buildDirectory, *p.Info.IntermediateDirectory)
 	}
 	assert.NotNil(t, p.Workflow.Linter)
 	assert.NotNil(t, p.Workflow.Formatter)
@@ -80,7 +80,7 @@ func TestCMakeType_Project_TestAll(t *testing.T) {
 		cmakeMock.OnRunAnything("cmake-test").Return(nil)
 		ctestMock.OnRun("ctest-test", []string{"--test-dir", buildDir}).Return(nil)
 
-		err = p.Workflow.Tester.TestAll(p.Desc, []string{})
+		err = p.Workflow.Tester.TestAll(p.Info, []string{})
 		assert.NoError(t, err)
 
 		cmakeMock.AssertExpectations(t)
@@ -112,7 +112,7 @@ func TestCMakeType_Project_TestAll_BuildFailed(t *testing.T) {
 	if assert.NotNil(t, p.Workflow.Tester) {
 		cmakeMock.OnRunAnything("cmake-test").Return(errors.New("failed"))
 
-		err = p.Workflow.Tester.TestAll(p.Desc, []string{})
+		err = p.Workflow.Tester.TestAll(p.Info, []string{})
 		assert.EqualError(t, err, "build failed: failed")
 
 		cmakeMock.AssertExpectations(t)
@@ -145,7 +145,7 @@ func TestCMakeProject_Project_Test(t *testing.T) {
 		cmakeMock.OnRunAnything("cmake-test").Return(nil)
 		ctestMock.OnRun("ctest-test", []string{"-R", "my-test", "--test-dir", buildDir}).Return(nil)
 
-		err = p.Workflow.Tester.Test(p.Desc, "my-test", []string{})
+		err = p.Workflow.Tester.Test(p.Info, "my-test", []string{})
 		assert.NoError(t, err)
 
 		cmakeMock.AssertExpectations(t)
@@ -177,7 +177,7 @@ func TestCMakeProject_Project_TestBuild_Failed(t *testing.T) {
 	if assert.NotNil(t, p.Workflow.Tester) {
 		cmakeMock.OnRunAnything("cmake-test").Return(errors.New("failed"))
 
-		err = p.Workflow.Tester.Test(p.Desc, "my-test", []string{})
+		err = p.Workflow.Tester.Test(p.Info, "my-test", []string{})
 		assert.EqualError(t, err, "build failed: failed")
 
 		cmakeMock.AssertExpectations(t)

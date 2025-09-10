@@ -11,7 +11,9 @@ import (
 
 func runProject(structureProvider internal.ProjectStructureProvider, args ...string) error {
 	return test.RunCommand(NewProjectCommand(), internal.Context{
-		ProjectInfo: internal.ProjectInfo{Directory: "", StructureProvider: structureProvider},
+		Project: internal.Project{
+			Info: internal.ProjectInfo{Directory: "", StructureProvider: structureProvider},
+		},
 	}, args...)
 }
 
