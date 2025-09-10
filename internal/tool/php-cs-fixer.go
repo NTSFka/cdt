@@ -11,15 +11,15 @@ type PHPCSFixer struct {
 }
 
 // DetectPHPCSFixer create a tool for php-cs-fixer
-func DetectPHPCSFixer(environment internal.Environment) *PHPCSFixer {
+func DetectPHPCSFixer(ctx context.Context, environment internal.Environment) *PHPCSFixer {
 	return NewPHPCSFixer(func() *internal.Executable {
 		// Detect composer vendor
-		if executable := environment.FindExecutable("vendor/bin/php-cs-fixer"); executable != nil {
+		if executable := environment.FindExecutable(ctx, "vendor/bin/php-cs-fixer"); executable != nil {
 			return executable
 		}
 
 		// Detect unversioned (system default)
-		if executable := environment.FindExecutable("php-cs-fixer"); executable != nil {
+		if executable := environment.FindExecutable(ctx, "php-cs-fixer"); executable != nil {
 			return executable
 		}
 

@@ -45,8 +45,8 @@ func initEnvironment(directory string, environment *string, envProviders interna
 	return internal.SystemEnvironment, nil
 }
 
-func buildContext(config internal.Config) (*internal.Context, error) {
-	environmentProviders := tool.InitEnvironmentProviders(internal.SystemEnvironment)
+func buildContext(ctx context.Context, config internal.Config) (*internal.Context, error) {
+	environmentProviders := tool.InitEnvironmentProviders(ctx, internal.SystemEnvironment)
 
 	env, err := initEnvironment(config.RootDirectory, config.Environment, environmentProviders)
 
@@ -54,7 +54,7 @@ func buildContext(config internal.Config) (*internal.Context, error) {
 		return nil, err
 	}
 
-	tools := tool.InitTools(env)
+	tools := tool.InitTools(ctx, env)
 
 	p, err := project.BuildProject(config, tools)
 
@@ -72,9 +72,13 @@ func buildContext(config internal.Config) (*internal.Context, error) {
 }
 
 func main() {
-	app := pkg.NewApp(buildContext)
+	ctx := context.Background()
 
-	if err := app.Run(context.Background(), os.Args); err != nil {
+	app := pkg.NewApp(func(config internal.Config) (*internal.Context, error) {
+		return buildContext(ctx, config)
+	})
+
+	if err := app.Run(ctx, os.Args); err != nil {
 		fmt.Printf("ERROR: %v\n", err)
 	}
 }

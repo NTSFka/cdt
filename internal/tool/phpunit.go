@@ -10,15 +10,15 @@ type PHPUnit struct {
 }
 
 // DetectPHPUnit create a tool for phpunit
-func DetectPHPUnit(environment internal.Environment) *PHPUnit {
+func DetectPHPUnit(ctx context.Context, environment internal.Environment) *PHPUnit {
 	return NewPHPUnit(func() *internal.Executable {
 		// Detect composer vendor
-		if executable := environment.FindExecutable("vendor/bin/phpunit"); executable != nil {
+		if executable := environment.FindExecutable(ctx, "vendor/bin/phpunit"); executable != nil {
 			return executable
 		}
 
 		// Detect unversioned (system default)
-		if executable := environment.FindExecutable("phpunit"); executable != nil {
+		if executable := environment.FindExecutable(ctx, "phpunit"); executable != nil {
 			return executable
 		}
 

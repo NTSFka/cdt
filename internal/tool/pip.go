@@ -11,13 +11,13 @@ type Pip struct {
 }
 
 // DetectPip create a tool for pip
-func DetectPip(environment internal.Environment) *Pip {
+func DetectPip(ctx context.Context, environment internal.Environment) *Pip {
 	return NewPip(func() *internal.Executable {
-		if executable := environment.FindExecutable("pip"); executable != nil {
+		if executable := environment.FindExecutable(ctx, "pip"); executable != nil {
 			return executable
 		}
 
-		if executable := environment.FindExecutable("pip3"); executable != nil {
+		if executable := environment.FindExecutable(ctx, "pip3"); executable != nil {
 			return executable
 		}
 

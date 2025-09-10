@@ -3,8 +3,9 @@ package test
 import (
 	"cdt/internal"
 	"context"
-	"github.com/stretchr/testify/mock"
 	"testing"
+
+	"github.com/stretchr/testify/mock"
 )
 
 type Environment struct {
@@ -42,8 +43,8 @@ func (e *Environment) Cleanup(ctx context.Context) error {
 	return e.Called(ctx).Error(0)
 }
 
-func (e *Environment) FindExecutable(name string) *internal.Executable {
-	result := e.Called(name).Get(0)
+func (e *Environment) FindExecutable(ctx context.Context, name string) *internal.Executable {
+	result := e.Called(ctx, name).Get(0)
 
 	if result == nil {
 		return nil
@@ -57,5 +58,5 @@ func (e *Environment) RunExecutable(ctx context.Context, options internal.RunOpt
 }
 
 func (e *Environment) OnFindExecutable(name string) *mock.Call {
-	return e.On("FindExecutable", name)
+	return e.On("FindExecutable", mock.Anything, name)
 }

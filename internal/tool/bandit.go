@@ -11,9 +11,9 @@ type Bandit struct {
 }
 
 // DetectBandit create a tool for bandit
-func DetectBandit(environment internal.Environment) *Bandit {
+func DetectBandit(ctx context.Context, environment internal.Environment) *Bandit {
 	return NewBandit(func() *internal.Executable {
-		return environment.FindExecutable("bandit")
+		return environment.FindExecutable(ctx, "bandit")
 	})
 }
 

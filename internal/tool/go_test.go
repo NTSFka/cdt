@@ -15,7 +15,7 @@ func TestGo_DetectGo(t *testing.T) {
 	env.OnFindExecutable("go").
 		Return(env.NewExecutable("/bin/go"))
 
-	tool := DetectGo(env)
+	tool := DetectGo(context.Background(), env)
 	assert.NotNil(t, tool)
 	assert.Equal(t, "go", tool.Id())
 	assert.True(t, tool.IsAvailable())
@@ -32,7 +32,7 @@ func TestGo_DetectGo_NotFound(t *testing.T) {
 	env.OnFindExecutable("go").
 		Return(nil)
 
-	tool := DetectGo(env)
+	tool := DetectGo(context.Background(), env)
 	assert.NotNil(t, tool)
 	assert.Equal(t, "go", tool.Id())
 	assert.False(t, tool.IsAvailable())

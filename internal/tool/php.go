@@ -10,9 +10,9 @@ type PHP struct {
 }
 
 // DetectPHP create a tool for php
-func DetectPHP(environment internal.Environment) *PHP {
+func DetectPHP(ctx context.Context, environment internal.Environment) *PHP {
 	return NewPHP(func() *internal.Executable {
-		return environment.FindExecutable("php")
+		return environment.FindExecutable(ctx, "php")
 	})
 }
 

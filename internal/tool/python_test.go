@@ -18,7 +18,7 @@ func TestPython_DetectPython(t *testing.T) {
 	env.OnFindExecutable("python3").
 		Return(env.NewExecutable("/bin/tool"))
 
-	tool := DetectPython(env)
+	tool := DetectPython(context.Background(), env)
 	assert.NotNil(t, tool)
 	assert.Equal(t, "python", tool.Id())
 	assert.True(t, tool.IsAvailable())
@@ -36,7 +36,7 @@ func TestPython_DetectPython_NotFound(t *testing.T) {
 	env.OnFindExecutable("python3").
 		Return(nil)
 
-	tool := DetectPython(env)
+	tool := DetectPython(context.Background(), env)
 	assert.NotNil(t, tool)
 	assert.Equal(t, "python", tool.Id())
 	assert.False(t, tool.IsAvailable())
@@ -169,7 +169,7 @@ func TestPython_Environment_FindExecutable(t *testing.T) {
 	_, err = os.OpenFile(filepath.Join(testDir, "bin", "tool1"), os.O_RDONLY|os.O_CREATE, 0644)
 	assert.NoError(t, err)
 
-	executable := env.FindExecutable("tool1")
+	executable := env.FindExecutable(context.Background(), "tool1")
 	if assert.NotNil(t, executable) {
 		assert.Equal(t, "tool1", executable.Path)
 	}
@@ -189,7 +189,7 @@ func TestPython_Environment_FindExecutable_Windows(t *testing.T) {
 	_, err = os.OpenFile(filepath.Join(testDir, "Scripts", "tool1"), os.O_RDONLY|os.O_CREATE, 0644)
 	assert.NoError(t, err)
 
-	executable := env.FindExecutable("tool1")
+	executable := env.FindExecutable(context.Background(), "tool1")
 	if assert.NotNil(t, executable) {
 		assert.Equal(t, "tool1", executable.Path)
 	}
@@ -204,7 +204,7 @@ func TestPython_Environment_FindExecutable_Failed(t *testing.T) {
 	env, err := tool.CreateEnvironment(".", testDir)
 	assert.NoError(t, err)
 
-	executable := env.FindExecutable("tool1")
+	executable := env.FindExecutable(context.Background(), "tool1")
 	assert.Nil(t, executable)
 }
 

@@ -10,15 +10,15 @@ type ParaTest struct {
 }
 
 // DetectParaTest create a tool for paratest
-func DetectParaTest(environment internal.Environment) *ParaTest {
+func DetectParaTest(ctx context.Context, environment internal.Environment) *ParaTest {
 	return NewParaTest(func() *internal.Executable {
 		// Detect composer vendor
-		if executable := environment.FindExecutable("vendor/bin/paratest"); executable != nil {
+		if executable := environment.FindExecutable(ctx, "vendor/bin/paratest"); executable != nil {
 			return executable
 		}
 
 		// Detect unversioned (system default)
-		if executable := environment.FindExecutable("paratest"); executable != nil {
+		if executable := environment.FindExecutable(ctx, "paratest"); executable != nil {
 			return executable
 		}
 

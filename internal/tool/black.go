@@ -11,9 +11,9 @@ type Black struct {
 }
 
 // DetectBlack create a tool for black
-func DetectBlack(environment internal.Environment) *Black {
+func DetectBlack(ctx context.Context, environment internal.Environment) *Black {
 	return NewBlack(func() *internal.Executable {
-		return environment.FindExecutable("black")
+		return environment.FindExecutable(ctx, "black")
 	})
 }
 

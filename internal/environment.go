@@ -28,7 +28,7 @@ type Environment interface {
 	Cleanup(ctx context.Context) error
 
 	// FindExecutable try to find an executable in the environment
-	FindExecutable(name string) *Executable
+	FindExecutable(ctx context.Context, name string) *Executable
 
 	// RunExecutable run an executable in the environment
 	RunExecutable(ctx context.Context, options RunOptions, path string, args []string) error
@@ -157,8 +157,8 @@ func (s *systemEnvironment) Cleanup(_ context.Context) error {
 	return nil
 }
 
-func (s *systemEnvironment) FindExecutable(name string) *Executable {
-	return Trace(context.Background(), "system.find_executable", func() *Executable {
+func (s *systemEnvironment) FindExecutable(ctx context.Context, name string) *Executable {
+	return Trace(ctx, "system.find_executable", func() *Executable {
 		path, err := exec.LookPath(name)
 		if err != nil {
 			return nil

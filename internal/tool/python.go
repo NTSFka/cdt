@@ -13,9 +13,9 @@ type Python struct {
 }
 
 // DetectPython create a tool for python
-func DetectPython(environment internal.Environment) *Python {
+func DetectPython(ctx context.Context, environment internal.Environment) *Python {
 	return NewPython(func() *internal.Executable {
-		return environment.FindExecutable("python3")
+		return environment.FindExecutable(ctx, "python3")
 	})
 }
 
@@ -122,9 +122,7 @@ func (e *pythonVirtualEnvironment) findPath(name string) *string {
 	return nil
 }
 
-func (e *pythonVirtualEnvironment) FindExecutable(name string) *internal.Executable {
-	ctx := context.Background()
-
+func (e *pythonVirtualEnvironment) FindExecutable(ctx context.Context, name string) *internal.Executable {
 	return internal.Trace(ctx, "pyenv.find_executable", func() *internal.Executable {
 		if path := e.findPath(name); path != nil {
 			return &internal.Executable{

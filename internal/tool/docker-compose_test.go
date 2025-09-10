@@ -34,7 +34,7 @@ func TestDockerCompose_DetectDockerCompose_NotFound(t *testing.T) {
 	env.OnFindExecutable("docker").
 		Return(nil)
 
-	tool := DetectDockerCompose(env)
+	tool := DetectDockerCompose(context.Background(), env)
 	assert.NotNil(t, tool)
 	assert.Equal(t, "docker-compose", tool.Id())
 	assert.False(t, tool.IsAvailable())
@@ -47,7 +47,7 @@ func TestDockerCompose_DetectDockerCompose_Found(t *testing.T) {
 	env.OnFindExecutable("docker").
 		Return(env.NewExecutable("docker"))
 
-	tool := DetectDockerCompose(env)
+	tool := DetectDockerCompose(context.Background(), env)
 	assert.NotNil(t, tool)
 	assert.Equal(t, "docker-compose", tool.Id())
 	assert.True(t, tool.IsAvailable())
@@ -249,7 +249,7 @@ func TestDockerCompose_Environment_FindExecutable(t *testing.T) {
 	runMock.OnCallOutput([]string{"compose", "exec", "service1", "which", "tool1"}, "/usr/bin/tool1").
 		Return(nil)
 
-	executable := env.FindExecutable("tool1")
+	executable := env.FindExecutable(context.Background(), "tool1")
 	if assert.NotNil(t, executable) {
 		assert.Equal(t, "/usr/bin/tool1", executable.Path)
 	}
@@ -268,7 +268,7 @@ func TestDockerCompose_Environment_FindExecutable_Failed(t *testing.T) {
 	runMock.OnCallOutput([]string{"compose", "exec", "service1", "which", "tool1"}, "/usr/bin/tool1").
 		Return(errors.New("failed"))
 
-	executable := env.FindExecutable("tool1")
+	executable := env.FindExecutable(context.Background(), "tool1")
 	assert.Nil(t, executable)
 
 	runMock.AssertExpectations(t)
@@ -289,7 +289,7 @@ func TestDockerCompose_Environment_FindExecutable_AutoStart(t *testing.T) {
 	runMock.OnCallOutput([]string{"compose", "exec", "service1", "which", "tool1"}, "/usr/bin/tool1").
 		Return(nil)
 
-	executable := env.FindExecutable("tool1")
+	executable := env.FindExecutable(context.Background(), "tool1")
 	if assert.NotNil(t, executable) {
 		assert.Equal(t, "/usr/bin/tool1", executable.Path)
 	}
@@ -309,7 +309,7 @@ func TestDockerCompose_Environment_FindExecutable_AutoStart_Failed(t *testing.T)
 	runMock.OnCall([]string{"compose", "up", "-d"}).
 		Return(errors.New("failed"))
 
-	executable := env.FindExecutable("tool1")
+	executable := env.FindExecutable(context.Background(), "tool1")
 	assert.Nil(t, executable)
 
 	runMock.AssertExpectations(t)

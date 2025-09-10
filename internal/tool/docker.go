@@ -27,9 +27,9 @@ func NewDocker(detect func() *internal.Executable) *Docker {
 }
 
 // DetectDocker create a docker tool with a detected docker executable in the given environment.
-func DetectDocker(environment internal.Environment) *Docker {
+func DetectDocker(ctx context.Context, environment internal.Environment) *Docker {
 	return NewDocker(func() *internal.Executable {
-		return environment.FindExecutable("docker")
+		return environment.FindExecutable(ctx, "docker")
 	})
 }
 
@@ -173,9 +173,7 @@ func (d *dockerEnvironment) Cleanup(ctx context.Context) error {
 	}, "container", d.containerId)
 }
 
-func (d *dockerEnvironment) FindExecutable(name string) *internal.Executable {
-	ctx := context.Background()
-
+func (d *dockerEnvironment) FindExecutable(ctx context.Context, name string) *internal.Executable {
 	if err := d.autoStart(ctx); err != nil {
 		return nil
 	}

@@ -36,7 +36,7 @@ func TestDocker_DetectDocker_NotFound(t *testing.T) {
 	env.OnFindExecutable("docker").
 		Return(nil)
 
-	tool := DetectDocker(env)
+	tool := DetectDocker(context.Background(), env)
 	assert.NotNil(t, tool)
 	assert.Equal(t, "docker", tool.Id())
 	assert.False(t, tool.IsAvailable())
@@ -49,7 +49,7 @@ func TestDocker_DetectDocker_Found(t *testing.T) {
 	env.OnFindExecutable("docker").
 		Return(env.NewExecutable("docker"))
 
-	tool := DetectDocker(env)
+	tool := DetectDocker(context.Background(), env)
 	assert.NotNil(t, tool)
 	assert.Equal(t, "docker", tool.Id())
 	assert.True(t, tool.IsAvailable())
@@ -294,7 +294,7 @@ func TestDocker_Environment_FindExecutable(t *testing.T) {
 	runMock.OnCallOutput([]string{"exec", "db0ac83ce405", "which", "tool1"}, "/usr/bin/tool1").
 		Return(nil)
 
-	executable := env.FindExecutable("tool1")
+	executable := env.FindExecutable(context.Background(), "tool1")
 	if assert.NotNil(t, executable) {
 		assert.Equal(t, "/usr/bin/tool1", executable.Path)
 	}
@@ -314,7 +314,7 @@ func TestDocker_Environment_FindExecutable_Failed(t *testing.T) {
 	runMock.OnCallOutput([]string{"exec", "db0ac83ce405", "which", "tool1"}, "/usr/bin/tool1").
 		Return(errors.New("failed"))
 
-	executable := env.FindExecutable("tool1")
+	executable := env.FindExecutable(context.Background(), "tool1")
 	assert.Nil(t, executable)
 
 	runMock.AssertExpectations(t)
@@ -330,7 +330,7 @@ func TestDocker_Environment_FindExecutable_AutoStart(t *testing.T) {
 	runMock.OnCallOutput([]string{"exec", "db0ac83ce405", "which", "tool1"}, "/usr/bin/tool1").
 		Return(nil)
 
-	executable := env.FindExecutable("tool1")
+	executable := env.FindExecutable(context.Background(), "tool1")
 	if assert.NotNil(t, executable) {
 		assert.Equal(t, "/usr/bin/tool1", executable.Path)
 	}
@@ -345,7 +345,7 @@ func TestDocker_Environment_FindExecutable_AutoStart_Failed(t *testing.T) {
 	runMock.OnStart("image1", "db0ac83ce405").
 		Return(errors.New("failed"))
 
-	executable := env.FindExecutable("tool1")
+	executable := env.FindExecutable(context.Background(), "tool1")
 	assert.Nil(t, executable)
 
 	runMock.AssertExpectations(t)

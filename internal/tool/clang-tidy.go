@@ -13,9 +13,9 @@ type ClangTidy struct {
 }
 
 // DetectClangTidy create a tool for clang-tidy
-func DetectClangTidy(environment internal.Environment) *ClangTidy {
+func DetectClangTidy(ctx context.Context, environment internal.Environment) *ClangTidy {
 	return NewClangTidy(func() *internal.Executable {
-		return environment.FindExecutable("clang-tidy")
+		return environment.FindExecutable(ctx, "clang-tidy")
 	})
 }
 

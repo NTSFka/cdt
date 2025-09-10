@@ -16,7 +16,7 @@ func TestPHPStan_DetectPHPStan_Composer(t *testing.T) {
 	env.OnFindExecutable("vendor/bin/phpstan").
 		Return(env.NewExecutable("/bin/tool"))
 
-	tool := DetectPHPStan(env)
+	tool := DetectPHPStan(context.Background(), env)
 	assert.NotNil(t, tool)
 	assert.Equal(t, "phpstan", tool.Id())
 	assert.True(t, tool.IsAvailable())
@@ -39,7 +39,7 @@ func TestPHPStan_DetectPHPStan_System(t *testing.T) {
 	env.OnFindExecutable("phpstan").
 		Return(env.NewExecutable("/bin/tool"))
 
-	tool := DetectPHPStan(env)
+	tool := DetectPHPStan(context.Background(), env)
 	assert.NotNil(t, tool)
 	assert.Equal(t, "phpstan", tool.Id())
 	assert.True(t, tool.IsAvailable())
@@ -59,7 +59,7 @@ func TestPHPStan_DetectPHPStan_NotFound(t *testing.T) {
 	env.OnFindExecutable("phpstan").
 		Return(nil)
 
-	tool := DetectPHPStan(env)
+	tool := DetectPHPStan(context.Background(), env)
 	assert.NotNil(t, tool)
 	assert.Equal(t, "phpstan", tool.Id())
 	assert.False(t, tool.IsAvailable())

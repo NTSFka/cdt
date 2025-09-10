@@ -16,7 +16,7 @@ func TestPHPCSFixer_DetectPHPCSFixer_Composer(t *testing.T) {
 	env.OnFindExecutable("vendor/bin/php-cs-fixer").
 		Return(env.NewExecutable("/bin/tool"))
 
-	tool := DetectPHPCSFixer(env)
+	tool := DetectPHPCSFixer(context.Background(), env)
 	assert.NotNil(t, tool)
 	assert.Equal(t, "php-cs-fixer", tool.Id())
 	assert.True(t, tool.IsAvailable())
@@ -39,7 +39,7 @@ func TestPHPCSFixer_DetectPHPCSFixer_System(t *testing.T) {
 	env.OnFindExecutable("php-cs-fixer").
 		Return(env.NewExecutable("/bin/tool"))
 
-	tool := DetectPHPCSFixer(env)
+	tool := DetectPHPCSFixer(context.Background(), env)
 	assert.NotNil(t, tool)
 	assert.Equal(t, "php-cs-fixer", tool.Id())
 	assert.True(t, tool.IsAvailable())
@@ -59,7 +59,7 @@ func TestPHPCSFixer_DetectPHPCSFixer_NotFound(t *testing.T) {
 	env.OnFindExecutable("php-cs-fixer").
 		Return(nil)
 
-	tool := DetectPHPCSFixer(env)
+	tool := DetectPHPCSFixer(context.Background(), env)
 	assert.NotNil(t, tool)
 	assert.Equal(t, "php-cs-fixer", tool.Id())
 	assert.False(t, tool.IsAvailable())

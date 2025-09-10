@@ -10,9 +10,9 @@ type PyTest struct {
 }
 
 // DetectPyTest create a tool for pytest
-func DetectPyTest(environment internal.Environment) *PyTest {
+func DetectPyTest(ctx context.Context, environment internal.Environment) *PyTest {
 	return NewPyTest(func() *internal.Executable {
-		return environment.FindExecutable("pytest")
+		return environment.FindExecutable(ctx, "pytest")
 	})
 }
 

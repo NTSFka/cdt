@@ -29,8 +29,8 @@ func NewDockerCompose(detect func() *internal.Executable) *DockerCompose {
 }
 
 // DetectDockerCompose create a docker compose tool with detected docker executable in the given environment.
-func DetectDockerCompose(environment internal.Environment) *DockerCompose {
-	return NewDockerCompose(func() *internal.Executable { return environment.FindExecutable("docker") })
+func DetectDockerCompose(ctx context.Context, environment internal.Environment) *DockerCompose {
+	return NewDockerCompose(func() *internal.Executable { return environment.FindExecutable(ctx, "docker") })
 }
 
 func (d *DockerCompose) Aliases() []string {
@@ -148,9 +148,7 @@ func (d *dockerComposeEnvironment) Cleanup(ctx context.Context) error {
 	}, "service", d.service)
 }
 
-func (d *dockerComposeEnvironment) FindExecutable(name string) *internal.Executable {
-	ctx := context.Background()
-
+func (d *dockerComposeEnvironment) FindExecutable(ctx context.Context, name string) *internal.Executable {
 	if err := d.autoStart(ctx); err != nil {
 		return nil
 	}

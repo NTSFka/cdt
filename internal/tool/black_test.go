@@ -15,7 +15,7 @@ func TestBlack_DetectBlack(t *testing.T) {
 	env.OnFindExecutable("black").
 		Return(env.NewExecutable("/bin/tool"))
 
-	tool := DetectBlack(env)
+	tool := DetectBlack(context.Background(), env)
 	assert.NotNil(t, tool)
 	assert.Equal(t, "black", tool.Id())
 	assert.True(t, tool.IsAvailable())
@@ -33,7 +33,7 @@ func TestBlack_DetectBlack_NotFound(t *testing.T) {
 	env.OnFindExecutable("black").
 		Return(nil)
 
-	tool := DetectBlack(env)
+	tool := DetectBlack(context.Background(), env)
 	assert.NotNil(t, tool)
 	assert.Equal(t, "black", tool.Id())
 	assert.False(t, tool.IsAvailable())

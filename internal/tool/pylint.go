@@ -11,9 +11,9 @@ type Pylint struct {
 }
 
 // DetectPylint create a tool for pylint
-func DetectPylint(environment internal.Environment) *Pylint {
+func DetectPylint(ctx context.Context, environment internal.Environment) *Pylint {
 	return NewPylint(func() *internal.Executable {
-		return environment.FindExecutable("pylint")
+		return environment.FindExecutable(ctx, "pylint")
 	})
 }
 

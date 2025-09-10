@@ -15,7 +15,7 @@ func TestPip_DetectPip_Pip(t *testing.T) {
 	env.OnFindExecutable("pip").
 		Return(env.NewExecutable("/bin/tool"))
 
-	tool := DetectPip(env)
+	tool := DetectPip(context.Background(), env)
 	assert.NotNil(t, tool)
 	assert.Equal(t, "pip", tool.Id())
 	assert.True(t, tool.IsAvailable())
@@ -36,7 +36,7 @@ func TestPip_DetectPip_System(t *testing.T) {
 	env.OnFindExecutable("pip3").
 		Return(env.NewExecutable("/bin/tool"))
 
-	tool := DetectPip(env)
+	tool := DetectPip(context.Background(), env)
 	assert.NotNil(t, tool)
 	assert.Equal(t, "pip", tool.Id())
 	assert.True(t, tool.IsAvailable())
@@ -56,7 +56,7 @@ func TestPip_DetectPip_NotFound(t *testing.T) {
 	env.OnFindExecutable("pip3").
 		Return(nil)
 
-	tool := DetectPip(env)
+	tool := DetectPip(context.Background(), env)
 	assert.NotNil(t, tool)
 	assert.Equal(t, "pip", tool.Id())
 	assert.False(t, tool.IsAvailable())

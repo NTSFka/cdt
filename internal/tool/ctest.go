@@ -24,9 +24,9 @@ func NewCTest(detect func() *internal.Executable) *CTest {
 }
 
 // DetectCTest create ctest tool can be used in the project
-func DetectCTest(environment internal.Environment) *CTest {
+func DetectCTest(ctx context.Context, environment internal.Environment) *CTest {
 	return NewCTest(func() *internal.Executable {
-		return environment.FindExecutable("ctest")
+		return environment.FindExecutable(ctx, "ctest")
 	})
 }
 

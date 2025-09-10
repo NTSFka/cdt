@@ -35,9 +35,9 @@ func NewGo(detect func() *internal.Executable) *Go {
 }
 
 // DetectGo create go tool can be used in the project
-func DetectGo(environment internal.Environment) *Go {
+func DetectGo(ctx context.Context, environment internal.Environment) *Go {
 	return NewGo(func() *internal.Executable {
-		return environment.FindExecutable("go")
+		return environment.FindExecutable(ctx, "go")
 	})
 }
 

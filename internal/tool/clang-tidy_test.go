@@ -18,7 +18,7 @@ func TestClangTidy_DetectClangTidy(t *testing.T) {
 	env.OnFindExecutable("clang-tidy").
 		Return(env.NewExecutable("/bin/clang-tidy"))
 
-	tool := DetectClangTidy(env)
+	tool := DetectClangTidy(context.Background(), env)
 	assert.NotNil(t, tool)
 	assert.Equal(t, "clang-tidy", tool.Id())
 	assert.True(t, tool.IsAvailable())
@@ -35,7 +35,7 @@ func TestClangTidy_DetectClangTidy_NotFound(t *testing.T) {
 	env.OnFindExecutable("clang-tidy").
 		Return(nil)
 
-	tool := DetectClangTidy(env)
+	tool := DetectClangTidy(context.Background(), env)
 	assert.NotNil(t, tool)
 	assert.Equal(t, "clang-tidy", tool.Id())
 	assert.False(t, tool.IsAvailable())

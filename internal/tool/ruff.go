@@ -11,9 +11,9 @@ type Ruff struct {
 }
 
 // DetectRuff create a tool for ruff
-func DetectRuff(environment internal.Environment) *Ruff {
+func DetectRuff(ctx context.Context, environment internal.Environment) *Ruff {
 	return NewRuff(func() *internal.Executable {
-		return environment.FindExecutable("ruff")
+		return environment.FindExecutable(ctx, "ruff")
 	})
 }
 

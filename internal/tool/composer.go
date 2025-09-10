@@ -10,15 +10,15 @@ type Composer struct {
 }
 
 // DetectComposer create a tool for composer
-func DetectComposer(environment internal.Environment) *Composer {
+func DetectComposer(ctx context.Context, environment internal.Environment) *Composer {
 	return NewComposer(func() *internal.Executable {
 		// PHAR
-		if executable := environment.FindExecutable("composer.phar"); executable != nil {
+		if executable := environment.FindExecutable(ctx, "composer.phar"); executable != nil {
 			return executable
 		}
 
 		// System version
-		if executable := environment.FindExecutable("composer"); executable != nil {
+		if executable := environment.FindExecutable(ctx, "composer"); executable != nil {
 			return executable
 		}
 

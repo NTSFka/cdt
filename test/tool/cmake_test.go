@@ -18,11 +18,11 @@ func TestCMakeRealProjectConfigureAndBuildAndRun(t *testing.T) {
 
 	environment := internal.SystemEnvironment
 
-	checkTool(t, environment, "cmake")
+	checkTool(t, context.Background(), environment, "cmake")
 
 	buildDirectory := fs.NewDir(t, "cdt-test")
 
-	cmake := tool.DetectCMake(environment)
+	cmake := tool.DetectCMake(context.Background(), environment)
 
 	desc := internal.ProjectInfo{
 		Directory:             "data/cmake",
