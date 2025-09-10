@@ -37,5 +37,9 @@ func (p *PythonType) Create(config Config, tools internal.Tools) internal.Projec
 		DependencyManager: pip,
 	}
 
-	return internal.MakeProject(config.Directory, "", &internal.EmptyProjectStructureProvider{}, workflow)
+	return internal.Project{
+		Type:     "python",
+		Info:     internal.ProjectInfo{Directory: config.Directory, StructureProvider: &internal.EmptyProjectStructureProvider{}},
+		Workflow: workflow,
+	}
 }

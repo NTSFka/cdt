@@ -5,6 +5,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+
 	"github.com/urfave/cli/v3"
 )
 
@@ -36,7 +37,7 @@ func execCommandAction(ctx context.Context, cmd *cli.Command) error {
 	}
 
 	options := internal.RunOptions{
-		Directory: c.Project.RootDirectory(),
+		Directory: c.Project.Info.Directory,
 		Input:     cmd.Reader,
 		Output:    cmd.Writer,
 		Error:     cmd.ErrWriter,

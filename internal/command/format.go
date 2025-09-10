@@ -5,6 +5,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+
 	"github.com/urfave/cli/v3"
 )
 
@@ -62,15 +63,15 @@ func formatCommandAction(ctx context.Context, cmd *cli.Command) error {
 	var err error
 	if cmd.Bool("check") {
 		if files := cmd.StringArgs("files"); len(files) > 0 {
-			err = formatter.FormatCheckFiles(c.Project, files, cmd.Args().Tail())
+			err = formatter.FormatCheckFiles(c.Project.Info, files, cmd.Args().Tail())
 		} else {
-			err = formatter.FormatCheckAll(c.Project, cmd.Args().Tail())
+			err = formatter.FormatCheckAll(c.Project.Info, cmd.Args().Tail())
 		}
 	} else {
 		if files := cmd.StringArgs("files"); len(files) > 0 {
-			err = formatter.FormatFiles(c.Project, files, cmd.Args().Tail())
+			err = formatter.FormatFiles(c.Project.Info, files, cmd.Args().Tail())
 		} else {
-			err = formatter.FormatAll(c.Project, cmd.Args().Tail())
+			err = formatter.FormatAll(c.Project.Info, cmd.Args().Tail())
 		}
 	}
 

@@ -44,12 +44,12 @@ func TestGolangCILint_GolangCILint_LintAll(t *testing.T) {
 
 	tool := NewGolangCILint(exec.LazyExecutable("lint"))
 
-	p := internal.MakeProject("project", "", nil, internal.Workflow{Linter: tool})
+	desc := internal.ProjectInfo{Directory: "."}
 
 	exec.OnRun("lint", []string{"run"}).
 		Return(nil)
 
-	err := tool.LintAll(p, []string{})
+	err := tool.LintAll(desc, []string{})
 	assert.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -60,12 +60,12 @@ func TestGolangCILint_GolangCILint_Lint(t *testing.T) {
 
 	tool := NewGolangCILint(exec.LazyExecutable("lint"))
 
-	p := internal.MakeProject("project", "", nil, internal.Workflow{Linter: tool})
+	desc := internal.ProjectInfo{Directory: "."}
 
 	exec.OnRun("lint", []string{"run", "mod1"}).
 		Return(nil)
 
-	err := tool.LintFiles(p, []string{"mod1"}, []string{})
+	err := tool.LintFiles(desc, []string{"mod1"}, []string{})
 	assert.NoError(t, err)
 
 	exec.AssertExpectations(t)

@@ -29,10 +29,10 @@ func NewPyTest(detect func() *internal.Executable) *PyTest {
 	}
 }
 
-func (p *PyTest) TestAll(project internal.Project, args []string) error {
-	return p.RunForProject(project, args)
+func (p *PyTest) TestAll(info internal.ProjectInfo, args []string) error {
+	return p.RunForProject(info, args)
 }
 
-func (p *PyTest) Test(project internal.Project, pattern string, args []string) error {
-	return p.RunForProject(project, append(args, pattern))
+func (p *PyTest) Test(info internal.ProjectInfo, pattern string, args []string) error {
+	return p.RunForProject(info, append(args, pattern))
 }

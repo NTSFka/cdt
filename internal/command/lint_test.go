@@ -22,7 +22,6 @@ func runLint(linter internal.ProjectLinter, args ...string) error {
 
 func runLintTool(linter internal.Tool, args ...string) error {
 	return test.RunCommand(NewLintCommand(), internal.Context{
-		Project: internal.Project{},
 		Tools: []internal.Tool{
 			linter,
 		},

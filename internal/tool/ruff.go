@@ -43,32 +43,32 @@ func (r *Ruff) buildPaths(directory string, filenames []string) []string {
 	return paths
 }
 
-func (r *Ruff) LintAll(project internal.Project, args []string) error {
-	return r.RunForProject(project, append([]string{"check"}, args...))
+func (r *Ruff) LintAll(info internal.ProjectInfo, args []string) error {
+	return r.RunForProject(info, append([]string{"check"}, args...))
 }
 
-func (r *Ruff) LintFiles(project internal.Project, filenames []string, args []string) error {
-	paths := r.buildPaths(project.RootDirectory(), filenames)
+func (r *Ruff) LintFiles(info internal.ProjectInfo, filenames []string, args []string) error {
+	paths := r.buildPaths(info.Directory, filenames)
 
-	return r.RunForProject(project, append(append([]string{"check"}, args...), paths...))
+	return r.RunForProject(info, append(append([]string{"check"}, args...), paths...))
 }
 
-func (r *Ruff) FormatAll(project internal.Project, args []string) error {
-	return r.RunForProject(project, append([]string{"format"}, args...))
+func (r *Ruff) FormatAll(info internal.ProjectInfo, args []string) error {
+	return r.RunForProject(info, append([]string{"format"}, args...))
 }
 
-func (r *Ruff) FormatFiles(project internal.Project, filenames []string, args []string) error {
-	paths := r.buildPaths(project.RootDirectory(), filenames)
+func (r *Ruff) FormatFiles(info internal.ProjectInfo, filenames []string, args []string) error {
+	paths := r.buildPaths(info.Directory, filenames)
 
-	return r.RunForProject(project, append(append([]string{"format"}, args...), paths...))
+	return r.RunForProject(info, append(append([]string{"format"}, args...), paths...))
 }
 
-func (r *Ruff) FormatCheckAll(project internal.Project, args []string) error {
-	return r.RunForProject(project, append([]string{"format", "--check"}, args...))
+func (r *Ruff) FormatCheckAll(info internal.ProjectInfo, args []string) error {
+	return r.RunForProject(info, append([]string{"format", "--check"}, args...))
 }
 
-func (r *Ruff) FormatCheckFiles(project internal.Project, filenames []string, args []string) error {
-	paths := r.buildPaths(project.RootDirectory(), filenames)
+func (r *Ruff) FormatCheckFiles(info internal.ProjectInfo, filenames []string, args []string) error {
+	paths := r.buildPaths(info.Directory, filenames)
 
-	return r.RunForProject(project, append(append([]string{"format", "--check"}, args...), paths...))
+	return r.RunForProject(info, append(append([]string{"format", "--check"}, args...), paths...))
 }

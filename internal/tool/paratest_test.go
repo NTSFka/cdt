@@ -72,12 +72,12 @@ func TestParaTest_ParaTest_TestAll(t *testing.T) {
 
 	tool := NewParaTest(exec.LazyExecutable("test"))
 
-	p := internal.MakeProject(".", "", nil, internal.Workflow{Tester: tool})
+	desc := internal.ProjectInfo{Directory: "."}
 
 	exec.OnRun("test", []string{}).
 		Return(nil)
 
-	err := tool.TestAll(p, []string{})
+	err := tool.TestAll(desc, []string{})
 	assert.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -88,12 +88,12 @@ func TestParaTest_ParaTest_Test(t *testing.T) {
 
 	tool := NewParaTest(exec.LazyExecutable("test"))
 
-	p := internal.MakeProject(".", "", nil, internal.Workflow{Tester: tool})
+	desc := internal.ProjectInfo{Directory: "."}
 
 	exec.OnRun("test", []string{"tests/*"}).
 		Return(nil)
 
-	err := tool.Test(p, "tests/*", []string{})
+	err := tool.Test(desc, "tests/*", []string{})
 	assert.NoError(t, err)
 
 	exec.AssertExpectations(t)

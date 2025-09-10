@@ -90,7 +90,7 @@ func TestTool_ExecutableTool_RunForProject(t *testing.T) {
 		Error:     os.Stderr,
 	}, "echo", []string{"arg1", "arg2"}).Return(nil)
 
-	err := tool.RunForProject(Project{}, []string{"arg1", "arg2"})
+	err := tool.RunForProject(ProjectInfo{}, []string{"arg1", "arg2"})
 	assert.NoError(t, err)
 
 	runtime.AssertExpectations(t)

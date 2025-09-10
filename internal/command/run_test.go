@@ -22,7 +22,6 @@ func runRun(runner internal.ProjectRunner, args ...string) error {
 
 func runRunTool(runner internal.Tool, args ...string) error {
 	return test.RunCommand(NewRunCommand(), internal.Context{
-		Project: internal.Project{},
 		Tools: []internal.Tool{
 			runner,
 		},

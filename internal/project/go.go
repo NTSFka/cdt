@@ -30,5 +30,9 @@ func (g *GoType) Create(config Config, tools internal.Tools) internal.Project {
 		Linter:       &LinterList{goTool, goLint},
 	}
 
-	return internal.MakeProject(config.Directory, "", goTool, workflow)
+	return internal.Project{
+		Type:     "go",
+		Info:     internal.ProjectInfo{Directory: config.Directory, StructureProvider: goTool},
+		Workflow: workflow,
+	}
 }

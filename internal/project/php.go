@@ -34,5 +34,9 @@ func (p *PHPType) Create(config Config, tools internal.Tools) internal.Project {
 		DependencyManager: composer,
 	}
 
-	return internal.MakeProject(config.Directory, "", &internal.EmptyProjectStructureProvider{}, workflow)
+	return internal.Project{
+		Type:     "php",
+		Info:     internal.ProjectInfo{Directory: config.Directory, StructureProvider: &internal.EmptyProjectStructureProvider{}},
+		Workflow: workflow,
+	}
 }

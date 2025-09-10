@@ -31,8 +31,14 @@ type Type interface {
 
 func buildProjectConfigCustom(config internal.Config, cwf internal.ConfigWorkflow, tools internal.Tools) (*internal.Project, error) {
 	if wf, err := FromConfig(cwf, tools); wf != nil {
-		project := internal.MakeProject(config.RootDirectory, "", &internal.EmptyProjectStructureProvider{}, *wf)
-		return &project, nil
+		return &internal.Project{
+			Type: "custom",
+			Info: internal.ProjectInfo{
+				Directory:         config.RootDirectory,
+				StructureProvider: &internal.EmptyProjectStructureProvider{},
+			},
+			Workflow: *wf,
+		}, nil
 	} else {
 		return nil, err
 	}
@@ -57,9 +63,13 @@ func buildProjectDetect(config internal.Config, tools internal.Tools) (*internal
 		}
 	}
 
-	project := internal.MakeProject(config.RootDirectory, "", &internal.EmptyProjectStructureProvider{}, internal.Workflow{})
-
-	return &project, nil
+	return &internal.Project{
+		Type: "unknown",
+		Info: internal.ProjectInfo{
+			Directory:         config.RootDirectory,
+			StructureProvider: &internal.EmptyProjectStructureProvider{},
+		},
+	}, nil
 }
 
 // BuildProject creates a project from configuration and supported tools

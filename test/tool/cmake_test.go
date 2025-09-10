@@ -3,10 +3,11 @@ package tool
 import (
 	"cdt/internal"
 	"cdt/internal/tool"
-	"github.com/stretchr/testify/assert"
-	"gotest.tools/v3/fs"
 	"runtime"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
+	"gotest.tools/v3/fs"
 )
 
 func TestCMakeRealProjectConfigureAndBuildAndRun(t *testing.T) {
@@ -22,13 +23,17 @@ func TestCMakeRealProjectConfigureAndBuildAndRun(t *testing.T) {
 
 	cmake := tool.DetectCMake(environment)
 
-	project := internal.MakeProject("data/cmake", buildDirectory.Path(), cmake, internal.Workflow{})
+	desc := internal.ProjectInfo{
+		Directory:             "data/cmake",
+		IntermediateDirectory: internal.StrPtr(buildDirectory.Path()),
+		StructureProvider:     cmake,
+	}
 
-	var err = cmake.Configure(project, []string{})
+	var err = cmake.Configure(desc, []string{})
 	assert.NoError(t, err)
 
 	var structure *internal.ProjectStructure
-	structure, err = cmake.Structure(project)
+	structure, err = cmake.Structure(desc)
 	assert.NoError(t, err)
 
 	if assert.NotNil(t, structure) {
@@ -50,12 +55,12 @@ func TestCMakeRealProjectConfigureAndBuildAndRun(t *testing.T) {
 		assert.Equal(t, []string{"main.cpp", "test.cpp"}, structure.GetFiles())
 	}
 
-	err = cmake.BuildAll(project, []string{})
+	err = cmake.BuildAll(desc, []string{})
 	assert.NoError(t, err)
 
-	err = cmake.BuildTargets(project, []string{"main"}, []string{})
+	err = cmake.BuildTargets(desc, []string{"main"}, []string{})
 	assert.NoError(t, err)
 
-	err = cmake.RunTarget(project, "main", []string{})
+	err = cmake.RunTarget(desc, "main", []string{})
 	assert.NoError(t, err)
 }

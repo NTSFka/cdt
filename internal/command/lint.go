@@ -5,6 +5,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+
 	"github.com/urfave/cli/v3"
 )
 
@@ -56,9 +57,9 @@ func lintCommandAction(ctx context.Context, cmd *cli.Command) error {
 
 	var err error
 	if files := cmd.StringArgs("files"); len(files) > 0 {
-		err = linter.LintFiles(c.Project, files, cmd.Args().Tail())
+		err = linter.LintFiles(c.Project.Info, files, cmd.Args().Tail())
 	} else {
-		err = linter.LintAll(c.Project, cmd.Args().Tail())
+		err = linter.LintAll(c.Project.Info, cmd.Args().Tail())
 	}
 
 	if err != nil {

@@ -22,7 +22,6 @@ func runConfigure(configurator internal.ProjectConfigurator, args ...string) err
 
 func runConfigureTool(configurator internal.Tool, args ...string) error {
 	return test.RunCommand(NewConfigureCommand(), internal.Context{
-		Project: internal.Project{},
 		Tools: []internal.Tool{
 			configurator,
 		},

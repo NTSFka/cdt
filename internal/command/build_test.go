@@ -22,7 +22,6 @@ func runBuild(builder internal.ProjectBuilder, args ...string) error {
 
 func runBuildTool(builder internal.Tool, args ...string) error {
 	return test.RunCommand(NewBuildCommand(), internal.Context{
-		Project: internal.Project{},
 		Tools: []internal.Tool{
 			builder,
 		},

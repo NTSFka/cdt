@@ -38,10 +38,10 @@ func NewParaTest(detect func() *internal.Executable) *ParaTest {
 	}
 }
 
-func (p *ParaTest) TestAll(project internal.Project, args []string) error {
-	return p.RunForProject(project, args)
+func (p *ParaTest) TestAll(info internal.ProjectInfo, args []string) error {
+	return p.RunForProject(info, args)
 }
 
-func (p *ParaTest) Test(project internal.Project, pattern string, args []string) error {
-	return p.RunForProject(project, append(args, pattern))
+func (p *ParaTest) Test(info internal.ProjectInfo, pattern string, args []string) error {
+	return p.RunForProject(info, append(args, pattern))
 }

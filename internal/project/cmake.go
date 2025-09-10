@@ -45,7 +45,11 @@ func (c *CMakeType) Create(config Config, tools internal.Tools) internal.Project
 		buildDirectory = filepath.Join("build", "dev")
 	}
 
-	return internal.MakeProject(config.Directory, buildDirectory, cmake, workflow)
+	return internal.Project{
+		Type:     "cmake",
+		Info:     internal.ProjectInfo{Directory: config.Directory, IntermediateDirectory: &buildDirectory, StructureProvider: cmake},
+		Workflow: workflow,
+	}
 }
 
 // A cmakeTester is a special project tester that will invoke cmake before ctest
@@ -54,18 +58,18 @@ type cmakeTester struct {
 	ctestTool *tool.CTest
 }
 
-func (t *cmakeTester) TestAll(project internal.Project, args []string) error {
-	if err := t.cmakeTool.BuildAll(project, []string{}); err != nil {
+func (t *cmakeTester) TestAll(info internal.ProjectInfo, args []string) error {
+	if err := t.cmakeTool.BuildAll(info, []string{}); err != nil {
 		return fmt.Errorf("build failed: %w", err)
 	}
 
-	return t.ctestTool.RunForProject(project, args)
+	return t.ctestTool.RunForProject(info, args)
 }
 
-func (t *cmakeTester) Test(project internal.Project, pattern string, args []string) error {
-	if err := t.cmakeTool.BuildAll(project, []string{}); err != nil {
+func (t *cmakeTester) Test(info internal.ProjectInfo, pattern string, args []string) error {
+	if err := t.cmakeTool.BuildAll(info, []string{}); err != nil {
 		return fmt.Errorf("build failed: %w", err)
 	}
 
-	return t.ctestTool.RunForProject(project, append(args, "-R", pattern))
+	return t.ctestTool.RunForProject(info, append(args, "-R", pattern))
 }

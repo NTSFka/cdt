@@ -32,31 +32,39 @@ func DetectCMake(environment internal.Environment) *CMake {
 	})
 }
 
-func (c *CMake) Structure(project internal.Project) (*internal.ProjectStructure, error) {
-	if err := c.Configure(project, []string{}); err != nil {
+func (c *CMake) Structure(info internal.ProjectInfo) (*internal.ProjectStructure, error) {
+	if err := c.Configure(info, []string{}); err != nil {
 		return nil, err
 	}
 
-	fileApi := utils.NewCmakeFileApi(project.BuildDirectory())
+	if info.IntermediateDirectory == nil {
+		return nil, internal.ErrNoIntermediateDirectory
+	}
 
-	info := internal.ProjectStructure{
+	fileApi := utils.NewCmakeFileApi(*info.IntermediateDirectory)
+
+	structure := internal.ProjectStructure{
 		Targets: make(map[string]internal.ProjectTarget),
 	}
 
 	if reply, err := fileApi.Reply(); err == nil {
 		for _, target := range reply.Targets {
-			info.Targets[target.Name] = internal.ProjectTarget{
+			structure.Targets[target.Name] = internal.ProjectTarget{
 				Files:      target.Files,
 				Dependency: target.External,
 			}
 		}
 	}
 
-	return &info, nil
+	return &structure, nil
 }
 
-func (c *CMake) Configure(project internal.Project, args []string) error {
-	fileApi := utils.NewCmakeFileApi(project.BuildDirectory())
+func (c *CMake) Configure(info internal.ProjectInfo, args []string) error {
+	if info.IntermediateDirectory == nil {
+		return internal.ErrNoIntermediateDirectory
+	}
+
+	fileApi := utils.NewCmakeFileApi(*info.IntermediateDirectory)
 
 	if err := fileApi.Query("codemodel", 2); err != nil {
 		return err
@@ -65,41 +73,53 @@ func (c *CMake) Configure(project internal.Project, args []string) error {
 	callArgs := args
 	callArgs = append(callArgs, "-DCMAKE_EXPORT_COMPILE_COMMANDS=ON")
 	callArgs = append(callArgs, "-S", ".")
-	callArgs = append(callArgs, "-B", project.BuildDirectory())
+	callArgs = append(callArgs, "-B", *info.IntermediateDirectory)
 
-	return c.RunForProject(project, callArgs)
+	return c.RunForProject(info, callArgs)
 }
 
-func (c *CMake) BuildAll(project internal.Project, args []string) error {
-	if err := c.Configure(project, []string{}); err != nil {
+func (c *CMake) BuildAll(info internal.ProjectInfo, args []string) error {
+	if err := c.Configure(info, []string{}); err != nil {
 		return err
 	}
 
-	callArgs := args
-	callArgs = append(callArgs, "--build", project.BuildDirectory())
-
-	return c.RunForProject(project, callArgs)
-}
-
-func (c *CMake) BuildTargets(project internal.Project, targets []string, args []string) error {
-	if err := c.Configure(project, []string{}); err != nil {
-		return err
+	if info.IntermediateDirectory == nil {
+		return internal.ErrNoIntermediateDirectory
 	}
 
 	callArgs := args
-	callArgs = append(callArgs, "--build", project.BuildDirectory())
+	callArgs = append(callArgs, "--build", *info.IntermediateDirectory)
+
+	return c.RunForProject(info, callArgs)
+}
+
+func (c *CMake) BuildTargets(info internal.ProjectInfo, targets []string, args []string) error {
+	if err := c.Configure(info, []string{}); err != nil {
+		return err
+	}
+
+	if info.IntermediateDirectory == nil {
+		return internal.ErrNoIntermediateDirectory
+	}
+
+	callArgs := args
+	callArgs = append(callArgs, "--build", *info.IntermediateDirectory)
 	callArgs = append(callArgs, "--target")
 	callArgs = append(callArgs, targets...)
 
-	return c.RunForProject(project, callArgs)
+	return c.RunForProject(info, callArgs)
 }
 
-func (c *CMake) RunTarget(project internal.Project, target string, args []string) error {
-	if err := c.BuildTargets(project, []string{target}, []string{}); err != nil {
+func (c *CMake) RunTarget(info internal.ProjectInfo, target string, args []string) error {
+	if err := c.BuildTargets(info, []string{target}, []string{}); err != nil {
 		return err
 	}
 
-	fileApi := utils.NewCmakeFileApi(project.BuildDirectory())
+	if info.IntermediateDirectory == nil {
+		return internal.ErrNoIntermediateDirectory
+	}
+
+	fileApi := utils.NewCmakeFileApi(*info.IntermediateDirectory)
 
 	reply, err := fileApi.Reply()
 	if err != nil {
@@ -110,11 +130,11 @@ func (c *CMake) RunTarget(project internal.Project, target string, args []string
 		if t.Name == target && t.Type == utils.TargetExecutable {
 			// TODO: run environment?
 			executable := internal.Executable{
-				Path:    filepath.Join(project.BuildDirectory(), t.Name),
+				Path:    filepath.Join(*info.IntermediateDirectory, t.Name),
 				Runtime: internal.SystemEnvironment,
 			}
 
-			return executable.Run(context.Background(), internal.RunOptions{Directory: project.RootDirectory()}, args)
+			return executable.Run(context.Background(), internal.RunOptions{Directory: info.Directory}, args)
 		}
 	}
 

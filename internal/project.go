@@ -1,11 +1,14 @@
 package internal
 
-import "slices"
+import (
+	"errors"
+	"slices"
+)
 
 // A ProjectStructureProvider provides a detailed structure of the project
 type ProjectStructureProvider interface {
 	// Structure returns project structure
-	Structure(project Project) (*ProjectStructure, error)
+	Structure(info ProjectInfo) (*ProjectStructure, error)
 }
 
 // ProjectStructure describes a project structure
@@ -33,37 +36,24 @@ func (p *ProjectStructure) GetFiles() []string {
 	return slices.Compact(files)
 }
 
-// A Project describes a project in a specific directory
-type Project struct {
-	rootDirectory     string
-	buildDirectory    string
-	structureProvider ProjectStructureProvider
-	Workflow          Workflow
-}
+var ErrNoIntermediateDirectory = errors.New("no intermediate directory set")
 
-// MakeProject creates a new project
-func MakeProject(rootDirectory string, buildDirectory string, structureProvider ProjectStructureProvider, workflow Workflow) Project {
-	return Project{
-		rootDirectory:     rootDirectory,
-		buildDirectory:    buildDirectory,
-		structureProvider: structureProvider,
-		Workflow:          workflow,
-	}
-}
+// A ProjectInfo provides information about the project
+type ProjectInfo struct {
+	// Directory is the directory of the project
+	Directory string
 
-// RootDirectory returns the project root directory
-func (p *Project) RootDirectory() string {
-	return p.rootDirectory
-}
+	// IntermediateDirectory is the directory of the project's intermediate files
+	IntermediateDirectory *string
 
-// BuildDirectory returns the project build directory
-func (p *Project) BuildDirectory() string {
-	return p.buildDirectory
+	// StructureProvider provides structure of the project primary in cases when the structure is dynamic from
+	// some configuration
+	StructureProvider ProjectStructureProvider
 }
 
 // Structure returns project structure
-func (p *Project) Structure() (*ProjectStructure, error) {
-	return p.structureProvider.Structure(*p)
+func (p *ProjectInfo) Structure() (*ProjectStructure, error) {
+	return p.StructureProvider.Structure(*p)
 }
 
 // A EmptyProjectStructureProvider provides detailed empty project structure
@@ -71,7 +61,7 @@ type EmptyProjectStructureProvider struct {
 }
 
 // Structure returns project structure
-func (p *EmptyProjectStructureProvider) Structure(_ Project) (*ProjectStructure, error) {
+func (p *EmptyProjectStructureProvider) Structure(_ ProjectInfo) (*ProjectStructure, error) {
 	return &ProjectStructure{}, nil
 }
 
@@ -81,6 +71,18 @@ type FixedProjectStructureProvider struct {
 }
 
 // Structure returns project structure
-func (p *FixedProjectStructureProvider) Structure(_ Project) (*ProjectStructure, error) {
+func (p *FixedProjectStructureProvider) Structure(_ ProjectInfo) (*ProjectStructure, error) {
 	return &p.ProjectStructure, nil
+}
+
+// A Project describes a project and its workflow
+type Project struct {
+	// Type is the type of the project
+	Type string
+
+	// Info provides information about the project
+	Info ProjectInfo
+
+	// Workflow describes a project workflow
+	Workflow Workflow
 }

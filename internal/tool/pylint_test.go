@@ -46,12 +46,12 @@ func TestPylint_Pylint_LintAll(t *testing.T) {
 
 	tool := NewPylint(exec.LazyExecutable("lint"))
 
-	p := internal.MakeProject(".", "", nil, internal.Workflow{Linter: tool})
+	desc := internal.ProjectInfo{Directory: "."}
 
 	exec.OnRun("lint", []string{"*"}).
 		Return(nil)
 
-	err := tool.LintAll(p, []string{})
+	err := tool.LintAll(desc, []string{})
 	assert.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -62,12 +62,12 @@ func TestPylint_Pylint_Lint(t *testing.T) {
 
 	tool := NewPylint(exec.LazyExecutable("lint"))
 
-	p := internal.MakeProject(".", "", nil, internal.Workflow{Linter: tool})
+	desc := internal.ProjectInfo{Directory: "."}
 
 	exec.OnRun("lint", []string{"file.py", "/path/to/file2.py"}).
 		Return(nil)
 
-	err := tool.LintFiles(p, []string{"file.py", "/path/to/file2.py"}, []string{})
+	err := tool.LintFiles(desc, []string{"file.py", "/path/to/file2.py"}, []string{})
 	assert.NoError(t, err)
 
 	exec.AssertExpectations(t)
