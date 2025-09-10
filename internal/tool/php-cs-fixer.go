@@ -58,7 +58,7 @@ func (p *PHPCSFixer) FormatAll(project internal.Project, args []string) error {
 }
 
 func (p *PHPCSFixer) FormatFiles(project internal.Project, filenames []string, args []string) error {
-	paths := p.buildPaths(project.RootDirectory(), filenames)
+	paths := p.buildPaths(project.Directory, filenames)
 
 	return p.RunForProject(project, append(append([]string{"fix"}, args...), paths...))
 }
@@ -68,7 +68,7 @@ func (p *PHPCSFixer) FormatCheckAll(project internal.Project, args []string) err
 }
 
 func (p *PHPCSFixer) FormatCheckFiles(project internal.Project, filenames []string, args []string) error {
-	paths := p.buildPaths(project.RootDirectory(), filenames)
+	paths := p.buildPaths(project.Directory, filenames)
 
 	return p.RunForProject(project, append(append([]string{"fix", "--dry-run"}, args...), paths...))
 }

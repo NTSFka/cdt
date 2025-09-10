@@ -70,18 +70,18 @@ func (c *ClangFormat) FormatAll(project internal.Project, args []string) error {
 		return fmt.Errorf("failed to obtain project structure: %v", err)
 	}
 
-	paths := c.buildPaths(project.RootDirectory(), info.GetFiles())
+	paths := c.buildPaths(project.Directory, info.GetFiles())
 
-	toolArgs := c.buildArgs(project.RootDirectory(), []string{"-i"}, paths)
+	toolArgs := c.buildArgs(project.Directory, []string{"-i"}, paths)
 
 	return c.RunForProject(project, append(toolArgs, args...))
 }
 
 // FormatFiles formats a file in the project
 func (c *ClangFormat) FormatFiles(project internal.Project, filenames []string, args []string) error {
-	paths := c.buildPaths(project.RootDirectory(), filenames)
+	paths := c.buildPaths(project.Directory, filenames)
 
-	toolArgs := c.buildArgs(project.RootDirectory(), []string{"-i"}, paths)
+	toolArgs := c.buildArgs(project.Directory, []string{"-i"}, paths)
 
 	return c.RunForProject(project, append(toolArgs, args...))
 }
@@ -94,18 +94,18 @@ func (c *ClangFormat) FormatCheckAll(project internal.Project, args []string) er
 		return fmt.Errorf("failed to obtain project structure: %v", err)
 	}
 
-	paths := c.buildPaths(project.RootDirectory(), info.GetFiles())
+	paths := c.buildPaths(project.Directory, info.GetFiles())
 
-	toolArgs := c.buildArgs(project.RootDirectory(), []string{"--dry-run"}, paths)
+	toolArgs := c.buildArgs(project.Directory, []string{"--dry-run"}, paths)
 
 	return c.RunForProject(project, append(toolArgs, args...))
 }
 
 // FormatCheckFiles checks a file if it needs formatting
 func (c *ClangFormat) FormatCheckFiles(project internal.Project, filenames []string, args []string) error {
-	paths := c.buildPaths(project.RootDirectory(), filenames)
+	paths := c.buildPaths(project.Directory, filenames)
 
-	toolArgs := c.buildArgs(project.RootDirectory(), []string{"--dry-run"}, paths)
+	toolArgs := c.buildArgs(project.Directory, []string{"--dry-run"}, paths)
 
 	return c.RunForProject(project, append(toolArgs, args...))
 }

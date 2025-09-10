@@ -1,6 +1,9 @@
 package internal
 
-import "slices"
+import (
+	"errors"
+	"slices"
+)
 
 // A ProjectStructureProvider provides a detailed structure of the project
 type ProjectStructureProvider interface {
@@ -33,25 +36,13 @@ func (p *ProjectStructure) GetFiles() []string {
 	return slices.Compact(files)
 }
 
+var ErrNoIntermediateDirectory = errors.New("no intermediate directory set")
+
 // A Project describes a project in a specific directory
 type Project struct {
 	Directory             string
 	IntermediateDirectory *string
 	StructureProvider     ProjectStructureProvider
-}
-
-// RootDirectory returns the project root directory
-func (p *Project) RootDirectory() string {
-	return p.Directory
-}
-
-// BuildDirectory returns the project build directory
-func (p *Project) BuildDirectory() string {
-	if p.IntermediateDirectory == nil {
-		panic("intermediate directory is not set")
-	}
-
-	return *p.IntermediateDirectory
 }
 
 // Structure returns project structure

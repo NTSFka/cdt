@@ -48,7 +48,7 @@ func (m *MyPy) LintAll(project internal.Project, args []string) error {
 }
 
 func (m *MyPy) LintFiles(project internal.Project, filenames []string, args []string) error {
-	paths := m.buildPaths(project.RootDirectory(), filenames)
+	paths := m.buildPaths(project.Directory, filenames)
 
 	return m.RunForProject(project, append(args, paths...))
 }

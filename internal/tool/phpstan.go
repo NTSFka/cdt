@@ -58,7 +58,7 @@ func (p *PHPStan) LintAll(project internal.Project, args []string) error {
 }
 
 func (p *PHPStan) LintFiles(project internal.Project, filenames []string, args []string) error {
-	paths := p.buildPaths(project.RootDirectory(), filenames)
+	paths := p.buildPaths(project.Directory, filenames)
 
 	return p.RunForProject(project, append(append([]string{"analyse"}, args...), paths...))
 }

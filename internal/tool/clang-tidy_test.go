@@ -63,9 +63,9 @@ func TestClangTidy_LintAll(t *testing.T) {
 	}
 
 	exec.OnRun("clang-tidy", []string{
-		"-p", desc.BuildDirectory(),
-		filepath.Join(desc.RootDirectory(), "file1.go"),
-		filepath.Join(desc.RootDirectory(), "file2.go"),
+		"-p", *desc.IntermediateDirectory,
+		filepath.Join(desc.Directory, "file1.go"),
+		filepath.Join(desc.Directory, "file2.go"),
 	}).
 		Return(nil)
 
@@ -95,9 +95,9 @@ func TestClangTidy_LintAll_Failed(t *testing.T) {
 	}
 
 	exec.OnRun("clang-tidy", []string{
-		"-p", desc.BuildDirectory(),
-		filepath.Join(desc.RootDirectory(), "file1.go"),
-		filepath.Join(desc.RootDirectory(), "file2.go"),
+		"-p", *desc.IntermediateDirectory,
+		filepath.Join(desc.Directory, "file1.go"),
+		filepath.Join(desc.Directory, "file2.go"),
 	}).
 		Return(errors.New("failed"))
 
@@ -126,14 +126,14 @@ func TestClangTidy_LintAll_CustomConfig(t *testing.T) {
 		},
 	}
 
-	_, err := os.Create(filepath.Join(desc.RootDirectory(), ".clang-tidy"))
+	_, err := os.Create(filepath.Join(desc.Directory, ".clang-tidy"))
 	assert.NoError(t, err)
 
 	exec.OnRun("clang-tidy", []string{
-		fmt.Sprintf("--config-file=%v", filepath.Join(desc.RootDirectory(), ".clang-tidy")),
-		"-p", desc.BuildDirectory(),
-		filepath.Join(desc.RootDirectory(), "file1.go"),
-		filepath.Join(desc.RootDirectory(), "file2.go"),
+		fmt.Sprintf("--config-file=%v", filepath.Join(desc.Directory, ".clang-tidy")),
+		"-p", *desc.IntermediateDirectory,
+		filepath.Join(desc.Directory, "file1.go"),
+		filepath.Join(desc.Directory, "file2.go"),
 	}).
 		Return(nil)
 
@@ -151,13 +151,13 @@ func TestClangTidy_LintFiles(t *testing.T) {
 	desc := internal.Project{Directory: t.TempDir(), IntermediateDirectory: internal.StrPtr("build")}
 
 	exec.OnRun("clang-tidy", []string{
-		"-p", desc.BuildDirectory(),
-		filepath.Join(desc.RootDirectory(), "file1.go"),
-		filepath.Join(desc.RootDirectory(), "file3.go"),
+		"-p", *desc.IntermediateDirectory,
+		filepath.Join(desc.Directory, "file1.go"),
+		filepath.Join(desc.Directory, "file3.go"),
 	}).
 		Return(nil)
 
-	err := tool.LintFiles(desc, []string{"file1.go", filepath.Join(desc.RootDirectory(), "file3.go")}, []string{})
+	err := tool.LintFiles(desc, []string{"file1.go", filepath.Join(desc.Directory, "file3.go")}, []string{})
 	assert.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -171,8 +171,8 @@ func TestClangTidy_LintFiles_Failed(t *testing.T) {
 	desc := internal.Project{Directory: "project", IntermediateDirectory: internal.StrPtr("build")}
 
 	exec.OnRun("clang-tidy", []string{
-		"-p", desc.BuildDirectory(),
-		filepath.Join(desc.RootDirectory(), "file1.go"),
+		"-p", *desc.IntermediateDirectory,
+		filepath.Join(desc.Directory, "file1.go"),
 	}).
 		Return(errors.New("failed"))
 
@@ -189,13 +189,13 @@ func TestClangTidy_LintFiles_CustomConfig(t *testing.T) {
 
 	desc := internal.Project{Directory: t.TempDir(), IntermediateDirectory: internal.StrPtr("build")}
 
-	_, err := os.Create(filepath.Join(desc.RootDirectory(), ".clang-tidy"))
+	_, err := os.Create(filepath.Join(desc.Directory, ".clang-tidy"))
 	assert.NoError(t, err)
 
 	exec.OnRun("clang-tidy", []string{
-		fmt.Sprintf("--config-file=%v", filepath.Join(desc.RootDirectory(), ".clang-tidy")),
-		"-p", desc.BuildDirectory(),
-		filepath.Join(desc.RootDirectory(), "file1.go"),
+		fmt.Sprintf("--config-file=%v", filepath.Join(desc.Directory, ".clang-tidy")),
+		"-p", *desc.IntermediateDirectory,
+		filepath.Join(desc.Directory, "file1.go"),
 	}).
 		Return(nil)
 
@@ -212,7 +212,7 @@ func TestClangTidy_Run(t *testing.T) {
 
 	desc := internal.Project{Directory: "build"}
 
-	exec.OnRun("clang-tidy", []string{desc.RootDirectory()}).
+	exec.OnRun("clang-tidy", []string{desc.Directory}).
 		Return(nil)
 
 	err := tool.RunForProject(desc, []string{})
@@ -228,7 +228,7 @@ func TestClangTidy_Run_Failed(t *testing.T) {
 
 	desc := internal.Project{Directory: "build"}
 
-	exec.OnRun("clang-tidy", []string{desc.RootDirectory()}).
+	exec.OnRun("clang-tidy", []string{desc.Directory}).
 		Return(errors.New("failed"))
 
 	err := tool.RunForProject(desc, []string{})

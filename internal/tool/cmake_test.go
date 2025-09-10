@@ -45,16 +45,18 @@ func TestCMake_Configure(t *testing.T) {
 
 	cmake := NewCMake(exec.LazyExecutable("cmake"))
 
+	buildDir := t.TempDir()
+
 	desc := internal.Project{
 		Directory:             "project",
-		IntermediateDirectory: internal.StrPtr(t.TempDir()),
+		IntermediateDirectory: &buildDir,
 		StructureProvider:     cmake,
 	}
 
 	exec.OnRun("cmake", []string{
 		"-DCMAKE_EXPORT_COMPILE_COMMANDS=ON",
 		"-S", ".",
-		"-B", desc.BuildDirectory(),
+		"-B", buildDir,
 	}).Return(nil)
 
 	err := cmake.Configure(desc, []string{})
@@ -68,16 +70,18 @@ func TestCMake_Configure_Failed(t *testing.T) {
 
 	cmake := NewCMake(exec.LazyExecutable("cmake"))
 
+	buildDir := t.TempDir()
+
 	desc := internal.Project{
 		Directory:             "project",
-		IntermediateDirectory: internal.StrPtr(t.TempDir()),
+		IntermediateDirectory: &buildDir,
 		StructureProvider:     cmake,
 	}
 
 	exec.OnRun("cmake", []string{
 		"-DCMAKE_EXPORT_COMPILE_COMMANDS=ON",
 		"-S", ".",
-		"-B", desc.BuildDirectory(),
+		"-B", buildDir,
 	}).Return(errors.New("failed"))
 
 	err := cmake.Configure(desc, []string{})
@@ -91,9 +95,11 @@ func TestCMake_Structure_ConfigureFailed(t *testing.T) {
 
 	cmake := NewCMake(exec.LazyExecutable("cmake"))
 
+	buildDir := t.TempDir()
+
 	desc := internal.Project{
 		Directory:             "project",
-		IntermediateDirectory: internal.StrPtr(t.TempDir()),
+		IntermediateDirectory: &buildDir,
 		StructureProvider:     cmake,
 	}
 
@@ -101,7 +107,7 @@ func TestCMake_Structure_ConfigureFailed(t *testing.T) {
 	exec.OnRun("cmake", []string{
 		"-DCMAKE_EXPORT_COMPILE_COMMANDS=ON",
 		"-S", ".",
-		"-B", desc.BuildDirectory(),
+		"-B", buildDir,
 	}).
 		Return(errors.New("failed"))
 
@@ -117,9 +123,11 @@ func TestCMake_BuildAll(t *testing.T) {
 
 	cmake := NewCMake(exec.LazyExecutable("cmake"))
 
+	buildDir := t.TempDir()
+
 	desc := internal.Project{
 		Directory:             "project",
-		IntermediateDirectory: internal.StrPtr(t.TempDir()),
+		IntermediateDirectory: &buildDir,
 		StructureProvider:     cmake,
 	}
 
@@ -127,12 +135,12 @@ func TestCMake_BuildAll(t *testing.T) {
 	exec.OnRun("cmake", []string{
 		"-DCMAKE_EXPORT_COMPILE_COMMANDS=ON",
 		"-S", ".",
-		"-B", desc.BuildDirectory(),
+		"-B", buildDir,
 	}).
 		Return(nil)
 
 	// Build
-	exec.OnRun("cmake", []string{"--build", desc.BuildDirectory()}).
+	exec.OnRun("cmake", []string{"--build", buildDir}).
 		Return(nil)
 
 	err := cmake.BuildAll(desc, []string{})
@@ -146,9 +154,11 @@ func TestCMake_BuildAll_Failed(t *testing.T) {
 
 	cmake := NewCMake(exec.LazyExecutable("cmake"))
 
+	buildDir := t.TempDir()
+
 	desc := internal.Project{
 		Directory:             "project",
-		IntermediateDirectory: internal.StrPtr(t.TempDir()),
+		IntermediateDirectory: &buildDir,
 		StructureProvider:     cmake,
 	}
 
@@ -156,12 +166,12 @@ func TestCMake_BuildAll_Failed(t *testing.T) {
 	exec.OnRun("cmake", []string{
 		"-DCMAKE_EXPORT_COMPILE_COMMANDS=ON",
 		"-S", ".",
-		"-B", desc.BuildDirectory(),
+		"-B", buildDir,
 	}).
 		Return(nil)
 
 	// Build
-	exec.OnRun("cmake", []string{"--build", desc.BuildDirectory()}).
+	exec.OnRun("cmake", []string{"--build", buildDir}).
 		Return(errors.New("failed"))
 
 	err := cmake.BuildAll(desc, []string{})
@@ -175,9 +185,11 @@ func TestCMake_BuildAll_ConfigureFailed(t *testing.T) {
 
 	cmake := NewCMake(exec.LazyExecutable("cmake"))
 
+	buildDir := t.TempDir()
+
 	desc := internal.Project{
 		Directory:             "project",
-		IntermediateDirectory: internal.StrPtr(t.TempDir()),
+		IntermediateDirectory: &buildDir,
 		StructureProvider:     cmake,
 	}
 
@@ -185,7 +197,7 @@ func TestCMake_BuildAll_ConfigureFailed(t *testing.T) {
 	exec.OnRun("cmake", []string{
 		"-DCMAKE_EXPORT_COMPILE_COMMANDS=ON",
 		"-S", ".",
-		"-B", desc.BuildDirectory(),
+		"-B", buildDir,
 	}).
 		Return(errors.New("failed"))
 
@@ -200,9 +212,11 @@ func TestCMake_BuildTargets(t *testing.T) {
 
 	cmake := NewCMake(exec.LazyExecutable("cmake"))
 
+	buildDir := t.TempDir()
+
 	desc := internal.Project{
 		Directory:             "project",
-		IntermediateDirectory: internal.StrPtr(t.TempDir()),
+		IntermediateDirectory: &buildDir,
 		StructureProvider:     cmake,
 	}
 
@@ -210,13 +224,13 @@ func TestCMake_BuildTargets(t *testing.T) {
 	exec.OnRun("cmake", []string{
 		"-DCMAKE_EXPORT_COMPILE_COMMANDS=ON",
 		"-S", ".",
-		"-B", desc.BuildDirectory(),
+		"-B", buildDir,
 	}).
 		Return(nil)
 
 	// Build
 	exec.OnRun("cmake", []string{
-		"--build", desc.BuildDirectory(),
+		"--build", buildDir,
 		"--target", "target1", "target2",
 	}).
 		Return(nil)
@@ -232,9 +246,11 @@ func TestCMake_BuildTargets_Failed(t *testing.T) {
 
 	cmake := NewCMake(exec.LazyExecutable("cmake"))
 
+	buildDir := t.TempDir()
+
 	desc := internal.Project{
 		Directory:             "project",
-		IntermediateDirectory: internal.StrPtr(t.TempDir()),
+		IntermediateDirectory: &buildDir,
 		StructureProvider:     cmake,
 	}
 
@@ -242,13 +258,13 @@ func TestCMake_BuildTargets_Failed(t *testing.T) {
 	exec.OnRun("cmake", []string{
 		"-DCMAKE_EXPORT_COMPILE_COMMANDS=ON",
 		"-S", ".",
-		"-B", desc.BuildDirectory(),
+		"-B", buildDir,
 	}).
 		Return(nil)
 
 	// Build
 	exec.OnRun("cmake", []string{
-		"--build", desc.BuildDirectory(),
+		"--build", buildDir,
 		"--target", "target1", "target2",
 	}).
 		Return(errors.New("failed"))
@@ -264,9 +280,11 @@ func TestCMake_BuildTargets_ConfigureFailed(t *testing.T) {
 
 	cmake := NewCMake(exec.LazyExecutable("cmake"))
 
+	buildDir := t.TempDir()
+
 	desc := internal.Project{
 		Directory:             "project",
-		IntermediateDirectory: internal.StrPtr(t.TempDir()),
+		IntermediateDirectory: &buildDir,
 		StructureProvider:     cmake,
 	}
 
@@ -274,7 +292,7 @@ func TestCMake_BuildTargets_ConfigureFailed(t *testing.T) {
 	exec.OnRun("cmake", []string{
 		"-DCMAKE_EXPORT_COMPILE_COMMANDS=ON",
 		"-S", ".",
-		"-B", desc.BuildDirectory(),
+		"-B", buildDir,
 	}).
 		Return(errors.New("failed"))
 
@@ -289,9 +307,11 @@ func TestCMake_RunTarget_Failed(t *testing.T) {
 
 	cmake := NewCMake(exec.LazyExecutable("cmake"))
 
+	buildDir := t.TempDir()
+
 	desc := internal.Project{
 		Directory:             "project",
-		IntermediateDirectory: internal.StrPtr(t.TempDir()),
+		IntermediateDirectory: &buildDir,
 		StructureProvider:     cmake,
 	}
 
@@ -299,13 +319,13 @@ func TestCMake_RunTarget_Failed(t *testing.T) {
 	exec.OnRun("cmake", []string{
 		"-DCMAKE_EXPORT_COMPILE_COMMANDS=ON",
 		"-S", ".",
-		"-B", desc.BuildDirectory(),
+		"-B", buildDir,
 	}).
 		Return(nil)
 
 	// Build
 	exec.OnRun("cmake", []string{
-		"--build", desc.BuildDirectory(),
+		"--build", buildDir,
 		"--target", "target1",
 	}).
 		Return(errors.New("failed"))

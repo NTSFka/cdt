@@ -66,24 +66,32 @@ func (c *ClangTidy) LintAll(project internal.Project, args []string) error {
 		return fmt.Errorf("failed to obtain project structure: %v", err)
 	}
 
-	paths := c.buildPaths(project.RootDirectory(), info.GetFiles())
+	if project.IntermediateDirectory == nil {
+		return internal.ErrNoIntermediateDirectory
+	}
 
-	toolArgs := c.buildArgs(project.RootDirectory(), project.BuildDirectory(), paths)
+	paths := c.buildPaths(project.Directory, info.GetFiles())
+
+	toolArgs := c.buildArgs(project.Directory, *project.IntermediateDirectory, paths)
 
 	return c.ExecutableTool.RunForProject(project, append(toolArgs, args...))
 }
 
 func (c *ClangTidy) LintFiles(project internal.Project, filenames []string, args []string) error {
-	paths := c.buildPaths(project.RootDirectory(), filenames)
+	paths := c.buildPaths(project.Directory, filenames)
 
-	toolArgs := c.buildArgs(project.RootDirectory(), project.BuildDirectory(), paths)
+	if project.IntermediateDirectory == nil {
+		return internal.ErrNoIntermediateDirectory
+	}
+
+	toolArgs := c.buildArgs(project.Directory, *project.IntermediateDirectory, paths)
 
 	return c.ExecutableTool.RunForProject(project, append(toolArgs, args...))
 }
 
 func (c *ClangTidy) RunForProject(project internal.Project, args []string) error {
 	toolArgs := []string{
-		project.RootDirectory(),
+		project.Directory,
 	}
 
 	return c.ExecutableTool.RunForProject(project, append(toolArgs, args...))

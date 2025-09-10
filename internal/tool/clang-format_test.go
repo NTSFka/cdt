@@ -65,8 +65,8 @@ func TestClangFormat_FormatAll(t *testing.T) {
 	exec.OnRun("clang-format", []string{
 		"--Werror",
 		"-i",
-		filepath.Join(desc.RootDirectory(), "file1.go"),
-		filepath.Join(desc.RootDirectory(), "file2.go"),
+		filepath.Join(desc.Directory, "file1.go"),
+		filepath.Join(desc.Directory, "file2.go"),
 	}).
 		Return(nil)
 
@@ -98,8 +98,8 @@ func TestClangFormat_FormatAll_Failed(t *testing.T) {
 	exec.OnRun("clang-format", []string{
 		"--Werror",
 		"-i",
-		filepath.Join(desc.RootDirectory(), "file1.go"),
-		filepath.Join(desc.RootDirectory(), "file2.go"),
+		filepath.Join(desc.Directory, "file1.go"),
+		filepath.Join(desc.Directory, "file2.go"),
 	}).
 		Return(errors.New("failed"))
 
@@ -128,15 +128,15 @@ func TestClangFormat_FormatAll_CustomConfig(t *testing.T) {
 		},
 	}
 
-	_, err := os.Create(filepath.Join(desc.RootDirectory(), ".clang-format"))
+	_, err := os.Create(filepath.Join(desc.Directory, ".clang-format"))
 	assert.NoError(t, err)
 
 	exec.OnRun("clang-format", []string{
-		fmt.Sprintf("--style=file:%v", filepath.Join(desc.RootDirectory(), ".clang-format")),
+		fmt.Sprintf("--style=file:%v", filepath.Join(desc.Directory, ".clang-format")),
 		"--Werror",
 		"-i",
-		filepath.Join(desc.RootDirectory(), "file1.go"),
-		filepath.Join(desc.RootDirectory(), "file2.go"),
+		filepath.Join(desc.Directory, "file1.go"),
+		filepath.Join(desc.Directory, "file2.go"),
 	}).
 		Return(nil)
 
@@ -156,12 +156,12 @@ func TestClangFormat_FormatFiles(t *testing.T) {
 	exec.OnRun("clang-format", []string{
 		"--Werror",
 		"-i",
-		filepath.Join(desc.RootDirectory(), "file1.go"),
-		filepath.Join(desc.RootDirectory(), "file3.go"),
+		filepath.Join(desc.Directory, "file1.go"),
+		filepath.Join(desc.Directory, "file3.go"),
 	}).
 		Return(nil)
 
-	err := tool.FormatFiles(desc, []string{"file1.go", filepath.Join(desc.RootDirectory(), "file3.go")}, []string{})
+	err := tool.FormatFiles(desc, []string{"file1.go", filepath.Join(desc.Directory, "file3.go")}, []string{})
 	assert.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -177,7 +177,7 @@ func TestClangFormat_FormatFiles_Failed(t *testing.T) {
 	exec.OnRun("clang-format", []string{
 		"--Werror",
 		"-i",
-		filepath.Join(desc.RootDirectory(), "file1.go"),
+		filepath.Join(desc.Directory, "file1.go"),
 	}).
 		Return(errors.New("failed"))
 
@@ -194,14 +194,14 @@ func TestClangFormat_FormatFiles_CustomConfig(t *testing.T) {
 
 	desc := internal.Project{Directory: t.TempDir(), IntermediateDirectory: internal.StrPtr("build")}
 
-	_, err := os.Create(filepath.Join(desc.RootDirectory(), ".clang-format"))
+	_, err := os.Create(filepath.Join(desc.Directory, ".clang-format"))
 	assert.NoError(t, err)
 
 	exec.OnRun("clang-format", []string{
-		fmt.Sprintf("--style=file:%v", filepath.Join(desc.RootDirectory(), ".clang-format")),
+		fmt.Sprintf("--style=file:%v", filepath.Join(desc.Directory, ".clang-format")),
 		"--Werror",
 		"-i",
-		filepath.Join(desc.RootDirectory(), "file1.go"),
+		filepath.Join(desc.Directory, "file1.go"),
 	}).
 		Return(nil)
 
@@ -233,8 +233,8 @@ func TestClangFormat_FormatCheckAll(t *testing.T) {
 	exec.OnRun("clang-format", []string{
 		"--Werror",
 		"--dry-run",
-		filepath.Join(desc.RootDirectory(), "file1.go"),
-		filepath.Join(desc.RootDirectory(), "file2.go"),
+		filepath.Join(desc.Directory, "file1.go"),
+		filepath.Join(desc.Directory, "file2.go"),
 	}).
 		Return(nil)
 
@@ -266,8 +266,8 @@ func TestClangFormat_FormatCheckAll_Failed(t *testing.T) {
 	exec.OnRun("clang-format", []string{
 		"--Werror",
 		"--dry-run",
-		filepath.Join(desc.RootDirectory(), "file1.go"),
-		filepath.Join(desc.RootDirectory(), "file2.go"),
+		filepath.Join(desc.Directory, "file1.go"),
+		filepath.Join(desc.Directory, "file2.go"),
 	}).
 		Return(errors.New("failed"))
 
@@ -296,15 +296,15 @@ func TestClangFormat_FormatCheckAll_CustomConfig(t *testing.T) {
 		},
 	}
 
-	_, err := os.Create(filepath.Join(desc.RootDirectory(), ".clang-format"))
+	_, err := os.Create(filepath.Join(desc.Directory, ".clang-format"))
 	assert.NoError(t, err)
 
 	exec.OnRun("clang-format", []string{
-		fmt.Sprintf("--style=file:%v", filepath.Join(desc.RootDirectory(), ".clang-format")),
+		fmt.Sprintf("--style=file:%v", filepath.Join(desc.Directory, ".clang-format")),
 		"--Werror",
 		"--dry-run",
-		filepath.Join(desc.RootDirectory(), "file1.go"),
-		filepath.Join(desc.RootDirectory(), "file2.go"),
+		filepath.Join(desc.Directory, "file1.go"),
+		filepath.Join(desc.Directory, "file2.go"),
 	}).
 		Return(nil)
 
@@ -324,12 +324,12 @@ func TestClangFormat_FormatCheckFiles(t *testing.T) {
 	exec.OnRun("clang-format", []string{
 		"--Werror",
 		"--dry-run",
-		filepath.Join(desc.RootDirectory(), "file1.go"),
-		filepath.Join(desc.RootDirectory(), "file3.go"),
+		filepath.Join(desc.Directory, "file1.go"),
+		filepath.Join(desc.Directory, "file3.go"),
 	}).
 		Return(nil)
 
-	err := tool.FormatCheckFiles(desc, []string{"file1.go", filepath.Join(desc.RootDirectory(), "file3.go")}, []string{})
+	err := tool.FormatCheckFiles(desc, []string{"file1.go", filepath.Join(desc.Directory, "file3.go")}, []string{})
 	assert.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -345,7 +345,7 @@ func TestClangFormat_FormatCheckFiles_Failed(t *testing.T) {
 	exec.OnRun("clang-format", []string{
 		"--Werror",
 		"--dry-run",
-		filepath.Join(desc.RootDirectory(), "file1.go"),
+		filepath.Join(desc.Directory, "file1.go"),
 	}).
 		Return(errors.New("failed"))
 
@@ -362,14 +362,14 @@ func TestClangFormat_FormatCheckFiles_CustomConfig(t *testing.T) {
 
 	desc := internal.Project{Directory: t.TempDir(), IntermediateDirectory: internal.StrPtr("build")}
 
-	_, err := os.Create(filepath.Join(desc.RootDirectory(), ".clang-format"))
+	_, err := os.Create(filepath.Join(desc.Directory, ".clang-format"))
 	assert.NoError(t, err)
 
 	exec.OnRun("clang-format", []string{
-		fmt.Sprintf("--style=file:%v", filepath.Join(desc.RootDirectory(), ".clang-format")),
+		fmt.Sprintf("--style=file:%v", filepath.Join(desc.Directory, ".clang-format")),
 		"--Werror",
 		"--dry-run",
-		filepath.Join(desc.RootDirectory(), "file1.go"),
+		filepath.Join(desc.Directory, "file1.go"),
 	}).
 		Return(nil)
 

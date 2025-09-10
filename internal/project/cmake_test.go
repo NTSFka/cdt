@@ -47,8 +47,10 @@ func TestCMakeType_Create_CustomBuildDirectory(t *testing.T) {
 
 	p := projectType.Create(Config{Directory: "dir1", BuildDirectory: &buildDirectory}, tools)
 
-	assert.Equal(t, "dir1", p.Desc.RootDirectory())
-	assert.Equal(t, buildDirectory, p.Desc.BuildDirectory())
+	assert.Equal(t, "dir1", p.Desc.Directory)
+	if assert.NotNil(t, p.Desc.IntermediateDirectory) {
+		assert.Equal(t, buildDirectory, *p.Desc.IntermediateDirectory)
+	}
 	assert.NotNil(t, p.Workflow.Linter)
 	assert.NotNil(t, p.Workflow.Formatter)
 }

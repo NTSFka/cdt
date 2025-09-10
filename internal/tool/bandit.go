@@ -48,7 +48,7 @@ func (b *Bandit) LintAll(project internal.Project, args []string) error {
 }
 
 func (b *Bandit) LintFiles(project internal.Project, filenames []string, args []string) error {
-	paths := b.buildPaths(project.RootDirectory(), filenames)
+	paths := b.buildPaths(project.Directory, filenames)
 
 	return b.RunForProject(project, append(args, paths...))
 }

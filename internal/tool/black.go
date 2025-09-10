@@ -48,7 +48,7 @@ func (b *Black) FormatAll(project internal.Project, args []string) error {
 }
 
 func (b *Black) FormatFiles(project internal.Project, filenames []string, args []string) error {
-	paths := b.buildPaths(project.RootDirectory(), filenames)
+	paths := b.buildPaths(project.Directory, filenames)
 
 	return b.RunForProject(project, append(args, paths...))
 }
@@ -58,7 +58,7 @@ func (b *Black) FormatCheckAll(project internal.Project, args []string) error {
 }
 
 func (b *Black) FormatCheckFiles(project internal.Project, filenames []string, args []string) error {
-	paths := b.buildPaths(project.RootDirectory(), filenames)
+	paths := b.buildPaths(project.Directory, filenames)
 
 	return b.RunForProject(project, append(append([]string{"--check"}, args...), paths...))
 }
