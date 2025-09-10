@@ -46,7 +46,7 @@ func TestPyTest_PyTest_TestAll(t *testing.T) {
 
 	tool := NewPyTest(exec.LazyExecutable("test"))
 
-	desc := internal.Project{Directory: "."}
+	desc := internal.ProjectInfo{Directory: "."}
 
 	exec.OnRun("test", []string{}).
 		Return(nil)
@@ -62,7 +62,7 @@ func TestPyTest_PyTest_Test(t *testing.T) {
 
 	tool := NewPyTest(exec.LazyExecutable("test"))
 
-	desc := internal.Project{Directory: "."}
+	desc := internal.ProjectInfo{Directory: "."}
 
 	exec.OnRun("test", []string{"tests/*"}).
 		Return(nil)

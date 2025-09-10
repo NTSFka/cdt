@@ -48,7 +48,7 @@ func TestClangFormat_FormatAll(t *testing.T) {
 
 	tool := NewClangFormat(exec.LazyExecutable("clang-format"))
 
-	desc := internal.Project{
+	desc := internal.ProjectInfo{
 		Directory:             "project",
 		IntermediateDirectory: internal.StrPtr("build"),
 		StructureProvider: &internal.FixedProjectStructureProvider{
@@ -81,7 +81,7 @@ func TestClangFormat_FormatAll_Failed(t *testing.T) {
 
 	tool := NewClangFormat(exec.LazyExecutable("clang-format"))
 
-	desc := internal.Project{
+	desc := internal.ProjectInfo{
 		Directory:             "project",
 		IntermediateDirectory: internal.StrPtr("build"),
 		StructureProvider: &internal.FixedProjectStructureProvider{
@@ -114,7 +114,7 @@ func TestClangFormat_FormatAll_CustomConfig(t *testing.T) {
 
 	tool := NewClangFormat(exec.LazyExecutable("clang-format"))
 
-	desc := internal.Project{
+	desc := internal.ProjectInfo{
 		Directory:             t.TempDir(),
 		IntermediateDirectory: internal.StrPtr("build"),
 		StructureProvider: &internal.FixedProjectStructureProvider{
@@ -151,7 +151,7 @@ func TestClangFormat_FormatFiles(t *testing.T) {
 
 	tool := NewClangFormat(exec.LazyExecutable("clang-format"))
 
-	desc := internal.Project{Directory: t.TempDir(), IntermediateDirectory: internal.StrPtr("build")}
+	desc := internal.ProjectInfo{Directory: t.TempDir(), IntermediateDirectory: internal.StrPtr("build")}
 
 	exec.OnRun("clang-format", []string{
 		"--Werror",
@@ -172,7 +172,7 @@ func TestClangFormat_FormatFiles_Failed(t *testing.T) {
 
 	tool := NewClangFormat(exec.LazyExecutable("clang-format"))
 
-	desc := internal.Project{Directory: "."}
+	desc := internal.ProjectInfo{Directory: "."}
 
 	exec.OnRun("clang-format", []string{
 		"--Werror",
@@ -192,7 +192,7 @@ func TestClangFormat_FormatFiles_CustomConfig(t *testing.T) {
 
 	tool := NewClangFormat(exec.LazyExecutable("clang-format"))
 
-	desc := internal.Project{Directory: t.TempDir(), IntermediateDirectory: internal.StrPtr("build")}
+	desc := internal.ProjectInfo{Directory: t.TempDir(), IntermediateDirectory: internal.StrPtr("build")}
 
 	_, err := os.Create(filepath.Join(desc.Directory, ".clang-format"))
 	assert.NoError(t, err)
@@ -216,7 +216,7 @@ func TestClangFormat_FormatCheckAll(t *testing.T) {
 
 	tool := NewClangFormat(exec.LazyExecutable("clang-format"))
 
-	desc := internal.Project{
+	desc := internal.ProjectInfo{
 		Directory:             "project",
 		IntermediateDirectory: internal.StrPtr("build"),
 		StructureProvider: &internal.FixedProjectStructureProvider{
@@ -249,7 +249,7 @@ func TestClangFormat_FormatCheckAll_Failed(t *testing.T) {
 
 	tool := NewClangFormat(exec.LazyExecutable("clang-format"))
 
-	desc := internal.Project{
+	desc := internal.ProjectInfo{
 		Directory:             "project",
 		IntermediateDirectory: internal.StrPtr("build"),
 		StructureProvider: &internal.FixedProjectStructureProvider{
@@ -282,7 +282,7 @@ func TestClangFormat_FormatCheckAll_CustomConfig(t *testing.T) {
 
 	tool := NewClangFormat(exec.LazyExecutable("clang-format"))
 
-	desc := internal.Project{
+	desc := internal.ProjectInfo{
 		Directory:             t.TempDir(),
 		IntermediateDirectory: internal.StrPtr("build"),
 		StructureProvider: &internal.FixedProjectStructureProvider{
@@ -319,7 +319,7 @@ func TestClangFormat_FormatCheckFiles(t *testing.T) {
 
 	tool := NewClangFormat(exec.LazyExecutable("clang-format"))
 
-	desc := internal.Project{Directory: t.TempDir(), IntermediateDirectory: internal.StrPtr("build")}
+	desc := internal.ProjectInfo{Directory: t.TempDir(), IntermediateDirectory: internal.StrPtr("build")}
 
 	exec.OnRun("clang-format", []string{
 		"--Werror",
@@ -340,7 +340,7 @@ func TestClangFormat_FormatCheckFiles_Failed(t *testing.T) {
 
 	tool := NewClangFormat(exec.LazyExecutable("clang-format"))
 
-	desc := internal.Project{Directory: "."}
+	desc := internal.ProjectInfo{Directory: "."}
 
 	exec.OnRun("clang-format", []string{
 		"--Werror",
@@ -360,7 +360,7 @@ func TestClangFormat_FormatCheckFiles_CustomConfig(t *testing.T) {
 
 	tool := NewClangFormat(exec.LazyExecutable("clang-format"))
 
-	desc := internal.Project{Directory: t.TempDir(), IntermediateDirectory: internal.StrPtr("build")}
+	desc := internal.ProjectInfo{Directory: t.TempDir(), IntermediateDirectory: internal.StrPtr("build")}
 
 	_, err := os.Create(filepath.Join(desc.Directory, ".clang-format"))
 	assert.NoError(t, err)
@@ -384,7 +384,7 @@ func TestClangFormat_Run(t *testing.T) {
 
 	tool := NewClangFormat(exec.LazyExecutable("clang-format"))
 
-	desc := internal.Project{Directory: "."}
+	desc := internal.ProjectInfo{Directory: "."}
 
 	exec.OnRun("clang-format", []string{}).
 		Return(nil)
@@ -400,7 +400,7 @@ func TestClangFormat_Run_Failed(t *testing.T) {
 
 	tool := NewClangFormat(exec.LazyExecutable("clang-format"))
 
-	desc := internal.Project{Directory: "."}
+	desc := internal.ProjectInfo{Directory: "."}
 
 	exec.OnRun("clang-format", []string{}).
 		Return(errors.New("failed"))

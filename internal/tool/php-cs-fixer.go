@@ -53,22 +53,22 @@ func (p *PHPCSFixer) buildPaths(directory string, filenames []string) []string {
 	return paths
 }
 
-func (p *PHPCSFixer) FormatAll(project internal.Project, args []string) error {
-	return p.RunForProject(project, append([]string{"fix"}, args...))
+func (p *PHPCSFixer) FormatAll(info internal.ProjectInfo, args []string) error {
+	return p.RunForProject(info, append([]string{"fix"}, args...))
 }
 
-func (p *PHPCSFixer) FormatFiles(project internal.Project, filenames []string, args []string) error {
-	paths := p.buildPaths(project.Directory, filenames)
+func (p *PHPCSFixer) FormatFiles(info internal.ProjectInfo, filenames []string, args []string) error {
+	paths := p.buildPaths(info.Directory, filenames)
 
-	return p.RunForProject(project, append(append([]string{"fix"}, args...), paths...))
+	return p.RunForProject(info, append(append([]string{"fix"}, args...), paths...))
 }
 
-func (p *PHPCSFixer) FormatCheckAll(project internal.Project, args []string) error {
-	return p.RunForProject(project, append([]string{"fix", "--dry-run"}, args...))
+func (p *PHPCSFixer) FormatCheckAll(info internal.ProjectInfo, args []string) error {
+	return p.RunForProject(info, append([]string{"fix", "--dry-run"}, args...))
 }
 
-func (p *PHPCSFixer) FormatCheckFiles(project internal.Project, filenames []string, args []string) error {
-	paths := p.buildPaths(project.Directory, filenames)
+func (p *PHPCSFixer) FormatCheckFiles(info internal.ProjectInfo, filenames []string, args []string) error {
+	paths := p.buildPaths(info.Directory, filenames)
 
-	return p.RunForProject(project, append(append([]string{"fix", "--dry-run"}, args...), paths...))
+	return p.RunForProject(info, append(append([]string{"fix", "--dry-run"}, args...), paths...))
 }

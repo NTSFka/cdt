@@ -53,12 +53,12 @@ func (p *PHPStan) buildPaths(directory string, filenames []string) []string {
 	return paths
 }
 
-func (p *PHPStan) LintAll(project internal.Project, args []string) error {
-	return p.RunForProject(project, append([]string{"analyse"}, args...))
+func (p *PHPStan) LintAll(info internal.ProjectInfo, args []string) error {
+	return p.RunForProject(info, append([]string{"analyse"}, args...))
 }
 
-func (p *PHPStan) LintFiles(project internal.Project, filenames []string, args []string) error {
-	paths := p.buildPaths(project.Directory, filenames)
+func (p *PHPStan) LintFiles(info internal.ProjectInfo, filenames []string, args []string) error {
+	paths := p.buildPaths(info.Directory, filenames)
 
-	return p.RunForProject(project, append(append([]string{"analyse"}, args...), paths...))
+	return p.RunForProject(info, append(append([]string{"analyse"}, args...), paths...))
 }

@@ -47,7 +47,7 @@ func TestCMake_Configure(t *testing.T) {
 
 	buildDir := t.TempDir()
 
-	desc := internal.Project{
+	desc := internal.ProjectInfo{
 		Directory:             "project",
 		IntermediateDirectory: &buildDir,
 		StructureProvider:     cmake,
@@ -72,7 +72,7 @@ func TestCMake_Configure_Failed(t *testing.T) {
 
 	buildDir := t.TempDir()
 
-	desc := internal.Project{
+	desc := internal.ProjectInfo{
 		Directory:             "project",
 		IntermediateDirectory: &buildDir,
 		StructureProvider:     cmake,
@@ -97,7 +97,7 @@ func TestCMake_Structure_ConfigureFailed(t *testing.T) {
 
 	buildDir := t.TempDir()
 
-	desc := internal.Project{
+	desc := internal.ProjectInfo{
 		Directory:             "project",
 		IntermediateDirectory: &buildDir,
 		StructureProvider:     cmake,
@@ -125,7 +125,7 @@ func TestCMake_BuildAll(t *testing.T) {
 
 	buildDir := t.TempDir()
 
-	desc := internal.Project{
+	desc := internal.ProjectInfo{
 		Directory:             "project",
 		IntermediateDirectory: &buildDir,
 		StructureProvider:     cmake,
@@ -156,7 +156,7 @@ func TestCMake_BuildAll_Failed(t *testing.T) {
 
 	buildDir := t.TempDir()
 
-	desc := internal.Project{
+	desc := internal.ProjectInfo{
 		Directory:             "project",
 		IntermediateDirectory: &buildDir,
 		StructureProvider:     cmake,
@@ -187,7 +187,7 @@ func TestCMake_BuildAll_ConfigureFailed(t *testing.T) {
 
 	buildDir := t.TempDir()
 
-	desc := internal.Project{
+	desc := internal.ProjectInfo{
 		Directory:             "project",
 		IntermediateDirectory: &buildDir,
 		StructureProvider:     cmake,
@@ -214,7 +214,7 @@ func TestCMake_BuildTargets(t *testing.T) {
 
 	buildDir := t.TempDir()
 
-	desc := internal.Project{
+	desc := internal.ProjectInfo{
 		Directory:             "project",
 		IntermediateDirectory: &buildDir,
 		StructureProvider:     cmake,
@@ -248,7 +248,7 @@ func TestCMake_BuildTargets_Failed(t *testing.T) {
 
 	buildDir := t.TempDir()
 
-	desc := internal.Project{
+	desc := internal.ProjectInfo{
 		Directory:             "project",
 		IntermediateDirectory: &buildDir,
 		StructureProvider:     cmake,
@@ -282,7 +282,7 @@ func TestCMake_BuildTargets_ConfigureFailed(t *testing.T) {
 
 	buildDir := t.TempDir()
 
-	desc := internal.Project{
+	desc := internal.ProjectInfo{
 		Directory:             "project",
 		IntermediateDirectory: &buildDir,
 		StructureProvider:     cmake,
@@ -309,7 +309,7 @@ func TestCMake_RunTarget_Failed(t *testing.T) {
 
 	buildDir := t.TempDir()
 
-	desc := internal.Project{
+	desc := internal.ProjectInfo{
 		Directory:             "project",
 		IntermediateDirectory: &buildDir,
 		StructureProvider:     cmake,

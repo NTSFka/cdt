@@ -3,76 +3,76 @@ package internal
 // A ProjectConfigurator allow configuring a project
 type ProjectConfigurator interface {
 	// Configure the project
-	Configure(project Project, args []string) error
+	Configure(info ProjectInfo, args []string) error
 }
 
 // A ProjectBuilder allow building a project
 type ProjectBuilder interface {
 	// BuildAll builds all targets in the project
-	BuildAll(project Project, args []string) error
+	BuildAll(info ProjectInfo, args []string) error
 
 	// BuildTargets builds specific targets in the project
-	BuildTargets(project Project, targets []string, args []string) error
+	BuildTargets(info ProjectInfo, targets []string, args []string) error
 }
 
 // A ProjectTester allow testing a project
 type ProjectTester interface {
 	// TestAll runs all tests in the project
-	TestAll(project Project, args []string) error
+	TestAll(info ProjectInfo, args []string) error
 
 	// Test runs tests that match the pattern
-	Test(project Project, pattern string, args []string) error
+	Test(info ProjectInfo, pattern string, args []string) error
 }
 
 // A ProjectFormatter allow formatting files of a project
 type ProjectFormatter interface {
 	// FormatAll formates all files in the project
-	FormatAll(project Project, args []string) error
+	FormatAll(info ProjectInfo, args []string) error
 
 	// FormatFiles formates specified files in the project
-	FormatFiles(project Project, filenames []string, args []string) error
+	FormatFiles(info ProjectInfo, filenames []string, args []string) error
 
 	// FormatCheckAll check if all files in the project are formatted
-	FormatCheckAll(project Project, args []string) error
+	FormatCheckAll(info ProjectInfo, args []string) error
 
 	// FormatCheckFiles check if all specified files in the project are formatted
-	FormatCheckFiles(project Project, filenames []string, args []string) error
+	FormatCheckFiles(info ProjectInfo, filenames []string, args []string) error
 }
 
 // A ProjectLinter allow linting files of a project
 type ProjectLinter interface {
 	// LintAll lints all project files
-	LintAll(project Project, args []string) error
+	LintAll(info ProjectInfo, args []string) error
 
 	// LintFiles perform linting on specified files
-	LintFiles(project Project, filenames []string, args []string) error
+	LintFiles(info ProjectInfo, filenames []string, args []string) error
 }
 
 // A ProjectRunner allow running executables of a project
 type ProjectRunner interface {
 	// RunTarget run a target
-	RunTarget(project Project, target string, args []string) error
+	RunTarget(info ProjectInfo, target string, args []string) error
 }
 
 // ProjectDependencyManager manages project dependencies (libraries, packaged, etc.)
 type ProjectDependencyManager interface {
 	// AddDependencies adds new dependencies to the project
-	AddDependencies(project Project, dependencies []string, dev bool) error
+	AddDependencies(info ProjectInfo, dependencies []string, dev bool) error
 
 	// RemoveDependencies removes the dependencies from the project
-	RemoveDependencies(project Project, dependencies []string, dev bool) error
+	RemoveDependencies(info ProjectInfo, dependencies []string, dev bool) error
 
 	// UpdateDependencies updates specified dependencies in the project (empty dependencies mean update all)
-	UpdateDependencies(project Project, dependencies []string) error
+	UpdateDependencies(info ProjectInfo, dependencies []string) error
 
 	// FetchDependencies fetches all specified dependencies to the project
-	FetchDependencies(project Project, noDev bool) error
+	FetchDependencies(info ProjectInfo, noDev bool) error
 
 	// ListDependencies lists all specified dependencies in the project
-	ListDependencies(project Project) error
+	ListDependencies(info ProjectInfo) error
 
 	// AuditDependencies audits all specified dependencies in the project for security issues
-	AuditDependencies(project Project) error
+	AuditDependencies(info ProjectInfo) error
 }
 
 // A Workflow describes how to work on a project

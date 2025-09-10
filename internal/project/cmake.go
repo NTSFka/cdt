@@ -17,7 +17,7 @@ func (c *CMakeType) Detect(directory string) bool {
 	return internal.PathExists(filepath.Join(directory, "CMakeLists.txt"))
 }
 
-func (c *CMakeType) Create(config Config, tools internal.Tools) Project {
+func (c *CMakeType) Create(config Config, tools internal.Tools) internal.Project {
 	cmake := internal.GetTool[*tool.CMake](tools)
 	ctest := internal.GetTool[*tool.CTest](tools)
 	clangFormat := internal.GetTool[*tool.ClangFormat](tools)
@@ -45,8 +45,9 @@ func (c *CMakeType) Create(config Config, tools internal.Tools) Project {
 		buildDirectory = filepath.Join("build", "dev")
 	}
 
-	return Project{
-		Desc:     internal.Project{Directory: config.Directory, IntermediateDirectory: &buildDirectory, StructureProvider: cmake},
+	return internal.Project{
+		Type:     "cmake",
+		Desc:     internal.ProjectInfo{Directory: config.Directory, IntermediateDirectory: &buildDirectory, StructureProvider: cmake},
 		Workflow: workflow,
 	}
 }
@@ -57,18 +58,18 @@ type cmakeTester struct {
 	ctestTool *tool.CTest
 }
 
-func (t *cmakeTester) TestAll(project internal.Project, args []string) error {
-	if err := t.cmakeTool.BuildAll(project, []string{}); err != nil {
+func (t *cmakeTester) TestAll(info internal.ProjectInfo, args []string) error {
+	if err := t.cmakeTool.BuildAll(info, []string{}); err != nil {
 		return fmt.Errorf("build failed: %w", err)
 	}
 
-	return t.ctestTool.RunForProject(project, args)
+	return t.ctestTool.RunForProject(info, args)
 }
 
-func (t *cmakeTester) Test(project internal.Project, pattern string, args []string) error {
-	if err := t.cmakeTool.BuildAll(project, []string{}); err != nil {
+func (t *cmakeTester) Test(info internal.ProjectInfo, pattern string, args []string) error {
+	if err := t.cmakeTool.BuildAll(info, []string{}); err != nil {
 		return fmt.Errorf("build failed: %w", err)
 	}
 
-	return t.ctestTool.RunForProject(project, append(args, "-R", pattern))
+	return t.ctestTool.RunForProject(info, append(args, "-R", pattern))
 }

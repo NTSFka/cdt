@@ -59,40 +59,40 @@ func (c *ClangTidy) buildArgs(rootDirectory string, buildDirectory string, paths
 	return append(args, paths...)
 }
 
-func (c *ClangTidy) LintAll(project internal.Project, args []string) error {
-	info, err := project.Structure()
+func (c *ClangTidy) LintAll(info internal.ProjectInfo, args []string) error {
+	structure, err := info.Structure()
 
 	if err != nil {
 		return fmt.Errorf("failed to obtain project structure: %v", err)
 	}
 
-	if project.IntermediateDirectory == nil {
+	if info.IntermediateDirectory == nil {
 		return internal.ErrNoIntermediateDirectory
 	}
 
-	paths := c.buildPaths(project.Directory, info.GetFiles())
+	paths := c.buildPaths(info.Directory, structure.GetFiles())
 
-	toolArgs := c.buildArgs(project.Directory, *project.IntermediateDirectory, paths)
+	toolArgs := c.buildArgs(info.Directory, *info.IntermediateDirectory, paths)
 
-	return c.ExecutableTool.RunForProject(project, append(toolArgs, args...))
+	return c.ExecutableTool.RunForProject(info, append(toolArgs, args...))
 }
 
-func (c *ClangTidy) LintFiles(project internal.Project, filenames []string, args []string) error {
-	paths := c.buildPaths(project.Directory, filenames)
+func (c *ClangTidy) LintFiles(info internal.ProjectInfo, filenames []string, args []string) error {
+	paths := c.buildPaths(info.Directory, filenames)
 
-	if project.IntermediateDirectory == nil {
+	if info.IntermediateDirectory == nil {
 		return internal.ErrNoIntermediateDirectory
 	}
 
-	toolArgs := c.buildArgs(project.Directory, *project.IntermediateDirectory, paths)
+	toolArgs := c.buildArgs(info.Directory, *info.IntermediateDirectory, paths)
 
-	return c.ExecutableTool.RunForProject(project, append(toolArgs, args...))
+	return c.ExecutableTool.RunForProject(info, append(toolArgs, args...))
 }
 
-func (c *ClangTidy) RunForProject(project internal.Project, args []string) error {
+func (c *ClangTidy) RunForProject(info internal.ProjectInfo, args []string) error {
 	toolArgs := []string{
-		project.Directory,
+		info.Directory,
 	}
 
-	return c.ExecutableTool.RunForProject(project, append(toolArgs, args...))
+	return c.ExecutableTool.RunForProject(info, append(toolArgs, args...))
 }

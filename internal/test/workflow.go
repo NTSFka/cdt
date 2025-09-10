@@ -2,8 +2,9 @@ package test
 
 import (
 	"cdt/internal"
-	"github.com/stretchr/testify/mock"
 	"testing"
+
+	"github.com/stretchr/testify/mock"
 )
 
 type ProjectConfigurator struct {
@@ -16,8 +17,8 @@ func NewProjectConfigurator(t *testing.T) *ProjectConfigurator {
 	return &configurator
 }
 
-func (t *ProjectConfigurator) Configure(project internal.Project, args []string) error {
-	return t.Called(project, args).Error(0)
+func (t *ProjectConfigurator) Configure(info internal.ProjectInfo, args []string) error {
+	return t.Called(info, args).Error(0)
 }
 
 type ProjectBuilder struct {
@@ -30,12 +31,12 @@ func NewProjectBuilder(t *testing.T) *ProjectBuilder {
 	return &builder
 }
 
-func (t *ProjectBuilder) BuildAll(project internal.Project, args []string) error {
-	return t.Called(project, args).Error(0)
+func (t *ProjectBuilder) BuildAll(info internal.ProjectInfo, args []string) error {
+	return t.Called(info, args).Error(0)
 }
 
-func (t *ProjectBuilder) BuildTargets(project internal.Project, targets []string, args []string) error {
-	return t.Called(project, targets, args).Error(0)
+func (t *ProjectBuilder) BuildTargets(info internal.ProjectInfo, targets []string, args []string) error {
+	return t.Called(info, targets, args).Error(0)
 }
 
 type ProjectFormatter struct {
@@ -48,20 +49,20 @@ func NewProjectFormatter(t *testing.T) *ProjectFormatter {
 	return &formatter
 }
 
-func (t *ProjectFormatter) FormatAll(project internal.Project, args []string) error {
-	return t.Called(project, args).Error(0)
+func (t *ProjectFormatter) FormatAll(info internal.ProjectInfo, args []string) error {
+	return t.Called(info, args).Error(0)
 }
 
-func (t *ProjectFormatter) FormatFiles(project internal.Project, filenames []string, args []string) error {
-	return t.Called(project, filenames, args).Error(0)
+func (t *ProjectFormatter) FormatFiles(info internal.ProjectInfo, filenames []string, args []string) error {
+	return t.Called(info, filenames, args).Error(0)
 }
 
-func (t *ProjectFormatter) FormatCheckAll(project internal.Project, args []string) error {
-	return t.Called(project, args).Error(0)
+func (t *ProjectFormatter) FormatCheckAll(info internal.ProjectInfo, args []string) error {
+	return t.Called(info, args).Error(0)
 }
 
-func (t *ProjectFormatter) FormatCheckFiles(project internal.Project, filenames []string, args []string) error {
-	return t.Called(project, filenames, args).Error(0)
+func (t *ProjectFormatter) FormatCheckFiles(info internal.ProjectInfo, filenames []string, args []string) error {
+	return t.Called(info, filenames, args).Error(0)
 }
 
 type ProjectLinter struct {
@@ -74,12 +75,12 @@ func NewProjectLinter(t *testing.T) *ProjectLinter {
 	return &linter
 }
 
-func (t *ProjectLinter) LintAll(project internal.Project, args []string) error {
-	return t.Called(project, args).Error(0)
+func (t *ProjectLinter) LintAll(info internal.ProjectInfo, args []string) error {
+	return t.Called(info, args).Error(0)
 }
 
-func (t *ProjectLinter) LintFiles(project internal.Project, filenames []string, args []string) error {
-	return t.Called(project, filenames, args).Error(0)
+func (t *ProjectLinter) LintFiles(info internal.ProjectInfo, filenames []string, args []string) error {
+	return t.Called(info, filenames, args).Error(0)
 }
 
 type ProjectTester struct {
@@ -92,12 +93,12 @@ func NewProjectTester(t *testing.T) *ProjectTester {
 	return &tester
 }
 
-func (t *ProjectTester) TestAll(project internal.Project, args []string) error {
-	return t.Called(project, args).Error(0)
+func (t *ProjectTester) TestAll(info internal.ProjectInfo, args []string) error {
+	return t.Called(info, args).Error(0)
 }
 
-func (t *ProjectTester) Test(project internal.Project, pattern string, args []string) error {
-	return t.Called(project, pattern, args).Error(0)
+func (t *ProjectTester) Test(info internal.ProjectInfo, pattern string, args []string) error {
+	return t.Called(info, pattern, args).Error(0)
 }
 
 type ProjectRunner struct {
@@ -110,8 +111,8 @@ func NewProjectRunner(t *testing.T) *ProjectRunner {
 	return &runner
 }
 
-func (t *ProjectRunner) RunTarget(project internal.Project, target string, args []string) error {
-	return t.Called(project, target, args).Error(0)
+func (t *ProjectRunner) RunTarget(info internal.ProjectInfo, target string, args []string) error {
+	return t.Called(info, target, args).Error(0)
 }
 
 type StructureProvider struct {
@@ -124,8 +125,8 @@ func NewStructureProvider(t *testing.T) *StructureProvider {
 	return &provider
 }
 
-func (t *StructureProvider) Structure(project internal.Project) (*internal.ProjectStructure, error) {
-	called := t.Called(project)
+func (t *StructureProvider) Structure(info internal.ProjectInfo) (*internal.ProjectStructure, error) {
+	called := t.Called(info)
 	return called.Get(0).(*internal.ProjectStructure), called.Error(1)
 }
 
@@ -139,26 +140,26 @@ func NewDependencyManager(t *testing.T) *DependencyManager {
 	return &manager
 }
 
-func (d *DependencyManager) AddDependencies(project internal.Project, dependencies []string, dev bool) error {
-	return d.Called(project, dependencies, dev).Error(0)
+func (d *DependencyManager) AddDependencies(info internal.ProjectInfo, dependencies []string, dev bool) error {
+	return d.Called(info, dependencies, dev).Error(0)
 }
 
-func (d *DependencyManager) RemoveDependencies(project internal.Project, dependencies []string, dev bool) error {
-	return d.Called(project, dependencies, dev).Error(0)
+func (d *DependencyManager) RemoveDependencies(info internal.ProjectInfo, dependencies []string, dev bool) error {
+	return d.Called(info, dependencies, dev).Error(0)
 }
 
-func (d *DependencyManager) UpdateDependencies(project internal.Project, dependencies []string) error {
-	return d.Called(project, dependencies).Error(0)
+func (d *DependencyManager) UpdateDependencies(info internal.ProjectInfo, dependencies []string) error {
+	return d.Called(info, dependencies).Error(0)
 }
 
-func (d *DependencyManager) FetchDependencies(project internal.Project, noDev bool) error {
-	return d.Called(project, noDev).Error(0)
+func (d *DependencyManager) FetchDependencies(info internal.ProjectInfo, noDev bool) error {
+	return d.Called(info, noDev).Error(0)
 }
 
-func (d *DependencyManager) ListDependencies(project internal.Project) error {
-	return d.Called(project).Error(0)
+func (d *DependencyManager) ListDependencies(info internal.ProjectInfo) error {
+	return d.Called(info).Error(0)
 }
 
-func (d *DependencyManager) AuditDependencies(project internal.Project) error {
-	return d.Called(project).Error(0)
+func (d *DependencyManager) AuditDependencies(info internal.ProjectInfo) error {
+	return d.Called(info).Error(0)
 }

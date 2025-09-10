@@ -46,7 +46,7 @@ func TestRuff_Ruff_LintAll(t *testing.T) {
 
 	tool := NewRuff(exec.LazyExecutable("lint"))
 
-	desc := internal.Project{Directory: "."}
+	desc := internal.ProjectInfo{Directory: "."}
 
 	exec.OnRun("lint", []string{"check"}).
 		Return(nil)
@@ -62,7 +62,7 @@ func TestRuff_Ruff_Lint(t *testing.T) {
 
 	tool := NewRuff(exec.LazyExecutable("lint"))
 
-	desc := internal.Project{Directory: "."}
+	desc := internal.ProjectInfo{Directory: "."}
 
 	exec.OnRun("lint", []string{"check", "file.py", "/path/to/file2.py"}).
 		Return(nil)
@@ -78,7 +78,7 @@ func TestRuff_Ruff_FormatAll(t *testing.T) {
 
 	tool := NewRuff(exec.LazyExecutable("format"))
 
-	desc := internal.Project{Directory: "."}
+	desc := internal.ProjectInfo{Directory: "."}
 
 	exec.OnRun("format", []string{"format"}).
 		Return(nil)
@@ -94,7 +94,7 @@ func TestRuff_Ruff_FormatFiles(t *testing.T) {
 
 	tool := NewRuff(exec.LazyExecutable("format"))
 
-	desc := internal.Project{Directory: "."}
+	desc := internal.ProjectInfo{Directory: "."}
 
 	exec.OnRun("format", []string{"format", "tests/*"}).
 		Return(nil)
@@ -110,7 +110,7 @@ func TestRuff_Ruff_FormatCheckAll(t *testing.T) {
 
 	tool := NewRuff(exec.LazyExecutable("format"))
 
-	desc := internal.Project{Directory: "."}
+	desc := internal.ProjectInfo{Directory: "."}
 
 	exec.OnRun("format", []string{"format", "--check"}).
 		Return(nil)
@@ -126,7 +126,7 @@ func TestRuff_Ruff_FormatCheckFiles(t *testing.T) {
 
 	tool := NewRuff(exec.LazyExecutable("format"))
 
-	desc := internal.Project{Directory: "."}
+	desc := internal.ProjectInfo{Directory: "."}
 
 	exec.OnRun("format", []string{"format", "--check", "tests/*", "/path/to/file.py"}).
 		Return(nil)

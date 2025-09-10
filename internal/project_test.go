@@ -23,7 +23,7 @@ func TestProject_ProjectStructure_GetFiles(t *testing.T) {
 
 func TestProject_EmptyStructureProvider(t *testing.T) {
 	provider := EmptyProjectStructureProvider{}
-	structure, err := provider.Structure(Project{})
+	structure, err := provider.Structure(ProjectInfo{})
 
 	assert.NoError(t, err)
 	assert.NotNil(t, structure)
@@ -40,7 +40,7 @@ func TestProject_FixedStructureProvider(t *testing.T) {
 			},
 		},
 	}
-	structure, err := provider.Structure(Project{})
+	structure, err := provider.Structure(ProjectInfo{})
 
 	assert.NoError(t, err)
 	if assert.NotNil(t, structure) {

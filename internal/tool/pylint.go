@@ -43,12 +43,12 @@ func (p *Pylint) buildPaths(directory string, filenames []string) []string {
 	return paths
 }
 
-func (p *Pylint) LintAll(project internal.Project, args []string) error {
-	return p.RunForProject(project, append([]string{"*"}, args...))
+func (p *Pylint) LintAll(info internal.ProjectInfo, args []string) error {
+	return p.RunForProject(info, append([]string{"*"}, args...))
 }
 
-func (p *Pylint) LintFiles(project internal.Project, filenames []string, args []string) error {
-	paths := p.buildPaths(project.Directory, filenames)
+func (p *Pylint) LintFiles(info internal.ProjectInfo, filenames []string, args []string) error {
+	paths := p.buildPaths(info.Directory, filenames)
 
-	return p.RunForProject(project, append(args, paths...))
+	return p.RunForProject(info, append(args, paths...))
 }

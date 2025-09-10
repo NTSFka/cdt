@@ -36,44 +36,44 @@ func NewComposer(detect func() *internal.Executable) *Composer {
 	}
 }
 
-func (c *Composer) AddDependencies(project internal.Project, dependencies []string, dev bool) error {
+func (c *Composer) AddDependencies(info internal.ProjectInfo, dependencies []string, dev bool) error {
 	args := []string{"require"}
 
 	if dev {
 		args = append(args, "--dev")
 	}
 
-	return c.RunForProject(project, append(args, dependencies...))
+	return c.RunForProject(info, append(args, dependencies...))
 }
 
-func (c *Composer) RemoveDependencies(project internal.Project, dependencies []string, dev bool) error {
+func (c *Composer) RemoveDependencies(info internal.ProjectInfo, dependencies []string, dev bool) error {
 	args := []string{"remove"}
 
 	if dev {
 		args = append(args, "--dev")
 	}
 
-	return c.RunForProject(project, append(args, dependencies...))
+	return c.RunForProject(info, append(args, dependencies...))
 }
 
-func (c *Composer) UpdateDependencies(project internal.Project, dependencies []string) error {
-	return c.RunForProject(project, append([]string{"update"}, dependencies...))
+func (c *Composer) UpdateDependencies(info internal.ProjectInfo, dependencies []string) error {
+	return c.RunForProject(info, append([]string{"update"}, dependencies...))
 }
 
-func (c *Composer) FetchDependencies(project internal.Project, noDev bool) error {
+func (c *Composer) FetchDependencies(info internal.ProjectInfo, noDev bool) error {
 	args := []string{"install"}
 
 	if noDev {
 		args = append(args, "--no-dev")
 	}
 
-	return c.RunForProject(project, args)
+	return c.RunForProject(info, args)
 }
 
-func (c *Composer) ListDependencies(project internal.Project) error {
-	return c.RunForProject(project, []string{"show"})
+func (c *Composer) ListDependencies(info internal.ProjectInfo) error {
+	return c.RunForProject(info, []string{"show"})
 }
 
-func (c *Composer) AuditDependencies(project internal.Project) error {
-	return c.RunForProject(project, []string{"audit"})
+func (c *Composer) AuditDependencies(info internal.ProjectInfo) error {
+	return c.RunForProject(info, []string{"audit"})
 }

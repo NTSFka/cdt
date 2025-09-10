@@ -72,7 +72,7 @@ func TestPHPCSFixer_PHPCSFixer_FormatAll(t *testing.T) {
 
 	tool := NewPHPCSFixer(exec.LazyExecutable("format"))
 
-	desc := internal.Project{Directory: "."}
+	desc := internal.ProjectInfo{Directory: "."}
 
 	exec.OnRun("format", []string{"fix"}).
 		Return(nil)
@@ -88,7 +88,7 @@ func TestPHPCSFixer_PHPCSFixer_FormatFiles(t *testing.T) {
 
 	tool := NewPHPCSFixer(exec.LazyExecutable("format"))
 
-	desc := internal.Project{Directory: "."}
+	desc := internal.ProjectInfo{Directory: "."}
 
 	exec.OnRun("format", []string{"fix", "tests/*"}).
 		Return(nil)
@@ -104,7 +104,7 @@ func TestPHPCSFixer_PHPCSFixer_FormatCheckAll(t *testing.T) {
 
 	tool := NewPHPCSFixer(exec.LazyExecutable("format"))
 
-	desc := internal.Project{Directory: "."}
+	desc := internal.ProjectInfo{Directory: "."}
 
 	exec.OnRun("format", []string{"fix", "--dry-run"}).
 		Return(nil)
@@ -120,7 +120,7 @@ func TestPHPCSFixer_PHPCSFixer_FormatCheckFiles(t *testing.T) {
 
 	tool := NewPHPCSFixer(exec.LazyExecutable("format"))
 
-	desc := internal.Project{Directory: "."}
+	desc := internal.ProjectInfo{Directory: "."}
 
 	exec.OnRun("format", []string{"fix", "--dry-run", "tests/*", "/path/to/file.php"}).
 		Return(nil)

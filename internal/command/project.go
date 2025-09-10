@@ -28,7 +28,7 @@ func NewProjectCommand() *cli.Command {
 
 func projectCommandTargetsAction(ctx context.Context, cmd *cli.Command) error {
 	c := ctx.Value("context").(internal.Context)
-	info, err := c.Project.Structure()
+	info, err := c.ProjectInfo.Structure()
 
 	if err != nil {
 		return err
@@ -47,7 +47,7 @@ func projectCommandTargetsAction(ctx context.Context, cmd *cli.Command) error {
 
 func projectCommandFilesAction(ctx context.Context, cmd *cli.Command) error {
 	c := ctx.Value("context").(internal.Context)
-	info, err := c.Project.Structure()
+	info, err := c.ProjectInfo.Structure()
 
 	if err != nil {
 		return err

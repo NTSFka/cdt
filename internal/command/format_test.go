@@ -20,7 +20,7 @@ func runFormat(formatter internal.ProjectFormatter, args ...string) error {
 
 func runFormatTool(formatter internal.Tool, args ...string) error {
 	return test.RunCommand(NewFormatCommand(), internal.Context{
-		Project: internal.Project{},
+		ProjectInfo: internal.ProjectInfo{},
 		Tools: []internal.Tool{
 			formatter,
 		},

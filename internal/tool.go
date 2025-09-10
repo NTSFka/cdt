@@ -130,9 +130,9 @@ func (t *ExecutableTool) Run(ctx context.Context, options RunOptions, args []str
 	return t.Executable().Run(ctx, options, args)
 }
 
-func (t *ExecutableTool) RunForProject(project Project, args []string) error {
+func (t *ExecutableTool) RunForProject(info ProjectInfo, args []string) error {
 	options := RunOptions{
-		Directory: project.Directory,
+		Directory: info.Directory,
 		Input:     os.Stdin,
 		Output:    os.Stdout,
 		Error:     os.Stderr,

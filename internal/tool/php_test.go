@@ -47,7 +47,7 @@ func TestPHP_PHP_RunTarget(t *testing.T) {
 
 	tool := NewPHP(exec.LazyExecutable("php"))
 
-	desc := internal.Project{Directory: "."}
+	desc := internal.ProjectInfo{Directory: "."}
 
 	exec.OnRun("php", []string{"-f", "index.php"}).
 		Return(nil)
@@ -63,7 +63,7 @@ func TestPHP_PHP_RunTarget_Fail(t *testing.T) {
 
 	tool := NewPHP(exec.LazyExecutable("php"))
 
-	desc := internal.Project{Directory: "."}
+	desc := internal.ProjectInfo{Directory: "."}
 
 	exec.OnRun("php", []string{"-f", "index.php"}).
 		Return(errors.New("failed"))

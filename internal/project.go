@@ -8,7 +8,7 @@ import (
 // A ProjectStructureProvider provides a detailed structure of the project
 type ProjectStructureProvider interface {
 	// Structure returns project structure
-	Structure(project Project) (*ProjectStructure, error)
+	Structure(info ProjectInfo) (*ProjectStructure, error)
 }
 
 // ProjectStructure describes a project structure
@@ -38,15 +38,21 @@ func (p *ProjectStructure) GetFiles() []string {
 
 var ErrNoIntermediateDirectory = errors.New("no intermediate directory set")
 
-// A Project describes a project in a specific directory
-type Project struct {
-	Directory             string
+// A ProjectInfo provides information about the project
+type ProjectInfo struct {
+	// Directory is the directory of the project
+	Directory string
+
+	// IntermediateDirectory is the directory of the project's intermediate files
 	IntermediateDirectory *string
-	StructureProvider     ProjectStructureProvider
+
+	// StructureProvider provides structure of the project primary in cases when the structure is dynamic from
+	// some configuration
+	StructureProvider ProjectStructureProvider
 }
 
 // Structure returns project structure
-func (p *Project) Structure() (*ProjectStructure, error) {
+func (p *ProjectInfo) Structure() (*ProjectStructure, error) {
 	return p.StructureProvider.Structure(*p)
 }
 
@@ -55,7 +61,7 @@ type EmptyProjectStructureProvider struct {
 }
 
 // Structure returns project structure
-func (p *EmptyProjectStructureProvider) Structure(_ Project) (*ProjectStructure, error) {
+func (p *EmptyProjectStructureProvider) Structure(_ ProjectInfo) (*ProjectStructure, error) {
 	return &ProjectStructure{}, nil
 }
 
@@ -65,6 +71,13 @@ type FixedProjectStructureProvider struct {
 }
 
 // Structure returns project structure
-func (p *FixedProjectStructureProvider) Structure(_ Project) (*ProjectStructure, error) {
+func (p *FixedProjectStructureProvider) Structure(_ ProjectInfo) (*ProjectStructure, error) {
 	return &p.ProjectStructure, nil
+}
+
+// A Project describes a project and its workflow
+type Project struct {
+	Type     string
+	Desc     ProjectInfo
+	Workflow Workflow
 }

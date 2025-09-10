@@ -72,7 +72,7 @@ func TestParaTest_ParaTest_TestAll(t *testing.T) {
 
 	tool := NewParaTest(exec.LazyExecutable("test"))
 
-	desc := internal.Project{Directory: "."}
+	desc := internal.ProjectInfo{Directory: "."}
 
 	exec.OnRun("test", []string{}).
 		Return(nil)
@@ -88,7 +88,7 @@ func TestParaTest_ParaTest_Test(t *testing.T) {
 
 	tool := NewParaTest(exec.LazyExecutable("test"))
 
-	desc := internal.Project{Directory: "."}
+	desc := internal.ProjectInfo{Directory: "."}
 
 	exec.OnRun("test", []string{"tests/*"}).
 		Return(nil)

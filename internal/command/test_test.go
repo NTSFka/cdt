@@ -20,7 +20,7 @@ func runTest(tester internal.ProjectTester, args ...string) error {
 
 func runTestTool(tester internal.Tool, args ...string) error {
 	return test.RunCommand(NewTestCommand(), internal.Context{
-		Project: internal.Project{},
+		ProjectInfo: internal.ProjectInfo{},
 		Tools: []internal.Tool{
 			tester,
 		},

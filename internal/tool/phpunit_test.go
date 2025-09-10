@@ -72,7 +72,7 @@ func TestPHPUnit_PHPUnit_TestAll(t *testing.T) {
 
 	tool := NewPHPUnit(exec.LazyExecutable("test"))
 
-	desc := internal.Project{Directory: "."}
+	desc := internal.ProjectInfo{Directory: "."}
 
 	exec.OnRun("test", []string{}).
 		Return(nil)
@@ -88,7 +88,7 @@ func TestPHPUnit_PHPUnit_Test(t *testing.T) {
 
 	tool := NewPHPUnit(exec.LazyExecutable("test"))
 
-	desc := internal.Project{Directory: "."}
+	desc := internal.ProjectInfo{Directory: "."}
 
 	exec.OnRun("test", []string{"tests/*"}).
 		Return(nil)

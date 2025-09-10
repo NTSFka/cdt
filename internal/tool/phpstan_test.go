@@ -72,7 +72,7 @@ func TestPHPStan_PHPStan_LintAll(t *testing.T) {
 
 	tool := NewPHPStan(exec.LazyExecutable("lint"))
 
-	desc := internal.Project{Directory: "."}
+	desc := internal.ProjectInfo{Directory: "."}
 
 	exec.OnRun("lint", []string{"analyse"}).
 		Return(nil)
@@ -88,7 +88,7 @@ func TestPHPStan_PHPStan_Lint(t *testing.T) {
 
 	tool := NewPHPStan(exec.LazyExecutable("lint"))
 
-	desc := internal.Project{Directory: "."}
+	desc := internal.ProjectInfo{Directory: "."}
 
 	exec.OnRun("lint", []string{"analyse", "file.php", "/path/to/file2.php"}).
 		Return(nil)

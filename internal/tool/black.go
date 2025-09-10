@@ -43,22 +43,22 @@ func (b *Black) buildPaths(directory string, filenames []string) []string {
 	return paths
 }
 
-func (b *Black) FormatAll(project internal.Project, args []string) error {
-	return b.RunForProject(project, args)
+func (b *Black) FormatAll(info internal.ProjectInfo, args []string) error {
+	return b.RunForProject(info, args)
 }
 
-func (b *Black) FormatFiles(project internal.Project, filenames []string, args []string) error {
-	paths := b.buildPaths(project.Directory, filenames)
+func (b *Black) FormatFiles(info internal.ProjectInfo, filenames []string, args []string) error {
+	paths := b.buildPaths(info.Directory, filenames)
 
-	return b.RunForProject(project, append(args, paths...))
+	return b.RunForProject(info, append(args, paths...))
 }
 
-func (b *Black) FormatCheckAll(project internal.Project, args []string) error {
-	return b.RunForProject(project, append([]string{"--check"}, args...))
+func (b *Black) FormatCheckAll(info internal.ProjectInfo, args []string) error {
+	return b.RunForProject(info, append([]string{"--check"}, args...))
 }
 
-func (b *Black) FormatCheckFiles(project internal.Project, filenames []string, args []string) error {
-	paths := b.buildPaths(project.Directory, filenames)
+func (b *Black) FormatCheckFiles(info internal.ProjectInfo, filenames []string, args []string) error {
+	paths := b.buildPaths(info.Directory, filenames)
 
-	return b.RunForProject(project, append(append([]string{"--check"}, args...), paths...))
+	return b.RunForProject(info, append(append([]string{"--check"}, args...), paths...))
 }

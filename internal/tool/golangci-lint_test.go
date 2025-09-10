@@ -44,7 +44,7 @@ func TestGolangCILint_GolangCILint_LintAll(t *testing.T) {
 
 	tool := NewGolangCILint(exec.LazyExecutable("lint"))
 
-	desc := internal.Project{Directory: "."}
+	desc := internal.ProjectInfo{Directory: "."}
 
 	exec.OnRun("lint", []string{"run"}).
 		Return(nil)
@@ -60,7 +60,7 @@ func TestGolangCILint_GolangCILint_Lint(t *testing.T) {
 
 	tool := NewGolangCILint(exec.LazyExecutable("lint"))
 
-	desc := internal.Project{Directory: "."}
+	desc := internal.ProjectInfo{Directory: "."}
 
 	exec.OnRun("lint", []string{"run", "mod1"}).
 		Return(nil)

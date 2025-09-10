@@ -46,7 +46,7 @@ func TestMyPy_MyPy_LintAll(t *testing.T) {
 
 	tool := NewMyPy(exec.LazyExecutable("lint"))
 
-	desc := internal.Project{Directory: "."}
+	desc := internal.ProjectInfo{Directory: "."}
 
 	exec.OnRun("lint", []string{"*.py"}).
 		Return(nil)
@@ -62,7 +62,7 @@ func TestMyPy_MyPy_Lint(t *testing.T) {
 
 	tool := NewMyPy(exec.LazyExecutable("lint"))
 
-	desc := internal.Project{Directory: "."}
+	desc := internal.ProjectInfo{Directory: "."}
 
 	exec.OnRun("lint", []string{"file.py", "/path/to/file2.py"}).
 		Return(nil)

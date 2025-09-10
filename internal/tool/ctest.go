@@ -29,12 +29,12 @@ func DetectCTest(environment internal.Environment) *CTest {
 	})
 }
 
-func (c *CTest) RunForProject(project internal.Project, args []string) error {
-	if project.IntermediateDirectory == nil {
+func (c *CTest) RunForProject(info internal.ProjectInfo, args []string) error {
+	if info.IntermediateDirectory == nil {
 		return internal.ErrNoIntermediateDirectory
 	}
 
-	return c.ExecutableTool.RunForProject(project, append(args,
-		"--test-dir", *project.IntermediateDirectory,
+	return c.ExecutableTool.RunForProject(info, append(args,
+		"--test-dir", *info.IntermediateDirectory,
 	))
 }

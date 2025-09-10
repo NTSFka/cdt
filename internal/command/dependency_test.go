@@ -20,7 +20,7 @@ func runDependency(manager internal.ProjectDependencyManager, args ...string) er
 
 func runDependencyTool(tool internal.Tool, args ...string) error {
 	return test.RunCommand(NewDependencyCommand(), internal.Context{
-		Project: internal.Project{},
+		ProjectInfo: internal.ProjectInfo{},
 		Tools: []internal.Tool{
 			tool,
 		},

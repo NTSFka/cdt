@@ -23,7 +23,7 @@ func TestCMakeRealProjectConfigureAndBuildAndRun(t *testing.T) {
 
 	cmake := tool.DetectCMake(environment)
 
-	desc := internal.Project{
+	desc := internal.ProjectInfo{
 		Directory:             "data/cmake",
 		IntermediateDirectory: internal.StrPtr(buildDirectory.Path()),
 		StructureProvider:     cmake,

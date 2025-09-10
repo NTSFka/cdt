@@ -46,7 +46,7 @@ func TestBlack_Black_FormatAll(t *testing.T) {
 
 	tool := NewBlack(exec.LazyExecutable("format"))
 
-	desc := internal.Project{Directory: "."}
+	desc := internal.ProjectInfo{Directory: "."}
 
 	exec.OnRun("format", []string{}).
 		Return(nil)
@@ -62,7 +62,7 @@ func TestBlack_Black_FormatFiles(t *testing.T) {
 
 	tool := NewBlack(exec.LazyExecutable("format"))
 
-	desc := internal.Project{Directory: "."}
+	desc := internal.ProjectInfo{Directory: "."}
 
 	exec.OnRun("format", []string{"tests/*"}).
 		Return(nil)
@@ -78,7 +78,7 @@ func TestBlack_Black_FormatCheckAll(t *testing.T) {
 
 	tool := NewBlack(exec.LazyExecutable("format"))
 
-	desc := internal.Project{Directory: "."}
+	desc := internal.ProjectInfo{Directory: "."}
 
 	exec.OnRun("format", []string{"--check"}).
 		Return(nil)
@@ -94,7 +94,7 @@ func TestBlack_Black_FormatCheckFiles(t *testing.T) {
 
 	tool := NewBlack(exec.LazyExecutable("format"))
 
-	desc := internal.Project{Directory: "."}
+	desc := internal.ProjectInfo{Directory: "."}
 
 	exec.OnRun("format", []string{"--check", "tests/*", "/path/to/file.py"}).
 		Return(nil)

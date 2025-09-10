@@ -46,7 +46,7 @@ func TestFlake8_Flake8_LintAll(t *testing.T) {
 
 	tool := NewFlake8(exec.LazyExecutable("lint"))
 
-	desc := internal.Project{Directory: "."}
+	desc := internal.ProjectInfo{Directory: "."}
 
 	exec.OnRun("lint", []string{}).
 		Return(nil)
@@ -62,7 +62,7 @@ func TestFlake8_Flake8_Lint(t *testing.T) {
 
 	tool := NewFlake8(exec.LazyExecutable("lint"))
 
-	desc := internal.Project{Directory: "."}
+	desc := internal.ProjectInfo{Directory: "."}
 
 	exec.OnRun("lint", []string{"file.py", "/path/to/file2.py"}).
 		Return(nil)

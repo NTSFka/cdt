@@ -58,9 +58,9 @@ func testCommandAction(ctx context.Context, cmd *cli.Command) error {
 	var err error
 
 	if pattern := cmd.StringArgs("pattern"); len(pattern) != 0 {
-		err = tester.Test(c.Project, pattern[0], cmd.Args().Tail())
+		err = tester.Test(c.ProjectInfo, pattern[0], cmd.Args().Tail())
 	} else {
-		err = tester.TestAll(c.Project, cmd.Args().Tail())
+		err = tester.TestAll(c.ProjectInfo, cmd.Args().Tail())
 	}
 
 	if err != nil {

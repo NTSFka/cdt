@@ -50,7 +50,7 @@ func TestPython_Python_RunTarget(t *testing.T) {
 
 	tool := NewPython(python.LazyExecutable("python3"))
 
-	desc := internal.Project{Directory: "."}
+	desc := internal.ProjectInfo{Directory: "."}
 
 	python.OnRun("python3", []string{"main.py"}).
 		Return(nil)
@@ -66,7 +66,7 @@ func TestPython_Python_RunTarget_Fail(t *testing.T) {
 
 	tool := NewPython(python.LazyExecutable("python3"))
 
-	desc := internal.Project{Directory: "."}
+	desc := internal.ProjectInfo{Directory: "."}
 
 	python.OnRun("python3", []string{"main.py"}).
 		Return(errors.New("failed"))

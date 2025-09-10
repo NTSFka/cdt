@@ -45,7 +45,7 @@ func TestCTest_Run(t *testing.T) {
 
 	tool := NewCTest(exec.LazyExecutable("ctest"))
 
-	desc := internal.Project{Directory: "project", IntermediateDirectory: internal.StrPtr("build")}
+	desc := internal.ProjectInfo{Directory: "project", IntermediateDirectory: internal.StrPtr("build")}
 
 	exec.OnRun("ctest", []string{"--test-dir", "build"}).
 		Return(nil)
@@ -61,7 +61,7 @@ func TestCTest_Run_Failed(t *testing.T) {
 
 	tool := NewCTest(exec.LazyExecutable("ctest"))
 
-	desc := internal.Project{Directory: "project", IntermediateDirectory: internal.StrPtr("build")}
+	desc := internal.ProjectInfo{Directory: "project", IntermediateDirectory: internal.StrPtr("build")}
 
 	exec.OnRun("ctest", []string{"--test-dir", "build"}).
 		Return(errors.New("failed"))

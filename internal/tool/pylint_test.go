@@ -46,7 +46,7 @@ func TestPylint_Pylint_LintAll(t *testing.T) {
 
 	tool := NewPylint(exec.LazyExecutable("lint"))
 
-	desc := internal.Project{Directory: "."}
+	desc := internal.ProjectInfo{Directory: "."}
 
 	exec.OnRun("lint", []string{"*"}).
 		Return(nil)
@@ -62,7 +62,7 @@ func TestPylint_Pylint_Lint(t *testing.T) {
 
 	tool := NewPylint(exec.LazyExecutable("lint"))
 
-	desc := internal.Project{Directory: "."}
+	desc := internal.ProjectInfo{Directory: "."}
 
 	exec.OnRun("lint", []string{"file.py", "/path/to/file2.py"}).
 		Return(nil)

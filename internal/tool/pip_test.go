@@ -69,7 +69,7 @@ func TestPip_Pip_AddDependencies(t *testing.T) {
 
 	tool := NewPip(exec.LazyExecutable("pip"))
 
-	desc := internal.Project{Directory: "."}
+	desc := internal.ProjectInfo{Directory: "."}
 
 	exec.OnRun("pip", []string{"install", "dep1"}).
 		Return(nil)
@@ -85,7 +85,7 @@ func TestPip_Pip_RemoveDependencies(t *testing.T) {
 
 	tool := NewPip(exec.LazyExecutable("pip"))
 
-	desc := internal.Project{Directory: "."}
+	desc := internal.ProjectInfo{Directory: "."}
 
 	exec.OnRun("pip", []string{"uninstall", "dep1"}).
 		Return(nil)
@@ -101,7 +101,7 @@ func TestPip_Pip_UpdateDependencies(t *testing.T) {
 
 	tool := NewPip(exec.LazyExecutable("pip"))
 
-	desc := internal.Project{Directory: "."}
+	desc := internal.ProjectInfo{Directory: "."}
 
 	exec.OnRun("pip", []string{"install", "--upgrade", "dep1"}).
 		Return(nil)
@@ -117,7 +117,7 @@ func TestPip_Pip_FetchDependencies(t *testing.T) {
 
 	tool := NewPip(exec.LazyExecutable("pip"))
 
-	desc := internal.Project{Directory: "."}
+	desc := internal.ProjectInfo{Directory: "."}
 
 	exec.OnRun("pip", []string{"install", "-r", "requirements.txt"}).
 		Return(nil)
@@ -133,7 +133,7 @@ func TestPip_Pip_ListDependencies(t *testing.T) {
 
 	tool := NewPip(exec.LazyExecutable("pip"))
 
-	desc := internal.Project{Directory: "."}
+	desc := internal.ProjectInfo{Directory: "."}
 
 	exec.OnRun("pip", []string{"list"}).
 		Return(nil)
@@ -149,7 +149,7 @@ func TestPip_Pip_AuditDependencies(t *testing.T) {
 
 	tool := NewPip(exec.LazyExecutable("pip"))
 
-	desc := internal.Project{Directory: "."}
+	desc := internal.ProjectInfo{Directory: "."}
 
 	exec.OnRun("pip", []string{"audit"}).
 		Return(nil)

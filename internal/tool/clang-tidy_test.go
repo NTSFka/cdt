@@ -48,7 +48,7 @@ func TestClangTidy_LintAll(t *testing.T) {
 
 	tool := NewClangTidy(exec.LazyExecutable("clang-tidy"))
 
-	desc := internal.Project{
+	desc := internal.ProjectInfo{
 		Directory:             "project",
 		IntermediateDirectory: internal.StrPtr("build"),
 		StructureProvider: &internal.FixedProjectStructureProvider{
@@ -80,7 +80,7 @@ func TestClangTidy_LintAll_Failed(t *testing.T) {
 
 	tool := NewClangTidy(exec.LazyExecutable("clang-tidy"))
 
-	desc := internal.Project{
+	desc := internal.ProjectInfo{
 		Directory:             "project",
 		IntermediateDirectory: internal.StrPtr("build"),
 		StructureProvider: &internal.FixedProjectStructureProvider{
@@ -112,7 +112,7 @@ func TestClangTidy_LintAll_CustomConfig(t *testing.T) {
 
 	tool := NewClangTidy(exec.LazyExecutable("clang-tidy"))
 
-	desc := internal.Project{
+	desc := internal.ProjectInfo{
 		Directory:             t.TempDir(),
 		IntermediateDirectory: internal.StrPtr("build"),
 		StructureProvider: &internal.FixedProjectStructureProvider{
@@ -148,7 +148,7 @@ func TestClangTidy_LintFiles(t *testing.T) {
 
 	tool := NewClangTidy(exec.LazyExecutable("clang-tidy"))
 
-	desc := internal.Project{Directory: t.TempDir(), IntermediateDirectory: internal.StrPtr("build")}
+	desc := internal.ProjectInfo{Directory: t.TempDir(), IntermediateDirectory: internal.StrPtr("build")}
 
 	exec.OnRun("clang-tidy", []string{
 		"-p", *desc.IntermediateDirectory,
@@ -168,7 +168,7 @@ func TestClangTidy_LintFiles_Failed(t *testing.T) {
 
 	tool := NewClangTidy(exec.LazyExecutable("clang-tidy"))
 
-	desc := internal.Project{Directory: "project", IntermediateDirectory: internal.StrPtr("build")}
+	desc := internal.ProjectInfo{Directory: "project", IntermediateDirectory: internal.StrPtr("build")}
 
 	exec.OnRun("clang-tidy", []string{
 		"-p", *desc.IntermediateDirectory,
@@ -187,7 +187,7 @@ func TestClangTidy_LintFiles_CustomConfig(t *testing.T) {
 
 	tool := NewClangTidy(exec.LazyExecutable("clang-tidy"))
 
-	desc := internal.Project{Directory: t.TempDir(), IntermediateDirectory: internal.StrPtr("build")}
+	desc := internal.ProjectInfo{Directory: t.TempDir(), IntermediateDirectory: internal.StrPtr("build")}
 
 	_, err := os.Create(filepath.Join(desc.Directory, ".clang-tidy"))
 	assert.NoError(t, err)
@@ -210,7 +210,7 @@ func TestClangTidy_Run(t *testing.T) {
 
 	tool := NewClangTidy(exec.LazyExecutable("clang-tidy"))
 
-	desc := internal.Project{Directory: "build"}
+	desc := internal.ProjectInfo{Directory: "build"}
 
 	exec.OnRun("clang-tidy", []string{desc.Directory}).
 		Return(nil)
@@ -226,7 +226,7 @@ func TestClangTidy_Run_Failed(t *testing.T) {
 
 	tool := NewClangTidy(exec.LazyExecutable("clang-tidy"))
 
-	desc := internal.Project{Directory: "build"}
+	desc := internal.ProjectInfo{Directory: "build"}
 
 	exec.OnRun("clang-tidy", []string{desc.Directory}).
 		Return(errors.New("failed"))

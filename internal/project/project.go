@@ -26,18 +26,14 @@ type Type interface {
 	Detect(directory string) bool
 
 	// Create a project from a directory with a given tool set.
-	Create(config Config, tools internal.Tools) Project
+	Create(config Config, tools internal.Tools) internal.Project
 }
 
-type Project struct {
-	Desc     internal.Project
-	Workflow internal.Workflow
-}
-
-func buildProjectConfigCustom(config internal.Config, cwf internal.ConfigWorkflow, tools internal.Tools) (*Project, error) {
+func buildProjectConfigCustom(config internal.Config, cwf internal.ConfigWorkflow, tools internal.Tools) (*internal.Project, error) {
 	if wf, err := FromConfig(cwf, tools); wf != nil {
-		return &Project{
-			Desc: internal.Project{
+		return &internal.Project{
+			Type: "custom",
+			Desc: internal.ProjectInfo{
 				Directory:         config.RootDirectory,
 				StructureProvider: &internal.EmptyProjectStructureProvider{},
 			},
@@ -48,7 +44,7 @@ func buildProjectConfigCustom(config internal.Config, cwf internal.ConfigWorkflo
 	}
 }
 
-func buildProjectConfigName(config internal.Config, workflow string, tools internal.Tools) (*Project, error) {
+func buildProjectConfigName(config internal.Config, workflow string, tools internal.Tools) (*internal.Project, error) {
 	for _, pt := range projectTypes {
 		if workflow == pt.Id() {
 			project := pt.Create(Config{Directory: config.RootDirectory, BuildDirectory: config.BuildDirectory}, tools)
@@ -59,7 +55,7 @@ func buildProjectConfigName(config internal.Config, workflow string, tools inter
 	return nil, fmt.Errorf("workflow '%s' not found", workflow)
 }
 
-func buildProjectDetect(config internal.Config, tools internal.Tools) (*Project, error) {
+func buildProjectDetect(config internal.Config, tools internal.Tools) (*internal.Project, error) {
 	for _, pt := range projectTypes {
 		if pt.Detect(config.RootDirectory) {
 			project := pt.Create(Config{Directory: config.RootDirectory, BuildDirectory: config.BuildDirectory}, tools)
@@ -67,8 +63,9 @@ func buildProjectDetect(config internal.Config, tools internal.Tools) (*Project,
 		}
 	}
 
-	return &Project{
-		Desc: internal.Project{
+	return &internal.Project{
+		Type: "unknown",
+		Desc: internal.ProjectInfo{
 			Directory:         config.RootDirectory,
 			StructureProvider: &internal.EmptyProjectStructureProvider{},
 		},
@@ -76,7 +73,7 @@ func buildProjectDetect(config internal.Config, tools internal.Tools) (*Project,
 }
 
 // BuildProject creates a project from configuration and supported tools
-func BuildProject(config internal.Config, tools internal.Tools) (*Project, error) {
+func BuildProject(config internal.Config, tools internal.Tools) (*internal.Project, error) {
 	// User-defined workflow
 	if config.Workflow != nil {
 		switch cfg := config.Workflow.(type) {
