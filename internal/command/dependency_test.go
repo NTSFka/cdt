@@ -3,6 +3,7 @@ package command
 import (
 	"cdt/internal"
 	"cdt/internal/test"
+	"context"
 	"errors"
 	"testing"
 
@@ -10,8 +11,8 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-func runDependency(manager internal.ProjectDependencyManager, args ...string) error {
-	return test.RunCommand(NewDependencyCommand(), internal.Context{
+func runDependency(ctx context.Context, manager internal.ProjectDependencyManager, args ...string) error {
+	return test.RunCommand(ctx, NewDependencyCommand(), internal.Context{
 		Project: internal.Project{
 			Workflow: internal.Workflow{
 				DependencyManager: manager,
@@ -20,8 +21,8 @@ func runDependency(manager internal.ProjectDependencyManager, args ...string) er
 	}, args...)
 }
 
-func runDependencyTool(tool internal.Tool, args ...string) error {
-	return test.RunCommand(NewDependencyCommand(), internal.Context{
+func runDependencyTool(ctx context.Context, tool internal.Tool, args ...string) error {
+	return test.RunCommand(ctx, NewDependencyCommand(), internal.Context{
 		Tools: []internal.Tool{
 			tool,
 		},
@@ -29,7 +30,7 @@ func runDependencyTool(tool internal.Tool, args ...string) error {
 }
 
 func TestDependency_NotSupported(t *testing.T) {
-	err := runDependency(nil, "list")
+	err := runDependency(context.Background(), nil, "list")
 
 	if assert.Error(t, err) {
 		assert.Equal(t, "project doesn't support dependency management", err.Error())
@@ -38,10 +39,10 @@ func TestDependency_NotSupported(t *testing.T) {
 
 func TestDependency_AddDependencies_Success(t *testing.T) {
 	manager := test.NewDependencyManager(t)
-	manager.On("AddDependencies", mock.Anything, []string{"dep1", "dep2"}, false).
+	manager.On("AddDependencies", mock.Anything, mock.Anything, []string{"dep1", "dep2"}, false).
 		Return(nil)
 
-	err := runDependency(manager, "add", "dep1", "dep2")
+	err := runDependency(context.Background(), manager, "add", "dep1", "dep2")
 
 	assert.NoError(t, err)
 	manager.AssertExpectations(t)
@@ -49,10 +50,10 @@ func TestDependency_AddDependencies_Success(t *testing.T) {
 
 func TestDependency_AddDependencies_Success_Dev(t *testing.T) {
 	manager := test.NewDependencyManager(t)
-	manager.On("AddDependencies", mock.Anything, []string{"dep1", "dep2"}, true).
+	manager.On("AddDependencies", mock.Anything, mock.Anything, []string{"dep1", "dep2"}, true).
 		Return(nil)
 
-	err := runDependency(manager, "add", "--dev", "dep1", "dep2")
+	err := runDependency(context.Background(), manager, "add", "--dev", "dep1", "dep2")
 
 	assert.NoError(t, err)
 	manager.AssertExpectations(t)
@@ -60,10 +61,10 @@ func TestDependency_AddDependencies_Success_Dev(t *testing.T) {
 
 func TestDependency_AddDependencies_Failure(t *testing.T) {
 	manager := test.NewDependencyManager(t)
-	manager.On("AddDependencies", mock.Anything, []string{"dep1"}, false).
+	manager.On("AddDependencies", mock.Anything, mock.Anything, []string{"dep1"}, false).
 		Return(errors.New("failed"))
 
-	err := runDependency(manager, "add", "dep1")
+	err := runDependency(context.Background(), manager, "add", "dep1")
 
 	if assert.Error(t, err) {
 		assert.Equal(t, "failed to add dependencies: failed", err.Error())
@@ -73,10 +74,10 @@ func TestDependency_AddDependencies_Failure(t *testing.T) {
 
 func TestDependency_RemoveDependencies_Success(t *testing.T) {
 	manager := test.NewDependencyManager(t)
-	manager.On("RemoveDependencies", mock.Anything, []string{"dep1", "dep2"}, false).
+	manager.On("RemoveDependencies", mock.Anything, mock.Anything, []string{"dep1", "dep2"}, false).
 		Return(nil)
 
-	err := runDependency(manager, "remove", "dep1", "dep2")
+	err := runDependency(context.Background(), manager, "remove", "dep1", "dep2")
 
 	assert.NoError(t, err)
 	manager.AssertExpectations(t)
@@ -84,10 +85,10 @@ func TestDependency_RemoveDependencies_Success(t *testing.T) {
 
 func TestDependency_RemoveDependencies_Success_Dev(t *testing.T) {
 	manager := test.NewDependencyManager(t)
-	manager.On("RemoveDependencies", mock.Anything, []string{"dep1", "dep2"}, true).
+	manager.On("RemoveDependencies", mock.Anything, mock.Anything, []string{"dep1", "dep2"}, true).
 		Return(nil)
 
-	err := runDependency(manager, "remove", "--dev", "dep1", "dep2")
+	err := runDependency(context.Background(), manager, "remove", "--dev", "dep1", "dep2")
 
 	assert.NoError(t, err)
 	manager.AssertExpectations(t)
@@ -95,10 +96,10 @@ func TestDependency_RemoveDependencies_Success_Dev(t *testing.T) {
 
 func TestDependency_UpdateDependencies_Success(t *testing.T) {
 	manager := test.NewDependencyManager(t)
-	manager.On("UpdateDependencies", mock.Anything, []string{"dep1", "dep2"}).
+	manager.On("UpdateDependencies", mock.Anything, mock.Anything, []string{"dep1", "dep2"}).
 		Return(nil)
 
-	err := runDependency(manager, "update", "dep1", "dep2")
+	err := runDependency(context.Background(), manager, "update", "dep1", "dep2")
 
 	assert.NoError(t, err)
 	manager.AssertExpectations(t)
@@ -106,10 +107,10 @@ func TestDependency_UpdateDependencies_Success(t *testing.T) {
 
 func TestDependency_UpdateDependencies_Failure(t *testing.T) {
 	manager := test.NewDependencyManager(t)
-	manager.On("UpdateDependencies", mock.Anything, []string{"dep1"}).
+	manager.On("UpdateDependencies", mock.Anything, mock.Anything, []string{"dep1"}).
 		Return(errors.New("failed"))
 
-	err := runDependency(manager, "update", "dep1")
+	err := runDependency(context.Background(), manager, "update", "dep1")
 
 	if assert.Error(t, err) {
 		assert.Equal(t, "failed to update dependencies: failed", err.Error())
@@ -119,10 +120,10 @@ func TestDependency_UpdateDependencies_Failure(t *testing.T) {
 
 func TestDependency_FetchDependencies_Success(t *testing.T) {
 	manager := test.NewDependencyManager(t)
-	manager.On("FetchDependencies", mock.Anything, false).
+	manager.On("FetchDependencies", mock.Anything, mock.Anything, false).
 		Return(nil)
 
-	err := runDependency(manager, "fetch")
+	err := runDependency(context.Background(), manager, "fetch")
 
 	assert.NoError(t, err)
 	manager.AssertExpectations(t)
@@ -130,10 +131,10 @@ func TestDependency_FetchDependencies_Success(t *testing.T) {
 
 func TestDependency_FetchDependencies_Success_NoDev(t *testing.T) {
 	manager := test.NewDependencyManager(t)
-	manager.On("FetchDependencies", mock.Anything, true).
+	manager.On("FetchDependencies", mock.Anything, mock.Anything, true).
 		Return(nil)
 
-	err := runDependency(manager, "fetch", "--no-dev")
+	err := runDependency(context.Background(), manager, "fetch", "--no-dev")
 
 	assert.NoError(t, err)
 	manager.AssertExpectations(t)
@@ -141,10 +142,10 @@ func TestDependency_FetchDependencies_Success_NoDev(t *testing.T) {
 
 func TestDependency_FetchDependencies_Failure(t *testing.T) {
 	manager := test.NewDependencyManager(t)
-	manager.On("FetchDependencies", mock.Anything, false).
+	manager.On("FetchDependencies", mock.Anything, mock.Anything, false).
 		Return(errors.New("failed"))
 
-	err := runDependency(manager, "fetch")
+	err := runDependency(context.Background(), manager, "fetch")
 
 	if assert.Error(t, err) {
 		assert.Equal(t, "failed to fetch dependencies: failed", err.Error())
@@ -154,10 +155,10 @@ func TestDependency_FetchDependencies_Failure(t *testing.T) {
 
 func TestDependency_ListDependencies_Success(t *testing.T) {
 	manager := test.NewDependencyManager(t)
-	manager.On("ListDependencies", mock.Anything).
+	manager.On("ListDependencies", mock.Anything, mock.Anything).
 		Return(nil)
 
-	err := runDependency(manager, "list")
+	err := runDependency(context.Background(), manager, "list")
 
 	assert.NoError(t, err)
 	manager.AssertExpectations(t)
@@ -165,10 +166,10 @@ func TestDependency_ListDependencies_Success(t *testing.T) {
 
 func TestDependency_ListDependencies_Failure(t *testing.T) {
 	manager := test.NewDependencyManager(t)
-	manager.On("ListDependencies", mock.Anything).
+	manager.On("ListDependencies", mock.Anything, mock.Anything).
 		Return(errors.New("failed"))
 
-	err := runDependency(manager, "list")
+	err := runDependency(context.Background(), manager, "list")
 
 	if assert.Error(t, err) {
 		assert.Equal(t, "failed to list dependencies: failed", err.Error())
@@ -178,10 +179,10 @@ func TestDependency_ListDependencies_Failure(t *testing.T) {
 
 func TestDependency_AuditDependencies_Success(t *testing.T) {
 	manager := test.NewDependencyManager(t)
-	manager.On("AuditDependencies", mock.Anything).
+	manager.On("AuditDependencies", mock.Anything, mock.Anything).
 		Return(nil)
 
-	err := runDependency(manager, "audit")
+	err := runDependency(context.Background(), manager, "audit")
 
 	assert.NoError(t, err)
 	manager.AssertExpectations(t)
@@ -189,10 +190,10 @@ func TestDependency_AuditDependencies_Success(t *testing.T) {
 
 func TestDependency_AuditDependencies_Failure(t *testing.T) {
 	manager := test.NewDependencyManager(t)
-	manager.On("AuditDependencies", mock.Anything).
+	manager.On("AuditDependencies", mock.Anything, mock.Anything).
 		Return(errors.New("failed"))
 
-	err := runDependency(manager, "audit")
+	err := runDependency(context.Background(), manager, "audit")
 
 	if assert.Error(t, err) {
 		assert.Equal(t, "failed to audit dependencies: failed", err.Error())
@@ -202,10 +203,10 @@ func TestDependency_AuditDependencies_Failure(t *testing.T) {
 
 func TestDependency_RemoveDependencies_Failure(t *testing.T) {
 	manager := test.NewDependencyManager(t)
-	manager.On("RemoveDependencies", mock.Anything, []string{"dep1"}, false).
+	manager.On("RemoveDependencies", mock.Anything, mock.Anything, []string{"dep1"}, false).
 		Return(errors.New("failed"))
 
-	err := runDependency(manager, "remove", "dep1")
+	err := runDependency(context.Background(), manager, "remove", "dep1")
 
 	if assert.Error(t, err) {
 		assert.Equal(t, "failed to remove dependencies: failed", err.Error())
@@ -229,10 +230,10 @@ func newTestDependencyTool(t *testing.T) *testDependencyTool {
 
 func TestDependency_Tool_Success(t *testing.T) {
 	manager := newTestDependencyTool(t)
-	manager.On("ListDependencies", mock.Anything).
+	manager.On("ListDependencies", mock.Anything, mock.Anything).
 		Return(nil)
 
-	err := runDependencyTool(manager, "--tool", "tool1", "list")
+	err := runDependencyTool(context.Background(), manager, "--tool", "tool1", "list")
 
 	assert.NoError(t, err)
 	manager.AssertExpectations(t)
@@ -240,10 +241,10 @@ func TestDependency_Tool_Success(t *testing.T) {
 
 func TestDependency_Tool_Failed(t *testing.T) {
 	manager := newTestDependencyTool(t)
-	manager.On("ListDependencies", mock.Anything).
+	manager.On("ListDependencies", mock.Anything, mock.Anything).
 		Return(errors.New("failed"))
 
-	err := runDependencyTool(manager, "--tool", "tool1", "list")
+	err := runDependencyTool(context.Background(), manager, "--tool", "tool1", "list")
 
 	if assert.Error(t, err) {
 		assert.Equal(t, "failed to list dependencies: failed", err.Error())
@@ -265,7 +266,7 @@ func TestDependency_Tool_NotFound(t *testing.T) {
 
 	for _, data := range dataSet {
 		t.Run(data[0], func(t *testing.T) {
-			err := runDependencyTool(manager, append([]string{"--tool", "tool2"}, data...)...)
+			err := runDependencyTool(context.Background(), manager, append([]string{"--tool", "tool2"}, data...)...)
 
 			if assert.Error(t, err) {
 				assert.Equal(t, "tool 'tool2' not found", err.Error())
@@ -293,7 +294,7 @@ func TestDependency_Tool_NotSupported(t *testing.T) {
 
 	for _, data := range dataSet {
 		t.Run(data[0], func(t *testing.T) {
-			err := runDependencyTool(&linter, append([]string{"--tool", "tool1"}, data...)...)
+			err := runDependencyTool(context.Background(), &linter, append([]string{"--tool", "tool1"}, data...)...)
 
 			if assert.Error(t, err) {
 				assert.Equal(t, "tool 'tool1' doesn't support dependency management", err.Error())

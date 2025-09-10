@@ -2,6 +2,7 @@ package tool
 
 import (
 	"cdt/internal"
+	"context"
 )
 
 // CTest is a test runner from CMake
@@ -29,12 +30,12 @@ func DetectCTest(environment internal.Environment) *CTest {
 	})
 }
 
-func (c *CTest) RunForProject(info internal.ProjectInfo, args []string) error {
+func (c *CTest) RunForProject(ctx context.Context, info internal.ProjectInfo, args []string) error {
 	if info.IntermediateDirectory == nil {
 		return internal.ErrNoIntermediateDirectory
 	}
 
-	return c.ExecutableTool.RunForProject(info, append(args,
+	return c.ExecutableTool.RunForProject(ctx, info, append(args,
 		"--test-dir", *info.IntermediateDirectory,
 	))
 }

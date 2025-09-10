@@ -2,6 +2,7 @@ package tool
 
 import (
 	"cdt/internal"
+	"context"
 )
 
 type PHPUnit struct {
@@ -38,10 +39,10 @@ func NewPHPUnit(detect func() *internal.Executable) *PHPUnit {
 	}
 }
 
-func (p *PHPUnit) TestAll(info internal.ProjectInfo, args []string) error {
-	return p.RunForProject(info, args)
+func (p *PHPUnit) TestAll(ctx context.Context, info internal.ProjectInfo, args []string) error {
+	return p.RunForProject(ctx, info, args)
 }
 
-func (p *PHPUnit) Test(info internal.ProjectInfo, pattern string, args []string) error {
-	return p.RunForProject(info, append(args, pattern))
+func (p *PHPUnit) Test(ctx context.Context, info internal.ProjectInfo, pattern string, args []string) error {
+	return p.RunForProject(ctx, info, append(args, pattern))
 }

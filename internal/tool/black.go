@@ -2,6 +2,7 @@ package tool
 
 import (
 	"cdt/internal"
+	"context"
 	"path/filepath"
 )
 
@@ -43,22 +44,22 @@ func (b *Black) buildPaths(directory string, filenames []string) []string {
 	return paths
 }
 
-func (b *Black) FormatAll(info internal.ProjectInfo, args []string) error {
-	return b.RunForProject(info, args)
+func (b *Black) FormatAll(ctx context.Context, info internal.ProjectInfo, args []string) error {
+	return b.RunForProject(ctx, info, args)
 }
 
-func (b *Black) FormatFiles(info internal.ProjectInfo, filenames []string, args []string) error {
+func (b *Black) FormatFiles(ctx context.Context, info internal.ProjectInfo, filenames []string, args []string) error {
 	paths := b.buildPaths(info.Directory, filenames)
 
-	return b.RunForProject(info, append(args, paths...))
+	return b.RunForProject(ctx, info, append(args, paths...))
 }
 
-func (b *Black) FormatCheckAll(info internal.ProjectInfo, args []string) error {
-	return b.RunForProject(info, append([]string{"--check"}, args...))
+func (b *Black) FormatCheckAll(ctx context.Context, info internal.ProjectInfo, args []string) error {
+	return b.RunForProject(ctx, info, append([]string{"--check"}, args...))
 }
 
-func (b *Black) FormatCheckFiles(info internal.ProjectInfo, filenames []string, args []string) error {
+func (b *Black) FormatCheckFiles(ctx context.Context, info internal.ProjectInfo, filenames []string, args []string) error {
 	paths := b.buildPaths(info.Directory, filenames)
 
-	return b.RunForProject(info, append(append([]string{"--check"}, args...), paths...))
+	return b.RunForProject(ctx, info, append(append([]string{"--check"}, args...), paths...))
 }

@@ -4,6 +4,7 @@ import (
 	"cdt/internal"
 	"cdt/internal/test"
 	"cdt/internal/tool"
+	"context"
 	"os"
 	"path/filepath"
 	"testing"
@@ -77,7 +78,7 @@ func TestPHPType_Project_TestAll_Paratest(t *testing.T) {
 	if assert.NotNil(t, p.Workflow.Tester) {
 		paratestMock.OnRunAnything("paratest-test").Return(nil)
 
-		err := p.Workflow.Tester.TestAll(p.Info, []string{})
+		err := p.Workflow.Tester.TestAll(context.Background(), p.Info, []string{})
 		assert.NoError(t, err)
 
 		paratestMock.AssertExpectations(t)
@@ -106,7 +107,7 @@ func TestPHPType_Project_TestAll_PHPUnit(t *testing.T) {
 	if assert.NotNil(t, p.Workflow.Tester) {
 		phpunitMock.OnRunAnything("phpunit-test").Return(nil)
 
-		err := p.Workflow.Tester.TestAll(p.Info, []string{})
+		err := p.Workflow.Tester.TestAll(context.Background(), p.Info, []string{})
 		assert.NoError(t, err)
 
 		paratestMock.AssertExpectations(t)
@@ -135,7 +136,7 @@ func TestPHPType_Project_Test_Paratest(t *testing.T) {
 	if assert.NotNil(t, p.Workflow.Tester) {
 		paratestMock.OnRunAnything("paratest-test").Return(nil)
 
-		err := p.Workflow.Tester.Test(p.Info, "my-test", []string{})
+		err := p.Workflow.Tester.Test(context.Background(), p.Info, "my-test", []string{})
 		assert.NoError(t, err)
 
 		paratestMock.AssertExpectations(t)
@@ -164,7 +165,7 @@ func TestPHPType_Project_Test_PHPUnit(t *testing.T) {
 	if assert.NotNil(t, p.Workflow.Tester) {
 		phpunitMock.OnRunAnything("phpunit-test").Return(nil)
 
-		err := p.Workflow.Tester.Test(p.Info, "my-test", []string{})
+		err := p.Workflow.Tester.Test(context.Background(), p.Info, "my-test", []string{})
 		assert.NoError(t, err)
 
 		paratestMock.AssertExpectations(t)

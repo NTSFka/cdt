@@ -2,6 +2,7 @@ package tool
 
 import (
 	"cdt/internal"
+	"context"
 )
 
 type PyTest struct {
@@ -29,10 +30,10 @@ func NewPyTest(detect func() *internal.Executable) *PyTest {
 	}
 }
 
-func (p *PyTest) TestAll(info internal.ProjectInfo, args []string) error {
-	return p.RunForProject(info, args)
+func (p *PyTest) TestAll(ctx context.Context, info internal.ProjectInfo, args []string) error {
+	return p.RunForProject(ctx, info, args)
 }
 
-func (p *PyTest) Test(info internal.ProjectInfo, pattern string, args []string) error {
-	return p.RunForProject(info, append(args, pattern))
+func (p *PyTest) Test(ctx context.Context, info internal.ProjectInfo, pattern string, args []string) error {
+	return p.RunForProject(ctx, info, append(args, pattern))
 }

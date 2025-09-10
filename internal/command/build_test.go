@@ -3,6 +3,7 @@ package command
 import (
 	"cdt/internal"
 	"cdt/internal/test"
+	"context"
 	"errors"
 	"testing"
 
@@ -10,8 +11,8 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-func runBuild(builder internal.ProjectBuilder, args ...string) error {
-	return test.RunCommand(NewBuildCommand(), internal.Context{
+func runBuild(ctx context.Context, builder internal.ProjectBuilder, args ...string) error {
+	return test.RunCommand(ctx, NewBuildCommand(), internal.Context{
 		Project: internal.Project{
 			Workflow: internal.Workflow{
 				Builder: builder,
@@ -20,8 +21,8 @@ func runBuild(builder internal.ProjectBuilder, args ...string) error {
 	}, args...)
 }
 
-func runBuildTool(builder internal.Tool, args ...string) error {
-	return test.RunCommand(NewBuildCommand(), internal.Context{
+func runBuildTool(ctx context.Context, builder internal.Tool, args ...string) error {
+	return test.RunCommand(ctx, NewBuildCommand(), internal.Context{
 		Tools: []internal.Tool{
 			builder,
 		},
@@ -29,7 +30,7 @@ func runBuildTool(builder internal.Tool, args ...string) error {
 }
 
 func TestBuild_NotSupported(t *testing.T) {
-	err := runBuild(nil)
+	err := runBuild(context.Background(), nil)
 
 	if assert.Error(t, err) {
 		assert.Equal(t, "project doesn't support building", err.Error())
@@ -38,10 +39,10 @@ func TestBuild_NotSupported(t *testing.T) {
 
 func TestBuild_BuildAll_Success(t *testing.T) {
 	builder := test.NewProjectBuilder(t)
-	builder.On("BuildAll", mock.Anything, []string{}).
+	builder.On("BuildAll", mock.Anything, mock.Anything, []string{}).
 		Return(nil)
 
-	err := runBuild(builder)
+	err := runBuild(context.Background(), builder)
 
 	assert.NoError(t, err)
 	builder.AssertExpectations(t)
@@ -49,10 +50,10 @@ func TestBuild_BuildAll_Success(t *testing.T) {
 
 func TestBuild_BuildAll_Failure(t *testing.T) {
 	builder := test.NewProjectBuilder(t)
-	builder.On("BuildAll", mock.Anything, []string{}).
+	builder.On("BuildAll", mock.Anything, mock.Anything, []string{}).
 		Return(errors.New("failed"))
 
-	err := runBuild(builder)
+	err := runBuild(context.Background(), builder)
 
 	if assert.Error(t, err) {
 		assert.Equal(t, "failed", err.Error())
@@ -76,10 +77,10 @@ func newTestBuilderTool(t *testing.T) *testBuilderTool {
 
 func TestBuild_Tool_Success(t *testing.T) {
 	builder := newTestBuilderTool(t)
-	builder.On("BuildAll", mock.Anything, []string{}).
+	builder.On("BuildAll", mock.Anything, mock.Anything, []string{}).
 		Return(nil)
 
-	err := runBuildTool(builder, "--tool", "tool1")
+	err := runBuildTool(context.Background(), builder, "--tool", "tool1")
 
 	assert.NoError(t, err)
 	builder.AssertExpectations(t)
@@ -87,10 +88,10 @@ func TestBuild_Tool_Success(t *testing.T) {
 
 func TestBuild_Tool_Failed(t *testing.T) {
 	builder := newTestBuilderTool(t)
-	builder.On("BuildAll", mock.Anything, []string{}).
+	builder.On("BuildAll", mock.Anything, mock.Anything, []string{}).
 		Return(errors.New("failed"))
 
-	err := runBuildTool(builder, "--tool", "tool1")
+	err := runBuildTool(context.Background(), builder, "--tool", "tool1")
 
 	if assert.Error(t, err) {
 		assert.Equal(t, "failed", err.Error())
@@ -101,7 +102,7 @@ func TestBuild_Tool_Failed(t *testing.T) {
 func TestBuild_Tool_NotFound(t *testing.T) {
 	builder := newTestBuilderTool(t)
 
-	err := runBuildTool(builder, "--tool", "tool2")
+	err := runBuildTool(context.Background(), builder, "--tool", "tool2")
 
 	if assert.Error(t, err) {
 		assert.Equal(t, "tool 'tool2' not found", err.Error())
@@ -116,7 +117,7 @@ func TestBuild_Tool_NotSupported(t *testing.T) {
 		internal.MakeExecutableTool("tool1", "", "", internal.Tags{}, nil),
 	}
 
-	err := runBuildTool(&linter, "--tool", "tool1")
+	err := runBuildTool(context.Background(), &linter, "--tool", "tool1")
 
 	if assert.Error(t, err) {
 		assert.Equal(t, "tool 'tool1' doesn't support building", err.Error())
@@ -126,10 +127,10 @@ func TestBuild_Tool_NotSupported(t *testing.T) {
 func TestBuild_BuildTargets_Success(t *testing.T) {
 	builder := test.NewProjectBuilder(t)
 
-	builder.On("BuildTargets", mock.Anything, []string{"target1", "target2"}, []string{}).
+	builder.On("BuildTargets", mock.Anything, mock.Anything, []string{"target1", "target2"}, []string{}).
 		Return(nil)
 
-	err := runBuild(builder, "target1", "target2")
+	err := runBuild(context.Background(), builder, "target1", "target2")
 
 	assert.NoError(t, err)
 	builder.AssertExpectations(t)
@@ -138,10 +139,10 @@ func TestBuild_BuildTargets_Success(t *testing.T) {
 func TestBuild_BuildTargets_Failure(t *testing.T) {
 	builder := test.NewProjectBuilder(t)
 
-	builder.On("BuildTargets", mock.Anything, []string{"target1", "target2"}, []string{}).
+	builder.On("BuildTargets", mock.Anything, mock.Anything, []string{"target1", "target2"}, []string{}).
 		Return(errors.New("failed"))
 
-	err := runBuild(builder, "target1", "target2")
+	err := runBuild(context.Background(), builder, "target1", "target2")
 
 	if assert.Error(t, err) {
 		assert.Equal(t, "failed", err.Error())

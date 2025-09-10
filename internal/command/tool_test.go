@@ -3,6 +3,7 @@ package command
 import (
 	"cdt/internal"
 	"cdt/internal/test"
+	"context"
 	"errors"
 	"testing"
 
@@ -10,7 +11,7 @@ import (
 )
 
 func TestTool_List_Empty(t *testing.T) {
-	err := test.RunCommand(NewToolCommand(), internal.Context{}, "list")
+	err := test.RunCommand(context.Background(), NewToolCommand(), internal.Context{}, "list")
 
 	assert.NoError(t, err)
 }
@@ -22,13 +23,13 @@ func TestTool_List_Tags(t *testing.T) {
 		}),
 	}
 
-	err := test.RunCommand(NewToolCommand(), internal.Context{Tools: tools}, "list", "--tag", "tag1")
+	err := test.RunCommand(context.Background(), NewToolCommand(), internal.Context{Tools: tools}, "list", "--tag", "tag1")
 
 	assert.NoError(t, err)
 }
 
 func TestTool_ListAll_Empty(t *testing.T) {
-	err := test.RunCommand(NewToolCommand(), internal.Context{}, "list", "--all")
+	err := test.RunCommand(context.Background(), NewToolCommand(), internal.Context{}, "list", "--all")
 
 	assert.NoError(t, err)
 }
@@ -40,13 +41,13 @@ func TestTool_ListAll(t *testing.T) {
 		}),
 	}
 
-	err := test.RunCommand(NewToolCommand(), internal.Context{Tools: tools}, "list", "--all")
+	err := test.RunCommand(context.Background(), NewToolCommand(), internal.Context{Tools: tools}, "list", "--all")
 
 	assert.NoError(t, err)
 }
 
 func TestTool_Run_Unknown(t *testing.T) {
-	err := test.RunCommand(NewToolCommand(), internal.Context{}, "run", "tool")
+	err := test.RunCommand(context.Background(), NewToolCommand(), internal.Context{}, "run", "tool")
 
 	assert.EqualError(t, err, "tool 'tool' not found")
 }
@@ -58,7 +59,7 @@ func TestTool_Run_Unavailable(t *testing.T) {
 		}),
 	}
 
-	err := test.RunCommand(NewToolCommand(), internal.Context{Tools: tools}, "run", "tool")
+	err := test.RunCommand(context.Background(), NewToolCommand(), internal.Context{Tools: tools}, "run", "tool")
 
 	assert.EqualError(t, err, "tool 'tool' failed: Tool is not installed on the system")
 }
@@ -73,7 +74,7 @@ func TestTool_Run_Success(t *testing.T) {
 	exec.OnRun("/usr/bin/tool", []string{}).
 		Return(nil)
 
-	err := test.RunCommand(NewToolCommand(), internal.Context{Tools: tools}, "run", "tool")
+	err := test.RunCommand(context.Background(), NewToolCommand(), internal.Context{Tools: tools}, "run", "tool")
 
 	assert.NoError(t, err)
 
@@ -90,7 +91,7 @@ func TestTool_Run_Failed(t *testing.T) {
 	exec.OnRun("/usr/bin/tool", []string{}).
 		Return(errors.New("failed"))
 
-	err := test.RunCommand(NewToolCommand(), internal.Context{Tools: tools}, "run", "tool")
+	err := test.RunCommand(context.Background(), NewToolCommand(), internal.Context{Tools: tools}, "run", "tool")
 
 	assert.EqualError(t, err, "tool 'tool' failed: failed")
 

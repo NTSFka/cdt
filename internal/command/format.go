@@ -63,15 +63,15 @@ func formatCommandAction(ctx context.Context, cmd *cli.Command) error {
 	var err error
 	if cmd.Bool("check") {
 		if files := cmd.StringArgs("files"); len(files) > 0 {
-			err = formatter.FormatCheckFiles(c.Project.Info, files, cmd.Args().Tail())
+			err = formatter.FormatCheckFiles(ctx, c.Project.Info, files, cmd.Args().Tail())
 		} else {
-			err = formatter.FormatCheckAll(c.Project.Info, cmd.Args().Tail())
+			err = formatter.FormatCheckAll(ctx, c.Project.Info, cmd.Args().Tail())
 		}
 	} else {
 		if files := cmd.StringArgs("files"); len(files) > 0 {
-			err = formatter.FormatFiles(c.Project.Info, files, cmd.Args().Tail())
+			err = formatter.FormatFiles(ctx, c.Project.Info, files, cmd.Args().Tail())
 		} else {
-			err = formatter.FormatAll(c.Project.Info, cmd.Args().Tail())
+			err = formatter.FormatAll(ctx, c.Project.Info, cmd.Args().Tail())
 		}
 	}
 

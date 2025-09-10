@@ -2,6 +2,7 @@ package tool
 
 import (
 	"cdt/internal"
+	"context"
 	"path/filepath"
 )
 
@@ -43,12 +44,12 @@ func (m *MyPy) buildPaths(directory string, filenames []string) []string {
 	return paths
 }
 
-func (m *MyPy) LintAll(info internal.ProjectInfo, args []string) error {
-	return m.RunForProject(info, append([]string{"*.py"}, args...))
+func (m *MyPy) LintAll(ctx context.Context, info internal.ProjectInfo, args []string) error {
+	return m.RunForProject(ctx, info, append([]string{"*.py"}, args...))
 }
 
-func (m *MyPy) LintFiles(info internal.ProjectInfo, filenames []string, args []string) error {
+func (m *MyPy) LintFiles(ctx context.Context, info internal.ProjectInfo, filenames []string, args []string) error {
 	paths := m.buildPaths(info.Directory, filenames)
 
-	return m.RunForProject(info, append(args, paths...))
+	return m.RunForProject(ctx, info, append(args, paths...))
 }

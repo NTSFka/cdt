@@ -3,6 +3,7 @@ package command
 import (
 	"cdt/internal"
 	"cdt/internal/test"
+	"context"
 	"errors"
 	"testing"
 
@@ -10,8 +11,8 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-func runTest(tester internal.ProjectTester, args ...string) error {
-	return test.RunCommand(NewTestCommand(), internal.Context{
+func runTest(ctx context.Context, tester internal.ProjectTester, args ...string) error {
+	return test.RunCommand(ctx, NewTestCommand(), internal.Context{
 		Project: internal.Project{
 			Workflow: internal.Workflow{
 				Tester: tester,
@@ -20,8 +21,8 @@ func runTest(tester internal.ProjectTester, args ...string) error {
 	}, args...)
 }
 
-func runTestTool(tester internal.Tool, args ...string) error {
-	return test.RunCommand(NewTestCommand(), internal.Context{
+func runTestTool(ctx context.Context, tester internal.Tool, args ...string) error {
+	return test.RunCommand(ctx, NewTestCommand(), internal.Context{
 		Tools: []internal.Tool{
 			tester,
 		},
@@ -29,7 +30,7 @@ func runTestTool(tester internal.Tool, args ...string) error {
 }
 
 func TestTest_CannotBeTested(t *testing.T) {
-	err := runTest(nil)
+	err := runTest(context.Background(), nil)
 
 	if assert.Error(t, err) {
 		assert.Equal(t, "project doesn't support testing", err.Error())
@@ -38,10 +39,10 @@ func TestTest_CannotBeTested(t *testing.T) {
 
 func TestTest_TestAll_Success(t *testing.T) {
 	tester := test.NewProjectTester(t)
-	tester.On("TestAll", mock.Anything, []string{}).
+	tester.On("TestAll", mock.Anything, mock.Anything, []string{}).
 		Return(nil)
 
-	err := runTest(tester)
+	err := runTest(context.Background(), tester)
 
 	assert.NoError(t, err)
 	tester.AssertExpectations(t)
@@ -49,10 +50,10 @@ func TestTest_TestAll_Success(t *testing.T) {
 
 func TestTest_TestAll_Failure(t *testing.T) {
 	tester := test.NewProjectTester(t)
-	tester.On("TestAll", mock.Anything, []string{}).
+	tester.On("TestAll", mock.Anything, mock.Anything, []string{}).
 		Return(errors.New("failed"))
 
-	err := runTest(tester)
+	err := runTest(context.Background(), tester)
 
 	if assert.Error(t, err) {
 		assert.Equal(t, "failed", err.Error())
@@ -76,10 +77,10 @@ func newTestTesterTool(t *testing.T) *testTesterTool {
 
 func TestTest_Tool_Success(t *testing.T) {
 	tester := newTestTesterTool(t)
-	tester.On("TestAll", mock.Anything, []string{}).
+	tester.On("TestAll", mock.Anything, mock.Anything, []string{}).
 		Return(nil)
 
-	err := runTestTool(tester, "--tool", "tool1")
+	err := runTestTool(context.Background(), tester, "--tool", "tool1")
 
 	assert.NoError(t, err)
 	tester.AssertExpectations(t)
@@ -87,10 +88,10 @@ func TestTest_Tool_Success(t *testing.T) {
 
 func TestTest_Tool_Failed(t *testing.T) {
 	tester := newTestTesterTool(t)
-	tester.On("TestAll", mock.Anything, []string{}).
+	tester.On("TestAll", mock.Anything, mock.Anything, []string{}).
 		Return(errors.New("failed"))
 
-	err := runTestTool(tester, "--tool", "tool1")
+	err := runTestTool(context.Background(), tester, "--tool", "tool1")
 
 	if assert.Error(t, err) {
 		assert.Equal(t, "failed", err.Error())
@@ -101,7 +102,7 @@ func TestTest_Tool_Failed(t *testing.T) {
 func TestTest_Tool_NotFound(t *testing.T) {
 	tester := newTestTesterTool(t)
 
-	err := runTestTool(tester, "--tool", "tool2")
+	err := runTestTool(context.Background(), tester, "--tool", "tool2")
 
 	if assert.Error(t, err) {
 		assert.Equal(t, "tool 'tool2' not found", err.Error())
@@ -116,7 +117,7 @@ func TestTest_Tool_NotSupported(t *testing.T) {
 		internal.MakeExecutableTool("tool1", "", "", internal.Tags{}, nil),
 	}
 
-	err := runTestTool(&linter, "--tool", "tool1")
+	err := runTestTool(context.Background(), &linter, "--tool", "tool1")
 
 	if assert.Error(t, err) {
 		assert.Equal(t, "tool 'tool1' doesn't support testing", err.Error())
@@ -125,10 +126,10 @@ func TestTest_Tool_NotSupported(t *testing.T) {
 
 func TestTest_TestTargets_Success(t *testing.T) {
 	tester := test.NewProjectTester(t)
-	tester.On("Test", mock.Anything, "pattern", []string{}).
+	tester.On("Test", mock.Anything, mock.Anything, "pattern", []string{}).
 		Return(nil)
 
-	err := runTest(tester, "pattern")
+	err := runTest(context.Background(), tester, "pattern")
 
 	assert.NoError(t, err)
 	tester.AssertExpectations(t)
@@ -136,10 +137,10 @@ func TestTest_TestTargets_Success(t *testing.T) {
 
 func TestTest_TestTargets_Failure(t *testing.T) {
 	tester := test.NewProjectTester(t)
-	tester.On("Test", mock.Anything, "pattern", []string{}).
+	tester.On("Test", mock.Anything, mock.Anything, "pattern", []string{}).
 		Return(errors.New("failed"))
 
-	err := runTest(tester, "pattern")
+	err := runTest(context.Background(), tester, "pattern")
 
 	if assert.Error(t, err) {
 		assert.Equal(t, "failed", err.Error())

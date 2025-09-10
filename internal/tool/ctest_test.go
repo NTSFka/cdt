@@ -3,6 +3,7 @@ package tool
 import (
 	"cdt/internal"
 	"cdt/internal/test"
+	"context"
 	"errors"
 	"testing"
 
@@ -50,7 +51,7 @@ func TestCTest_Run(t *testing.T) {
 	exec.OnRun("ctest", []string{"--test-dir", "build"}).
 		Return(nil)
 
-	err := tool.RunForProject(desc, []string{})
+	err := tool.RunForProject(context.Background(), desc, []string{})
 	assert.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -66,7 +67,7 @@ func TestCTest_Run_Failed(t *testing.T) {
 	exec.OnRun("ctest", []string{"--test-dir", "build"}).
 		Return(errors.New("failed"))
 
-	err := tool.RunForProject(desc, []string{})
+	err := tool.RunForProject(context.Background(), desc, []string{})
 	assert.EqualError(t, err, "failed")
 
 	exec.AssertExpectations(t)

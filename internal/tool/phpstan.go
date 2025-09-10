@@ -2,6 +2,7 @@ package tool
 
 import (
 	"cdt/internal"
+	"context"
 	"path/filepath"
 )
 
@@ -53,12 +54,12 @@ func (p *PHPStan) buildPaths(directory string, filenames []string) []string {
 	return paths
 }
 
-func (p *PHPStan) LintAll(info internal.ProjectInfo, args []string) error {
-	return p.RunForProject(info, append([]string{"analyse"}, args...))
+func (p *PHPStan) LintAll(ctx context.Context, info internal.ProjectInfo, args []string) error {
+	return p.RunForProject(ctx, info, append([]string{"analyse"}, args...))
 }
 
-func (p *PHPStan) LintFiles(info internal.ProjectInfo, filenames []string, args []string) error {
+func (p *PHPStan) LintFiles(ctx context.Context, info internal.ProjectInfo, filenames []string, args []string) error {
 	paths := p.buildPaths(info.Directory, filenames)
 
-	return p.RunForProject(info, append(append([]string{"analyse"}, args...), paths...))
+	return p.RunForProject(ctx, info, append(append([]string{"analyse"}, args...), paths...))
 }

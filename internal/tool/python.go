@@ -32,8 +32,8 @@ func NewPython(detect func() *internal.Executable) *Python {
 	}
 }
 
-func (p *Python) RunTarget(info internal.ProjectInfo, target string, args []string) error {
-	return p.RunForProject(info, append([]string{target}, args...))
+func (p *Python) RunTarget(ctx context.Context, info internal.ProjectInfo, target string, args []string) error {
+	return p.RunForProject(ctx, info, append([]string{target}, args...))
 }
 
 func (p *Python) Aliases() []string {
@@ -75,7 +75,7 @@ func (e *pythonVirtualEnvironment) Id() string {
 	return "pyenv"
 }
 
-func (e *pythonVirtualEnvironment) Start(_ context.Context) error {
+func (e *pythonVirtualEnvironment) Start(ctx context.Context) error {
 	// Check if the environment already exists
 	if !internal.PathExists(filepath.Join(e.venvDirectory, "pyvenv.cfg")) {
 		options := internal.RunOptions{
@@ -86,7 +86,7 @@ func (e *pythonVirtualEnvironment) Start(_ context.Context) error {
 			Silent:    true,
 		}
 
-		if err := e.python.Run(context.Background(), options, []string{"-m", "venv", e.venvDirectory}); err != nil {
+		if err := e.python.Run(ctx, options, []string{"-m", "venv", e.venvDirectory}); err != nil {
 			return err
 		}
 	}

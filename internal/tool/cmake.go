@@ -32,8 +32,8 @@ func DetectCMake(environment internal.Environment) *CMake {
 	})
 }
 
-func (c *CMake) Structure(info internal.ProjectInfo) (*internal.ProjectStructure, error) {
-	if err := c.Configure(info, []string{}); err != nil {
+func (c *CMake) Structure(ctx context.Context, info internal.ProjectInfo) (*internal.ProjectStructure, error) {
+	if err := c.Configure(ctx, info, []string{}); err != nil {
 		return nil, err
 	}
 
@@ -59,7 +59,7 @@ func (c *CMake) Structure(info internal.ProjectInfo) (*internal.ProjectStructure
 	return &structure, nil
 }
 
-func (c *CMake) Configure(info internal.ProjectInfo, args []string) error {
+func (c *CMake) Configure(ctx context.Context, info internal.ProjectInfo, args []string) error {
 	if info.IntermediateDirectory == nil {
 		return internal.ErrNoIntermediateDirectory
 	}
@@ -75,11 +75,11 @@ func (c *CMake) Configure(info internal.ProjectInfo, args []string) error {
 	callArgs = append(callArgs, "-S", ".")
 	callArgs = append(callArgs, "-B", *info.IntermediateDirectory)
 
-	return c.RunForProject(info, callArgs)
+	return c.RunForProject(ctx, info, callArgs)
 }
 
-func (c *CMake) BuildAll(info internal.ProjectInfo, args []string) error {
-	if err := c.Configure(info, []string{}); err != nil {
+func (c *CMake) BuildAll(ctx context.Context, info internal.ProjectInfo, args []string) error {
+	if err := c.Configure(ctx, info, []string{}); err != nil {
 		return err
 	}
 
@@ -90,11 +90,11 @@ func (c *CMake) BuildAll(info internal.ProjectInfo, args []string) error {
 	callArgs := args
 	callArgs = append(callArgs, "--build", *info.IntermediateDirectory)
 
-	return c.RunForProject(info, callArgs)
+	return c.RunForProject(ctx, info, callArgs)
 }
 
-func (c *CMake) BuildTargets(info internal.ProjectInfo, targets []string, args []string) error {
-	if err := c.Configure(info, []string{}); err != nil {
+func (c *CMake) BuildTargets(ctx context.Context, info internal.ProjectInfo, targets []string, args []string) error {
+	if err := c.Configure(ctx, info, []string{}); err != nil {
 		return err
 	}
 
@@ -107,11 +107,11 @@ func (c *CMake) BuildTargets(info internal.ProjectInfo, targets []string, args [
 	callArgs = append(callArgs, "--target")
 	callArgs = append(callArgs, targets...)
 
-	return c.RunForProject(info, callArgs)
+	return c.RunForProject(ctx, info, callArgs)
 }
 
-func (c *CMake) RunTarget(info internal.ProjectInfo, target string, args []string) error {
-	if err := c.BuildTargets(info, []string{target}, []string{}); err != nil {
+func (c *CMake) RunTarget(ctx context.Context, info internal.ProjectInfo, target string, args []string) error {
+	if err := c.BuildTargets(ctx, info, []string{target}, []string{}); err != nil {
 		return err
 	}
 
@@ -134,7 +134,7 @@ func (c *CMake) RunTarget(info internal.ProjectInfo, target string, args []strin
 				Runtime: internal.SystemEnvironment,
 			}
 
-			return executable.Run(context.Background(), internal.RunOptions{Directory: info.Directory}, args)
+			return executable.Run(ctx, internal.RunOptions{Directory: info.Directory}, args)
 		}
 	}
 

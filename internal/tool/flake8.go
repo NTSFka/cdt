@@ -2,6 +2,7 @@ package tool
 
 import (
 	"cdt/internal"
+	"context"
 	"path/filepath"
 )
 
@@ -43,12 +44,12 @@ func (p *Flake8) buildPaths(directory string, filenames []string) []string {
 	return paths
 }
 
-func (p *Flake8) LintAll(info internal.ProjectInfo, args []string) error {
-	return p.RunForProject(info, args)
+func (p *Flake8) LintAll(ctx context.Context, info internal.ProjectInfo, args []string) error {
+	return p.RunForProject(ctx, info, args)
 }
 
-func (p *Flake8) LintFiles(info internal.ProjectInfo, filenames []string, args []string) error {
+func (p *Flake8) LintFiles(ctx context.Context, info internal.ProjectInfo, filenames []string, args []string) error {
 	paths := p.buildPaths(info.Directory, filenames)
 
-	return p.RunForProject(info, append(args, paths...))
+	return p.RunForProject(ctx, info, append(args, paths...))
 }

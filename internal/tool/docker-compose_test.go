@@ -5,9 +5,10 @@ import (
 	"cdt/internal/test"
 	"context"
 	"errors"
+	"testing"
+
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
-	"testing"
 )
 
 func TestDockerCompose_NewDockerCompose_NoExecutable(t *testing.T) {

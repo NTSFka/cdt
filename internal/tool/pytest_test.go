@@ -3,6 +3,7 @@ package tool
 import (
 	"cdt/internal"
 	"cdt/internal/test"
+	"context"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -51,7 +52,7 @@ func TestPyTest_PyTest_TestAll(t *testing.T) {
 	exec.OnRun("test", []string{}).
 		Return(nil)
 
-	err := tool.TestAll(desc, []string{})
+	err := tool.TestAll(context.Background(), desc, []string{})
 	assert.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -67,7 +68,7 @@ func TestPyTest_PyTest_Test(t *testing.T) {
 	exec.OnRun("test", []string{"tests/*"}).
 		Return(nil)
 
-	err := tool.Test(desc, "tests/*", []string{})
+	err := tool.Test(context.Background(), desc, "tests/*", []string{})
 	assert.NoError(t, err)
 
 	exec.AssertExpectations(t)

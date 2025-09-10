@@ -3,14 +3,15 @@ package command
 import (
 	"cdt/internal"
 	"cdt/internal/test"
+	"context"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
 
-func runProject(structureProvider internal.ProjectStructureProvider, args ...string) error {
-	return test.RunCommand(NewProjectCommand(), internal.Context{
+func runProject(ctx context.Context, structureProvider internal.ProjectStructureProvider, args ...string) error {
+	return test.RunCommand(ctx, NewProjectCommand(), internal.Context{
 		Project: internal.Project{
 			Info: internal.ProjectInfo{Directory: "", StructureProvider: structureProvider},
 		},
@@ -19,9 +20,9 @@ func runProject(structureProvider internal.ProjectStructureProvider, args ...str
 
 func TestProjectTargets(t *testing.T) {
 	structure := test.NewStructureProvider(t)
-	structure.On("Structure", mock.Anything).Return(&internal.ProjectStructure{}, nil)
+	structure.On("Structure", mock.Anything, mock.Anything).Return(&internal.ProjectStructure{}, nil)
 
-	err := runProject(structure, "targets")
+	err := runProject(context.Background(), structure, "targets")
 
 	assert.NoError(t, err)
 	structure.AssertExpectations(t)
@@ -29,9 +30,9 @@ func TestProjectTargets(t *testing.T) {
 
 func TestProjectFiles(t *testing.T) {
 	structure := test.NewStructureProvider(t)
-	structure.On("Structure", mock.Anything).Return(&internal.ProjectStructure{}, nil)
+	structure.On("Structure", mock.Anything, mock.Anything).Return(&internal.ProjectStructure{}, nil)
 
-	err := runProject(structure, "files")
+	err := runProject(context.Background(), structure, "files")
 
 	assert.NoError(t, err)
 	structure.AssertExpectations(t)

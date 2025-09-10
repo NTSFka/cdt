@@ -2,6 +2,7 @@ package tool
 
 import (
 	"cdt/internal"
+	"context"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -59,8 +60,8 @@ func (c *ClangTidy) buildArgs(rootDirectory string, buildDirectory string, paths
 	return append(args, paths...)
 }
 
-func (c *ClangTidy) LintAll(info internal.ProjectInfo, args []string) error {
-	structure, err := info.Structure()
+func (c *ClangTidy) LintAll(ctx context.Context, info internal.ProjectInfo, args []string) error {
+	structure, err := info.Structure(ctx)
 
 	if err != nil {
 		return fmt.Errorf("failed to obtain project structure: %v", err)
@@ -74,10 +75,10 @@ func (c *ClangTidy) LintAll(info internal.ProjectInfo, args []string) error {
 
 	toolArgs := c.buildArgs(info.Directory, *info.IntermediateDirectory, paths)
 
-	return c.ExecutableTool.RunForProject(info, append(toolArgs, args...))
+	return c.ExecutableTool.RunForProject(ctx, info, append(toolArgs, args...))
 }
 
-func (c *ClangTidy) LintFiles(info internal.ProjectInfo, filenames []string, args []string) error {
+func (c *ClangTidy) LintFiles(ctx context.Context, info internal.ProjectInfo, filenames []string, args []string) error {
 	paths := c.buildPaths(info.Directory, filenames)
 
 	if info.IntermediateDirectory == nil {
@@ -86,13 +87,13 @@ func (c *ClangTidy) LintFiles(info internal.ProjectInfo, filenames []string, arg
 
 	toolArgs := c.buildArgs(info.Directory, *info.IntermediateDirectory, paths)
 
-	return c.ExecutableTool.RunForProject(info, append(toolArgs, args...))
+	return c.ExecutableTool.RunForProject(ctx, info, append(toolArgs, args...))
 }
 
-func (c *ClangTidy) RunForProject(info internal.ProjectInfo, args []string) error {
+func (c *ClangTidy) RunForProject(ctx context.Context, info internal.ProjectInfo, args []string) error {
 	toolArgs := []string{
 		info.Directory,
 	}
 
-	return c.ExecutableTool.RunForProject(info, append(toolArgs, args...))
+	return c.ExecutableTool.RunForProject(ctx, info, append(toolArgs, args...))
 }

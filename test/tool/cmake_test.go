@@ -3,6 +3,7 @@ package tool
 import (
 	"cdt/internal"
 	"cdt/internal/tool"
+	"context"
 	"runtime"
 	"testing"
 
@@ -29,11 +30,11 @@ func TestCMakeRealProjectConfigureAndBuildAndRun(t *testing.T) {
 		StructureProvider:     cmake,
 	}
 
-	var err = cmake.Configure(desc, []string{})
+	var err = cmake.Configure(context.Background(), desc, []string{})
 	assert.NoError(t, err)
 
 	var structure *internal.ProjectStructure
-	structure, err = cmake.Structure(desc)
+	structure, err = cmake.Structure(context.Background(), desc)
 	assert.NoError(t, err)
 
 	if assert.NotNil(t, structure) {
@@ -55,12 +56,12 @@ func TestCMakeRealProjectConfigureAndBuildAndRun(t *testing.T) {
 		assert.Equal(t, []string{"main.cpp", "test.cpp"}, structure.GetFiles())
 	}
 
-	err = cmake.BuildAll(desc, []string{})
+	err = cmake.BuildAll(context.Background(), desc, []string{})
 	assert.NoError(t, err)
 
-	err = cmake.BuildTargets(desc, []string{"main"}, []string{})
+	err = cmake.BuildTargets(context.Background(), desc, []string{"main"}, []string{})
 	assert.NoError(t, err)
 
-	err = cmake.RunTarget(desc, "main", []string{})
+	err = cmake.RunTarget(context.Background(), desc, "main", []string{})
 	assert.NoError(t, err)
 }

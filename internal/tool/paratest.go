@@ -2,6 +2,7 @@ package tool
 
 import (
 	"cdt/internal"
+	"context"
 )
 
 type ParaTest struct {
@@ -38,10 +39,10 @@ func NewParaTest(detect func() *internal.Executable) *ParaTest {
 	}
 }
 
-func (p *ParaTest) TestAll(info internal.ProjectInfo, args []string) error {
-	return p.RunForProject(info, args)
+func (p *ParaTest) TestAll(ctx context.Context, info internal.ProjectInfo, args []string) error {
+	return p.RunForProject(ctx, info, args)
 }
 
-func (p *ParaTest) Test(info internal.ProjectInfo, pattern string, args []string) error {
-	return p.RunForProject(info, append(args, pattern))
+func (p *ParaTest) Test(ctx context.Context, info internal.ProjectInfo, pattern string, args []string) error {
+	return p.RunForProject(ctx, info, append(args, pattern))
 }

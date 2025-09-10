@@ -3,6 +3,7 @@ package command
 import (
 	"cdt/internal"
 	"cdt/internal/test"
+	"context"
 	"errors"
 	"testing"
 
@@ -10,8 +11,8 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-func runConfigure(configurator internal.ProjectConfigurator, args ...string) error {
-	return test.RunCommand(NewConfigureCommand(), internal.Context{
+func runConfigure(ctx context.Context, configurator internal.ProjectConfigurator, args ...string) error {
+	return test.RunCommand(ctx, NewConfigureCommand(), internal.Context{
 		Project: internal.Project{
 			Workflow: internal.Workflow{
 				Configurator: configurator,
@@ -20,8 +21,8 @@ func runConfigure(configurator internal.ProjectConfigurator, args ...string) err
 	}, args...)
 }
 
-func runConfigureTool(configurator internal.Tool, args ...string) error {
-	return test.RunCommand(NewConfigureCommand(), internal.Context{
+func runConfigureTool(ctx context.Context, configurator internal.Tool, args ...string) error {
+	return test.RunCommand(ctx, NewConfigureCommand(), internal.Context{
 		Tools: []internal.Tool{
 			configurator,
 		},
@@ -29,7 +30,7 @@ func runConfigureTool(configurator internal.Tool, args ...string) error {
 }
 
 func TestConfigure_NotSupported(t *testing.T) {
-	err := runConfigure(nil)
+	err := runConfigure(context.Background(), nil)
 
 	if assert.Error(t, err) {
 		assert.Equal(t, "project doesn't support configuration", err.Error())
@@ -38,10 +39,10 @@ func TestConfigure_NotSupported(t *testing.T) {
 
 func TestConfigure_Configure_Success(t *testing.T) {
 	configurator := test.NewProjectConfigurator(t)
-	configurator.On("Configure", mock.Anything, []string{}).
+	configurator.On("Configure", mock.Anything, mock.Anything, []string{}).
 		Return(nil)
 
-	err := runConfigure(configurator)
+	err := runConfigure(context.Background(), configurator)
 
 	assert.NoError(t, err)
 	configurator.AssertExpectations(t)
@@ -49,10 +50,10 @@ func TestConfigure_Configure_Success(t *testing.T) {
 
 func TestConfigure_Configure_Failure(t *testing.T) {
 	configurator := test.NewProjectConfigurator(t)
-	configurator.On("Configure", mock.Anything, []string{}).
+	configurator.On("Configure", mock.Anything, mock.Anything, []string{}).
 		Return(errors.New("failed"))
 
-	err := runConfigure(configurator)
+	err := runConfigure(context.Background(), configurator)
 
 	if assert.Error(t, err) {
 		assert.Equal(t, "failed", err.Error())
@@ -77,10 +78,10 @@ func newTestConfiguratorTool(t *testing.T) *newConfiguratorTool {
 
 func TestConfigure_Tool_Success(t *testing.T) {
 	configurator := newTestConfiguratorTool(t)
-	configurator.On("Configure", mock.Anything, []string{}).
+	configurator.On("Configure", mock.Anything, mock.Anything, []string{}).
 		Return(nil)
 
-	err := runConfigureTool(configurator, "--tool", "tool1")
+	err := runConfigureTool(context.Background(), configurator, "--tool", "tool1")
 
 	assert.NoError(t, err)
 	configurator.AssertExpectations(t)
@@ -88,10 +89,10 @@ func TestConfigure_Tool_Success(t *testing.T) {
 
 func TestConfigure_Tool_Failed(t *testing.T) {
 	configurator := newTestConfiguratorTool(t)
-	configurator.On("Configure", mock.Anything, []string{}).
+	configurator.On("Configure", mock.Anything, mock.Anything, []string{}).
 		Return(errors.New("failed"))
 
-	err := runConfigureTool(configurator, "--tool", "tool1")
+	err := runConfigureTool(context.Background(), configurator, "--tool", "tool1")
 
 	if assert.Error(t, err) {
 		assert.Equal(t, "failed", err.Error())
@@ -102,7 +103,7 @@ func TestConfigure_Tool_Failed(t *testing.T) {
 func TestConfigure_Tool_NotFound(t *testing.T) {
 	configurator := newTestConfiguratorTool(t)
 
-	err := runConfigureTool(configurator, "--tool", "tool2")
+	err := runConfigureTool(context.Background(), configurator, "--tool", "tool2")
 
 	if assert.Error(t, err) {
 		assert.Equal(t, "tool 'tool2' not found", err.Error())
@@ -117,7 +118,7 @@ func TestConfigure_Tool_NotSupported(t *testing.T) {
 		internal.MakeExecutableTool("tool1", "", "", internal.Tags{}, nil),
 	}
 
-	err := runConfigureTool(configurator, "--tool", "tool1")
+	err := runConfigureTool(context.Background(), configurator, "--tool", "tool1")
 
 	if assert.Error(t, err) {
 		assert.Equal(t, "tool 'tool1' doesn't support configuration", err.Error())

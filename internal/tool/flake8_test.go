@@ -3,6 +3,7 @@ package tool
 import (
 	"cdt/internal"
 	"cdt/internal/test"
+	"context"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -51,7 +52,7 @@ func TestFlake8_Flake8_LintAll(t *testing.T) {
 	exec.OnRun("lint", []string{}).
 		Return(nil)
 
-	err := tool.LintAll(desc, []string{})
+	err := tool.LintAll(context.Background(), desc, []string{})
 	assert.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -67,7 +68,7 @@ func TestFlake8_Flake8_Lint(t *testing.T) {
 	exec.OnRun("lint", []string{"file.py", "/path/to/file2.py"}).
 		Return(nil)
 
-	err := tool.LintFiles(desc, []string{"file.py", "/path/to/file2.py"}, []string{})
+	err := tool.LintFiles(context.Background(), desc, []string{"file.py", "/path/to/file2.py"}, []string{})
 	assert.NoError(t, err)
 
 	exec.AssertExpectations(t)

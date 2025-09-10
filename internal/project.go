@@ -1,6 +1,7 @@
 package internal
 
 import (
+	"context"
 	"errors"
 	"slices"
 )
@@ -8,7 +9,7 @@ import (
 // A ProjectStructureProvider provides a detailed structure of the project
 type ProjectStructureProvider interface {
 	// Structure returns project structure
-	Structure(info ProjectInfo) (*ProjectStructure, error)
+	Structure(ctx context.Context, info ProjectInfo) (*ProjectStructure, error)
 }
 
 // ProjectStructure describes a project structure
@@ -52,8 +53,8 @@ type ProjectInfo struct {
 }
 
 // Structure returns project structure
-func (p *ProjectInfo) Structure() (*ProjectStructure, error) {
-	return p.StructureProvider.Structure(*p)
+func (p *ProjectInfo) Structure(ctx context.Context) (*ProjectStructure, error) {
+	return p.StructureProvider.Structure(ctx, *p)
 }
 
 // A EmptyProjectStructureProvider provides detailed empty project structure
@@ -61,7 +62,7 @@ type EmptyProjectStructureProvider struct {
 }
 
 // Structure returns project structure
-func (p *EmptyProjectStructureProvider) Structure(_ ProjectInfo) (*ProjectStructure, error) {
+func (p *EmptyProjectStructureProvider) Structure(_ context.Context, _ ProjectInfo) (*ProjectStructure, error) {
 	return &ProjectStructure{}, nil
 }
 
@@ -71,7 +72,7 @@ type FixedProjectStructureProvider struct {
 }
 
 // Structure returns project structure
-func (p *FixedProjectStructureProvider) Structure(_ ProjectInfo) (*ProjectStructure, error) {
+func (p *FixedProjectStructureProvider) Structure(_ context.Context, _ ProjectInfo) (*ProjectStructure, error) {
 	return &p.ProjectStructure, nil
 }
 

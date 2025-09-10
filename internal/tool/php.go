@@ -2,6 +2,7 @@ package tool
 
 import (
 	"cdt/internal"
+	"context"
 )
 
 type PHP struct {
@@ -28,6 +29,6 @@ func NewPHP(detect func() *internal.Executable) *PHP {
 	}
 }
 
-func (p *PHP) RunTarget(info internal.ProjectInfo, target string, args []string) error {
-	return p.RunForProject(info, append([]string{"-f", target}, args...))
+func (p *PHP) RunTarget(ctx context.Context, info internal.ProjectInfo, target string, args []string) error {
+	return p.RunForProject(ctx, info, append([]string{"-f", target}, args...))
 }

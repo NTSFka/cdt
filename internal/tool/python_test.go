@@ -55,7 +55,7 @@ func TestPython_Python_RunTarget(t *testing.T) {
 	python.OnRun("python3", []string{"main.py"}).
 		Return(nil)
 
-	err := tool.RunTarget(desc, "main.py", []string{})
+	err := tool.RunTarget(context.Background(), desc, "main.py", []string{})
 	assert.NoError(t, err)
 
 	python.AssertExpectations(t)
@@ -71,7 +71,7 @@ func TestPython_Python_RunTarget_Fail(t *testing.T) {
 	python.OnRun("python3", []string{"main.py"}).
 		Return(errors.New("failed"))
 
-	err := tool.RunTarget(desc, "main.py", []string{})
+	err := tool.RunTarget(context.Background(), desc, "main.py", []string{})
 	assert.EqualError(t, err, "failed")
 
 	python.AssertExpectations(t)

@@ -2,6 +2,7 @@ package tool
 
 import (
 	"cdt/internal"
+	"context"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -63,8 +64,8 @@ func (c *ClangFormat) buildArgs(directory string, extraArgs []string, paths []st
 }
 
 // FormatAll formats all files in the project
-func (c *ClangFormat) FormatAll(info internal.ProjectInfo, args []string) error {
-	structure, err := info.Structure()
+func (c *ClangFormat) FormatAll(ctx context.Context, info internal.ProjectInfo, args []string) error {
+	structure, err := info.Structure(ctx)
 
 	if err != nil {
 		return fmt.Errorf("failed to obtain project structure: %v", err)
@@ -74,21 +75,21 @@ func (c *ClangFormat) FormatAll(info internal.ProjectInfo, args []string) error 
 
 	toolArgs := c.buildArgs(info.Directory, []string{"-i"}, paths)
 
-	return c.RunForProject(info, append(toolArgs, args...))
+	return c.RunForProject(ctx, info, append(toolArgs, args...))
 }
 
 // FormatFiles formats a file in the project
-func (c *ClangFormat) FormatFiles(info internal.ProjectInfo, filenames []string, args []string) error {
+func (c *ClangFormat) FormatFiles(ctx context.Context, info internal.ProjectInfo, filenames []string, args []string) error {
 	paths := c.buildPaths(info.Directory, filenames)
 
 	toolArgs := c.buildArgs(info.Directory, []string{"-i"}, paths)
 
-	return c.RunForProject(info, append(toolArgs, args...))
+	return c.RunForProject(ctx, info, append(toolArgs, args...))
 }
 
 // FormatCheckAll checks all files if some needs formatting
-func (c *ClangFormat) FormatCheckAll(info internal.ProjectInfo, args []string) error {
-	structure, err := info.Structure()
+func (c *ClangFormat) FormatCheckAll(ctx context.Context, info internal.ProjectInfo, args []string) error {
+	structure, err := info.Structure(ctx)
 
 	if err != nil {
 		return fmt.Errorf("failed to obtain project structure: %v", err)
@@ -98,14 +99,14 @@ func (c *ClangFormat) FormatCheckAll(info internal.ProjectInfo, args []string) e
 
 	toolArgs := c.buildArgs(info.Directory, []string{"--dry-run"}, paths)
 
-	return c.RunForProject(info, append(toolArgs, args...))
+	return c.RunForProject(ctx, info, append(toolArgs, args...))
 }
 
 // FormatCheckFiles checks a file if it needs formatting
-func (c *ClangFormat) FormatCheckFiles(info internal.ProjectInfo, filenames []string, args []string) error {
+func (c *ClangFormat) FormatCheckFiles(ctx context.Context, info internal.ProjectInfo, filenames []string, args []string) error {
 	paths := c.buildPaths(info.Directory, filenames)
 
 	toolArgs := c.buildArgs(info.Directory, []string{"--dry-run"}, paths)
 
-	return c.RunForProject(info, append(toolArgs, args...))
+	return c.RunForProject(ctx, info, append(toolArgs, args...))
 }

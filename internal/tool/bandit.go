@@ -2,6 +2,7 @@ package tool
 
 import (
 	"cdt/internal"
+	"context"
 	"path/filepath"
 )
 
@@ -43,12 +44,12 @@ func (b *Bandit) buildPaths(directory string, filenames []string) []string {
 	return paths
 }
 
-func (b *Bandit) LintAll(info internal.ProjectInfo, args []string) error {
-	return b.RunForProject(info, append([]string{"*"}, args...))
+func (b *Bandit) LintAll(ctx context.Context, info internal.ProjectInfo, args []string) error {
+	return b.RunForProject(ctx, info, append([]string{"*"}, args...))
 }
 
-func (b *Bandit) LintFiles(info internal.ProjectInfo, filenames []string, args []string) error {
+func (b *Bandit) LintFiles(ctx context.Context, info internal.ProjectInfo, filenames []string, args []string) error {
 	paths := b.buildPaths(info.Directory, filenames)
 
-	return b.RunForProject(info, append(args, paths...))
+	return b.RunForProject(ctx, info, append(args, paths...))
 }

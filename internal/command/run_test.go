@@ -3,6 +3,7 @@ package command
 import (
 	"cdt/internal"
 	"cdt/internal/test"
+	"context"
 	"errors"
 	"testing"
 
@@ -10,8 +11,8 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-func runRun(runner internal.ProjectRunner, args ...string) error {
-	return test.RunCommand(NewRunCommand(), internal.Context{
+func runRun(ctx context.Context, runner internal.ProjectRunner, args ...string) error {
+	return test.RunCommand(ctx, NewRunCommand(), internal.Context{
 		Project: internal.Project{
 			Workflow: internal.Workflow{
 				Runner: runner,
@@ -20,8 +21,8 @@ func runRun(runner internal.ProjectRunner, args ...string) error {
 	}, args...)
 }
 
-func runRunTool(runner internal.Tool, args ...string) error {
-	return test.RunCommand(NewRunCommand(), internal.Context{
+func runRunTool(ctx context.Context, runner internal.Tool, args ...string) error {
+	return test.RunCommand(ctx, NewRunCommand(), internal.Context{
 		Tools: []internal.Tool{
 			runner,
 		},
@@ -29,7 +30,7 @@ func runRunTool(runner internal.Tool, args ...string) error {
 }
 
 func TestRun_NotSupported(t *testing.T) {
-	err := runRun(nil)
+	err := runRun(context.Background(), nil)
 
 	if assert.Error(t, err) {
 		assert.Equal(t, "project doesn't support run of target", err.Error())
@@ -39,7 +40,7 @@ func TestRun_NotSupported(t *testing.T) {
 func TestRun_Target_NoTarget(t *testing.T) {
 	runner := test.NewProjectRunner(t)
 
-	err := runRun(runner)
+	err := runRun(context.Background(), runner)
 
 	assert.EqualError(t, err, "target is required")
 	runner.AssertExpectations(t)
@@ -47,10 +48,10 @@ func TestRun_Target_NoTarget(t *testing.T) {
 
 func TestRun_Target_Success(t *testing.T) {
 	runner := test.NewProjectRunner(t)
-	runner.On("RunTarget", mock.Anything, "target1", []string{}).
+	runner.On("RunTarget", mock.Anything, mock.Anything, "target1", []string{}).
 		Return(nil)
 
-	err := runRun(runner, "target1")
+	err := runRun(context.Background(), runner, "target1")
 
 	assert.NoError(t, err)
 	runner.AssertExpectations(t)
@@ -58,10 +59,10 @@ func TestRun_Target_Success(t *testing.T) {
 
 func TestRun_Target_Failure(t *testing.T) {
 	runner := test.NewProjectRunner(t)
-	runner.On("RunTarget", mock.Anything, "target1", []string{}).
+	runner.On("RunTarget", mock.Anything, mock.Anything, "target1", []string{}).
 		Return(errors.New("failed"))
 
-	err := runRun(runner, "target1")
+	err := runRun(context.Background(), runner, "target1")
 
 	if assert.Error(t, err) {
 		assert.Equal(t, "failed", err.Error())
@@ -85,10 +86,10 @@ func newTestRunnerTool(t *testing.T) *testRunnerTool {
 
 func TestRun_Tool_Success(t *testing.T) {
 	runner := newTestRunnerTool(t)
-	runner.On("RunTarget", mock.Anything, "target1", []string{}).
+	runner.On("RunTarget", mock.Anything, mock.Anything, "target1", []string{}).
 		Return(nil)
 
-	err := runRunTool(runner, "--tool", "tool1", "target1")
+	err := runRunTool(context.Background(), runner, "--tool", "tool1", "target1")
 
 	assert.NoError(t, err)
 	runner.AssertExpectations(t)
@@ -96,10 +97,10 @@ func TestRun_Tool_Success(t *testing.T) {
 
 func TestRun_Tool_Failed(t *testing.T) {
 	runner := newTestRunnerTool(t)
-	runner.On("RunTarget", mock.Anything, "target1", []string{}).
+	runner.On("RunTarget", mock.Anything, mock.Anything, "target1", []string{}).
 		Return(errors.New("failed"))
 
-	err := runRunTool(runner, "--tool", "tool1", "target1")
+	err := runRunTool(context.Background(), runner, "--tool", "tool1", "target1")
 
 	if assert.Error(t, err) {
 		assert.Equal(t, "failed", err.Error())
@@ -110,7 +111,7 @@ func TestRun_Tool_Failed(t *testing.T) {
 func TestRun_Tool_NotFound(t *testing.T) {
 	runner := newTestRunnerTool(t)
 
-	err := runRunTool(runner, "--tool", "tool2")
+	err := runRunTool(context.Background(), runner, "--tool", "tool2")
 
 	if assert.Error(t, err) {
 		assert.Equal(t, "tool 'tool2' not found", err.Error())
@@ -125,7 +126,7 @@ func TestRun_Tool_NotSupported(t *testing.T) {
 		internal.MakeExecutableTool("tool1", "", "", internal.Tags{}, nil),
 	}
 
-	err := runRunTool(&linter, "--tool", "tool1")
+	err := runRunTool(context.Background(), &linter, "--tool", "tool1")
 
 	if assert.Error(t, err) {
 		assert.Equal(t, "tool 'tool1' doesn't support run of target", err.Error())

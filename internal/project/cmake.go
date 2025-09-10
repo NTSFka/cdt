@@ -3,6 +3,7 @@ package project
 import (
 	"cdt/internal"
 	"cdt/internal/tool"
+	"context"
 	"fmt"
 	"path/filepath"
 )
@@ -58,18 +59,18 @@ type cmakeTester struct {
 	ctestTool *tool.CTest
 }
 
-func (t *cmakeTester) TestAll(info internal.ProjectInfo, args []string) error {
-	if err := t.cmakeTool.BuildAll(info, []string{}); err != nil {
+func (t *cmakeTester) TestAll(ctx context.Context, info internal.ProjectInfo, args []string) error {
+	if err := t.cmakeTool.BuildAll(ctx, info, []string{}); err != nil {
 		return fmt.Errorf("build failed: %w", err)
 	}
 
-	return t.ctestTool.RunForProject(info, args)
+	return t.ctestTool.RunForProject(ctx, info, args)
 }
 
-func (t *cmakeTester) Test(info internal.ProjectInfo, pattern string, args []string) error {
-	if err := t.cmakeTool.BuildAll(info, []string{}); err != nil {
+func (t *cmakeTester) Test(ctx context.Context, info internal.ProjectInfo, pattern string, args []string) error {
+	if err := t.cmakeTool.BuildAll(ctx, info, []string{}); err != nil {
 		return fmt.Errorf("build failed: %w", err)
 	}
 
-	return t.ctestTool.RunForProject(info, append(args, "-R", pattern))
+	return t.ctestTool.RunForProject(ctx, info, append(args, "-R", pattern))
 }

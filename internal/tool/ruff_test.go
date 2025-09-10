@@ -3,6 +3,7 @@ package tool
 import (
 	"cdt/internal"
 	"cdt/internal/test"
+	"context"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -51,7 +52,7 @@ func TestRuff_Ruff_LintAll(t *testing.T) {
 	exec.OnRun("lint", []string{"check"}).
 		Return(nil)
 
-	err := tool.LintAll(desc, []string{})
+	err := tool.LintAll(context.Background(), desc, []string{})
 	assert.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -67,7 +68,7 @@ func TestRuff_Ruff_Lint(t *testing.T) {
 	exec.OnRun("lint", []string{"check", "file.py", "/path/to/file2.py"}).
 		Return(nil)
 
-	err := tool.LintFiles(desc, []string{"file.py", "/path/to/file2.py"}, []string{})
+	err := tool.LintFiles(context.Background(), desc, []string{"file.py", "/path/to/file2.py"}, []string{})
 	assert.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -83,7 +84,7 @@ func TestRuff_Ruff_FormatAll(t *testing.T) {
 	exec.OnRun("format", []string{"format"}).
 		Return(nil)
 
-	err := tool.FormatAll(desc, []string{})
+	err := tool.FormatAll(context.Background(), desc, []string{})
 	assert.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -99,7 +100,7 @@ func TestRuff_Ruff_FormatFiles(t *testing.T) {
 	exec.OnRun("format", []string{"format", "tests/*"}).
 		Return(nil)
 
-	err := tool.FormatFiles(desc, []string{"tests/*"}, []string{})
+	err := tool.FormatFiles(context.Background(), desc, []string{"tests/*"}, []string{})
 	assert.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -115,7 +116,7 @@ func TestRuff_Ruff_FormatCheckAll(t *testing.T) {
 	exec.OnRun("format", []string{"format", "--check"}).
 		Return(nil)
 
-	err := tool.FormatCheckAll(desc, []string{})
+	err := tool.FormatCheckAll(context.Background(), desc, []string{})
 	assert.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -131,7 +132,7 @@ func TestRuff_Ruff_FormatCheckFiles(t *testing.T) {
 	exec.OnRun("format", []string{"format", "--check", "tests/*", "/path/to/file.py"}).
 		Return(nil)
 
-	err := tool.FormatCheckFiles(desc, []string{"tests/*", "/path/to/file.py"}, []string{})
+	err := tool.FormatCheckFiles(context.Background(), desc, []string{"tests/*", "/path/to/file.py"}, []string{})
 	assert.NoError(t, err)
 
 	exec.AssertExpectations(t)

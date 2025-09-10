@@ -3,6 +3,7 @@ package tool
 import (
 	"cdt/internal"
 	"cdt/internal/test"
+	"context"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -49,7 +50,7 @@ func TestGolangCILint_GolangCILint_LintAll(t *testing.T) {
 	exec.OnRun("lint", []string{"run"}).
 		Return(nil)
 
-	err := tool.LintAll(desc, []string{})
+	err := tool.LintAll(context.Background(), desc, []string{})
 	assert.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -65,7 +66,7 @@ func TestGolangCILint_GolangCILint_Lint(t *testing.T) {
 	exec.OnRun("lint", []string{"run", "mod1"}).
 		Return(nil)
 
-	err := tool.LintFiles(desc, []string{"mod1"}, []string{})
+	err := tool.LintFiles(context.Background(), desc, []string{"mod1"}, []string{})
 	assert.NoError(t, err)
 
 	exec.AssertExpectations(t)

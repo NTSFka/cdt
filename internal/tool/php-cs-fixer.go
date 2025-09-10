@@ -2,6 +2,7 @@ package tool
 
 import (
 	"cdt/internal"
+	"context"
 	"path/filepath"
 )
 
@@ -53,22 +54,22 @@ func (p *PHPCSFixer) buildPaths(directory string, filenames []string) []string {
 	return paths
 }
 
-func (p *PHPCSFixer) FormatAll(info internal.ProjectInfo, args []string) error {
-	return p.RunForProject(info, append([]string{"fix"}, args...))
+func (p *PHPCSFixer) FormatAll(ctx context.Context, info internal.ProjectInfo, args []string) error {
+	return p.RunForProject(ctx, info, append([]string{"fix"}, args...))
 }
 
-func (p *PHPCSFixer) FormatFiles(info internal.ProjectInfo, filenames []string, args []string) error {
+func (p *PHPCSFixer) FormatFiles(ctx context.Context, info internal.ProjectInfo, filenames []string, args []string) error {
 	paths := p.buildPaths(info.Directory, filenames)
 
-	return p.RunForProject(info, append(append([]string{"fix"}, args...), paths...))
+	return p.RunForProject(ctx, info, append(append([]string{"fix"}, args...), paths...))
 }
 
-func (p *PHPCSFixer) FormatCheckAll(info internal.ProjectInfo, args []string) error {
-	return p.RunForProject(info, append([]string{"fix", "--dry-run"}, args...))
+func (p *PHPCSFixer) FormatCheckAll(ctx context.Context, info internal.ProjectInfo, args []string) error {
+	return p.RunForProject(ctx, info, append([]string{"fix", "--dry-run"}, args...))
 }
 
-func (p *PHPCSFixer) FormatCheckFiles(info internal.ProjectInfo, filenames []string, args []string) error {
+func (p *PHPCSFixer) FormatCheckFiles(ctx context.Context, info internal.ProjectInfo, filenames []string, args []string) error {
 	paths := p.buildPaths(info.Directory, filenames)
 
-	return p.RunForProject(info, append(append([]string{"fix", "--dry-run"}, args...), paths...))
+	return p.RunForProject(ctx, info, append(append([]string{"fix", "--dry-run"}, args...), paths...))
 }

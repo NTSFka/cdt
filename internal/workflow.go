@@ -1,78 +1,80 @@
 package internal
 
+import "context"
+
 // A ProjectConfigurator allow configuring a project
 type ProjectConfigurator interface {
 	// Configure the project
-	Configure(info ProjectInfo, args []string) error
+	Configure(ctx context.Context, info ProjectInfo, args []string) error
 }
 
 // A ProjectBuilder allow building a project
 type ProjectBuilder interface {
 	// BuildAll builds all targets in the project
-	BuildAll(info ProjectInfo, args []string) error
+	BuildAll(ctx context.Context, info ProjectInfo, args []string) error
 
 	// BuildTargets builds specific targets in the project
-	BuildTargets(info ProjectInfo, targets []string, args []string) error
+	BuildTargets(ctx context.Context, info ProjectInfo, targets []string, args []string) error
 }
 
 // A ProjectTester allow testing a project
 type ProjectTester interface {
 	// TestAll runs all tests in the project
-	TestAll(info ProjectInfo, args []string) error
+	TestAll(ctx context.Context, info ProjectInfo, args []string) error
 
 	// Test runs tests that match the pattern
-	Test(info ProjectInfo, pattern string, args []string) error
+	Test(ctx context.Context, info ProjectInfo, pattern string, args []string) error
 }
 
 // A ProjectFormatter allow formatting files of a project
 type ProjectFormatter interface {
 	// FormatAll formates all files in the project
-	FormatAll(info ProjectInfo, args []string) error
+	FormatAll(ctx context.Context, info ProjectInfo, args []string) error
 
 	// FormatFiles formates specified files in the project
-	FormatFiles(info ProjectInfo, filenames []string, args []string) error
+	FormatFiles(ctx context.Context, info ProjectInfo, filenames []string, args []string) error
 
 	// FormatCheckAll check if all files in the project are formatted
-	FormatCheckAll(info ProjectInfo, args []string) error
+	FormatCheckAll(ctx context.Context, info ProjectInfo, args []string) error
 
 	// FormatCheckFiles check if all specified files in the project are formatted
-	FormatCheckFiles(info ProjectInfo, filenames []string, args []string) error
+	FormatCheckFiles(ctx context.Context, info ProjectInfo, filenames []string, args []string) error
 }
 
 // A ProjectLinter allow linting files of a project
 type ProjectLinter interface {
 	// LintAll lints all project files
-	LintAll(info ProjectInfo, args []string) error
+	LintAll(ctx context.Context, info ProjectInfo, args []string) error
 
 	// LintFiles perform linting on specified files
-	LintFiles(info ProjectInfo, filenames []string, args []string) error
+	LintFiles(ctx context.Context, info ProjectInfo, filenames []string, args []string) error
 }
 
 // A ProjectRunner allow running executables of a project
 type ProjectRunner interface {
 	// RunTarget run a target
-	RunTarget(info ProjectInfo, target string, args []string) error
+	RunTarget(ctx context.Context, info ProjectInfo, target string, args []string) error
 }
 
 // ProjectDependencyManager manages project dependencies (libraries, packaged, etc.)
 type ProjectDependencyManager interface {
 	// AddDependencies adds new dependencies to the project
-	AddDependencies(info ProjectInfo, dependencies []string, dev bool) error
+	AddDependencies(ctx context.Context, info ProjectInfo, dependencies []string, dev bool) error
 
 	// RemoveDependencies removes the dependencies from the project
-	RemoveDependencies(info ProjectInfo, dependencies []string, dev bool) error
+	RemoveDependencies(ctx context.Context, info ProjectInfo, dependencies []string, dev bool) error
 
 	// UpdateDependencies updates specified dependencies in the project (empty dependencies mean update all)
-	UpdateDependencies(info ProjectInfo, dependencies []string) error
+	UpdateDependencies(ctx context.Context, info ProjectInfo, dependencies []string) error
 
 	// FetchDependencies fetches all specified dependencies to the project
-	FetchDependencies(info ProjectInfo, noDev bool) error
+	FetchDependencies(ctx context.Context, info ProjectInfo, noDev bool) error
 
 	// ListDependencies lists all specified dependencies in the project
-	ListDependencies(info ProjectInfo) error
+	ListDependencies(ctx context.Context, info ProjectInfo) error
 
 	// AuditDependencies audits all specified dependencies in the project for security issues
-	AuditDependencies(info ProjectInfo) error
+	AuditDependencies(ctx context.Context, info ProjectInfo) error
 }
 
 // A Workflow describes how to work on a project

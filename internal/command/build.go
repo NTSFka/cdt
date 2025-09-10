@@ -58,9 +58,9 @@ func buildCommandAction(ctx context.Context, cmd *cli.Command) error {
 	var err error
 
 	if targets := cmd.StringArgs("targets"); len(targets) > 0 {
-		err = builder.BuildTargets(c.Project.Info, targets, cmd.Args().Tail())
+		err = builder.BuildTargets(ctx, c.Project.Info, targets, cmd.Args().Tail())
 	} else {
-		err = builder.BuildAll(c.Project.Info, cmd.Args().Tail())
+		err = builder.BuildAll(ctx, c.Project.Info, cmd.Args().Tail())
 	}
 
 	if err != nil {

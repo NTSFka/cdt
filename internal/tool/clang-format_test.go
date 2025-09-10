@@ -3,6 +3,7 @@ package tool
 import (
 	"cdt/internal"
 	"cdt/internal/test"
+	"context"
 	"errors"
 	"fmt"
 	"os"
@@ -70,7 +71,7 @@ func TestClangFormat_FormatAll(t *testing.T) {
 	}).
 		Return(nil)
 
-	err := tool.FormatAll(desc, []string{})
+	err := tool.FormatAll(context.Background(), desc, []string{})
 	assert.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -103,7 +104,7 @@ func TestClangFormat_FormatAll_Failed(t *testing.T) {
 	}).
 		Return(errors.New("failed"))
 
-	err := tool.FormatAll(desc, []string{})
+	err := tool.FormatAll(context.Background(), desc, []string{})
 	assert.EqualError(t, err, "failed")
 
 	exec.AssertExpectations(t)
@@ -140,7 +141,7 @@ func TestClangFormat_FormatAll_CustomConfig(t *testing.T) {
 	}).
 		Return(nil)
 
-	err = tool.FormatAll(desc, []string{})
+	err = tool.FormatAll(context.Background(), desc, []string{})
 	assert.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -161,7 +162,7 @@ func TestClangFormat_FormatFiles(t *testing.T) {
 	}).
 		Return(nil)
 
-	err := tool.FormatFiles(desc, []string{"file1.go", filepath.Join(desc.Directory, "file3.go")}, []string{})
+	err := tool.FormatFiles(context.Background(), desc, []string{"file1.go", filepath.Join(desc.Directory, "file3.go")}, []string{})
 	assert.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -181,7 +182,7 @@ func TestClangFormat_FormatFiles_Failed(t *testing.T) {
 	}).
 		Return(errors.New("failed"))
 
-	err := tool.FormatFiles(desc, []string{"file1.go"}, []string{})
+	err := tool.FormatFiles(context.Background(), desc, []string{"file1.go"}, []string{})
 	assert.EqualError(t, err, "failed")
 
 	exec.AssertExpectations(t)
@@ -205,7 +206,7 @@ func TestClangFormat_FormatFiles_CustomConfig(t *testing.T) {
 	}).
 		Return(nil)
 
-	err = tool.FormatFiles(desc, []string{"file1.go"}, []string{})
+	err = tool.FormatFiles(context.Background(), desc, []string{"file1.go"}, []string{})
 	assert.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -238,7 +239,7 @@ func TestClangFormat_FormatCheckAll(t *testing.T) {
 	}).
 		Return(nil)
 
-	err := tool.FormatCheckAll(desc, []string{})
+	err := tool.FormatCheckAll(context.Background(), desc, []string{})
 	assert.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -271,7 +272,7 @@ func TestClangFormat_FormatCheckAll_Failed(t *testing.T) {
 	}).
 		Return(errors.New("failed"))
 
-	err := tool.FormatCheckAll(desc, []string{})
+	err := tool.FormatCheckAll(context.Background(), desc, []string{})
 	assert.EqualError(t, err, "failed")
 
 	exec.AssertExpectations(t)
@@ -308,7 +309,7 @@ func TestClangFormat_FormatCheckAll_CustomConfig(t *testing.T) {
 	}).
 		Return(nil)
 
-	err = tool.FormatCheckAll(desc, []string{})
+	err = tool.FormatCheckAll(context.Background(), desc, []string{})
 	assert.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -329,7 +330,7 @@ func TestClangFormat_FormatCheckFiles(t *testing.T) {
 	}).
 		Return(nil)
 
-	err := tool.FormatCheckFiles(desc, []string{"file1.go", filepath.Join(desc.Directory, "file3.go")}, []string{})
+	err := tool.FormatCheckFiles(context.Background(), desc, []string{"file1.go", filepath.Join(desc.Directory, "file3.go")}, []string{})
 	assert.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -349,7 +350,7 @@ func TestClangFormat_FormatCheckFiles_Failed(t *testing.T) {
 	}).
 		Return(errors.New("failed"))
 
-	err := tool.FormatCheckFiles(desc, []string{"file1.go"}, []string{})
+	err := tool.FormatCheckFiles(context.Background(), desc, []string{"file1.go"}, []string{})
 	assert.EqualError(t, err, "failed")
 
 	exec.AssertExpectations(t)
@@ -373,7 +374,7 @@ func TestClangFormat_FormatCheckFiles_CustomConfig(t *testing.T) {
 	}).
 		Return(nil)
 
-	err = tool.FormatCheckFiles(desc, []string{"file1.go"}, []string{})
+	err = tool.FormatCheckFiles(context.Background(), desc, []string{"file1.go"}, []string{})
 	assert.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -389,7 +390,7 @@ func TestClangFormat_Run(t *testing.T) {
 	exec.OnRun("clang-format", []string{}).
 		Return(nil)
 
-	err := tool.RunForProject(desc, []string{})
+	err := tool.RunForProject(context.Background(), desc, []string{})
 	assert.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -405,7 +406,7 @@ func TestClangFormat_Run_Failed(t *testing.T) {
 	exec.OnRun("clang-format", []string{}).
 		Return(errors.New("failed"))
 
-	err := tool.RunForProject(desc, []string{})
+	err := tool.RunForProject(context.Background(), desc, []string{})
 	assert.EqualError(t, err, "failed")
 
 	exec.AssertExpectations(t)

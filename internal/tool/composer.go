@@ -1,6 +1,9 @@
 package tool
 
-import "cdt/internal"
+import (
+	"cdt/internal"
+	"context"
+)
 
 type Composer struct {
 	internal.ExecutableTool
@@ -36,44 +39,44 @@ func NewComposer(detect func() *internal.Executable) *Composer {
 	}
 }
 
-func (c *Composer) AddDependencies(info internal.ProjectInfo, dependencies []string, dev bool) error {
+func (c *Composer) AddDependencies(ctx context.Context, info internal.ProjectInfo, dependencies []string, dev bool) error {
 	args := []string{"require"}
 
 	if dev {
 		args = append(args, "--dev")
 	}
 
-	return c.RunForProject(info, append(args, dependencies...))
+	return c.RunForProject(ctx, info, append(args, dependencies...))
 }
 
-func (c *Composer) RemoveDependencies(info internal.ProjectInfo, dependencies []string, dev bool) error {
+func (c *Composer) RemoveDependencies(ctx context.Context, info internal.ProjectInfo, dependencies []string, dev bool) error {
 	args := []string{"remove"}
 
 	if dev {
 		args = append(args, "--dev")
 	}
 
-	return c.RunForProject(info, append(args, dependencies...))
+	return c.RunForProject(ctx, info, append(args, dependencies...))
 }
 
-func (c *Composer) UpdateDependencies(info internal.ProjectInfo, dependencies []string) error {
-	return c.RunForProject(info, append([]string{"update"}, dependencies...))
+func (c *Composer) UpdateDependencies(ctx context.Context, info internal.ProjectInfo, dependencies []string) error {
+	return c.RunForProject(ctx, info, append([]string{"update"}, dependencies...))
 }
 
-func (c *Composer) FetchDependencies(info internal.ProjectInfo, noDev bool) error {
+func (c *Composer) FetchDependencies(ctx context.Context, info internal.ProjectInfo, noDev bool) error {
 	args := []string{"install"}
 
 	if noDev {
 		args = append(args, "--no-dev")
 	}
 
-	return c.RunForProject(info, args)
+	return c.RunForProject(ctx, info, args)
 }
 
-func (c *Composer) ListDependencies(info internal.ProjectInfo) error {
-	return c.RunForProject(info, []string{"show"})
+func (c *Composer) ListDependencies(ctx context.Context, info internal.ProjectInfo) error {
+	return c.RunForProject(ctx, info, []string{"show"})
 }
 
-func (c *Composer) AuditDependencies(info internal.ProjectInfo) error {
-	return c.RunForProject(info, []string{"audit"})
+func (c *Composer) AuditDependencies(ctx context.Context, info internal.ProjectInfo) error {
+	return c.RunForProject(ctx, info, []string{"audit"})
 }

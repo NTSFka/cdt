@@ -3,6 +3,7 @@ package tool
 import (
 	"cdt/internal"
 	"cdt/internal/test"
+	"context"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -77,7 +78,7 @@ func TestPHPCSFixer_PHPCSFixer_FormatAll(t *testing.T) {
 	exec.OnRun("format", []string{"fix"}).
 		Return(nil)
 
-	err := tool.FormatAll(desc, []string{})
+	err := tool.FormatAll(context.Background(), desc, []string{})
 	assert.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -93,7 +94,7 @@ func TestPHPCSFixer_PHPCSFixer_FormatFiles(t *testing.T) {
 	exec.OnRun("format", []string{"fix", "tests/*"}).
 		Return(nil)
 
-	err := tool.FormatFiles(desc, []string{"tests/*"}, []string{})
+	err := tool.FormatFiles(context.Background(), desc, []string{"tests/*"}, []string{})
 	assert.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -109,7 +110,7 @@ func TestPHPCSFixer_PHPCSFixer_FormatCheckAll(t *testing.T) {
 	exec.OnRun("format", []string{"fix", "--dry-run"}).
 		Return(nil)
 
-	err := tool.FormatCheckAll(desc, []string{})
+	err := tool.FormatCheckAll(context.Background(), desc, []string{})
 	assert.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -125,7 +126,7 @@ func TestPHPCSFixer_PHPCSFixer_FormatCheckFiles(t *testing.T) {
 	exec.OnRun("format", []string{"fix", "--dry-run", "tests/*", "/path/to/file.php"}).
 		Return(nil)
 
-	err := tool.FormatCheckFiles(desc, []string{"tests/*", "/path/to/file.php"}, []string{})
+	err := tool.FormatCheckFiles(context.Background(), desc, []string{"tests/*", "/path/to/file.php"}, []string{})
 	assert.NoError(t, err)
 
 	exec.AssertExpectations(t)

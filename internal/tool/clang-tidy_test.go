@@ -3,6 +3,7 @@ package tool
 import (
 	"cdt/internal"
 	"cdt/internal/test"
+	"context"
 	"errors"
 	"fmt"
 	"os"
@@ -69,7 +70,7 @@ func TestClangTidy_LintAll(t *testing.T) {
 	}).
 		Return(nil)
 
-	err := tool.LintAll(desc, []string{})
+	err := tool.LintAll(context.Background(), desc, []string{})
 	assert.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -101,7 +102,7 @@ func TestClangTidy_LintAll_Failed(t *testing.T) {
 	}).
 		Return(errors.New("failed"))
 
-	err := tool.LintAll(desc, []string{})
+	err := tool.LintAll(context.Background(), desc, []string{})
 	assert.EqualError(t, err, "failed")
 
 	exec.AssertExpectations(t)
@@ -137,7 +138,7 @@ func TestClangTidy_LintAll_CustomConfig(t *testing.T) {
 	}).
 		Return(nil)
 
-	err = tool.LintAll(desc, []string{})
+	err = tool.LintAll(context.Background(), desc, []string{})
 	assert.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -157,7 +158,7 @@ func TestClangTidy_LintFiles(t *testing.T) {
 	}).
 		Return(nil)
 
-	err := tool.LintFiles(desc, []string{"file1.go", filepath.Join(desc.Directory, "file3.go")}, []string{})
+	err := tool.LintFiles(context.Background(), desc, []string{"file1.go", filepath.Join(desc.Directory, "file3.go")}, []string{})
 	assert.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -176,7 +177,7 @@ func TestClangTidy_LintFiles_Failed(t *testing.T) {
 	}).
 		Return(errors.New("failed"))
 
-	err := tool.LintFiles(desc, []string{"file1.go"}, []string{})
+	err := tool.LintFiles(context.Background(), desc, []string{"file1.go"}, []string{})
 	assert.EqualError(t, err, "failed")
 
 	exec.AssertExpectations(t)
@@ -199,7 +200,7 @@ func TestClangTidy_LintFiles_CustomConfig(t *testing.T) {
 	}).
 		Return(nil)
 
-	err = tool.LintFiles(desc, []string{"file1.go"}, []string{})
+	err = tool.LintFiles(context.Background(), desc, []string{"file1.go"}, []string{})
 	assert.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -215,7 +216,7 @@ func TestClangTidy_Run(t *testing.T) {
 	exec.OnRun("clang-tidy", []string{desc.Directory}).
 		Return(nil)
 
-	err := tool.RunForProject(desc, []string{})
+	err := tool.RunForProject(context.Background(), desc, []string{})
 	assert.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -231,7 +232,7 @@ func TestClangTidy_Run_Failed(t *testing.T) {
 	exec.OnRun("clang-tidy", []string{desc.Directory}).
 		Return(errors.New("failed"))
 
-	err := tool.RunForProject(desc, []string{})
+	err := tool.RunForProject(context.Background(), desc, []string{})
 	assert.EqualError(t, err, "failed")
 
 	exec.AssertExpectations(t)

@@ -3,6 +3,7 @@ package tool
 import (
 	"cdt/internal"
 	"cdt/internal/test"
+	"context"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -77,7 +78,7 @@ func TestPHPStan_PHPStan_LintAll(t *testing.T) {
 	exec.OnRun("lint", []string{"analyse"}).
 		Return(nil)
 
-	err := tool.LintAll(desc, []string{})
+	err := tool.LintAll(context.Background(), desc, []string{})
 	assert.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -93,7 +94,7 @@ func TestPHPStan_PHPStan_Lint(t *testing.T) {
 	exec.OnRun("lint", []string{"analyse", "file.php", "/path/to/file2.php"}).
 		Return(nil)
 
-	err := tool.LintFiles(desc, []string{"file.php", "/path/to/file2.php"}, []string{})
+	err := tool.LintFiles(context.Background(), desc, []string{"file.php", "/path/to/file2.php"}, []string{})
 	assert.NoError(t, err)
 
 	exec.AssertExpectations(t)

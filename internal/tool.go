@@ -130,7 +130,7 @@ func (t *ExecutableTool) Run(ctx context.Context, options RunOptions, args []str
 	return t.Executable().Run(ctx, options, args)
 }
 
-func (t *ExecutableTool) RunForProject(info ProjectInfo, args []string) error {
+func (t *ExecutableTool) RunForProject(ctx context.Context, info ProjectInfo, args []string) error {
 	options := RunOptions{
 		Directory: info.Directory,
 		Input:     os.Stdin,
@@ -138,7 +138,7 @@ func (t *ExecutableTool) RunForProject(info ProjectInfo, args []string) error {
 		Error:     os.Stderr,
 	}
 
-	return t.Run(context.Background(), options, args)
+	return t.Run(ctx, options, args)
 }
 
 // Tools is a container for available tools

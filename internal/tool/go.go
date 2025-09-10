@@ -41,14 +41,14 @@ func DetectGo(environment internal.Environment) *Go {
 	})
 }
 
-func (g *Go) Structure(info internal.ProjectInfo) (*internal.ProjectStructure, error) {
+func (g *Go) Structure(ctx context.Context, info internal.ProjectInfo) (*internal.ProjectStructure, error) {
 	structure := internal.ProjectStructure{
 		Targets: make(map[string]internal.ProjectTarget),
 	}
 
 	builder := bytes.Buffer{}
 	options := internal.RunOptions{Directory: info.Directory, Output: &builder, Error: nil}
-	if err := g.Run(context.Background(), options, []string{"list", "-json=ImportPath,GoFiles", "./..."}); err != nil {
+	if err := g.Run(ctx, options, []string{"list", "-json=ImportPath,GoFiles", "./..."}); err != nil {
 		return nil, err
 	}
 
@@ -70,46 +70,46 @@ func (g *Go) Structure(info internal.ProjectInfo) (*internal.ProjectStructure, e
 	return &structure, nil
 }
 
-func (g *Go) BuildAll(info internal.ProjectInfo, args []string) error {
-	return g.RunForProject(info, append(args, "build"))
+func (g *Go) BuildAll(ctx context.Context, info internal.ProjectInfo, args []string) error {
+	return g.RunForProject(ctx, info, append(args, "build"))
 }
 
-func (g *Go) BuildTargets(info internal.ProjectInfo, targets []string, args []string) error {
-	return g.RunForProject(info, append(append(args, "build"), targets...))
+func (g *Go) BuildTargets(ctx context.Context, info internal.ProjectInfo, targets []string, args []string) error {
+	return g.RunForProject(ctx, info, append(append(args, "build"), targets...))
 }
 
-func (g *Go) RunTarget(info internal.ProjectInfo, target string, args []string) error {
-	return g.RunForProject(info, append(args, "run", target))
+func (g *Go) RunTarget(ctx context.Context, info internal.ProjectInfo, target string, args []string) error {
+	return g.RunForProject(ctx, info, append(args, "run", target))
 }
 
-func (g *Go) TestAll(info internal.ProjectInfo, args []string) error {
-	return g.RunForProject(info, append(args, "test", "./..."))
+func (g *Go) TestAll(ctx context.Context, info internal.ProjectInfo, args []string) error {
+	return g.RunForProject(ctx, info, append(args, "test", "./..."))
 }
 
-func (g *Go) Test(info internal.ProjectInfo, pattern string, args []string) error {
-	return g.RunForProject(info, append(args, "test", pattern))
+func (g *Go) Test(ctx context.Context, info internal.ProjectInfo, pattern string, args []string) error {
+	return g.RunForProject(ctx, info, append(args, "test", pattern))
 }
 
-func (g *Go) FormatAll(info internal.ProjectInfo, args []string) error {
-	return g.RunForProject(info, append(args, "fmt", "./..."))
+func (g *Go) FormatAll(ctx context.Context, info internal.ProjectInfo, args []string) error {
+	return g.RunForProject(ctx, info, append(args, "fmt", "./..."))
 }
 
-func (g *Go) FormatFiles(info internal.ProjectInfo, filenames []string, args []string) error {
-	return g.RunForProject(info, append(append(args, "fmt"), filenames...))
+func (g *Go) FormatFiles(ctx context.Context, info internal.ProjectInfo, filenames []string, args []string) error {
+	return g.RunForProject(ctx, info, append(append(args, "fmt"), filenames...))
 }
 
-func (g *Go) FormatCheckAll(_ internal.ProjectInfo, _ []string) error {
+func (g *Go) FormatCheckAll(_ context.Context, _ internal.ProjectInfo, _ []string) error {
 	return errors.New("go fmt doesn't support check mode")
 }
 
-func (g *Go) FormatCheckFiles(_ internal.ProjectInfo, _ []string, _ []string) error {
+func (g *Go) FormatCheckFiles(_ context.Context, _ internal.ProjectInfo, _ []string, _ []string) error {
 	return errors.New("go fmt doesn't support check mode")
 }
 
-func (g *Go) LintAll(info internal.ProjectInfo, args []string) error {
-	return g.RunForProject(info, append(args, "vet", "./..."))
+func (g *Go) LintAll(ctx context.Context, info internal.ProjectInfo, args []string) error {
+	return g.RunForProject(ctx, info, append(args, "vet", "./..."))
 }
 
-func (g *Go) LintFiles(info internal.ProjectInfo, filenames []string, args []string) error {
-	return g.RunForProject(info, append(append(args, "vet"), filenames...))
+func (g *Go) LintFiles(ctx context.Context, info internal.ProjectInfo, filenames []string, args []string) error {
+	return g.RunForProject(ctx, info, append(append(args, "vet"), filenames...))
 }
