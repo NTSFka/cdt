@@ -5,6 +5,7 @@ import (
 	"cdt/internal"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"path/filepath"
 	"strings"
@@ -45,6 +46,10 @@ func (d *Docker) Detect(_ string) *internal.Environment {
 // CreateEnvironment create docker environment where the service is used for running tools
 func (d *Docker) CreateEnvironment(directory, image string) (internal.Environment, error) {
 	internal.Debug("docker.create_environment", "directory", directory, "image", image)
+
+	if len(image) == 0 {
+		return nil, errors.New("docker image name is required")
+	}
 
 	env := dockerEnvironment{
 		directory: directory,

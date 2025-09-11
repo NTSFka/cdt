@@ -46,6 +46,10 @@ func (d *DockerCompose) Detect(_ string) *internal.Environment {
 func (d *DockerCompose) CreateEnvironment(directory, service string) (internal.Environment, error) {
 	internal.Debug("docker-compose.create_environment", "directory", directory, "service", service)
 
+	if len(service) == 0 {
+		return nil, fmt.Errorf("service name is required")
+	}
+
 	env := dockerComposeEnvironment{
 		dockerCompose: *d,
 		directory:     directory,

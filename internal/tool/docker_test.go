@@ -68,6 +68,15 @@ func TestDocker_CreateEnvironment(t *testing.T) {
 	assert.Equal(t, "docker", env.Id())
 }
 
+func TestDocker_CreateEnvironment_NoImage(t *testing.T) {
+	tool := NewDocker(func() *internal.Executable { return &internal.Executable{Path: "docker"} })
+	assert.NotNil(t, tool)
+
+	env, err := tool.CreateEnvironment(".", "")
+	assert.EqualError(t, err, "docker image name is required")
+	assert.Nil(t, env)
+}
+
 type dockerRunMock struct {
 	test.Executable
 }

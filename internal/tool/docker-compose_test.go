@@ -66,6 +66,15 @@ func TestDockerCompose_CreateEnvironment(t *testing.T) {
 	assert.Equal(t, "docker-compose", env.Id())
 }
 
+func TestDockerCompose_CreateEnvironment_NoService(t *testing.T) {
+	tool := NewDockerCompose(func() *internal.Executable { return &internal.Executable{Path: "docker"} })
+	assert.NotNil(t, tool)
+
+	env, err := tool.CreateEnvironment(".", "")
+	assert.EqualError(t, err, "service name is required")
+	assert.Nil(t, env)
+}
+
 type dockerComposeRunMock struct {
 	test.Executable
 }

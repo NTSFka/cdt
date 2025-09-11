@@ -56,6 +56,10 @@ func (p *Python) Detect(directory string) *internal.Environment {
 func (p *Python) CreateEnvironment(directory, path string) (internal.Environment, error) {
 	internal.Debug("pyenv.create_environment", "directory", directory, "path", path)
 
+	if len(path) == 0 {
+		return nil, errors.New("python virtual environment path is required")
+	}
+
 	env := pythonVirtualEnvironment{
 		directory:     directory,
 		venvDirectory: path,

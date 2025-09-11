@@ -93,6 +93,20 @@ func TestPython_CreateEnvironment(t *testing.T) {
 	python.AssertExpectations(t)
 }
 
+func TestPython_CreateEnvironment_NoPath(t *testing.T) {
+	python := test.NewExecutable(t)
+
+	tool := NewPython(python.LazyExecutable("python"))
+	assert.NotNil(t, tool)
+	assert.Equal(t, []string{"pyenv"}, tool.Aliases())
+
+	env, err := tool.CreateEnvironment(".", "")
+	assert.EqualError(t, err, "python virtual environment path is required")
+	assert.Nil(t, env)
+
+	python.AssertExpectations(t)
+}
+
 func TestPython_Environment_Start(t *testing.T) {
 	python := test.NewExecutable(t)
 
