@@ -364,12 +364,12 @@ func TestGo_Go_LintAll(t *testing.T) {
 
 	tool := NewGo(exec.LazyExecutable("lint"))
 
-	p := internal.ProjectInfo{Directory: "."}
+	info := internal.ProjectInfo{Directory: "."}
 
 	exec.OnRun("lint", []string{"vet", "./..."}).
 		Return(nil)
 
-	err := tool.LintAll(context.Background(), p, []string{})
+	err := tool.LintAll(context.Background(), internal.ProjectLinterOptions{ProjectInfo: info})
 	assert.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -380,12 +380,12 @@ func TestGo_Go_Lint(t *testing.T) {
 
 	tool := NewGo(exec.LazyExecutable("lint"))
 
-	p := internal.ProjectInfo{Directory: "."}
+	info := internal.ProjectInfo{Directory: "."}
 
 	exec.OnRun("lint", []string{"vet", "mod1"}).
 		Return(nil)
 
-	err := tool.LintFiles(context.Background(), p, []string{"mod1"}, []string{})
+	err := tool.LintFiles(context.Background(), internal.ProjectLinterOptions{ProjectInfo: info}, []string{"mod1"})
 	assert.NoError(t, err)
 
 	exec.AssertExpectations(t)

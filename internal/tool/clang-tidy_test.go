@@ -49,7 +49,7 @@ func TestClangTidy_LintAll(t *testing.T) {
 
 	tool := NewClangTidy(exec.LazyExecutable("clang-tidy"))
 
-	desc := internal.ProjectInfo{
+	info := internal.ProjectInfo{
 		Directory:             "project",
 		IntermediateDirectory: internal.StrPtr("build"),
 		StructureProvider: &internal.FixedProjectStructureProvider{
@@ -64,13 +64,13 @@ func TestClangTidy_LintAll(t *testing.T) {
 	}
 
 	exec.OnRun("clang-tidy", []string{
-		"-p", *desc.IntermediateDirectory,
-		filepath.Join(desc.Directory, "file1.go"),
-		filepath.Join(desc.Directory, "file2.go"),
+		"-p", *info.IntermediateDirectory,
+		filepath.Join(info.Directory, "file1.go"),
+		filepath.Join(info.Directory, "file2.go"),
 	}).
 		Return(nil)
 
-	err := tool.LintAll(context.Background(), desc, []string{})
+	err := tool.LintAll(context.Background(), internal.ProjectLinterOptions{ProjectInfo: info})
 	assert.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -81,7 +81,7 @@ func TestClangTidy_LintAll_Failed(t *testing.T) {
 
 	tool := NewClangTidy(exec.LazyExecutable("clang-tidy"))
 
-	desc := internal.ProjectInfo{
+	info := internal.ProjectInfo{
 		Directory:             "project",
 		IntermediateDirectory: internal.StrPtr("build"),
 		StructureProvider: &internal.FixedProjectStructureProvider{
@@ -96,13 +96,13 @@ func TestClangTidy_LintAll_Failed(t *testing.T) {
 	}
 
 	exec.OnRun("clang-tidy", []string{
-		"-p", *desc.IntermediateDirectory,
-		filepath.Join(desc.Directory, "file1.go"),
-		filepath.Join(desc.Directory, "file2.go"),
+		"-p", *info.IntermediateDirectory,
+		filepath.Join(info.Directory, "file1.go"),
+		filepath.Join(info.Directory, "file2.go"),
 	}).
 		Return(errors.New("failed"))
 
-	err := tool.LintAll(context.Background(), desc, []string{})
+	err := tool.LintAll(context.Background(), internal.ProjectLinterOptions{ProjectInfo: info})
 	assert.EqualError(t, err, "failed")
 
 	exec.AssertExpectations(t)
@@ -113,7 +113,7 @@ func TestClangTidy_LintAll_CustomConfig(t *testing.T) {
 
 	tool := NewClangTidy(exec.LazyExecutable("clang-tidy"))
 
-	desc := internal.ProjectInfo{
+	info := internal.ProjectInfo{
 		Directory:             t.TempDir(),
 		IntermediateDirectory: internal.StrPtr("build"),
 		StructureProvider: &internal.FixedProjectStructureProvider{
@@ -127,18 +127,18 @@ func TestClangTidy_LintAll_CustomConfig(t *testing.T) {
 		},
 	}
 
-	_, err := os.Create(filepath.Join(desc.Directory, ".clang-tidy"))
+	_, err := os.Create(filepath.Join(info.Directory, ".clang-tidy"))
 	assert.NoError(t, err)
 
 	exec.OnRun("clang-tidy", []string{
-		fmt.Sprintf("--config-file=%v", filepath.Join(desc.Directory, ".clang-tidy")),
-		"-p", *desc.IntermediateDirectory,
-		filepath.Join(desc.Directory, "file1.go"),
-		filepath.Join(desc.Directory, "file2.go"),
+		fmt.Sprintf("--config-file=%v", filepath.Join(info.Directory, ".clang-tidy")),
+		"-p", *info.IntermediateDirectory,
+		filepath.Join(info.Directory, "file1.go"),
+		filepath.Join(info.Directory, "file2.go"),
 	}).
 		Return(nil)
 
-	err = tool.LintAll(context.Background(), desc, []string{})
+	err = tool.LintAll(context.Background(), internal.ProjectLinterOptions{ProjectInfo: info})
 	assert.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -149,16 +149,16 @@ func TestClangTidy_LintFiles(t *testing.T) {
 
 	tool := NewClangTidy(exec.LazyExecutable("clang-tidy"))
 
-	desc := internal.ProjectInfo{Directory: t.TempDir(), IntermediateDirectory: internal.StrPtr("build")}
+	info := internal.ProjectInfo{Directory: t.TempDir(), IntermediateDirectory: internal.StrPtr("build")}
 
 	exec.OnRun("clang-tidy", []string{
-		"-p", *desc.IntermediateDirectory,
-		filepath.Join(desc.Directory, "file1.go"),
-		filepath.Join(desc.Directory, "file3.go"),
+		"-p", *info.IntermediateDirectory,
+		filepath.Join(info.Directory, "file1.go"),
+		filepath.Join(info.Directory, "file3.go"),
 	}).
 		Return(nil)
 
-	err := tool.LintFiles(context.Background(), desc, []string{"file1.go", filepath.Join(desc.Directory, "file3.go")}, []string{})
+	err := tool.LintFiles(context.Background(), internal.ProjectLinterOptions{ProjectInfo: info}, []string{"file1.go", filepath.Join(info.Directory, "file3.go")})
 	assert.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -169,15 +169,15 @@ func TestClangTidy_LintFiles_Failed(t *testing.T) {
 
 	tool := NewClangTidy(exec.LazyExecutable("clang-tidy"))
 
-	desc := internal.ProjectInfo{Directory: "project", IntermediateDirectory: internal.StrPtr("build")}
+	info := internal.ProjectInfo{Directory: "project", IntermediateDirectory: internal.StrPtr("build")}
 
 	exec.OnRun("clang-tidy", []string{
-		"-p", *desc.IntermediateDirectory,
-		filepath.Join(desc.Directory, "file1.go"),
+		"-p", *info.IntermediateDirectory,
+		filepath.Join(info.Directory, "file1.go"),
 	}).
 		Return(errors.New("failed"))
 
-	err := tool.LintFiles(context.Background(), desc, []string{"file1.go"}, []string{})
+	err := tool.LintFiles(context.Background(), internal.ProjectLinterOptions{ProjectInfo: info}, []string{"file1.go"})
 	assert.EqualError(t, err, "failed")
 
 	exec.AssertExpectations(t)
@@ -188,19 +188,19 @@ func TestClangTidy_LintFiles_CustomConfig(t *testing.T) {
 
 	tool := NewClangTidy(exec.LazyExecutable("clang-tidy"))
 
-	desc := internal.ProjectInfo{Directory: t.TempDir(), IntermediateDirectory: internal.StrPtr("build")}
+	info := internal.ProjectInfo{Directory: t.TempDir(), IntermediateDirectory: internal.StrPtr("build")}
 
-	_, err := os.Create(filepath.Join(desc.Directory, ".clang-tidy"))
+	_, err := os.Create(filepath.Join(info.Directory, ".clang-tidy"))
 	assert.NoError(t, err)
 
 	exec.OnRun("clang-tidy", []string{
-		fmt.Sprintf("--config-file=%v", filepath.Join(desc.Directory, ".clang-tidy")),
-		"-p", *desc.IntermediateDirectory,
-		filepath.Join(desc.Directory, "file1.go"),
+		fmt.Sprintf("--config-file=%v", filepath.Join(info.Directory, ".clang-tidy")),
+		"-p", *info.IntermediateDirectory,
+		filepath.Join(info.Directory, "file1.go"),
 	}).
 		Return(nil)
 
-	err = tool.LintFiles(context.Background(), desc, []string{"file1.go"}, []string{})
+	err = tool.LintFiles(context.Background(), internal.ProjectLinterOptions{ProjectInfo: info}, []string{"file1.go"})
 	assert.NoError(t, err)
 
 	exec.AssertExpectations(t)

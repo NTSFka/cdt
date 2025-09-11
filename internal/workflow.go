@@ -73,13 +73,21 @@ type ProjectFormatter interface {
 	FormatCheckFiles(ctx context.Context, options ProjectFormatterOptions, filenames []string) error
 }
 
+// ProjectLinterOptions are options for linting a project
+type ProjectLinterOptions struct {
+	ProjectInfo
+
+	// ExtraArgs are extra arguments for the specific linter implementation
+	ExtraArgs []string
+}
+
 // A ProjectLinter allow linting files of a project
 type ProjectLinter interface {
 	// LintAll lints all project files
-	LintAll(ctx context.Context, info ProjectInfo, args []string) error
+	LintAll(ctx context.Context, options ProjectLinterOptions) error
 
 	// LintFiles perform linting on specified files
-	LintFiles(ctx context.Context, info ProjectInfo, filenames []string, args []string) error
+	LintFiles(ctx context.Context, options ProjectLinterOptions, filenames []string) error
 }
 
 // A ProjectRunner allow running executables of a project

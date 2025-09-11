@@ -44,12 +44,12 @@ func (m *MyPy) buildPaths(directory string, filenames []string) []string {
 	return paths
 }
 
-func (m *MyPy) LintAll(ctx context.Context, info internal.ProjectInfo, args []string) error {
-	return m.RunForProject(ctx, info, append([]string{"*.py"}, args...))
+func (m *MyPy) LintAll(ctx context.Context, options internal.ProjectLinterOptions) error {
+	return m.RunForProject(ctx, options.ProjectInfo, append([]string{"*.py"}, options.ExtraArgs...))
 }
 
-func (m *MyPy) LintFiles(ctx context.Context, info internal.ProjectInfo, filenames []string, args []string) error {
-	paths := m.buildPaths(info.Directory, filenames)
+func (m *MyPy) LintFiles(ctx context.Context, options internal.ProjectLinterOptions, filenames []string) error {
+	paths := m.buildPaths(options.Directory, filenames)
 
-	return m.RunForProject(ctx, info, append(args, paths...))
+	return m.RunForProject(ctx, options.ProjectInfo, append(options.ExtraArgs, paths...))
 }

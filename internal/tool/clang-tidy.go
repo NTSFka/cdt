@@ -60,34 +60,34 @@ func (c *ClangTidy) buildArgs(rootDirectory string, buildDirectory string, paths
 	return append(args, paths...)
 }
 
-func (c *ClangTidy) LintAll(ctx context.Context, info internal.ProjectInfo, args []string) error {
-	structure, err := info.Structure(ctx)
+func (c *ClangTidy) LintAll(ctx context.Context, options internal.ProjectLinterOptions) error {
+	structure, err := options.Structure(ctx)
 
 	if err != nil {
 		return fmt.Errorf("failed to obtain project structure: %v", err)
 	}
 
-	if info.IntermediateDirectory == nil {
+	if options.IntermediateDirectory == nil {
 		return internal.ErrNoIntermediateDirectory
 	}
 
-	paths := c.buildPaths(info.Directory, structure.GetFiles())
+	paths := c.buildPaths(options.Directory, structure.GetFiles())
 
-	toolArgs := c.buildArgs(info.Directory, *info.IntermediateDirectory, paths)
+	toolArgs := c.buildArgs(options.Directory, *options.IntermediateDirectory, paths)
 
-	return c.ExecutableTool.RunForProject(ctx, info, append(toolArgs, args...))
+	return c.ExecutableTool.RunForProject(ctx, options.ProjectInfo, append(toolArgs, options.ExtraArgs...))
 }
 
-func (c *ClangTidy) LintFiles(ctx context.Context, info internal.ProjectInfo, filenames []string, args []string) error {
-	paths := c.buildPaths(info.Directory, filenames)
+func (c *ClangTidy) LintFiles(ctx context.Context, options internal.ProjectLinterOptions, filenames []string) error {
+	paths := c.buildPaths(options.Directory, filenames)
 
-	if info.IntermediateDirectory == nil {
+	if options.IntermediateDirectory == nil {
 		return internal.ErrNoIntermediateDirectory
 	}
 
-	toolArgs := c.buildArgs(info.Directory, *info.IntermediateDirectory, paths)
+	toolArgs := c.buildArgs(options.Directory, *options.IntermediateDirectory, paths)
 
-	return c.ExecutableTool.RunForProject(ctx, info, append(toolArgs, args...))
+	return c.ExecutableTool.RunForProject(ctx, options.ProjectInfo, append(toolArgs, options.ExtraArgs...))
 }
 
 func (c *ClangTidy) RunForProject(ctx context.Context, info internal.ProjectInfo, args []string) error {

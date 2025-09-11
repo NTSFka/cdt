@@ -55,11 +55,16 @@ func lintCommandAction(ctx context.Context, cmd *cli.Command) error {
 		return errors.New("project doesn't support linting")
 	}
 
+	options := internal.ProjectLinterOptions{
+		ProjectInfo: c.Project.Info,
+		ExtraArgs:   cmd.Args().Tail(),
+	}
+
 	var err error
 	if files := cmd.StringArgs("files"); len(files) > 0 {
-		err = linter.LintFiles(ctx, c.Project.Info, files, cmd.Args().Tail())
+		err = linter.LintFiles(ctx, options, files)
 	} else {
-		err = linter.LintAll(ctx, c.Project.Info, cmd.Args().Tail())
+		err = linter.LintAll(ctx, options)
 	}
 
 	if err != nil {

@@ -39,7 +39,7 @@ func TestLint_Lint_CannotBeLinted(t *testing.T) {
 
 func TestLint_LintAll_Success(t *testing.T) {
 	linter := test.NewProjectLinter(t)
-	linter.On("LintAll", mock.Anything, mock.Anything, []string{}).
+	linter.On("LintAll", mock.Anything, mock.Anything).
 		Return(nil)
 
 	err := runLint(context.Background(), linter)
@@ -50,7 +50,7 @@ func TestLint_LintAll_Success(t *testing.T) {
 
 func TestLint_LintAll_Failure(t *testing.T) {
 	linter := test.NewProjectLinter(t)
-	linter.On("LintAll", mock.Anything, mock.Anything, []string{}).
+	linter.On("LintAll", mock.Anything, mock.Anything).
 		Return(errors.New("failed"))
 
 	err := runLint(context.Background(), linter)
@@ -77,7 +77,7 @@ func newTestLinterTool(t *testing.T) *testLinterTool {
 
 func TestLint_Tool_Success(t *testing.T) {
 	linter := newTestLinterTool(t)
-	linter.On("LintAll", mock.Anything, mock.Anything, []string{}).
+	linter.On("LintAll", mock.Anything, mock.Anything).
 		Return(nil)
 
 	err := runLintTool(context.Background(), linter, "--tool", "tool1")
@@ -88,7 +88,7 @@ func TestLint_Tool_Success(t *testing.T) {
 
 func TestLint_Tool_Failed(t *testing.T) {
 	linter := newTestLinterTool(t)
-	linter.On("LintAll", mock.Anything, mock.Anything, []string{}).
+	linter.On("LintAll", mock.Anything, mock.Anything).
 		Return(errors.New("failed"))
 
 	err := runLintTool(context.Background(), linter, "--tool", "tool1")
@@ -126,7 +126,7 @@ func TestLint_Tool_NotSupported(t *testing.T) {
 
 func TestLint_LintFiles_Success(t *testing.T) {
 	linter := test.NewProjectLinter(t)
-	linter.On("LintFiles", mock.Anything, mock.Anything, []string{"file1", "file2"}, []string{}).
+	linter.On("LintFiles", mock.Anything, mock.Anything, []string{"file1", "file2"}).
 		Return(nil)
 
 	err := runLint(context.Background(), linter, "file1", "file2")
@@ -137,7 +137,7 @@ func TestLint_LintFiles_Success(t *testing.T) {
 
 func TestLint_LintFiles_Failure(t *testing.T) {
 	linter := test.NewProjectLinter(t)
-	linter.On("LintFiles", mock.Anything, mock.Anything, []string{"file1", "file2"}, []string{}).
+	linter.On("LintFiles", mock.Anything, mock.Anything, []string{"file1", "file2"}).
 		Return(errors.New("failed"))
 
 	err := runLint(context.Background(), linter, "file1", "file2")

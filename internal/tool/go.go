@@ -106,10 +106,10 @@ func (g *Go) FormatCheckFiles(_ context.Context, _ internal.ProjectFormatterOpti
 	return errors.New("go fmt doesn't support check mode")
 }
 
-func (g *Go) LintAll(ctx context.Context, info internal.ProjectInfo, args []string) error {
-	return g.RunForProject(ctx, info, append(args, "vet", "./..."))
+func (g *Go) LintAll(ctx context.Context, options internal.ProjectLinterOptions) error {
+	return g.RunForProject(ctx, options.ProjectInfo, append(options.ExtraArgs, "vet", "./..."))
 }
 
-func (g *Go) LintFiles(ctx context.Context, info internal.ProjectInfo, filenames []string, args []string) error {
-	return g.RunForProject(ctx, info, append(append(args, "vet"), filenames...))
+func (g *Go) LintFiles(ctx context.Context, options internal.ProjectLinterOptions, filenames []string) error {
+	return g.RunForProject(ctx, options.ProjectInfo, append(append(options.ExtraArgs, "vet"), filenames...))
 }

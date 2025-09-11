@@ -610,7 +610,7 @@ func createLinterTool(id string, executable *internal.Executable) *struct {
 func TestLinterFallback_LintAll_Empty(t *testing.T) {
 	fallback := &LinterFallback{}
 
-	err := fallback.LintAll(context.Background(), internal.ProjectInfo{}, []string{})
+	err := fallback.LintAll(context.Background(), internal.ProjectLinterOptions{})
 
 	assert.EqualError(t, err, "no linter tool available: none")
 }
@@ -621,7 +621,7 @@ func TestLinterFallback_LintAll_NoAvailable(t *testing.T) {
 
 	fallback := &LinterFallback{tool1, tool2}
 
-	err := fallback.LintAll(context.Background(), internal.ProjectInfo{}, []string{})
+	err := fallback.LintAll(context.Background(), internal.ProjectLinterOptions{})
 
 	assert.EqualError(t, err, "no linter tool available: test1, test2")
 
@@ -637,9 +637,9 @@ func TestLinterFallback_LintAll_Available1(t *testing.T) {
 
 	tool1.Test(t)
 	tool2.Test(t)
-	tool1.On("LintAll", mock.Anything, mock.Anything, []string{}).Return(nil)
+	tool1.On("LintAll", mock.Anything, mock.Anything).Return(nil)
 
-	err := fallback.LintAll(context.Background(), internal.ProjectInfo{}, []string{})
+	err := fallback.LintAll(context.Background(), internal.ProjectLinterOptions{})
 
 	assert.NoError(t, err)
 
@@ -655,9 +655,9 @@ func TestLinterFallback_LintAll_Available2(t *testing.T) {
 
 	tool1.Test(t)
 	tool2.Test(t)
-	tool2.On("LintAll", mock.Anything, mock.Anything, []string{}).Return(nil)
+	tool2.On("LintAll", mock.Anything, mock.Anything).Return(nil)
 
-	err := fallback.LintAll(context.Background(), internal.ProjectInfo{}, []string{})
+	err := fallback.LintAll(context.Background(), internal.ProjectLinterOptions{})
 
 	assert.NoError(t, err)
 
@@ -668,7 +668,7 @@ func TestLinterFallback_LintAll_Available2(t *testing.T) {
 func TestLinterFallback_LintFiles_Empty(t *testing.T) {
 	fallback := &LinterFallback{}
 
-	err := fallback.LintFiles(context.Background(), internal.ProjectInfo{}, []string{"file1"}, []string{})
+	err := fallback.LintFiles(context.Background(), internal.ProjectLinterOptions{}, []string{"file1"})
 
 	assert.EqualError(t, err, "no linter tool available: none")
 }
@@ -679,7 +679,7 @@ func TestLinterFallback_LintFiles_NoAvailable(t *testing.T) {
 
 	fallback := &LinterFallback{tool1, tool2}
 
-	err := fallback.LintFiles(context.Background(), internal.ProjectInfo{}, []string{"file1"}, []string{})
+	err := fallback.LintFiles(context.Background(), internal.ProjectLinterOptions{}, []string{"file1"})
 
 	assert.EqualError(t, err, "no linter tool available: test1, test2")
 
@@ -695,9 +695,9 @@ func TestLinterFallback_LintFiles_Available1(t *testing.T) {
 
 	tool1.Test(t)
 	tool2.Test(t)
-	tool1.On("LintFiles", mock.Anything, mock.Anything, []string{"file1"}, []string{}).Return(nil)
+	tool1.On("LintFiles", mock.Anything, mock.Anything, []string{"file1"}).Return(nil)
 
-	err := fallback.LintFiles(context.Background(), internal.ProjectInfo{}, []string{"file1"}, []string{})
+	err := fallback.LintFiles(context.Background(), internal.ProjectLinterOptions{}, []string{"file1"})
 
 	assert.NoError(t, err)
 
@@ -713,9 +713,9 @@ func TestLinterFallback_LintFiles_Available2(t *testing.T) {
 
 	tool1.Test(t)
 	tool2.Test(t)
-	tool2.On("LintFiles", mock.Anything, mock.Anything, []string{"file1"}, []string{}).Return(nil)
+	tool2.On("LintFiles", mock.Anything, mock.Anything, []string{"file1"}).Return(nil)
 
-	err := fallback.LintFiles(context.Background(), internal.ProjectInfo{}, []string{"file1"}, []string{})
+	err := fallback.LintFiles(context.Background(), internal.ProjectLinterOptions{}, []string{"file1"})
 
 	assert.NoError(t, err)
 
@@ -726,7 +726,7 @@ func TestLinterFallback_LintFiles_Available2(t *testing.T) {
 func TestLinterList_LintAll_Empty(t *testing.T) {
 	list := &LinterList{}
 
-	err := list.LintAll(context.Background(), internal.ProjectInfo{}, []string{})
+	err := list.LintAll(context.Background(), internal.ProjectLinterOptions{})
 
 	assert.EqualError(t, err, "no linter tool available: none")
 }
@@ -737,7 +737,7 @@ func TestLinterList_LintAll_NoAvailable(t *testing.T) {
 
 	list := &LinterList{tool1, tool2}
 
-	err := list.LintAll(context.Background(), internal.ProjectInfo{}, []string{})
+	err := list.LintAll(context.Background(), internal.ProjectLinterOptions{})
 
 	assert.EqualError(t, err, "no linter tool available: test1, test2")
 
@@ -753,9 +753,9 @@ func TestLinterList_LintAll_Available1(t *testing.T) {
 
 	tool1.Test(t)
 	tool2.Test(t)
-	tool1.On("LintAll", mock.Anything, mock.Anything, []string{}).Return(nil)
+	tool1.On("LintAll", mock.Anything, mock.Anything).Return(nil)
 
-	err := list.LintAll(context.Background(), internal.ProjectInfo{}, []string{})
+	err := list.LintAll(context.Background(), internal.ProjectLinterOptions{})
 
 	assert.NoError(t, err)
 
@@ -771,10 +771,10 @@ func TestLinterList_LintAll_Available2(t *testing.T) {
 
 	tool1.Test(t)
 	tool2.Test(t)
-	tool1.On("LintAll", mock.Anything, mock.Anything, []string{}).Return(nil)
-	tool2.On("LintAll", mock.Anything, mock.Anything, []string{}).Return(nil)
+	tool1.On("LintAll", mock.Anything, mock.Anything).Return(nil)
+	tool2.On("LintAll", mock.Anything, mock.Anything).Return(nil)
 
-	err := list.LintAll(context.Background(), internal.ProjectInfo{}, []string{})
+	err := list.LintAll(context.Background(), internal.ProjectLinterOptions{})
 
 	assert.NoError(t, err)
 
@@ -785,7 +785,7 @@ func TestLinterList_LintAll_Available2(t *testing.T) {
 func TestLinterList_LintFiles_Empty(t *testing.T) {
 	list := &LinterList{}
 
-	err := list.LintFiles(context.Background(), internal.ProjectInfo{}, []string{"file1"}, []string{})
+	err := list.LintFiles(context.Background(), internal.ProjectLinterOptions{}, []string{"file1"})
 
 	assert.EqualError(t, err, "no linter tool available: none")
 }
@@ -796,7 +796,7 @@ func TestLinterList_LintFiles_NoAvailable(t *testing.T) {
 
 	list := &LinterList{tool1, tool2}
 
-	err := list.LintFiles(context.Background(), internal.ProjectInfo{}, []string{"file1"}, []string{})
+	err := list.LintFiles(context.Background(), internal.ProjectLinterOptions{}, []string{"file1"})
 
 	assert.EqualError(t, err, "no linter tool available: test1, test2")
 
@@ -812,9 +812,9 @@ func TestLinterList_LintFiles_Available1(t *testing.T) {
 
 	tool1.Test(t)
 	tool2.Test(t)
-	tool1.On("LintFiles", mock.Anything, mock.Anything, []string{"file1"}, []string{}).Return(nil)
+	tool1.On("LintFiles", mock.Anything, mock.Anything, []string{"file1"}).Return(nil)
 
-	err := list.LintFiles(context.Background(), internal.ProjectInfo{}, []string{"file1"}, []string{})
+	err := list.LintFiles(context.Background(), internal.ProjectLinterOptions{}, []string{"file1"})
 
 	assert.NoError(t, err)
 
@@ -830,10 +830,10 @@ func TestLinterList_LintFiles_Available2(t *testing.T) {
 
 	tool1.Test(t)
 	tool2.Test(t)
-	tool1.On("LintFiles", mock.Anything, mock.Anything, []string{"file1"}, []string{}).Return(nil)
-	tool2.On("LintFiles", mock.Anything, mock.Anything, []string{"file1"}, []string{}).Return(nil)
+	tool1.On("LintFiles", mock.Anything, mock.Anything, []string{"file1"}).Return(nil)
+	tool2.On("LintFiles", mock.Anything, mock.Anything, []string{"file1"}).Return(nil)
 
-	err := list.LintFiles(context.Background(), internal.ProjectInfo{}, []string{"file1"}, []string{})
+	err := list.LintFiles(context.Background(), internal.ProjectLinterOptions{}, []string{"file1"})
 
 	assert.NoError(t, err)
 

@@ -140,29 +140,29 @@ type linterTool interface {
 
 type LinterList []linterTool
 
-func (f *LinterList) LintAll(ctx context.Context, info internal.ProjectInfo, args []string) error {
+func (f *LinterList) LintAll(ctx context.Context, options internal.ProjectLinterOptions) error {
 	return runAllAvailable(*f, "linter", func(tool linterTool) error {
-		return tool.LintAll(ctx, info, args)
+		return tool.LintAll(ctx, options)
 	})
 }
 
-func (f *LinterList) LintFiles(ctx context.Context, info internal.ProjectInfo, filenames []string, args []string) error {
+func (f *LinterList) LintFiles(ctx context.Context, options internal.ProjectLinterOptions, filenames []string) error {
 	return runAllAvailable(*f, "linter", func(tool linterTool) error {
-		return tool.LintFiles(ctx, info, filenames, args)
+		return tool.LintFiles(ctx, options, filenames)
 	})
 }
 
 type LinterFallback []linterTool
 
-func (f *LinterFallback) LintAll(ctx context.Context, info internal.ProjectInfo, args []string) error {
+func (f *LinterFallback) LintAll(ctx context.Context, options internal.ProjectLinterOptions) error {
 	return runFirstAvailable(*f, "linter", func(tool linterTool) error {
-		return tool.LintAll(ctx, info, args)
+		return tool.LintAll(ctx, options)
 	})
 }
 
-func (f *LinterFallback) LintFiles(ctx context.Context, info internal.ProjectInfo, filenames []string, args []string) error {
+func (f *LinterFallback) LintFiles(ctx context.Context, options internal.ProjectLinterOptions, filenames []string) error {
 	return runFirstAvailable(*f, "linter", func(tool linterTool) error {
-		return tool.LintFiles(ctx, info, filenames, args)
+		return tool.LintFiles(ctx, options, filenames)
 	})
 }
 
