@@ -39,10 +39,10 @@ func NewParaTest(detect func() *internal.Executable) *ParaTest {
 	}
 }
 
-func (p *ParaTest) TestAll(ctx context.Context, info internal.ProjectInfo, args []string) error {
-	return p.RunForProject(ctx, info, args)
+func (p *ParaTest) TestAll(ctx context.Context, options internal.ProjectTesterOptions) error {
+	return p.RunForProject(ctx, options.ProjectInfo, options.ExtraArgs)
 }
 
-func (p *ParaTest) Test(ctx context.Context, info internal.ProjectInfo, pattern string, args []string) error {
-	return p.RunForProject(ctx, info, append(args, pattern))
+func (p *ParaTest) TestPattern(ctx context.Context, options internal.ProjectTesterOptions, pattern string) error {
+	return p.RunForProject(ctx, options.ProjectInfo, append(options.ExtraArgs, pattern))
 }

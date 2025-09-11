@@ -39,10 +39,10 @@ func NewPHPUnit(detect func() *internal.Executable) *PHPUnit {
 	}
 }
 
-func (p *PHPUnit) TestAll(ctx context.Context, info internal.ProjectInfo, args []string) error {
-	return p.RunForProject(ctx, info, args)
+func (p *PHPUnit) TestAll(ctx context.Context, options internal.ProjectTesterOptions) error {
+	return p.RunForProject(ctx, options.ProjectInfo, options.ExtraArgs)
 }
 
-func (p *PHPUnit) Test(ctx context.Context, info internal.ProjectInfo, pattern string, args []string) error {
-	return p.RunForProject(ctx, info, append(args, pattern))
+func (p *PHPUnit) TestPattern(ctx context.Context, options internal.ProjectTesterOptions, pattern string) error {
+	return p.RunForProject(ctx, options.ProjectInfo, append(options.ExtraArgs, pattern))
 }

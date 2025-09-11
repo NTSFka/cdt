@@ -33,13 +33,21 @@ type ProjectBuilder interface {
 	BuildTargets(ctx context.Context, options ProjectBuilderOptions, targets []string) error
 }
 
+// ProjectTesterOptions are options for testing a project
+type ProjectTesterOptions struct {
+	ProjectInfo
+
+	// ExtraArgs are extra arguments for the specific tester implementation
+	ExtraArgs []string
+}
+
 // A ProjectTester allow testing a project
 type ProjectTester interface {
 	// TestAll runs all tests in the project
-	TestAll(ctx context.Context, info ProjectInfo, args []string) error
+	TestAll(ctx context.Context, options ProjectTesterOptions) error
 
-	// Test runs tests that match the pattern
-	Test(ctx context.Context, info ProjectInfo, pattern string, args []string) error
+	// TestPattern runs tests that match the pattern
+	TestPattern(ctx context.Context, options ProjectTesterOptions, pattern string) error
 }
 
 // A ProjectFormatter allow formatting files of a project

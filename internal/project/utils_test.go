@@ -18,7 +18,7 @@ func createConfiguratorTool(id string, executable *internal.Executable) *struct 
 		internal.ExecutableTool
 		test.ProjectConfigurator
 	}{
-		internal.MakeExecutableTool(id, "Test", "", internal.Tags{}, func() *internal.Executable {
+		internal.MakeExecutableTool(id, "TestPattern", "", internal.Tags{}, func() *internal.Executable {
 			return executable
 		}),
 		test.ProjectConfigurator{},
@@ -232,7 +232,7 @@ func createTesterTool(id string, executable *internal.Executable) *struct {
 func TestTesterFallback_TestAll_Empty(t *testing.T) {
 	fallback := &TesterFallback{}
 
-	err := fallback.TestAll(context.Background(), internal.ProjectInfo{}, []string{})
+	err := fallback.TestAll(context.Background(), internal.ProjectTesterOptions{})
 
 	assert.EqualError(t, err, "no tester tool available: none")
 }
@@ -243,7 +243,7 @@ func TestTesterFallback_TestAll_NoAvailable(t *testing.T) {
 
 	fallback := &TesterFallback{tool1, tool2}
 
-	err := fallback.TestAll(context.Background(), internal.ProjectInfo{}, []string{})
+	err := fallback.TestAll(context.Background(), internal.ProjectTesterOptions{})
 
 	assert.EqualError(t, err, "no tester tool available: test1, test2")
 
@@ -257,11 +257,11 @@ func TestTesterFallback_TestAll_Available1(t *testing.T) {
 
 	fallback := &TesterFallback{tool1, tool2}
 
-	tool1.Mock.Test(t)
-	tool2.Mock.Test(t)
-	tool1.On("TestAll", mock.Anything, mock.Anything, []string{}).Return(nil)
+	tool1.Test(t)
+	tool2.Test(t)
+	tool1.On("TestAll", mock.Anything, mock.Anything).Return(nil)
 
-	err := fallback.TestAll(context.Background(), internal.ProjectInfo{}, []string{})
+	err := fallback.TestAll(context.Background(), internal.ProjectTesterOptions{})
 
 	assert.NoError(t, err)
 
@@ -275,11 +275,11 @@ func TestTesterFallback_TestAll_Available2(t *testing.T) {
 
 	fallback := &TesterFallback{tool1, tool2}
 
-	tool1.Mock.Test(t)
-	tool2.Mock.Test(t)
-	tool2.On("TestAll", mock.Anything, mock.Anything, []string{}).Return(nil)
+	tool1.Test(t)
+	tool2.Test(t)
+	tool2.On("TestAll", mock.Anything, mock.Anything).Return(nil)
 
-	err := fallback.TestAll(context.Background(), internal.ProjectInfo{}, []string{})
+	err := fallback.TestAll(context.Background(), internal.ProjectTesterOptions{})
 
 	assert.NoError(t, err)
 
@@ -290,7 +290,7 @@ func TestTesterFallback_TestAll_Available2(t *testing.T) {
 func TestTesterFallback_Test_Empty(t *testing.T) {
 	fallback := &TesterFallback{}
 
-	err := fallback.Test(context.Background(), internal.ProjectInfo{}, "target1", []string{})
+	err := fallback.TestPattern(context.Background(), internal.ProjectTesterOptions{}, "target1")
 
 	assert.EqualError(t, err, "no tester tool available: none")
 }
@@ -301,7 +301,7 @@ func TestTesterFallback_Test_NoAvailable(t *testing.T) {
 
 	fallback := &TesterFallback{tool1, tool2}
 
-	err := fallback.Test(context.Background(), internal.ProjectInfo{}, "target1", []string{})
+	err := fallback.TestPattern(context.Background(), internal.ProjectTesterOptions{}, "target1")
 
 	assert.EqualError(t, err, "no tester tool available: test1, test2")
 
@@ -315,11 +315,11 @@ func TestTesterFallback_Test_Available1(t *testing.T) {
 
 	fallback := &TesterFallback{tool1, tool2}
 
-	tool1.Mock.Test(t)
-	tool2.Mock.Test(t)
-	tool1.On("Test", mock.Anything, mock.Anything, "target1", []string{}).Return(nil)
+	tool1.Test(t)
+	tool2.Test(t)
+	tool1.On("TestPattern", mock.Anything, mock.Anything, "target1").Return(nil)
 
-	err := fallback.Test(context.Background(), internal.ProjectInfo{}, "target1", []string{})
+	err := fallback.TestPattern(context.Background(), internal.ProjectTesterOptions{}, "target1")
 
 	assert.NoError(t, err)
 
@@ -333,11 +333,11 @@ func TestTesterFallback_Test_Available2(t *testing.T) {
 
 	fallback := &TesterFallback{tool1, tool2}
 
-	tool1.Mock.Test(t)
-	tool2.Mock.Test(t)
-	tool2.On("Test", mock.Anything, mock.Anything, "target1", []string{}).Return(nil)
+	tool1.Test(t)
+	tool2.Test(t)
+	tool2.On("TestPattern", mock.Anything, mock.Anything, "target1").Return(nil)
 
-	err := fallback.Test(context.Background(), internal.ProjectInfo{}, "target1", []string{})
+	err := fallback.TestPattern(context.Background(), internal.ProjectTesterOptions{}, "target1")
 
 	assert.NoError(t, err)
 

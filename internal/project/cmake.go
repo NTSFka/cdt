@@ -59,18 +59,18 @@ type cmakeTester struct {
 	ctestTool *tool.CTest
 }
 
-func (t *cmakeTester) TestAll(ctx context.Context, info internal.ProjectInfo, args []string) error {
-	if err := t.cmakeTool.BuildAll(ctx, internal.ProjectBuilderOptions{ProjectInfo: info}); err != nil {
+func (t *cmakeTester) TestAll(ctx context.Context, options internal.ProjectTesterOptions) error {
+	if err := t.cmakeTool.BuildAll(ctx, internal.ProjectBuilderOptions{ProjectInfo: options.ProjectInfo}); err != nil {
 		return fmt.Errorf("build failed: %w", err)
 	}
 
-	return t.ctestTool.RunForProject(ctx, info, args)
+	return t.ctestTool.RunForProject(ctx, options.ProjectInfo, options.ExtraArgs)
 }
 
-func (t *cmakeTester) Test(ctx context.Context, info internal.ProjectInfo, pattern string, args []string) error {
-	if err := t.cmakeTool.BuildAll(ctx, internal.ProjectBuilderOptions{ProjectInfo: info}); err != nil {
+func (t *cmakeTester) TestPattern(ctx context.Context, options internal.ProjectTesterOptions, pattern string) error {
+	if err := t.cmakeTool.BuildAll(ctx, internal.ProjectBuilderOptions{ProjectInfo: options.ProjectInfo}); err != nil {
 		return fmt.Errorf("build failed: %w", err)
 	}
 
-	return t.ctestTool.RunForProject(ctx, info, append(args, "-R", pattern))
+	return t.ctestTool.RunForProject(ctx, options.ProjectInfo, append(options.ExtraArgs, "-R", pattern))
 }

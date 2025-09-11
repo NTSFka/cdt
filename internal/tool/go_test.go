@@ -210,12 +210,12 @@ func TestGo_TestAll(t *testing.T) {
 
 	tool := NewGo(exec.LazyExecutable("go"))
 
-	p := internal.ProjectInfo{Directory: "."}
+	info := internal.ProjectInfo{Directory: "."}
 
 	exec.OnRun("go", []string{"test", "./..."}).
 		Return(nil)
 
-	err := tool.TestAll(context.Background(), p, []string{})
+	err := tool.TestAll(context.Background(), internal.ProjectTesterOptions{ProjectInfo: info})
 	assert.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -226,12 +226,12 @@ func TestGo_TestAll_Failed(t *testing.T) {
 
 	tool := NewGo(exec.LazyExecutable("go"))
 
-	p := internal.ProjectInfo{Directory: "."}
+	info := internal.ProjectInfo{Directory: "."}
 
 	exec.OnRun("go", []string{"test", "./..."}).
 		Return(errors.New("failed"))
 
-	err := tool.TestAll(context.Background(), p, []string{})
+	err := tool.TestAll(context.Background(), internal.ProjectTesterOptions{ProjectInfo: info})
 	assert.EqualError(t, err, "failed")
 
 	exec.AssertExpectations(t)
@@ -242,12 +242,12 @@ func TestGo_Test(t *testing.T) {
 
 	tool := NewGo(exec.LazyExecutable("go"))
 
-	p := internal.ProjectInfo{Directory: "."}
+	info := internal.ProjectInfo{Directory: "."}
 
 	exec.OnRun("go", []string{"test", "test1"}).
 		Return(nil)
 
-	err := tool.Test(context.Background(), p, "test1", []string{})
+	err := tool.TestPattern(context.Background(), internal.ProjectTesterOptions{ProjectInfo: info}, "test1")
 	assert.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -258,12 +258,12 @@ func TestGo_Test_Failed(t *testing.T) {
 
 	tool := NewGo(exec.LazyExecutable("go"))
 
-	p := internal.ProjectInfo{Directory: "."}
+	info := internal.ProjectInfo{Directory: "."}
 
 	exec.OnRun("go", []string{"test", "test1"}).
 		Return(errors.New("failed"))
 
-	err := tool.Test(context.Background(), p, "test1", []string{})
+	err := tool.TestPattern(context.Background(), internal.ProjectTesterOptions{ProjectInfo: info}, "test1")
 	assert.EqualError(t, err, "failed")
 
 	exec.AssertExpectations(t)

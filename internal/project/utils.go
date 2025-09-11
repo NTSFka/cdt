@@ -90,15 +90,15 @@ type testerTool interface {
 
 type TesterFallback []testerTool
 
-func (f *TesterFallback) TestAll(ctx context.Context, info internal.ProjectInfo, args []string) error {
+func (f *TesterFallback) TestAll(ctx context.Context, options internal.ProjectTesterOptions) error {
 	return runFirstAvailable(*f, "tester", func(tool testerTool) error {
-		return tool.TestAll(ctx, info, args)
+		return tool.TestAll(ctx, options)
 	})
 }
 
-func (f *TesterFallback) Test(ctx context.Context, info internal.ProjectInfo, pattern string, args []string) error {
+func (f *TesterFallback) TestPattern(ctx context.Context, options internal.ProjectTesterOptions, pattern string) error {
 	return runFirstAvailable(*f, "tester", func(tool testerTool) error {
-		return tool.Test(ctx, info, pattern, args)
+		return tool.TestPattern(ctx, options, pattern)
 	})
 }
 

@@ -82,12 +82,12 @@ func (g *Go) RunTarget(ctx context.Context, info internal.ProjectInfo, target st
 	return g.RunForProject(ctx, info, append(args, "run", target))
 }
 
-func (g *Go) TestAll(ctx context.Context, info internal.ProjectInfo, args []string) error {
-	return g.RunForProject(ctx, info, append(args, "test", "./..."))
+func (g *Go) TestAll(ctx context.Context, options internal.ProjectTesterOptions) error {
+	return g.RunForProject(ctx, options.ProjectInfo, append(options.ExtraArgs, "test", "./..."))
 }
 
-func (g *Go) Test(ctx context.Context, info internal.ProjectInfo, pattern string, args []string) error {
-	return g.RunForProject(ctx, info, append(args, "test", pattern))
+func (g *Go) TestPattern(ctx context.Context, options internal.ProjectTesterOptions, pattern string) error {
+	return g.RunForProject(ctx, options.ProjectInfo, append(options.ExtraArgs, "test", pattern))
 }
 
 func (g *Go) FormatAll(ctx context.Context, info internal.ProjectInfo, args []string) error {

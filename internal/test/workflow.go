@@ -94,12 +94,12 @@ func NewProjectTester(t *testing.T) *ProjectTester {
 	return &tester
 }
 
-func (t *ProjectTester) TestAll(ctx context.Context, info internal.ProjectInfo, args []string) error {
-	return t.Called(ctx, info, args).Error(0)
+func (t *ProjectTester) TestAll(ctx context.Context, options internal.ProjectTesterOptions) error {
+	return t.Called(ctx, options).Error(0)
 }
 
-func (t *ProjectTester) Test(ctx context.Context, info internal.ProjectInfo, pattern string, args []string) error {
-	return t.Called(ctx, info, pattern, args).Error(0)
+func (t *ProjectTester) TestPattern(ctx context.Context, options internal.ProjectTesterOptions, pattern string) error {
+	return t.Called(ctx, options, pattern).Error(0)
 }
 
 type ProjectRunner struct {
