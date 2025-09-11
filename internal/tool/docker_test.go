@@ -20,6 +20,7 @@ func TestDocker_NewDocker_NoExecutable(t *testing.T) {
 	assert.Equal(t, "docker", tool.Id())
 	assert.NotEmpty(t, tool.Name())
 	assert.NotEmpty(t, tool.Info())
+	assert.Equal(t, []string{"d"}, tool.Aliases())
 	assert.False(t, tool.IsAvailable())
 }
 
@@ -55,6 +56,14 @@ func TestDocker_DetectDocker_Found(t *testing.T) {
 	assert.True(t, tool.IsAvailable())
 
 	env.AssertExpectations(t)
+}
+
+func TestDocker_Detect(t *testing.T) {
+	tool := NewDocker(func() *internal.Executable { return &internal.Executable{Path: "docker"} })
+	assert.NotNil(t, tool)
+
+	env := tool.Detect(".")
+	assert.Nil(t, env)
 }
 
 func TestDocker_CreateEnvironment(t *testing.T) {

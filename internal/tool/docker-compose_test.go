@@ -18,6 +18,7 @@ func TestDockerCompose_NewDockerCompose_NoExecutable(t *testing.T) {
 	assert.Equal(t, "docker-compose", tool.Id())
 	assert.NotEmpty(t, tool.Name())
 	assert.NotEmpty(t, tool.Info())
+	assert.Equal(t, []string{"dc"}, tool.Aliases())
 	assert.False(t, tool.IsAvailable())
 }
 
@@ -53,6 +54,14 @@ func TestDockerCompose_DetectDockerCompose_Found(t *testing.T) {
 	assert.True(t, tool.IsAvailable())
 
 	env.AssertExpectations(t)
+}
+
+func TestDockerCompose_Detect(t *testing.T) {
+	tool := NewDockerCompose(func() *internal.Executable { return &internal.Executable{Path: "docker"} })
+	assert.NotNil(t, tool)
+
+	env := tool.Detect(".")
+	assert.Nil(t, env)
 }
 
 func TestDockerCompose_CreateEnvironment(t *testing.T) {

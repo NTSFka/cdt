@@ -41,7 +41,20 @@ func TestCTest_DetectCTest_NotFound(t *testing.T) {
 	env.AssertExpectations(t)
 }
 
-func TestCTest_Run(t *testing.T) {
+func TestCTest_RunForProject_NoIntermediateDirectory(t *testing.T) {
+	exec := test.NewExecutable(t)
+
+	tool := NewCTest(exec.LazyExecutable("ctest"))
+
+	desc := internal.ProjectInfo{Directory: "project", IntermediateDirectory: nil}
+
+	err := tool.RunForProject(context.Background(), desc, []string{})
+	assert.ErrorIs(t, err, internal.ErrNoIntermediateDirectory)
+
+	exec.AssertExpectations(t)
+}
+
+func TestCTest_RunForProject(t *testing.T) {
 	exec := test.NewExecutable(t)
 
 	tool := NewCTest(exec.LazyExecutable("ctest"))
@@ -57,7 +70,7 @@ func TestCTest_Run(t *testing.T) {
 	exec.AssertExpectations(t)
 }
 
-func TestCTest_Run_Failed(t *testing.T) {
+func TestCTest_RunForProject_Failed(t *testing.T) {
 	exec := test.NewExecutable(t)
 
 	tool := NewCTest(exec.LazyExecutable("ctest"))
