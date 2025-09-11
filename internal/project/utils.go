@@ -71,15 +71,15 @@ type builderTool interface {
 
 type BuilderFallback []builderTool
 
-func (f *BuilderFallback) BuildAll(ctx context.Context, info internal.ProjectInfo, args []string) error {
+func (f *BuilderFallback) BuildAll(ctx context.Context, options internal.ProjectBuilderOptions) error {
 	return runFirstAvailable(*f, "builder", func(tool builderTool) error {
-		return tool.BuildAll(ctx, info, args)
+		return tool.BuildAll(ctx, options)
 	})
 }
 
-func (f *BuilderFallback) BuildTargets(ctx context.Context, info internal.ProjectInfo, targets []string, args []string) error {
+func (f *BuilderFallback) BuildTargets(ctx context.Context, options internal.ProjectBuilderOptions, targets []string) error {
 	return runFirstAvailable(*f, "builder", func(tool builderTool) error {
-		return tool.BuildTargets(ctx, info, targets, args)
+		return tool.BuildTargets(ctx, options, targets)
 	})
 }
 

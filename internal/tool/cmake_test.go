@@ -126,7 +126,7 @@ func TestCMake_BuildAll(t *testing.T) {
 
 	buildDir := t.TempDir()
 
-	desc := internal.ProjectInfo{
+	info := internal.ProjectInfo{
 		Directory:             "project",
 		IntermediateDirectory: &buildDir,
 		StructureProvider:     cmake,
@@ -144,7 +144,7 @@ func TestCMake_BuildAll(t *testing.T) {
 	exec.OnRun("cmake", []string{"--build", buildDir}).
 		Return(nil)
 
-	err := cmake.BuildAll(context.Background(), desc, []string{})
+	err := cmake.BuildAll(context.Background(), internal.ProjectBuilderOptions{ProjectInfo: info})
 	assert.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -157,7 +157,7 @@ func TestCMake_BuildAll_Failed(t *testing.T) {
 
 	buildDir := t.TempDir()
 
-	desc := internal.ProjectInfo{
+	info := internal.ProjectInfo{
 		Directory:             "project",
 		IntermediateDirectory: &buildDir,
 		StructureProvider:     cmake,
@@ -175,7 +175,7 @@ func TestCMake_BuildAll_Failed(t *testing.T) {
 	exec.OnRun("cmake", []string{"--build", buildDir}).
 		Return(errors.New("failed"))
 
-	err := cmake.BuildAll(context.Background(), desc, []string{})
+	err := cmake.BuildAll(context.Background(), internal.ProjectBuilderOptions{ProjectInfo: info})
 	assert.EqualError(t, err, "failed")
 
 	exec.AssertExpectations(t)
@@ -188,7 +188,7 @@ func TestCMake_BuildAll_ConfigureFailed(t *testing.T) {
 
 	buildDir := t.TempDir()
 
-	desc := internal.ProjectInfo{
+	info := internal.ProjectInfo{
 		Directory:             "project",
 		IntermediateDirectory: &buildDir,
 		StructureProvider:     cmake,
@@ -202,7 +202,7 @@ func TestCMake_BuildAll_ConfigureFailed(t *testing.T) {
 	}).
 		Return(errors.New("failed"))
 
-	err := cmake.BuildAll(context.Background(), desc, []string{})
+	err := cmake.BuildAll(context.Background(), internal.ProjectBuilderOptions{ProjectInfo: info})
 	assert.EqualError(t, err, "failed")
 
 	exec.AssertExpectations(t)
@@ -215,7 +215,7 @@ func TestCMake_BuildTargets(t *testing.T) {
 
 	buildDir := t.TempDir()
 
-	desc := internal.ProjectInfo{
+	info := internal.ProjectInfo{
 		Directory:             "project",
 		IntermediateDirectory: &buildDir,
 		StructureProvider:     cmake,
@@ -236,7 +236,7 @@ func TestCMake_BuildTargets(t *testing.T) {
 	}).
 		Return(nil)
 
-	err := cmake.BuildTargets(context.Background(), desc, []string{"target1", "target2"}, []string{})
+	err := cmake.BuildTargets(context.Background(), internal.ProjectBuilderOptions{ProjectInfo: info}, []string{"target1", "target2"})
 	assert.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -249,7 +249,7 @@ func TestCMake_BuildTargets_Failed(t *testing.T) {
 
 	buildDir := t.TempDir()
 
-	desc := internal.ProjectInfo{
+	info := internal.ProjectInfo{
 		Directory:             "project",
 		IntermediateDirectory: &buildDir,
 		StructureProvider:     cmake,
@@ -270,7 +270,7 @@ func TestCMake_BuildTargets_Failed(t *testing.T) {
 	}).
 		Return(errors.New("failed"))
 
-	err := cmake.BuildTargets(context.Background(), desc, []string{"target1", "target2"}, []string{})
+	err := cmake.BuildTargets(context.Background(), internal.ProjectBuilderOptions{ProjectInfo: info}, []string{"target1", "target2"})
 	assert.EqualError(t, err, "failed")
 
 	exec.AssertExpectations(t)
@@ -283,7 +283,7 @@ func TestCMake_BuildTargets_ConfigureFailed(t *testing.T) {
 
 	buildDir := t.TempDir()
 
-	desc := internal.ProjectInfo{
+	info := internal.ProjectInfo{
 		Directory:             "project",
 		IntermediateDirectory: &buildDir,
 		StructureProvider:     cmake,
@@ -297,7 +297,7 @@ func TestCMake_BuildTargets_ConfigureFailed(t *testing.T) {
 	}).
 		Return(errors.New("failed"))
 
-	err := cmake.BuildTargets(context.Background(), desc, []string{"target1", "target2"}, []string{})
+	err := cmake.BuildTargets(context.Background(), internal.ProjectBuilderOptions{ProjectInfo: info}, []string{"target1", "target2"})
 	assert.EqualError(t, err, "failed")
 
 	exec.AssertExpectations(t)

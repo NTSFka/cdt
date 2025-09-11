@@ -16,13 +16,21 @@ type ProjectConfigurator interface {
 	Configure(ctx context.Context, options ProjectConfiguratorOptions) error
 }
 
+// ProjectBuilderOptions are options for building a project
+type ProjectBuilderOptions struct {
+	ProjectInfo
+
+	// ExtraArgs are extra arguments for the specific builder implementation
+	ExtraArgs []string
+}
+
 // A ProjectBuilder allow building a project
 type ProjectBuilder interface {
 	// BuildAll builds all targets in the project
-	BuildAll(ctx context.Context, info ProjectInfo, args []string) error
+	BuildAll(ctx context.Context, options ProjectBuilderOptions) error
 
 	// BuildTargets builds specific targets in the project
-	BuildTargets(ctx context.Context, info ProjectInfo, targets []string, args []string) error
+	BuildTargets(ctx context.Context, options ProjectBuilderOptions, targets []string) error
 }
 
 // A ProjectTester allow testing a project

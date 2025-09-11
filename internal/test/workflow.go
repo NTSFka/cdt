@@ -32,12 +32,12 @@ func NewProjectBuilder(t *testing.T) *ProjectBuilder {
 	return &builder
 }
 
-func (t *ProjectBuilder) BuildAll(ctx context.Context, info internal.ProjectInfo, args []string) error {
-	return t.Called(ctx, info, args).Error(0)
+func (t *ProjectBuilder) BuildAll(ctx context.Context, options internal.ProjectBuilderOptions) error {
+	return t.Called(ctx, options).Error(0)
 }
 
-func (t *ProjectBuilder) BuildTargets(ctx context.Context, info internal.ProjectInfo, targets []string, args []string) error {
-	return t.Called(ctx, info, targets, args).Error(0)
+func (t *ProjectBuilder) BuildTargets(ctx context.Context, options internal.ProjectBuilderOptions, targets []string) error {
+	return t.Called(ctx, options, targets).Error(0)
 }
 
 type ProjectFormatter struct {

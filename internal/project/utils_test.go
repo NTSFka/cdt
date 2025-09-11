@@ -101,7 +101,7 @@ func createBuilderTool(id string, executable *internal.Executable) *struct {
 func TestBuilderFallback_BuildAll_Empty(t *testing.T) {
 	fallback := &BuilderFallback{}
 
-	err := fallback.BuildAll(context.Background(), internal.ProjectInfo{}, []string{})
+	err := fallback.BuildAll(context.Background(), internal.ProjectBuilderOptions{})
 
 	assert.EqualError(t, err, "no builder tool available: none")
 }
@@ -112,7 +112,7 @@ func TestBuilderFallback_BuildAll_NoAvailable(t *testing.T) {
 
 	fallback := &BuilderFallback{tool1, tool2}
 
-	err := fallback.BuildAll(context.Background(), internal.ProjectInfo{}, []string{})
+	err := fallback.BuildAll(context.Background(), internal.ProjectBuilderOptions{})
 
 	assert.EqualError(t, err, "no builder tool available: test1, test2")
 
@@ -128,9 +128,9 @@ func TestBuilderFallback_BuildAll_Available1(t *testing.T) {
 
 	tool1.Test(t)
 	tool2.Test(t)
-	tool1.On("BuildAll", mock.Anything, mock.Anything, []string{}).Return(nil)
+	tool1.On("BuildAll", mock.Anything, mock.Anything).Return(nil)
 
-	err := fallback.BuildAll(context.Background(), internal.ProjectInfo{}, []string{})
+	err := fallback.BuildAll(context.Background(), internal.ProjectBuilderOptions{})
 
 	assert.NoError(t, err)
 
@@ -146,9 +146,9 @@ func TestBuilderFallback_BuildAll_Available2(t *testing.T) {
 
 	tool1.Test(t)
 	tool2.Test(t)
-	tool2.On("BuildAll", mock.Anything, mock.Anything, []string{}).Return(nil)
+	tool2.On("BuildAll", mock.Anything, mock.Anything).Return(nil)
 
-	err := fallback.BuildAll(context.Background(), internal.ProjectInfo{}, []string{})
+	err := fallback.BuildAll(context.Background(), internal.ProjectBuilderOptions{})
 
 	assert.NoError(t, err)
 
@@ -159,7 +159,7 @@ func TestBuilderFallback_BuildAll_Available2(t *testing.T) {
 func TestBuilderFallback_BuildTargets_Empty(t *testing.T) {
 	fallback := &BuilderFallback{}
 
-	err := fallback.BuildTargets(context.Background(), internal.ProjectInfo{}, []string{"target1"}, []string{})
+	err := fallback.BuildTargets(context.Background(), internal.ProjectBuilderOptions{}, []string{"target1"})
 
 	assert.EqualError(t, err, "no builder tool available: none")
 }
@@ -170,7 +170,7 @@ func TestBuilderFallback_BuildTargets_NoAvailable(t *testing.T) {
 
 	fallback := &BuilderFallback{tool1, tool2}
 
-	err := fallback.BuildTargets(context.Background(), internal.ProjectInfo{}, []string{"target1"}, []string{})
+	err := fallback.BuildTargets(context.Background(), internal.ProjectBuilderOptions{}, []string{"target1"})
 
 	assert.EqualError(t, err, "no builder tool available: test1, test2")
 
@@ -186,9 +186,9 @@ func TestBuilderFallback_BuildTargets_Available1(t *testing.T) {
 
 	tool1.Test(t)
 	tool2.Test(t)
-	tool1.On("BuildTargets", mock.Anything, mock.Anything, []string{"target1"}, []string{}).Return(nil)
+	tool1.On("BuildTargets", mock.Anything, mock.Anything, []string{"target1"}).Return(nil)
 
-	err := fallback.BuildTargets(context.Background(), internal.ProjectInfo{}, []string{"target1"}, []string{})
+	err := fallback.BuildTargets(context.Background(), internal.ProjectBuilderOptions{}, []string{"target1"})
 
 	assert.NoError(t, err)
 
@@ -204,9 +204,9 @@ func TestBuilderFallback_BuildTargets_Available2(t *testing.T) {
 
 	tool1.Test(t)
 	tool2.Test(t)
-	tool2.On("BuildTargets", mock.Anything, mock.Anything, []string{"target1"}, []string{}).Return(nil)
+	tool2.On("BuildTargets", mock.Anything, mock.Anything, []string{"target1"}).Return(nil)
 
-	err := fallback.BuildTargets(context.Background(), internal.ProjectInfo{}, []string{"target1"}, []string{})
+	err := fallback.BuildTargets(context.Background(), internal.ProjectBuilderOptions{}, []string{"target1"})
 
 	assert.NoError(t, err)
 

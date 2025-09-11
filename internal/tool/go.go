@@ -70,12 +70,12 @@ func (g *Go) Structure(ctx context.Context, info internal.ProjectInfo) (*interna
 	return &structure, nil
 }
 
-func (g *Go) BuildAll(ctx context.Context, info internal.ProjectInfo, args []string) error {
-	return g.RunForProject(ctx, info, append(args, "build"))
+func (g *Go) BuildAll(ctx context.Context, options internal.ProjectBuilderOptions) error {
+	return g.RunForProject(ctx, options.ProjectInfo, append(options.ExtraArgs, "build"))
 }
 
-func (g *Go) BuildTargets(ctx context.Context, info internal.ProjectInfo, targets []string, args []string) error {
-	return g.RunForProject(ctx, info, append(append(args, "build"), targets...))
+func (g *Go) BuildTargets(ctx context.Context, options internal.ProjectBuilderOptions, targets []string) error {
+	return g.RunForProject(ctx, options.ProjectInfo, append(append(options.ExtraArgs, "build"), targets...))
 }
 
 func (g *Go) RunTarget(ctx context.Context, info internal.ProjectInfo, target string, args []string) error {

@@ -114,12 +114,12 @@ func TestGo_BuildAll(t *testing.T) {
 
 	tool := NewGo(exec.LazyExecutable("go"))
 
-	p := internal.ProjectInfo{Directory: "."}
+	info := internal.ProjectInfo{Directory: "."}
 
 	exec.OnRun("go", []string{"build"}).
 		Return(nil)
 
-	err := tool.BuildAll(context.Background(), p, []string{})
+	err := tool.BuildAll(context.Background(), internal.ProjectBuilderOptions{ProjectInfo: info})
 	assert.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -130,12 +130,12 @@ func TestGo_BuildAll_Failed(t *testing.T) {
 
 	tool := NewGo(exec.LazyExecutable("go"))
 
-	p := internal.ProjectInfo{Directory: "."}
+	info := internal.ProjectInfo{Directory: "."}
 
 	exec.OnRun("go", []string{"build"}).
 		Return(errors.New("failed"))
 
-	err := tool.BuildAll(context.Background(), p, []string{})
+	err := tool.BuildAll(context.Background(), internal.ProjectBuilderOptions{ProjectInfo: info})
 	assert.EqualError(t, err, "failed")
 
 	exec.AssertExpectations(t)
@@ -146,12 +146,12 @@ func TestGo_BuildTargets(t *testing.T) {
 
 	tool := NewGo(exec.LazyExecutable("go"))
 
-	p := internal.ProjectInfo{Directory: "."}
+	info := internal.ProjectInfo{Directory: "."}
 
 	exec.OnRun("go", []string{"build", "target1", "target2"}).
 		Return(nil)
 
-	err := tool.BuildTargets(context.Background(), p, []string{"target1", "target2"}, []string{})
+	err := tool.BuildTargets(context.Background(), internal.ProjectBuilderOptions{ProjectInfo: info}, []string{"target1", "target2"})
 	assert.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -162,12 +162,12 @@ func TestGo_BuildTargets_Failed(t *testing.T) {
 
 	tool := NewGo(exec.LazyExecutable("go"))
 
-	p := internal.ProjectInfo{Directory: "."}
+	info := internal.ProjectInfo{Directory: "."}
 
 	exec.OnRun("go", []string{"build", "target1", "target2"}).
 		Return(errors.New("failed"))
 
-	err := tool.BuildTargets(context.Background(), p, []string{"target1", "target2"}, []string{})
+	err := tool.BuildTargets(context.Background(), internal.ProjectBuilderOptions{ProjectInfo: info}, []string{"target1", "target2"})
 	assert.EqualError(t, err, "failed")
 
 	exec.AssertExpectations(t)

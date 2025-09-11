@@ -56,10 +56,10 @@ func TestCMakeRealProjectConfigureAndBuildAndRun(t *testing.T) {
 		assert.Equal(t, []string{"main.cpp", "test.cpp"}, structure.GetFiles())
 	}
 
-	err = cmake.BuildAll(context.Background(), info, []string{})
+	err = cmake.BuildAll(context.Background(), internal.ProjectBuilderOptions{ProjectInfo: info})
 	assert.NoError(t, err)
 
-	err = cmake.BuildTargets(context.Background(), info, []string{"main"}, []string{})
+	err = cmake.BuildTargets(context.Background(), internal.ProjectBuilderOptions{ProjectInfo: info}, []string{"main"})
 	assert.NoError(t, err)
 
 	err = cmake.RunTarget(context.Background(), info, "main", []string{})

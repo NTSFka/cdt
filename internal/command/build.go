@@ -55,12 +55,17 @@ func buildCommandAction(ctx context.Context, cmd *cli.Command) error {
 		return errors.New("project doesn't support building")
 	}
 
+	options := internal.ProjectBuilderOptions{
+		ProjectInfo: c.Project.Info,
+		ExtraArgs:   cmd.Args().Tail(),
+	}
+
 	var err error
 
 	if targets := cmd.StringArgs("targets"); len(targets) > 0 {
-		err = builder.BuildTargets(ctx, c.Project.Info, targets, cmd.Args().Tail())
+		err = builder.BuildTargets(ctx, options, targets)
 	} else {
-		err = builder.BuildAll(ctx, c.Project.Info, cmd.Args().Tail())
+		err = builder.BuildAll(ctx, options)
 	}
 
 	if err != nil {

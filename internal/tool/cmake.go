@@ -79,40 +79,40 @@ func (c *CMake) Configure(ctx context.Context, options internal.ProjectConfigura
 	return c.RunForProject(ctx, options.ProjectInfo, callArgs)
 }
 
-func (c *CMake) BuildAll(ctx context.Context, info internal.ProjectInfo, args []string) error {
-	if err := c.Configure(ctx, internal.ProjectConfiguratorOptions{ProjectInfo: info}); err != nil {
+func (c *CMake) BuildAll(ctx context.Context, options internal.ProjectBuilderOptions) error {
+	if err := c.Configure(ctx, internal.ProjectConfiguratorOptions{ProjectInfo: options.ProjectInfo}); err != nil {
 		return err
 	}
 
-	if info.IntermediateDirectory == nil {
+	if options.IntermediateDirectory == nil {
 		return internal.ErrNoIntermediateDirectory
 	}
 
-	callArgs := args
-	callArgs = append(callArgs, "--build", *info.IntermediateDirectory)
+	callArgs := []string{"--build", *options.IntermediateDirectory}
+	callArgs = append(callArgs, options.ExtraArgs...)
 
-	return c.RunForProject(ctx, info, callArgs)
+	return c.RunForProject(ctx, options.ProjectInfo, callArgs)
 }
 
-func (c *CMake) BuildTargets(ctx context.Context, info internal.ProjectInfo, targets []string, args []string) error {
-	if err := c.Configure(ctx, internal.ProjectConfiguratorOptions{ProjectInfo: info}); err != nil {
+func (c *CMake) BuildTargets(ctx context.Context, options internal.ProjectBuilderOptions, targets []string) error {
+	if err := c.Configure(ctx, internal.ProjectConfiguratorOptions{ProjectInfo: options.ProjectInfo}); err != nil {
 		return err
 	}
 
-	if info.IntermediateDirectory == nil {
+	if options.IntermediateDirectory == nil {
 		return internal.ErrNoIntermediateDirectory
 	}
 
-	callArgs := args
-	callArgs = append(callArgs, "--build", *info.IntermediateDirectory)
+	callArgs := []string{"--build", *options.IntermediateDirectory}
 	callArgs = append(callArgs, "--target")
 	callArgs = append(callArgs, targets...)
+	callArgs = append(callArgs, options.ExtraArgs...)
 
-	return c.RunForProject(ctx, info, callArgs)
+	return c.RunForProject(ctx, options.ProjectInfo, callArgs)
 }
 
 func (c *CMake) RunTarget(ctx context.Context, info internal.ProjectInfo, target string, args []string) error {
-	if err := c.BuildTargets(ctx, info, []string{target}, []string{}); err != nil {
+	if err := c.BuildTargets(ctx, internal.ProjectBuilderOptions{ProjectInfo: info}, []string{target}); err != nil {
 		return err
 	}
 

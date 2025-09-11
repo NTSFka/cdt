@@ -60,7 +60,7 @@ type cmakeTester struct {
 }
 
 func (t *cmakeTester) TestAll(ctx context.Context, info internal.ProjectInfo, args []string) error {
-	if err := t.cmakeTool.BuildAll(ctx, info, []string{}); err != nil {
+	if err := t.cmakeTool.BuildAll(ctx, internal.ProjectBuilderOptions{ProjectInfo: info}); err != nil {
 		return fmt.Errorf("build failed: %w", err)
 	}
 
@@ -68,7 +68,7 @@ func (t *cmakeTester) TestAll(ctx context.Context, info internal.ProjectInfo, ar
 }
 
 func (t *cmakeTester) Test(ctx context.Context, info internal.ProjectInfo, pattern string, args []string) error {
-	if err := t.cmakeTool.BuildAll(ctx, info, []string{}); err != nil {
+	if err := t.cmakeTool.BuildAll(ctx, internal.ProjectBuilderOptions{ProjectInfo: info}); err != nil {
 		return fmt.Errorf("build failed: %w", err)
 	}
 
