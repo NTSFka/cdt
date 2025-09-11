@@ -73,12 +73,12 @@ func TestComposer_Composer_AddDependencies(t *testing.T) {
 
 	tool := NewComposer(exec.LazyExecutable("composer"))
 
-	desc := internal.ProjectInfo{Directory: "."}
+	info := internal.ProjectInfo{Directory: "."}
 
 	exec.OnRun("composer", []string{"require", "dep1"}).
 		Return(nil)
 
-	err := tool.AddDependencies(context.Background(), desc, []string{"dep1"}, false)
+	err := tool.AddDependencies(context.Background(), internal.ProjectDependencyManagerOptions{ProjectInfo: info}, []string{"dep1"}, false)
 	assert.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -89,12 +89,12 @@ func TestComposer_Composer_AddDependencies_Dev(t *testing.T) {
 
 	tool := NewComposer(exec.LazyExecutable("composer"))
 
-	desc := internal.ProjectInfo{Directory: "."}
+	info := internal.ProjectInfo{Directory: "."}
 
 	exec.OnRun("composer", []string{"require", "--dev", "dep1"}).
 		Return(nil)
 
-	err := tool.AddDependencies(context.Background(), desc, []string{"dep1"}, true)
+	err := tool.AddDependencies(context.Background(), internal.ProjectDependencyManagerOptions{ProjectInfo: info}, []string{"dep1"}, true)
 	assert.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -105,12 +105,12 @@ func TestComposer_Composer_RemoveDependencies(t *testing.T) {
 
 	tool := NewComposer(exec.LazyExecutable("composer"))
 
-	desc := internal.ProjectInfo{Directory: "."}
+	info := internal.ProjectInfo{Directory: "."}
 
 	exec.OnRun("composer", []string{"remove", "dep1"}).
 		Return(nil)
 
-	err := tool.RemoveDependencies(context.Background(), desc, []string{"dep1"}, false)
+	err := tool.RemoveDependencies(context.Background(), internal.ProjectDependencyManagerOptions{ProjectInfo: info}, []string{"dep1"}, false)
 	assert.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -121,12 +121,12 @@ func TestComposer_Composer_RemoveDependencies_Dev(t *testing.T) {
 
 	tool := NewComposer(exec.LazyExecutable("composer"))
 
-	desc := internal.ProjectInfo{Directory: "."}
+	info := internal.ProjectInfo{Directory: "."}
 
 	exec.OnRun("composer", []string{"remove", "--dev", "dep1"}).
 		Return(nil)
 
-	err := tool.RemoveDependencies(context.Background(), desc, []string{"dep1"}, true)
+	err := tool.RemoveDependencies(context.Background(), internal.ProjectDependencyManagerOptions{ProjectInfo: info}, []string{"dep1"}, true)
 	assert.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -137,12 +137,12 @@ func TestComposer_Composer_UpdateDependencies(t *testing.T) {
 
 	tool := NewComposer(exec.LazyExecutable("composer"))
 
-	desc := internal.ProjectInfo{Directory: "."}
+	info := internal.ProjectInfo{Directory: "."}
 
 	exec.OnRun("composer", []string{"update", "dep1"}).
 		Return(nil)
 
-	err := tool.UpdateDependencies(context.Background(), desc, []string{"dep1"})
+	err := tool.UpdateDependencies(context.Background(), internal.ProjectDependencyManagerOptions{ProjectInfo: info}, []string{"dep1"})
 	assert.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -153,12 +153,12 @@ func TestComposer_Composer_FetchDependencies(t *testing.T) {
 
 	tool := NewComposer(exec.LazyExecutable("composer"))
 
-	desc := internal.ProjectInfo{Directory: "."}
+	info := internal.ProjectInfo{Directory: "."}
 
 	exec.OnRun("composer", []string{"install"}).
 		Return(nil)
 
-	err := tool.FetchDependencies(context.Background(), desc, false)
+	err := tool.FetchDependencies(context.Background(), internal.ProjectDependencyManagerOptions{ProjectInfo: info}, false)
 	assert.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -169,12 +169,12 @@ func TestComposer_Composer_FetchDependencies_NoDev(t *testing.T) {
 
 	tool := NewComposer(exec.LazyExecutable("composer"))
 
-	desc := internal.ProjectInfo{Directory: "."}
+	info := internal.ProjectInfo{Directory: "."}
 
 	exec.OnRun("composer", []string{"install", "--no-dev"}).
 		Return(nil)
 
-	err := tool.FetchDependencies(context.Background(), desc, true)
+	err := tool.FetchDependencies(context.Background(), internal.ProjectDependencyManagerOptions{ProjectInfo: info}, true)
 	assert.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -185,12 +185,12 @@ func TestComposer_Composer_ListDependencies(t *testing.T) {
 
 	tool := NewComposer(exec.LazyExecutable("composer"))
 
-	desc := internal.ProjectInfo{Directory: "."}
+	info := internal.ProjectInfo{Directory: "."}
 
 	exec.OnRun("composer", []string{"show"}).
 		Return(nil)
 
-	err := tool.ListDependencies(context.Background(), desc)
+	err := tool.ListDependencies(context.Background(), internal.ProjectDependencyManagerOptions{ProjectInfo: info})
 	assert.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -201,12 +201,12 @@ func TestComposer_Composer_AuditDependencies(t *testing.T) {
 
 	tool := NewComposer(exec.LazyExecutable("composer"))
 
-	desc := internal.ProjectInfo{Directory: "."}
+	info := internal.ProjectInfo{Directory: "."}
 
 	exec.OnRun("composer", []string{"audit"}).
 		Return(nil)
 
-	err := tool.AuditDependencies(context.Background(), desc)
+	err := tool.AuditDependencies(context.Background(), internal.ProjectDependencyManagerOptions{ProjectInfo: info})
 	assert.NoError(t, err)
 
 	exec.AssertExpectations(t)

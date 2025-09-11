@@ -186,38 +186,38 @@ type dependencyManagerTool interface {
 
 type DependencyManagerFallback []dependencyManagerTool
 
-func (f *DependencyManagerFallback) AddDependencies(ctx context.Context, info internal.ProjectInfo, dependencies []string, dev bool) error {
+func (f *DependencyManagerFallback) AddDependencies(ctx context.Context, options internal.ProjectDependencyManagerOptions, dependencies []string, dev bool) error {
 	return runFirstAvailable(*f, "dependency management", func(tool dependencyManagerTool) error {
-		return tool.AddDependencies(ctx, info, dependencies, dev)
+		return tool.AddDependencies(ctx, options, dependencies, dev)
 	})
 }
 
-func (f *DependencyManagerFallback) RemoveDependencies(ctx context.Context, info internal.ProjectInfo, dependencies []string, dev bool) error {
+func (f *DependencyManagerFallback) RemoveDependencies(ctx context.Context, options internal.ProjectDependencyManagerOptions, dependencies []string, dev bool) error {
 	return runFirstAvailable(*f, "dependency management", func(tool dependencyManagerTool) error {
-		return tool.RemoveDependencies(ctx, info, dependencies, dev)
+		return tool.RemoveDependencies(ctx, options, dependencies, dev)
 	})
 }
 
-func (f *DependencyManagerFallback) UpdateDependencies(ctx context.Context, info internal.ProjectInfo, dependencies []string) error {
+func (f *DependencyManagerFallback) UpdateDependencies(ctx context.Context, options internal.ProjectDependencyManagerOptions, dependencies []string) error {
 	return runFirstAvailable(*f, "dependency management", func(tool dependencyManagerTool) error {
-		return tool.UpdateDependencies(ctx, info, dependencies)
+		return tool.UpdateDependencies(ctx, options, dependencies)
 	})
 }
 
-func (f *DependencyManagerFallback) FetchDependencies(ctx context.Context, info internal.ProjectInfo, noDev bool) error {
+func (f *DependencyManagerFallback) FetchDependencies(ctx context.Context, options internal.ProjectDependencyManagerOptions, noDev bool) error {
 	return runFirstAvailable(*f, "dependency management", func(tool dependencyManagerTool) error {
-		return tool.FetchDependencies(ctx, info, noDev)
+		return tool.FetchDependencies(ctx, options, noDev)
 	})
 }
 
-func (f *DependencyManagerFallback) ListDependencies(ctx context.Context, info internal.ProjectInfo) error {
+func (f *DependencyManagerFallback) ListDependencies(ctx context.Context, options internal.ProjectDependencyManagerOptions) error {
 	return runFirstAvailable(*f, "dependency management", func(tool dependencyManagerTool) error {
-		return tool.ListDependencies(ctx, info)
+		return tool.ListDependencies(ctx, options)
 	})
 }
 
-func (f *DependencyManagerFallback) AuditDependencies(ctx context.Context, info internal.ProjectInfo) error {
+func (f *DependencyManagerFallback) AuditDependencies(ctx context.Context, options internal.ProjectDependencyManagerOptions) error {
 	return runFirstAvailable(*f, "dependency management", func(tool dependencyManagerTool) error {
-		return tool.AuditDependencies(ctx, info)
+		return tool.AuditDependencies(ctx, options)
 	})
 }

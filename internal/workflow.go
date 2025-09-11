@@ -104,25 +104,33 @@ type ProjectRunner interface {
 	RunTarget(ctx context.Context, options ProjectRunnerOptions, target string) error
 }
 
+// ProjectDependencyManagerOptions are options for managing of project dependencies
+type ProjectDependencyManagerOptions struct {
+	ProjectInfo
+
+	// ExtraArgs are extra arguments for the specific dependency manager implementation
+	ExtraArgs []string
+}
+
 // ProjectDependencyManager manages project dependencies (libraries, packaged, etc.)
 type ProjectDependencyManager interface {
 	// AddDependencies adds new dependencies to the project
-	AddDependencies(ctx context.Context, info ProjectInfo, dependencies []string, dev bool) error
+	AddDependencies(ctx context.Context, options ProjectDependencyManagerOptions, dependencies []string, dev bool) error
 
 	// RemoveDependencies removes the dependencies from the project
-	RemoveDependencies(ctx context.Context, info ProjectInfo, dependencies []string, dev bool) error
+	RemoveDependencies(ctx context.Context, options ProjectDependencyManagerOptions, dependencies []string, dev bool) error
 
 	// UpdateDependencies updates specified dependencies in the project (empty dependencies mean update all)
-	UpdateDependencies(ctx context.Context, info ProjectInfo, dependencies []string) error
+	UpdateDependencies(ctx context.Context, options ProjectDependencyManagerOptions, dependencies []string) error
 
 	// FetchDependencies fetches all specified dependencies to the project
-	FetchDependencies(ctx context.Context, info ProjectInfo, noDev bool) error
+	FetchDependencies(ctx context.Context, options ProjectDependencyManagerOptions, noDev bool) error
 
 	// ListDependencies lists all specified dependencies in the project
-	ListDependencies(ctx context.Context, info ProjectInfo) error
+	ListDependencies(ctx context.Context, options ProjectDependencyManagerOptions) error
 
 	// AuditDependencies audits all specified dependencies in the project for security issues
-	AuditDependencies(ctx context.Context, info ProjectInfo) error
+	AuditDependencies(ctx context.Context, options ProjectDependencyManagerOptions) error
 }
 
 // A Workflow describes how to work on a project

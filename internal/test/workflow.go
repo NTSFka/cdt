@@ -142,26 +142,26 @@ func NewDependencyManager(t *testing.T) *DependencyManager {
 	return &manager
 }
 
-func (d *DependencyManager) AddDependencies(ctx context.Context, info internal.ProjectInfo, dependencies []string, dev bool) error {
-	return d.Called(ctx, info, dependencies, dev).Error(0)
+func (d *DependencyManager) AddDependencies(ctx context.Context, options internal.ProjectDependencyManagerOptions, dependencies []string, dev bool) error {
+	return d.Called(ctx, options, dependencies, dev).Error(0)
 }
 
-func (d *DependencyManager) RemoveDependencies(ctx context.Context, info internal.ProjectInfo, dependencies []string, dev bool) error {
-	return d.Called(ctx, info, dependencies, dev).Error(0)
+func (d *DependencyManager) RemoveDependencies(ctx context.Context, options internal.ProjectDependencyManagerOptions, dependencies []string, dev bool) error {
+	return d.Called(ctx, options, dependencies, dev).Error(0)
 }
 
-func (d *DependencyManager) UpdateDependencies(ctx context.Context, info internal.ProjectInfo, dependencies []string) error {
-	return d.Called(ctx, info, dependencies).Error(0)
+func (d *DependencyManager) UpdateDependencies(ctx context.Context, options internal.ProjectDependencyManagerOptions, dependencies []string) error {
+	return d.Called(ctx, options, dependencies).Error(0)
 }
 
-func (d *DependencyManager) FetchDependencies(ctx context.Context, info internal.ProjectInfo, noDev bool) error {
-	return d.Called(ctx, info, noDev).Error(0)
+func (d *DependencyManager) FetchDependencies(ctx context.Context, options internal.ProjectDependencyManagerOptions, noDev bool) error {
+	return d.Called(ctx, options, noDev).Error(0)
 }
 
-func (d *DependencyManager) ListDependencies(ctx context.Context, info internal.ProjectInfo) error {
-	return d.Called(ctx, info).Error(0)
+func (d *DependencyManager) ListDependencies(ctx context.Context, options internal.ProjectDependencyManagerOptions) error {
+	return d.Called(ctx, options).Error(0)
 }
 
-func (d *DependencyManager) AuditDependencies(ctx context.Context, info internal.ProjectInfo) error {
-	return d.Called(ctx, info).Error(0)
+func (d *DependencyManager) AuditDependencies(ctx context.Context, options internal.ProjectDependencyManagerOptions) error {
+	return d.Called(ctx, options).Error(0)
 }

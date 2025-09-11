@@ -39,44 +39,44 @@ func NewComposer(detect func() *internal.Executable) *Composer {
 	}
 }
 
-func (c *Composer) AddDependencies(ctx context.Context, info internal.ProjectInfo, dependencies []string, dev bool) error {
-	args := []string{"require"}
+func (c *Composer) AddDependencies(ctx context.Context, options internal.ProjectDependencyManagerOptions, dependencies []string, dev bool) error {
+	args := append([]string{"require"}, options.ExtraArgs...)
 
 	if dev {
 		args = append(args, "--dev")
 	}
 
-	return c.RunForProject(ctx, info, append(args, dependencies...))
+	return c.RunForProject(ctx, options.ProjectInfo, append(args, dependencies...))
 }
 
-func (c *Composer) RemoveDependencies(ctx context.Context, info internal.ProjectInfo, dependencies []string, dev bool) error {
-	args := []string{"remove"}
+func (c *Composer) RemoveDependencies(ctx context.Context, options internal.ProjectDependencyManagerOptions, dependencies []string, dev bool) error {
+	args := append([]string{"remove"}, options.ExtraArgs...)
 
 	if dev {
 		args = append(args, "--dev")
 	}
 
-	return c.RunForProject(ctx, info, append(args, dependencies...))
+	return c.RunForProject(ctx, options.ProjectInfo, append(args, dependencies...))
 }
 
-func (c *Composer) UpdateDependencies(ctx context.Context, info internal.ProjectInfo, dependencies []string) error {
-	return c.RunForProject(ctx, info, append([]string{"update"}, dependencies...))
+func (c *Composer) UpdateDependencies(ctx context.Context, options internal.ProjectDependencyManagerOptions, dependencies []string) error {
+	return c.RunForProject(ctx, options.ProjectInfo, append(append([]string{"update"}, options.ExtraArgs...), dependencies...))
 }
 
-func (c *Composer) FetchDependencies(ctx context.Context, info internal.ProjectInfo, noDev bool) error {
-	args := []string{"install"}
+func (c *Composer) FetchDependencies(ctx context.Context, options internal.ProjectDependencyManagerOptions, noDev bool) error {
+	args := append([]string{"install"}, options.ExtraArgs...)
 
 	if noDev {
 		args = append(args, "--no-dev")
 	}
 
-	return c.RunForProject(ctx, info, args)
+	return c.RunForProject(ctx, options.ProjectInfo, args)
 }
 
-func (c *Composer) ListDependencies(ctx context.Context, info internal.ProjectInfo) error {
-	return c.RunForProject(ctx, info, []string{"show"})
+func (c *Composer) ListDependencies(ctx context.Context, options internal.ProjectDependencyManagerOptions) error {
+	return c.RunForProject(ctx, options.ProjectInfo, append([]string{"show"}, options.ExtraArgs...))
 }
 
-func (c *Composer) AuditDependencies(ctx context.Context, info internal.ProjectInfo) error {
-	return c.RunForProject(ctx, info, []string{"audit"})
+func (c *Composer) AuditDependencies(ctx context.Context, options internal.ProjectDependencyManagerOptions) error {
+	return c.RunForProject(ctx, options.ProjectInfo, append([]string{"audit"}, options.ExtraArgs...))
 }

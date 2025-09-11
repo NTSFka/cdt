@@ -38,26 +38,26 @@ func NewPip(detect func() *internal.Executable) *Pip {
 	}
 }
 
-func (p *Pip) AddDependencies(ctx context.Context, info internal.ProjectInfo, dependencies []string, _ bool) error {
-	return p.RunForProject(ctx, info, append([]string{"install"}, dependencies...))
+func (p *Pip) AddDependencies(ctx context.Context, options internal.ProjectDependencyManagerOptions, dependencies []string, _ bool) error {
+	return p.RunForProject(ctx, options.ProjectInfo, append(append([]string{"install"}, options.ExtraArgs...), dependencies...))
 }
 
-func (p *Pip) RemoveDependencies(ctx context.Context, info internal.ProjectInfo, dependencies []string, _ bool) error {
-	return p.RunForProject(ctx, info, append([]string{"uninstall"}, dependencies...))
+func (p *Pip) RemoveDependencies(ctx context.Context, options internal.ProjectDependencyManagerOptions, dependencies []string, _ bool) error {
+	return p.RunForProject(ctx, options.ProjectInfo, append(append([]string{"uninstall"}, options.ExtraArgs...), dependencies...))
 }
 
-func (p *Pip) UpdateDependencies(ctx context.Context, info internal.ProjectInfo, dependencies []string) error {
-	return p.RunForProject(ctx, info, append([]string{"install", "--upgrade"}, dependencies...))
+func (p *Pip) UpdateDependencies(ctx context.Context, options internal.ProjectDependencyManagerOptions, dependencies []string) error {
+	return p.RunForProject(ctx, options.ProjectInfo, append(append([]string{"install", "--upgrade"}, options.ExtraArgs...), dependencies...))
 }
 
-func (p *Pip) FetchDependencies(ctx context.Context, info internal.ProjectInfo, _ bool) error {
-	return p.RunForProject(ctx, info, []string{"install", "-r", "requirements.txt"})
+func (p *Pip) FetchDependencies(ctx context.Context, options internal.ProjectDependencyManagerOptions, _ bool) error {
+	return p.RunForProject(ctx, options.ProjectInfo, append([]string{"install", "-r", "requirements.txt"}, options.ExtraArgs...))
 }
 
-func (p *Pip) ListDependencies(ctx context.Context, info internal.ProjectInfo) error {
-	return p.RunForProject(ctx, info, []string{"list"})
+func (p *Pip) ListDependencies(ctx context.Context, options internal.ProjectDependencyManagerOptions) error {
+	return p.RunForProject(ctx, options.ProjectInfo, append([]string{"list"}, options.ExtraArgs...))
 }
 
-func (p *Pip) AuditDependencies(_ context.Context, _ internal.ProjectInfo) error {
+func (p *Pip) AuditDependencies(_ context.Context, _ internal.ProjectDependencyManagerOptions) error {
 	return errors.New("not supported")
 }

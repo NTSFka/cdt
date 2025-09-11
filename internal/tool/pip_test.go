@@ -70,12 +70,12 @@ func TestPip_Pip_AddDependencies(t *testing.T) {
 
 	tool := NewPip(exec.LazyExecutable("pip"))
 
-	desc := internal.ProjectInfo{Directory: "."}
+	info := internal.ProjectInfo{Directory: "."}
 
 	exec.OnRun("pip", []string{"install", "dep1"}).
 		Return(nil)
 
-	err := tool.AddDependencies(context.Background(), desc, []string{"dep1"}, false)
+	err := tool.AddDependencies(context.Background(), internal.ProjectDependencyManagerOptions{ProjectInfo: info}, []string{"dep1"}, false)
 	assert.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -86,12 +86,12 @@ func TestPip_Pip_RemoveDependencies(t *testing.T) {
 
 	tool := NewPip(exec.LazyExecutable("pip"))
 
-	desc := internal.ProjectInfo{Directory: "."}
+	info := internal.ProjectInfo{Directory: "."}
 
 	exec.OnRun("pip", []string{"uninstall", "dep1"}).
 		Return(nil)
 
-	err := tool.RemoveDependencies(context.Background(), desc, []string{"dep1"}, false)
+	err := tool.RemoveDependencies(context.Background(), internal.ProjectDependencyManagerOptions{ProjectInfo: info}, []string{"dep1"}, false)
 	assert.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -102,12 +102,12 @@ func TestPip_Pip_UpdateDependencies(t *testing.T) {
 
 	tool := NewPip(exec.LazyExecutable("pip"))
 
-	desc := internal.ProjectInfo{Directory: "."}
+	info := internal.ProjectInfo{Directory: "."}
 
 	exec.OnRun("pip", []string{"install", "--upgrade", "dep1"}).
 		Return(nil)
 
-	err := tool.UpdateDependencies(context.Background(), desc, []string{"dep1"})
+	err := tool.UpdateDependencies(context.Background(), internal.ProjectDependencyManagerOptions{ProjectInfo: info}, []string{"dep1"})
 	assert.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -118,12 +118,12 @@ func TestPip_Pip_FetchDependencies(t *testing.T) {
 
 	tool := NewPip(exec.LazyExecutable("pip"))
 
-	desc := internal.ProjectInfo{Directory: "."}
+	info := internal.ProjectInfo{Directory: "."}
 
 	exec.OnRun("pip", []string{"install", "-r", "requirements.txt"}).
 		Return(nil)
 
-	err := tool.FetchDependencies(context.Background(), desc, false)
+	err := tool.FetchDependencies(context.Background(), internal.ProjectDependencyManagerOptions{ProjectInfo: info}, false)
 	assert.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -134,12 +134,12 @@ func TestPip_Pip_ListDependencies(t *testing.T) {
 
 	tool := NewPip(exec.LazyExecutable("pip"))
 
-	desc := internal.ProjectInfo{Directory: "."}
+	info := internal.ProjectInfo{Directory: "."}
 
 	exec.OnRun("pip", []string{"list"}).
 		Return(nil)
 
-	err := tool.ListDependencies(context.Background(), desc)
+	err := tool.ListDependencies(context.Background(), internal.ProjectDependencyManagerOptions{ProjectInfo: info})
 	assert.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -150,12 +150,12 @@ func TestPip_Pip_AuditDependencies(t *testing.T) {
 
 	tool := NewPip(exec.LazyExecutable("pip"))
 
-	desc := internal.ProjectInfo{Directory: "."}
+	info := internal.ProjectInfo{Directory: "."}
 
 	exec.OnRun("pip", []string{"audit"}).
 		Return(nil)
 
-	err := tool.AuditDependencies(context.Background(), desc)
+	err := tool.AuditDependencies(context.Background(), internal.ProjectDependencyManagerOptions{ProjectInfo: info})
 	assert.EqualError(t, err, "not supported")
 
 	exec.AssertExpectations(t)

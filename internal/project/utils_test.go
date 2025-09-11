@@ -932,7 +932,7 @@ func createDependencyManagerTool(id string, executable *internal.Executable) *st
 func TestDependencyManagerFallback_AddDependencies_Empty(t *testing.T) {
 	fallback := &DependencyManagerFallback{}
 
-	err := fallback.AddDependencies(context.Background(), internal.ProjectInfo{}, []string{"dep1"}, false)
+	err := fallback.AddDependencies(context.Background(), internal.ProjectDependencyManagerOptions{}, []string{"dep1"}, false)
 
 	assert.EqualError(t, err, "no dependency management tool available: none")
 }
@@ -943,7 +943,7 @@ func TestDependencyManagerFallback_AddDependencies_NoAvailable(t *testing.T) {
 
 	fallback := &DependencyManagerFallback{tool1, tool2}
 
-	err := fallback.AddDependencies(context.Background(), internal.ProjectInfo{}, []string{"dep1"}, false)
+	err := fallback.AddDependencies(context.Background(), internal.ProjectDependencyManagerOptions{}, []string{"dep1"}, false)
 
 	assert.EqualError(t, err, "no dependency management tool available: test1, test2")
 
@@ -961,7 +961,7 @@ func TestDependencyManagerFallback_AddDependencies_Available1(t *testing.T) {
 	tool2.Test(t)
 	tool1.On("AddDependencies", mock.Anything, mock.Anything, []string{"dep1"}, false).Return(nil)
 
-	err := fallback.AddDependencies(context.Background(), internal.ProjectInfo{}, []string{"dep1"}, false)
+	err := fallback.AddDependencies(context.Background(), internal.ProjectDependencyManagerOptions{}, []string{"dep1"}, false)
 
 	assert.NoError(t, err)
 
@@ -979,7 +979,7 @@ func TestDependencyManagerFallback_AddDependencies_Available2(t *testing.T) {
 	tool2.Test(t)
 	tool2.On("AddDependencies", mock.Anything, mock.Anything, []string{"dep1"}, false).Return(nil)
 
-	err := fallback.AddDependencies(context.Background(), internal.ProjectInfo{}, []string{"dep1"}, false)
+	err := fallback.AddDependencies(context.Background(), internal.ProjectDependencyManagerOptions{}, []string{"dep1"}, false)
 
 	assert.NoError(t, err)
 
@@ -990,7 +990,7 @@ func TestDependencyManagerFallback_AddDependencies_Available2(t *testing.T) {
 func TestDependencyManagerFallback_RemoveDependencies_Empty(t *testing.T) {
 	fallback := &DependencyManagerFallback{}
 
-	err := fallback.RemoveDependencies(context.Background(), internal.ProjectInfo{}, []string{"dep1"}, false)
+	err := fallback.RemoveDependencies(context.Background(), internal.ProjectDependencyManagerOptions{}, []string{"dep1"}, false)
 
 	assert.EqualError(t, err, "no dependency management tool available: none")
 }
@@ -1001,7 +1001,7 @@ func TestDependencyManagerFallback_RemoveDependencies_NoAvailable(t *testing.T) 
 
 	fallback := &DependencyManagerFallback{tool1, tool2}
 
-	err := fallback.RemoveDependencies(context.Background(), internal.ProjectInfo{}, []string{"dep1"}, false)
+	err := fallback.RemoveDependencies(context.Background(), internal.ProjectDependencyManagerOptions{}, []string{"dep1"}, false)
 
 	assert.EqualError(t, err, "no dependency management tool available: test1, test2")
 
@@ -1019,7 +1019,7 @@ func TestDependencyManagerFallback_RemoveDependencies_Available1(t *testing.T) {
 	tool2.Test(t)
 	tool1.On("RemoveDependencies", mock.Anything, mock.Anything, []string{"dep1"}, false).Return(nil)
 
-	err := fallback.RemoveDependencies(context.Background(), internal.ProjectInfo{}, []string{"dep1"}, false)
+	err := fallback.RemoveDependencies(context.Background(), internal.ProjectDependencyManagerOptions{}, []string{"dep1"}, false)
 
 	assert.NoError(t, err)
 
@@ -1037,7 +1037,7 @@ func TestDependencyManagerFallback_RemoveDependencies_Available2(t *testing.T) {
 	tool2.Test(t)
 	tool2.On("RemoveDependencies", mock.Anything, mock.Anything, []string{"dep1"}, false).Return(nil)
 
-	err := fallback.RemoveDependencies(context.Background(), internal.ProjectInfo{}, []string{"dep1"}, false)
+	err := fallback.RemoveDependencies(context.Background(), internal.ProjectDependencyManagerOptions{}, []string{"dep1"}, false)
 
 	assert.NoError(t, err)
 
@@ -1048,7 +1048,7 @@ func TestDependencyManagerFallback_RemoveDependencies_Available2(t *testing.T) {
 func TestDependencyManagerFallback_UpdateDependencies_Empty(t *testing.T) {
 	fallback := &DependencyManagerFallback{}
 
-	err := fallback.UpdateDependencies(context.Background(), internal.ProjectInfo{}, []string{"dep1"})
+	err := fallback.UpdateDependencies(context.Background(), internal.ProjectDependencyManagerOptions{}, []string{"dep1"})
 
 	assert.EqualError(t, err, "no dependency management tool available: none")
 }
@@ -1059,7 +1059,7 @@ func TestDependencyManagerFallback_UpdateDependencies_NoAvailable(t *testing.T) 
 
 	fallback := &DependencyManagerFallback{tool1, tool2}
 
-	err := fallback.UpdateDependencies(context.Background(), internal.ProjectInfo{}, []string{"dep1"})
+	err := fallback.UpdateDependencies(context.Background(), internal.ProjectDependencyManagerOptions{}, []string{"dep1"})
 
 	assert.EqualError(t, err, "no dependency management tool available: test1, test2")
 
@@ -1077,7 +1077,7 @@ func TestDependencyManagerFallback_UpdateDependencies_Available1(t *testing.T) {
 	tool2.Test(t)
 	tool1.On("UpdateDependencies", mock.Anything, mock.Anything, []string{"dep1"}).Return(nil)
 
-	err := fallback.UpdateDependencies(context.Background(), internal.ProjectInfo{}, []string{"dep1"})
+	err := fallback.UpdateDependencies(context.Background(), internal.ProjectDependencyManagerOptions{}, []string{"dep1"})
 
 	assert.NoError(t, err)
 
@@ -1095,7 +1095,7 @@ func TestDependencyManagerFallback_UpdateDependencies_Available2(t *testing.T) {
 	tool2.Test(t)
 	tool2.On("UpdateDependencies", mock.Anything, mock.Anything, []string{"dep1"}).Return(nil)
 
-	err := fallback.UpdateDependencies(context.Background(), internal.ProjectInfo{}, []string{"dep1"})
+	err := fallback.UpdateDependencies(context.Background(), internal.ProjectDependencyManagerOptions{}, []string{"dep1"})
 
 	assert.NoError(t, err)
 
@@ -1106,7 +1106,7 @@ func TestDependencyManagerFallback_UpdateDependencies_Available2(t *testing.T) {
 func TestDependencyManagerFallback_FetchDependencies_Empty(t *testing.T) {
 	fallback := &DependencyManagerFallback{}
 
-	err := fallback.FetchDependencies(context.Background(), internal.ProjectInfo{}, false)
+	err := fallback.FetchDependencies(context.Background(), internal.ProjectDependencyManagerOptions{}, false)
 
 	assert.EqualError(t, err, "no dependency management tool available: none")
 }
@@ -1117,7 +1117,7 @@ func TestDependencyManagerFallback_FetchDependencies_NoAvailable(t *testing.T) {
 
 	fallback := &DependencyManagerFallback{tool1, tool2}
 
-	err := fallback.FetchDependencies(context.Background(), internal.ProjectInfo{}, false)
+	err := fallback.FetchDependencies(context.Background(), internal.ProjectDependencyManagerOptions{}, false)
 
 	assert.EqualError(t, err, "no dependency management tool available: test1, test2")
 
@@ -1135,7 +1135,7 @@ func TestDependencyManagerFallback_FetchDependencies_Available1(t *testing.T) {
 	tool2.Test(t)
 	tool1.On("FetchDependencies", mock.Anything, mock.Anything, false).Return(nil)
 
-	err := fallback.FetchDependencies(context.Background(), internal.ProjectInfo{}, false)
+	err := fallback.FetchDependencies(context.Background(), internal.ProjectDependencyManagerOptions{}, false)
 
 	assert.NoError(t, err)
 
@@ -1153,7 +1153,7 @@ func TestDependencyManagerFallback_FetchDependencies_Available2(t *testing.T) {
 	tool2.Test(t)
 	tool2.On("FetchDependencies", mock.Anything, mock.Anything, false).Return(nil)
 
-	err := fallback.FetchDependencies(context.Background(), internal.ProjectInfo{}, false)
+	err := fallback.FetchDependencies(context.Background(), internal.ProjectDependencyManagerOptions{}, false)
 
 	assert.NoError(t, err)
 
@@ -1164,7 +1164,7 @@ func TestDependencyManagerFallback_FetchDependencies_Available2(t *testing.T) {
 func TestDependencyManagerFallback_ListDependencies_Empty(t *testing.T) {
 	fallback := &DependencyManagerFallback{}
 
-	err := fallback.ListDependencies(context.Background(), internal.ProjectInfo{})
+	err := fallback.ListDependencies(context.Background(), internal.ProjectDependencyManagerOptions{})
 
 	assert.EqualError(t, err, "no dependency management tool available: none")
 }
@@ -1175,7 +1175,7 @@ func TestDependencyManagerFallback_ListDependencies_NoAvailable(t *testing.T) {
 
 	fallback := &DependencyManagerFallback{tool1, tool2}
 
-	err := fallback.ListDependencies(context.Background(), internal.ProjectInfo{})
+	err := fallback.ListDependencies(context.Background(), internal.ProjectDependencyManagerOptions{})
 
 	assert.EqualError(t, err, "no dependency management tool available: test1, test2")
 
@@ -1193,7 +1193,7 @@ func TestDependencyManagerFallback_ListDependencies_Available1(t *testing.T) {
 	tool2.Test(t)
 	tool1.On("ListDependencies", mock.Anything, mock.Anything).Return(nil)
 
-	err := fallback.ListDependencies(context.Background(), internal.ProjectInfo{})
+	err := fallback.ListDependencies(context.Background(), internal.ProjectDependencyManagerOptions{})
 
 	assert.NoError(t, err)
 
@@ -1211,7 +1211,7 @@ func TestDependencyManagerFallback_ListDependencies_Available2(t *testing.T) {
 	tool2.Test(t)
 	tool2.On("ListDependencies", mock.Anything, mock.Anything).Return(nil)
 
-	err := fallback.ListDependencies(context.Background(), internal.ProjectInfo{})
+	err := fallback.ListDependencies(context.Background(), internal.ProjectDependencyManagerOptions{})
 
 	assert.NoError(t, err)
 
@@ -1222,7 +1222,7 @@ func TestDependencyManagerFallback_ListDependencies_Available2(t *testing.T) {
 func TestDependencyManagerFallback_AuditDependencies_Empty(t *testing.T) {
 	fallback := &DependencyManagerFallback{}
 
-	err := fallback.AuditDependencies(context.Background(), internal.ProjectInfo{})
+	err := fallback.AuditDependencies(context.Background(), internal.ProjectDependencyManagerOptions{})
 
 	assert.EqualError(t, err, "no dependency management tool available: none")
 }
@@ -1233,7 +1233,7 @@ func TestDependencyManagerFallback_AuditDependencies_NoAvailable(t *testing.T) {
 
 	fallback := &DependencyManagerFallback{tool1, tool2}
 
-	err := fallback.AuditDependencies(context.Background(), internal.ProjectInfo{})
+	err := fallback.AuditDependencies(context.Background(), internal.ProjectDependencyManagerOptions{})
 
 	assert.EqualError(t, err, "no dependency management tool available: test1, test2")
 
@@ -1251,7 +1251,7 @@ func TestDependencyManagerFallback_AuditDependencies_Available1(t *testing.T) {
 	tool2.Test(t)
 	tool1.On("AuditDependencies", mock.Anything, mock.Anything).Return(nil)
 
-	err := fallback.AuditDependencies(context.Background(), internal.ProjectInfo{})
+	err := fallback.AuditDependencies(context.Background(), internal.ProjectDependencyManagerOptions{})
 
 	assert.NoError(t, err)
 
@@ -1269,7 +1269,7 @@ func TestDependencyManagerFallback_AuditDependencies_Available2(t *testing.T) {
 	tool2.Test(t)
 	tool2.On("AuditDependencies", mock.Anything, mock.Anything).Return(nil)
 
-	err := fallback.AuditDependencies(context.Background(), internal.ProjectInfo{})
+	err := fallback.AuditDependencies(context.Background(), internal.ProjectDependencyManagerOptions{})
 
 	assert.NoError(t, err)
 
