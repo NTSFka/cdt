@@ -90,19 +90,19 @@ func (g *Go) TestPattern(ctx context.Context, options internal.ProjectTesterOpti
 	return g.RunForProject(ctx, options.ProjectInfo, append(options.ExtraArgs, "test", pattern))
 }
 
-func (g *Go) FormatAll(ctx context.Context, info internal.ProjectInfo, args []string) error {
-	return g.RunForProject(ctx, info, append(args, "fmt", "./..."))
+func (g *Go) FormatAll(ctx context.Context, options internal.ProjectFormatterOptions) error {
+	return g.RunForProject(ctx, options.ProjectInfo, append(options.ExtraArgs, "fmt", "./..."))
 }
 
-func (g *Go) FormatFiles(ctx context.Context, info internal.ProjectInfo, filenames []string, args []string) error {
-	return g.RunForProject(ctx, info, append(append(args, "fmt"), filenames...))
+func (g *Go) FormatFiles(ctx context.Context, options internal.ProjectFormatterOptions, filenames []string) error {
+	return g.RunForProject(ctx, options.ProjectInfo, append(append(options.ExtraArgs, "fmt"), filenames...))
 }
 
-func (g *Go) FormatCheckAll(_ context.Context, _ internal.ProjectInfo, _ []string) error {
+func (g *Go) FormatCheckAll(_ context.Context, _ internal.ProjectFormatterOptions) error {
 	return errors.New("go fmt doesn't support check mode")
 }
 
-func (g *Go) FormatCheckFiles(_ context.Context, _ internal.ProjectInfo, _ []string, _ []string) error {
+func (g *Go) FormatCheckFiles(_ context.Context, _ internal.ProjectFormatterOptions, _ []string) error {
 	return errors.New("go fmt doesn't support check mode")
 }
 

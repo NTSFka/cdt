@@ -50,19 +50,27 @@ type ProjectTester interface {
 	TestPattern(ctx context.Context, options ProjectTesterOptions, pattern string) error
 }
 
+// ProjectFormatterOptions are options for formatting a project
+type ProjectFormatterOptions struct {
+	ProjectInfo
+
+	// ExtraArgs are extra arguments for the specific formatter implementation
+	ExtraArgs []string
+}
+
 // A ProjectFormatter allow formatting files of a project
 type ProjectFormatter interface {
 	// FormatAll formates all files in the project
-	FormatAll(ctx context.Context, info ProjectInfo, args []string) error
+	FormatAll(ctx context.Context, options ProjectFormatterOptions) error
 
 	// FormatFiles formates specified files in the project
-	FormatFiles(ctx context.Context, info ProjectInfo, filenames []string, args []string) error
+	FormatFiles(ctx context.Context, options ProjectFormatterOptions, filenames []string) error
 
 	// FormatCheckAll check if all files in the project are formatted
-	FormatCheckAll(ctx context.Context, info ProjectInfo, args []string) error
+	FormatCheckAll(ctx context.Context, options ProjectFormatterOptions) error
 
 	// FormatCheckFiles check if all specified files in the project are formatted
-	FormatCheckFiles(ctx context.Context, info ProjectInfo, filenames []string, args []string) error
+	FormatCheckFiles(ctx context.Context, options ProjectFormatterOptions, filenames []string) error
 }
 
 // A ProjectLinter allow linting files of a project

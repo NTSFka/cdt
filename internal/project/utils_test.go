@@ -363,7 +363,7 @@ func createFormatterTool(id string, executable *internal.Executable) *struct {
 func TestFormatterFallback_FormatAll_Empty(t *testing.T) {
 	fallback := &FormatterFallback{}
 
-	err := fallback.FormatAll(context.Background(), internal.ProjectInfo{}, []string{})
+	err := fallback.FormatAll(context.Background(), internal.ProjectFormatterOptions{})
 
 	assert.EqualError(t, err, "no formatter tool available: none")
 }
@@ -374,7 +374,7 @@ func TestFormatterFallback_FormatAll_NoAvailable(t *testing.T) {
 
 	fallback := &FormatterFallback{tool1, tool2}
 
-	err := fallback.FormatAll(context.Background(), internal.ProjectInfo{}, []string{})
+	err := fallback.FormatAll(context.Background(), internal.ProjectFormatterOptions{})
 
 	assert.EqualError(t, err, "no formatter tool available: test1, test2")
 
@@ -390,9 +390,9 @@ func TestFormatterFallback_FormatAll_Available1(t *testing.T) {
 
 	tool1.Test(t)
 	tool2.Test(t)
-	tool1.On("FormatAll", mock.Anything, mock.Anything, []string{}).Return(nil)
+	tool1.On("FormatAll", mock.Anything, mock.Anything).Return(nil)
 
-	err := fallback.FormatAll(context.Background(), internal.ProjectInfo{}, []string{})
+	err := fallback.FormatAll(context.Background(), internal.ProjectFormatterOptions{})
 
 	assert.NoError(t, err)
 
@@ -408,9 +408,9 @@ func TestFormatterFallback_FormatAll_Available2(t *testing.T) {
 
 	tool1.Test(t)
 	tool2.Test(t)
-	tool2.On("FormatAll", mock.Anything, mock.Anything, []string{}).Return(nil)
+	tool2.On("FormatAll", mock.Anything, mock.Anything).Return(nil)
 
-	err := fallback.FormatAll(context.Background(), internal.ProjectInfo{}, []string{})
+	err := fallback.FormatAll(context.Background(), internal.ProjectFormatterOptions{})
 
 	assert.NoError(t, err)
 
@@ -421,7 +421,7 @@ func TestFormatterFallback_FormatAll_Available2(t *testing.T) {
 func TestFormatterFallback_FormatFiles_Empty(t *testing.T) {
 	fallback := &FormatterFallback{}
 
-	err := fallback.FormatFiles(context.Background(), internal.ProjectInfo{}, []string{"file1"}, []string{})
+	err := fallback.FormatFiles(context.Background(), internal.ProjectFormatterOptions{}, []string{"file1"})
 
 	assert.EqualError(t, err, "no formatter tool available: none")
 }
@@ -432,7 +432,7 @@ func TestFormatterFallback_FormatFiles_NoAvailable(t *testing.T) {
 
 	fallback := &FormatterFallback{tool1, tool2}
 
-	err := fallback.FormatFiles(context.Background(), internal.ProjectInfo{}, []string{"file1"}, []string{})
+	err := fallback.FormatFiles(context.Background(), internal.ProjectFormatterOptions{}, []string{"file1"})
 
 	assert.EqualError(t, err, "no formatter tool available: test1, test2")
 
@@ -448,9 +448,9 @@ func TestFormatterFallback_FormatFiles_Available1(t *testing.T) {
 
 	tool1.Test(t)
 	tool2.Test(t)
-	tool1.On("FormatFiles", mock.Anything, mock.Anything, []string{"file1"}, []string{}).Return(nil)
+	tool1.On("FormatFiles", mock.Anything, mock.Anything, []string{"file1"}).Return(nil)
 
-	err := fallback.FormatFiles(context.Background(), internal.ProjectInfo{}, []string{"file1"}, []string{})
+	err := fallback.FormatFiles(context.Background(), internal.ProjectFormatterOptions{}, []string{"file1"})
 
 	assert.NoError(t, err)
 
@@ -466,9 +466,9 @@ func TestFormatterFallback_FormatFiles_Available2(t *testing.T) {
 
 	tool1.Test(t)
 	tool2.Test(t)
-	tool2.On("FormatFiles", mock.Anything, mock.Anything, []string{"file1"}, []string{}).Return(nil)
+	tool2.On("FormatFiles", mock.Anything, mock.Anything, []string{"file1"}).Return(nil)
 
-	err := fallback.FormatFiles(context.Background(), internal.ProjectInfo{}, []string{"file1"}, []string{})
+	err := fallback.FormatFiles(context.Background(), internal.ProjectFormatterOptions{}, []string{"file1"})
 
 	assert.NoError(t, err)
 
@@ -479,7 +479,7 @@ func TestFormatterFallback_FormatFiles_Available2(t *testing.T) {
 func TestFormatterFallback_FormatCheckAll_Empty(t *testing.T) {
 	fallback := &FormatterFallback{}
 
-	err := fallback.FormatCheckAll(context.Background(), internal.ProjectInfo{}, []string{})
+	err := fallback.FormatCheckAll(context.Background(), internal.ProjectFormatterOptions{})
 
 	assert.EqualError(t, err, "no formatter tool available: none")
 }
@@ -490,7 +490,7 @@ func TestFormatterFallback_FormatCheckAll_NoAvailable(t *testing.T) {
 
 	fallback := &FormatterFallback{tool1, tool2}
 
-	err := fallback.FormatCheckAll(context.Background(), internal.ProjectInfo{}, []string{})
+	err := fallback.FormatCheckAll(context.Background(), internal.ProjectFormatterOptions{})
 
 	assert.EqualError(t, err, "no formatter tool available: test1, test2")
 
@@ -506,9 +506,9 @@ func TestFormatterFallback_FormatCheckAll_Available1(t *testing.T) {
 
 	tool1.Test(t)
 	tool2.Test(t)
-	tool1.On("FormatCheckAll", mock.Anything, mock.Anything, []string{}).Return(nil)
+	tool1.On("FormatCheckAll", mock.Anything, mock.Anything).Return(nil)
 
-	err := fallback.FormatCheckAll(context.Background(), internal.ProjectInfo{}, []string{})
+	err := fallback.FormatCheckAll(context.Background(), internal.ProjectFormatterOptions{})
 
 	assert.NoError(t, err)
 
@@ -524,9 +524,9 @@ func TestFormatterFallback_FormatCheckAll_Available2(t *testing.T) {
 
 	tool1.Test(t)
 	tool2.Test(t)
-	tool2.On("FormatCheckAll", mock.Anything, mock.Anything, []string{}).Return(nil)
+	tool2.On("FormatCheckAll", mock.Anything, mock.Anything).Return(nil)
 
-	err := fallback.FormatCheckAll(context.Background(), internal.ProjectInfo{}, []string{})
+	err := fallback.FormatCheckAll(context.Background(), internal.ProjectFormatterOptions{})
 
 	assert.NoError(t, err)
 
@@ -537,7 +537,7 @@ func TestFormatterFallback_FormatCheckAll_Available2(t *testing.T) {
 func TestFormatterFallback_FormatCheckFiles_Empty(t *testing.T) {
 	fallback := &FormatterFallback{}
 
-	err := fallback.FormatCheckFiles(context.Background(), internal.ProjectInfo{}, []string{"file1"}, []string{})
+	err := fallback.FormatCheckFiles(context.Background(), internal.ProjectFormatterOptions{}, []string{"file1"})
 
 	assert.EqualError(t, err, "no formatter tool available: none")
 }
@@ -548,7 +548,7 @@ func TestFormatterFallback_FormatCheckFiles_NoAvailable(t *testing.T) {
 
 	fallback := &FormatterFallback{tool1, tool2}
 
-	err := fallback.FormatCheckFiles(context.Background(), internal.ProjectInfo{}, []string{"file1"}, []string{})
+	err := fallback.FormatCheckFiles(context.Background(), internal.ProjectFormatterOptions{}, []string{"file1"})
 
 	assert.EqualError(t, err, "no formatter tool available: test1, test2")
 
@@ -564,9 +564,9 @@ func TestFormatterFallback_FormatCheckFiles_Available1(t *testing.T) {
 
 	tool1.Test(t)
 	tool2.Test(t)
-	tool1.On("FormatCheckFiles", mock.Anything, mock.Anything, []string{"file1"}, []string{}).Return(nil)
+	tool1.On("FormatCheckFiles", mock.Anything, mock.Anything, []string{"file1"}).Return(nil)
 
-	err := fallback.FormatCheckFiles(context.Background(), internal.ProjectInfo{}, []string{"file1"}, []string{})
+	err := fallback.FormatCheckFiles(context.Background(), internal.ProjectFormatterOptions{}, []string{"file1"})
 
 	assert.NoError(t, err)
 
@@ -582,9 +582,9 @@ func TestFormatterFallback_FormatCheckFiles_Available2(t *testing.T) {
 
 	tool1.Test(t)
 	tool2.Test(t)
-	tool2.On("FormatCheckFiles", mock.Anything, mock.Anything, []string{"file1"}, []string{}).Return(nil)
+	tool2.On("FormatCheckFiles", mock.Anything, mock.Anything, []string{"file1"}).Return(nil)
 
-	err := fallback.FormatCheckFiles(context.Background(), internal.ProjectInfo{}, []string{"file1"}, []string{})
+	err := fallback.FormatCheckFiles(context.Background(), internal.ProjectFormatterOptions{}, []string{"file1"})
 
 	assert.NoError(t, err)
 

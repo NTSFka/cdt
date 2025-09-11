@@ -71,7 +71,8 @@ func newTestTesterTool(t *testing.T) *testTesterTool {
 		internal.MakeExecutableTool("tool1", "", "", internal.Tags{}, nil),
 		test.ProjectTester{},
 	}
-	tester.Mock.Test(t)
+
+	tester.Test(t)
 	return tester
 }
 

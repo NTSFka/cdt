@@ -109,27 +109,27 @@ type formatterTool interface {
 
 type FormatterFallback []formatterTool
 
-func (f *FormatterFallback) FormatAll(ctx context.Context, info internal.ProjectInfo, args []string) error {
+func (f *FormatterFallback) FormatAll(ctx context.Context, options internal.ProjectFormatterOptions) error {
 	return runFirstAvailable(*f, "formatter", func(tool formatterTool) error {
-		return tool.FormatAll(ctx, info, args)
+		return tool.FormatAll(ctx, options)
 	})
 }
 
-func (f *FormatterFallback) FormatFiles(ctx context.Context, info internal.ProjectInfo, filenames []string, args []string) error {
+func (f *FormatterFallback) FormatFiles(ctx context.Context, options internal.ProjectFormatterOptions, filenames []string) error {
 	return runFirstAvailable(*f, "formatter", func(tool formatterTool) error {
-		return tool.FormatFiles(ctx, info, filenames, args)
+		return tool.FormatFiles(ctx, options, filenames)
 	})
 }
 
-func (f *FormatterFallback) FormatCheckAll(ctx context.Context, info internal.ProjectInfo, args []string) error {
+func (f *FormatterFallback) FormatCheckAll(ctx context.Context, options internal.ProjectFormatterOptions) error {
 	return runFirstAvailable(*f, "formatter", func(tool formatterTool) error {
-		return tool.FormatCheckAll(ctx, info, args)
+		return tool.FormatCheckAll(ctx, options)
 	})
 }
 
-func (f *FormatterFallback) FormatCheckFiles(ctx context.Context, info internal.ProjectInfo, filenames []string, args []string) error {
+func (f *FormatterFallback) FormatCheckFiles(ctx context.Context, options internal.ProjectFormatterOptions, filenames []string) error {
 	return runFirstAvailable(*f, "formatter", func(tool formatterTool) error {
-		return tool.FormatCheckFiles(ctx, info, filenames, args)
+		return tool.FormatCheckFiles(ctx, options, filenames)
 	})
 }
 

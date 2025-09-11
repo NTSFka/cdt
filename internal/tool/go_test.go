@@ -274,12 +274,12 @@ func TestGo_FormatAll(t *testing.T) {
 
 	tool := NewGo(exec.LazyExecutable("go"))
 
-	p := internal.ProjectInfo{Directory: "."}
+	info := internal.ProjectInfo{Directory: "."}
 
 	exec.OnRun("go", []string{"fmt", "./..."}).
 		Return(nil)
 
-	err := tool.FormatAll(context.Background(), p, []string{})
+	err := tool.FormatAll(context.Background(), internal.ProjectFormatterOptions{ProjectInfo: info})
 	assert.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -290,12 +290,12 @@ func TestGo_FormatAll_Failed(t *testing.T) {
 
 	tool := NewGo(exec.LazyExecutable("go"))
 
-	p := internal.ProjectInfo{Directory: "."}
+	info := internal.ProjectInfo{Directory: "."}
 
 	exec.OnRun("go", []string{"fmt", "./..."}).
 		Return(errors.New("failed"))
 
-	err := tool.FormatAll(context.Background(), p, []string{})
+	err := tool.FormatAll(context.Background(), internal.ProjectFormatterOptions{ProjectInfo: info})
 	assert.EqualError(t, err, "failed")
 
 	exec.AssertExpectations(t)
@@ -306,12 +306,12 @@ func TestGo_FormatFiles(t *testing.T) {
 
 	tool := NewGo(exec.LazyExecutable("go"))
 
-	p := internal.ProjectInfo{Directory: "."}
+	info := internal.ProjectInfo{Directory: "."}
 
 	exec.OnRun("go", []string{"fmt", "file1"}).
 		Return(nil)
 
-	err := tool.FormatFiles(context.Background(), p, []string{"file1"}, []string{})
+	err := tool.FormatFiles(context.Background(), internal.ProjectFormatterOptions{ProjectInfo: info}, []string{"file1"})
 	assert.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -322,12 +322,12 @@ func TestGo_FormatFiles_Failed(t *testing.T) {
 
 	tool := NewGo(exec.LazyExecutable("go"))
 
-	p := internal.ProjectInfo{Directory: "."}
+	info := internal.ProjectInfo{Directory: "."}
 
 	exec.OnRun("go", []string{"fmt", "file1"}).
 		Return(errors.New("failed"))
 
-	err := tool.FormatFiles(context.Background(), p, []string{"file1"}, []string{})
+	err := tool.FormatFiles(context.Background(), internal.ProjectFormatterOptions{ProjectInfo: info}, []string{"file1"})
 	assert.EqualError(t, err, "failed")
 
 	exec.AssertExpectations(t)
@@ -338,9 +338,9 @@ func TestGo_FormatCheckAll(t *testing.T) {
 
 	tool := NewGo(exec.LazyExecutable("go"))
 
-	p := internal.ProjectInfo{Directory: "."}
+	info := internal.ProjectInfo{Directory: "."}
 
-	err := tool.FormatCheckAll(context.Background(), p, []string{})
+	err := tool.FormatCheckAll(context.Background(), internal.ProjectFormatterOptions{ProjectInfo: info})
 	assert.EqualError(t, err, "go fmt doesn't support check mode")
 
 	exec.AssertExpectations(t)
@@ -351,9 +351,9 @@ func TestGo_FormatCheckFiles(t *testing.T) {
 
 	tool := NewGo(exec.LazyExecutable("go"))
 
-	p := internal.ProjectInfo{Directory: "."}
+	info := internal.ProjectInfo{Directory: "."}
 
-	err := tool.FormatCheckFiles(context.Background(), p, []string{"file1"}, []string{})
+	err := tool.FormatCheckFiles(context.Background(), internal.ProjectFormatterOptions{ProjectInfo: info}, []string{"file1"})
 	assert.EqualError(t, err, "go fmt doesn't support check mode")
 
 	exec.AssertExpectations(t)

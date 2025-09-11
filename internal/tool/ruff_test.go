@@ -79,12 +79,12 @@ func TestRuff_Ruff_FormatAll(t *testing.T) {
 
 	tool := NewRuff(exec.LazyExecutable("format"))
 
-	desc := internal.ProjectInfo{Directory: "."}
+	info := internal.ProjectInfo{Directory: "."}
 
 	exec.OnRun("format", []string{"format"}).
 		Return(nil)
 
-	err := tool.FormatAll(context.Background(), desc, []string{})
+	err := tool.FormatAll(context.Background(), internal.ProjectFormatterOptions{ProjectInfo: info})
 	assert.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -95,12 +95,12 @@ func TestRuff_Ruff_FormatFiles(t *testing.T) {
 
 	tool := NewRuff(exec.LazyExecutable("format"))
 
-	desc := internal.ProjectInfo{Directory: "."}
+	info := internal.ProjectInfo{Directory: "."}
 
 	exec.OnRun("format", []string{"format", "tests/*"}).
 		Return(nil)
 
-	err := tool.FormatFiles(context.Background(), desc, []string{"tests/*"}, []string{})
+	err := tool.FormatFiles(context.Background(), internal.ProjectFormatterOptions{ProjectInfo: info}, []string{"tests/*"})
 	assert.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -111,12 +111,12 @@ func TestRuff_Ruff_FormatCheckAll(t *testing.T) {
 
 	tool := NewRuff(exec.LazyExecutable("format"))
 
-	desc := internal.ProjectInfo{Directory: "."}
+	info := internal.ProjectInfo{Directory: "."}
 
 	exec.OnRun("format", []string{"format", "--check"}).
 		Return(nil)
 
-	err := tool.FormatCheckAll(context.Background(), desc, []string{})
+	err := tool.FormatCheckAll(context.Background(), internal.ProjectFormatterOptions{ProjectInfo: info})
 	assert.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -127,12 +127,12 @@ func TestRuff_Ruff_FormatCheckFiles(t *testing.T) {
 
 	tool := NewRuff(exec.LazyExecutable("format"))
 
-	desc := internal.ProjectInfo{Directory: "."}
+	info := internal.ProjectInfo{Directory: "."}
 
 	exec.OnRun("format", []string{"format", "--check", "tests/*", "/path/to/file.py"}).
 		Return(nil)
 
-	err := tool.FormatCheckFiles(context.Background(), desc, []string{"tests/*", "/path/to/file.py"}, []string{})
+	err := tool.FormatCheckFiles(context.Background(), internal.ProjectFormatterOptions{ProjectInfo: info}, []string{"tests/*", "/path/to/file.py"})
 	assert.NoError(t, err)
 
 	exec.AssertExpectations(t)

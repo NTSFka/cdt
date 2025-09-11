@@ -50,20 +50,20 @@ func NewProjectFormatter(t *testing.T) *ProjectFormatter {
 	return &formatter
 }
 
-func (t *ProjectFormatter) FormatAll(ctx context.Context, info internal.ProjectInfo, args []string) error {
-	return t.Called(ctx, info, args).Error(0)
+func (t *ProjectFormatter) FormatAll(ctx context.Context, options internal.ProjectFormatterOptions) error {
+	return t.Called(ctx, options).Error(0)
 }
 
-func (t *ProjectFormatter) FormatFiles(ctx context.Context, info internal.ProjectInfo, filenames []string, args []string) error {
-	return t.Called(ctx, info, filenames, args).Error(0)
+func (t *ProjectFormatter) FormatFiles(ctx context.Context, options internal.ProjectFormatterOptions, filenames []string) error {
+	return t.Called(ctx, options, filenames).Error(0)
 }
 
-func (t *ProjectFormatter) FormatCheckAll(ctx context.Context, info internal.ProjectInfo, args []string) error {
-	return t.Called(ctx, info, args).Error(0)
+func (t *ProjectFormatter) FormatCheckAll(ctx context.Context, options internal.ProjectFormatterOptions) error {
+	return t.Called(ctx, options).Error(0)
 }
 
-func (t *ProjectFormatter) FormatCheckFiles(ctx context.Context, info internal.ProjectInfo, filenames []string, args []string) error {
-	return t.Called(ctx, info, filenames, args).Error(0)
+func (t *ProjectFormatter) FormatCheckFiles(ctx context.Context, options internal.ProjectFormatterOptions, filenames []string) error {
+	return t.Called(ctx, options, filenames).Error(0)
 }
 
 type ProjectLinter struct {
@@ -90,7 +90,8 @@ type ProjectTester struct {
 
 func NewProjectTester(t *testing.T) *ProjectTester {
 	tester := ProjectTester{}
-	tester.Mock.Test(t)
+	tester.Test(t)
+
 	return &tester
 }
 

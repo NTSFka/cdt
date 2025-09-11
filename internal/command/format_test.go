@@ -39,7 +39,7 @@ func TestFormat_CannotBeFormatted(t *testing.T) {
 
 func TestFormat_FormatAll_Success(t *testing.T) {
 	formatter := test.NewProjectFormatter(t)
-	formatter.On("FormatAll", mock.Anything, mock.Anything, []string{}).
+	formatter.On("FormatAll", mock.Anything, mock.Anything).
 		Return(nil)
 
 	err := runFormat(context.Background(), formatter)
@@ -50,7 +50,7 @@ func TestFormat_FormatAll_Success(t *testing.T) {
 
 func TestFormat_FormatAll_Failure(t *testing.T) {
 	formatter := test.NewProjectFormatter(t)
-	formatter.On("FormatAll", mock.Anything, mock.Anything, []string{}).
+	formatter.On("FormatAll", mock.Anything, mock.Anything).
 		Return(errors.New("failed"))
 
 	err := runFormat(context.Background(), formatter)
@@ -77,7 +77,7 @@ func newFormatterTool(t *testing.T) *testFormatterTool {
 
 func TestFormat_Tool_Success(t *testing.T) {
 	formatter := newFormatterTool(t)
-	formatter.On("FormatAll", mock.Anything, mock.Anything, []string{}).
+	formatter.On("FormatAll", mock.Anything, mock.Anything).
 		Return(nil)
 
 	err := runFormatTool(context.Background(), formatter, "--tool", "tool1")
@@ -88,7 +88,7 @@ func TestFormat_Tool_Success(t *testing.T) {
 
 func TestFormat_Tool_Failed(t *testing.T) {
 	formatter := newFormatterTool(t)
-	formatter.On("FormatAll", mock.Anything, mock.Anything, []string{}).
+	formatter.On("FormatAll", mock.Anything, mock.Anything).
 		Return(errors.New("failed"))
 
 	err := runFormatTool(context.Background(), formatter, "--tool", "tool1")
@@ -126,7 +126,7 @@ func TestFormat_Tool_NotSupported(t *testing.T) {
 
 func TestFormat_FormatFiles_Success(t *testing.T) {
 	formatter := test.NewProjectFormatter(t)
-	formatter.On("FormatFiles", mock.Anything, mock.Anything, []string{"file1", "file2"}, []string{}).
+	formatter.On("FormatFiles", mock.Anything, mock.Anything, []string{"file1", "file2"}).
 		Return(nil)
 
 	err := runFormat(context.Background(), formatter, "file1", "file2")
@@ -137,7 +137,7 @@ func TestFormat_FormatFiles_Success(t *testing.T) {
 
 func TestFormat_FormatFiles_Failure(t *testing.T) {
 	formatter := test.NewProjectFormatter(t)
-	formatter.On("FormatFiles", mock.Anything, mock.Anything, []string{"file1", "file2"}, []string{}).
+	formatter.On("FormatFiles", mock.Anything, mock.Anything, []string{"file1", "file2"}).
 		Return(errors.New("failed"))
 
 	err := runFormat(context.Background(), formatter, "file1", "file2")
@@ -150,7 +150,7 @@ func TestFormat_FormatFiles_Failure(t *testing.T) {
 
 func TestFormat_FormatCheckAll_Success(t *testing.T) {
 	formatter := test.NewProjectFormatter(t)
-	formatter.On("FormatCheckAll", mock.Anything, mock.Anything, []string{}).
+	formatter.On("FormatCheckAll", mock.Anything, mock.Anything).
 		Return(nil)
 
 	err := runFormat(context.Background(), formatter, "--check")
@@ -161,7 +161,7 @@ func TestFormat_FormatCheckAll_Success(t *testing.T) {
 
 func TestFormat_FormatCheckAll_Failure(t *testing.T) {
 	formatter := test.NewProjectFormatter(t)
-	formatter.On("FormatCheckAll", mock.Anything, mock.Anything, []string{}).
+	formatter.On("FormatCheckAll", mock.Anything, mock.Anything).
 		Return(errors.New("failed"))
 
 	err := runFormat(context.Background(), formatter, "--check")
@@ -174,7 +174,7 @@ func TestFormat_FormatCheckAll_Failure(t *testing.T) {
 
 func TestFormat_FormatCheckFiles_Success(t *testing.T) {
 	formatter := test.NewProjectFormatter(t)
-	formatter.On("FormatCheckFiles", mock.Anything, mock.Anything, []string{"file1", "file2"}, []string{}).
+	formatter.On("FormatCheckFiles", mock.Anything, mock.Anything, []string{"file1", "file2"}).
 		Return(nil)
 
 	err := runFormat(context.Background(), formatter, "--check", "file1", "file2")
@@ -185,7 +185,7 @@ func TestFormat_FormatCheckFiles_Success(t *testing.T) {
 
 func TestFormat_FormatCheckFiles_Failure(t *testing.T) {
 	formatter := test.NewProjectFormatter(t)
-	formatter.On("FormatCheckFiles", mock.Anything, mock.Anything, []string{"file1", "file2"}, []string{}).
+	formatter.On("FormatCheckFiles", mock.Anything, mock.Anything, []string{"file1", "file2"}).
 		Return(errors.New("failed"))
 
 	err := runFormat(context.Background(), formatter, "--check", "file1", "file2")

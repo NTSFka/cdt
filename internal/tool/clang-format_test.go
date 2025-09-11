@@ -49,7 +49,7 @@ func TestClangFormat_FormatAll(t *testing.T) {
 
 	tool := NewClangFormat(exec.LazyExecutable("clang-format"))
 
-	desc := internal.ProjectInfo{
+	info := internal.ProjectInfo{
 		Directory:             "project",
 		IntermediateDirectory: internal.StrPtr("build"),
 		StructureProvider: &internal.FixedProjectStructureProvider{
@@ -66,12 +66,12 @@ func TestClangFormat_FormatAll(t *testing.T) {
 	exec.OnRun("clang-format", []string{
 		"--Werror",
 		"-i",
-		filepath.Join(desc.Directory, "file1.go"),
-		filepath.Join(desc.Directory, "file2.go"),
+		filepath.Join(info.Directory, "file1.go"),
+		filepath.Join(info.Directory, "file2.go"),
 	}).
 		Return(nil)
 
-	err := tool.FormatAll(context.Background(), desc, []string{})
+	err := tool.FormatAll(context.Background(), internal.ProjectFormatterOptions{ProjectInfo: info})
 	assert.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -82,7 +82,7 @@ func TestClangFormat_FormatAll_Failed(t *testing.T) {
 
 	tool := NewClangFormat(exec.LazyExecutable("clang-format"))
 
-	desc := internal.ProjectInfo{
+	info := internal.ProjectInfo{
 		Directory:             "project",
 		IntermediateDirectory: internal.StrPtr("build"),
 		StructureProvider: &internal.FixedProjectStructureProvider{
@@ -99,12 +99,12 @@ func TestClangFormat_FormatAll_Failed(t *testing.T) {
 	exec.OnRun("clang-format", []string{
 		"--Werror",
 		"-i",
-		filepath.Join(desc.Directory, "file1.go"),
-		filepath.Join(desc.Directory, "file2.go"),
+		filepath.Join(info.Directory, "file1.go"),
+		filepath.Join(info.Directory, "file2.go"),
 	}).
 		Return(errors.New("failed"))
 
-	err := tool.FormatAll(context.Background(), desc, []string{})
+	err := tool.FormatAll(context.Background(), internal.ProjectFormatterOptions{ProjectInfo: info})
 	assert.EqualError(t, err, "failed")
 
 	exec.AssertExpectations(t)
@@ -115,7 +115,7 @@ func TestClangFormat_FormatAll_CustomConfig(t *testing.T) {
 
 	tool := NewClangFormat(exec.LazyExecutable("clang-format"))
 
-	desc := internal.ProjectInfo{
+	info := internal.ProjectInfo{
 		Directory:             t.TempDir(),
 		IntermediateDirectory: internal.StrPtr("build"),
 		StructureProvider: &internal.FixedProjectStructureProvider{
@@ -129,19 +129,19 @@ func TestClangFormat_FormatAll_CustomConfig(t *testing.T) {
 		},
 	}
 
-	_, err := os.Create(filepath.Join(desc.Directory, ".clang-format"))
+	_, err := os.Create(filepath.Join(info.Directory, ".clang-format"))
 	assert.NoError(t, err)
 
 	exec.OnRun("clang-format", []string{
-		fmt.Sprintf("--style=file:%v", filepath.Join(desc.Directory, ".clang-format")),
+		fmt.Sprintf("--style=file:%v", filepath.Join(info.Directory, ".clang-format")),
 		"--Werror",
 		"-i",
-		filepath.Join(desc.Directory, "file1.go"),
-		filepath.Join(desc.Directory, "file2.go"),
+		filepath.Join(info.Directory, "file1.go"),
+		filepath.Join(info.Directory, "file2.go"),
 	}).
 		Return(nil)
 
-	err = tool.FormatAll(context.Background(), desc, []string{})
+	err = tool.FormatAll(context.Background(), internal.ProjectFormatterOptions{ProjectInfo: info})
 	assert.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -152,17 +152,17 @@ func TestClangFormat_FormatFiles(t *testing.T) {
 
 	tool := NewClangFormat(exec.LazyExecutable("clang-format"))
 
-	desc := internal.ProjectInfo{Directory: t.TempDir(), IntermediateDirectory: internal.StrPtr("build")}
+	info := internal.ProjectInfo{Directory: t.TempDir(), IntermediateDirectory: internal.StrPtr("build")}
 
 	exec.OnRun("clang-format", []string{
 		"--Werror",
 		"-i",
-		filepath.Join(desc.Directory, "file1.go"),
-		filepath.Join(desc.Directory, "file3.go"),
+		filepath.Join(info.Directory, "file1.go"),
+		filepath.Join(info.Directory, "file3.go"),
 	}).
 		Return(nil)
 
-	err := tool.FormatFiles(context.Background(), desc, []string{"file1.go", filepath.Join(desc.Directory, "file3.go")}, []string{})
+	err := tool.FormatFiles(context.Background(), internal.ProjectFormatterOptions{ProjectInfo: info}, []string{"file1.go", filepath.Join(info.Directory, "file3.go")})
 	assert.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -173,16 +173,16 @@ func TestClangFormat_FormatFiles_Failed(t *testing.T) {
 
 	tool := NewClangFormat(exec.LazyExecutable("clang-format"))
 
-	desc := internal.ProjectInfo{Directory: "."}
+	info := internal.ProjectInfo{Directory: "."}
 
 	exec.OnRun("clang-format", []string{
 		"--Werror",
 		"-i",
-		filepath.Join(desc.Directory, "file1.go"),
+		filepath.Join(info.Directory, "file1.go"),
 	}).
 		Return(errors.New("failed"))
 
-	err := tool.FormatFiles(context.Background(), desc, []string{"file1.go"}, []string{})
+	err := tool.FormatFiles(context.Background(), internal.ProjectFormatterOptions{ProjectInfo: info}, []string{"file1.go"})
 	assert.EqualError(t, err, "failed")
 
 	exec.AssertExpectations(t)
@@ -193,20 +193,20 @@ func TestClangFormat_FormatFiles_CustomConfig(t *testing.T) {
 
 	tool := NewClangFormat(exec.LazyExecutable("clang-format"))
 
-	desc := internal.ProjectInfo{Directory: t.TempDir(), IntermediateDirectory: internal.StrPtr("build")}
+	info := internal.ProjectInfo{Directory: t.TempDir(), IntermediateDirectory: internal.StrPtr("build")}
 
-	_, err := os.Create(filepath.Join(desc.Directory, ".clang-format"))
+	_, err := os.Create(filepath.Join(info.Directory, ".clang-format"))
 	assert.NoError(t, err)
 
 	exec.OnRun("clang-format", []string{
-		fmt.Sprintf("--style=file:%v", filepath.Join(desc.Directory, ".clang-format")),
+		fmt.Sprintf("--style=file:%v", filepath.Join(info.Directory, ".clang-format")),
 		"--Werror",
 		"-i",
-		filepath.Join(desc.Directory, "file1.go"),
+		filepath.Join(info.Directory, "file1.go"),
 	}).
 		Return(nil)
 
-	err = tool.FormatFiles(context.Background(), desc, []string{"file1.go"}, []string{})
+	err = tool.FormatFiles(context.Background(), internal.ProjectFormatterOptions{ProjectInfo: info}, []string{"file1.go"})
 	assert.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -217,7 +217,7 @@ func TestClangFormat_FormatCheckAll(t *testing.T) {
 
 	tool := NewClangFormat(exec.LazyExecutable("clang-format"))
 
-	desc := internal.ProjectInfo{
+	info := internal.ProjectInfo{
 		Directory:             "project",
 		IntermediateDirectory: internal.StrPtr("build"),
 		StructureProvider: &internal.FixedProjectStructureProvider{
@@ -234,12 +234,12 @@ func TestClangFormat_FormatCheckAll(t *testing.T) {
 	exec.OnRun("clang-format", []string{
 		"--Werror",
 		"--dry-run",
-		filepath.Join(desc.Directory, "file1.go"),
-		filepath.Join(desc.Directory, "file2.go"),
+		filepath.Join(info.Directory, "file1.go"),
+		filepath.Join(info.Directory, "file2.go"),
 	}).
 		Return(nil)
 
-	err := tool.FormatCheckAll(context.Background(), desc, []string{})
+	err := tool.FormatCheckAll(context.Background(), internal.ProjectFormatterOptions{ProjectInfo: info})
 	assert.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -250,7 +250,7 @@ func TestClangFormat_FormatCheckAll_Failed(t *testing.T) {
 
 	tool := NewClangFormat(exec.LazyExecutable("clang-format"))
 
-	desc := internal.ProjectInfo{
+	info := internal.ProjectInfo{
 		Directory:             "project",
 		IntermediateDirectory: internal.StrPtr("build"),
 		StructureProvider: &internal.FixedProjectStructureProvider{
@@ -267,12 +267,12 @@ func TestClangFormat_FormatCheckAll_Failed(t *testing.T) {
 	exec.OnRun("clang-format", []string{
 		"--Werror",
 		"--dry-run",
-		filepath.Join(desc.Directory, "file1.go"),
-		filepath.Join(desc.Directory, "file2.go"),
+		filepath.Join(info.Directory, "file1.go"),
+		filepath.Join(info.Directory, "file2.go"),
 	}).
 		Return(errors.New("failed"))
 
-	err := tool.FormatCheckAll(context.Background(), desc, []string{})
+	err := tool.FormatCheckAll(context.Background(), internal.ProjectFormatterOptions{ProjectInfo: info})
 	assert.EqualError(t, err, "failed")
 
 	exec.AssertExpectations(t)
@@ -283,7 +283,7 @@ func TestClangFormat_FormatCheckAll_CustomConfig(t *testing.T) {
 
 	tool := NewClangFormat(exec.LazyExecutable("clang-format"))
 
-	desc := internal.ProjectInfo{
+	info := internal.ProjectInfo{
 		Directory:             t.TempDir(),
 		IntermediateDirectory: internal.StrPtr("build"),
 		StructureProvider: &internal.FixedProjectStructureProvider{
@@ -297,19 +297,19 @@ func TestClangFormat_FormatCheckAll_CustomConfig(t *testing.T) {
 		},
 	}
 
-	_, err := os.Create(filepath.Join(desc.Directory, ".clang-format"))
+	_, err := os.Create(filepath.Join(info.Directory, ".clang-format"))
 	assert.NoError(t, err)
 
 	exec.OnRun("clang-format", []string{
-		fmt.Sprintf("--style=file:%v", filepath.Join(desc.Directory, ".clang-format")),
+		fmt.Sprintf("--style=file:%v", filepath.Join(info.Directory, ".clang-format")),
 		"--Werror",
 		"--dry-run",
-		filepath.Join(desc.Directory, "file1.go"),
-		filepath.Join(desc.Directory, "file2.go"),
+		filepath.Join(info.Directory, "file1.go"),
+		filepath.Join(info.Directory, "file2.go"),
 	}).
 		Return(nil)
 
-	err = tool.FormatCheckAll(context.Background(), desc, []string{})
+	err = tool.FormatCheckAll(context.Background(), internal.ProjectFormatterOptions{ProjectInfo: info})
 	assert.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -320,17 +320,17 @@ func TestClangFormat_FormatCheckFiles(t *testing.T) {
 
 	tool := NewClangFormat(exec.LazyExecutable("clang-format"))
 
-	desc := internal.ProjectInfo{Directory: t.TempDir(), IntermediateDirectory: internal.StrPtr("build")}
+	info := internal.ProjectInfo{Directory: t.TempDir(), IntermediateDirectory: internal.StrPtr("build")}
 
 	exec.OnRun("clang-format", []string{
 		"--Werror",
 		"--dry-run",
-		filepath.Join(desc.Directory, "file1.go"),
-		filepath.Join(desc.Directory, "file3.go"),
+		filepath.Join(info.Directory, "file1.go"),
+		filepath.Join(info.Directory, "file3.go"),
 	}).
 		Return(nil)
 
-	err := tool.FormatCheckFiles(context.Background(), desc, []string{"file1.go", filepath.Join(desc.Directory, "file3.go")}, []string{})
+	err := tool.FormatCheckFiles(context.Background(), internal.ProjectFormatterOptions{ProjectInfo: info}, []string{"file1.go", filepath.Join(info.Directory, "file3.go")})
 	assert.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -341,16 +341,16 @@ func TestClangFormat_FormatCheckFiles_Failed(t *testing.T) {
 
 	tool := NewClangFormat(exec.LazyExecutable("clang-format"))
 
-	desc := internal.ProjectInfo{Directory: "."}
+	info := internal.ProjectInfo{Directory: "."}
 
 	exec.OnRun("clang-format", []string{
 		"--Werror",
 		"--dry-run",
-		filepath.Join(desc.Directory, "file1.go"),
+		filepath.Join(info.Directory, "file1.go"),
 	}).
 		Return(errors.New("failed"))
 
-	err := tool.FormatCheckFiles(context.Background(), desc, []string{"file1.go"}, []string{})
+	err := tool.FormatCheckFiles(context.Background(), internal.ProjectFormatterOptions{ProjectInfo: info}, []string{"file1.go"})
 	assert.EqualError(t, err, "failed")
 
 	exec.AssertExpectations(t)
@@ -361,20 +361,20 @@ func TestClangFormat_FormatCheckFiles_CustomConfig(t *testing.T) {
 
 	tool := NewClangFormat(exec.LazyExecutable("clang-format"))
 
-	desc := internal.ProjectInfo{Directory: t.TempDir(), IntermediateDirectory: internal.StrPtr("build")}
+	info := internal.ProjectInfo{Directory: t.TempDir(), IntermediateDirectory: internal.StrPtr("build")}
 
-	_, err := os.Create(filepath.Join(desc.Directory, ".clang-format"))
+	_, err := os.Create(filepath.Join(info.Directory, ".clang-format"))
 	assert.NoError(t, err)
 
 	exec.OnRun("clang-format", []string{
-		fmt.Sprintf("--style=file:%v", filepath.Join(desc.Directory, ".clang-format")),
+		fmt.Sprintf("--style=file:%v", filepath.Join(info.Directory, ".clang-format")),
 		"--Werror",
 		"--dry-run",
-		filepath.Join(desc.Directory, "file1.go"),
+		filepath.Join(info.Directory, "file1.go"),
 	}).
 		Return(nil)
 
-	err = tool.FormatCheckFiles(context.Background(), desc, []string{"file1.go"}, []string{})
+	err = tool.FormatCheckFiles(context.Background(), internal.ProjectFormatterOptions{ProjectInfo: info}, []string{"file1.go"})
 	assert.NoError(t, err)
 
 	exec.AssertExpectations(t)
