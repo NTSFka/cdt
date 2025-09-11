@@ -48,7 +48,12 @@ func configureCommandAction(ctx context.Context, cmd *cli.Command) error {
 		return errors.New("project doesn't support configuration")
 	}
 
-	if err := configurator.Configure(ctx, c.Project.Info, cmd.Args().Tail()); err != nil {
+	options := internal.ProjectConfiguratorOptions{
+		ProjectInfo: c.Project.Info,
+		ExtraArgs:   cmd.Args().Tail(),
+	}
+
+	if err := configurator.Configure(ctx, options); err != nil {
 		return fmt.Errorf("%w", err)
 	}
 

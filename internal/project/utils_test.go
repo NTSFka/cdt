@@ -28,7 +28,7 @@ func createConfiguratorTool(id string, executable *internal.Executable) *struct 
 func TestConfiguratorFallback_Configure_Empty(t *testing.T) {
 	fallback := &ConfiguratorFallback{}
 
-	err := fallback.Configure(context.Background(), internal.ProjectInfo{}, []string{})
+	err := fallback.Configure(context.Background(), internal.ProjectConfiguratorOptions{})
 
 	assert.EqualError(t, err, "no configurator tool available: none")
 }
@@ -39,7 +39,7 @@ func TestConfiguratorFallback_Configure_NoAvailable(t *testing.T) {
 
 	fallback := &ConfiguratorFallback{tool1, tool2}
 
-	err := fallback.Configure(context.Background(), internal.ProjectInfo{}, []string{})
+	err := fallback.Configure(context.Background(), internal.ProjectConfiguratorOptions{})
 
 	assert.EqualError(t, err, "no configurator tool available: test1, test2")
 
@@ -55,9 +55,9 @@ func TestConfiguratorFallback_Configure_Available1(t *testing.T) {
 
 	tool1.Test(t)
 	tool2.Test(t)
-	tool1.On("Configure", mock.Anything, mock.Anything, []string{}).Return(nil)
+	tool1.On("Configure", mock.Anything, mock.Anything).Return(nil)
 
-	err := fallback.Configure(context.Background(), internal.ProjectInfo{}, []string{})
+	err := fallback.Configure(context.Background(), internal.ProjectConfiguratorOptions{})
 
 	assert.NoError(t, err)
 
@@ -73,9 +73,9 @@ func TestConfiguratorFallback_Configure_Available2(t *testing.T) {
 
 	tool1.Test(t)
 	tool2.Test(t)
-	tool2.On("Configure", mock.Anything, mock.Anything, []string{}).Return(nil)
+	tool2.On("Configure", mock.Anything, mock.Anything).Return(nil)
 
-	err := fallback.Configure(context.Background(), internal.ProjectInfo{}, []string{})
+	err := fallback.Configure(context.Background(), internal.ProjectConfiguratorOptions{})
 
 	assert.NoError(t, err)
 

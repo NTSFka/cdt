@@ -24,17 +24,17 @@ func TestCMakeRealProjectConfigureAndBuildAndRun(t *testing.T) {
 
 	cmake := tool.DetectCMake(context.Background(), environment)
 
-	desc := internal.ProjectInfo{
+	info := internal.ProjectInfo{
 		Directory:             "data/cmake",
 		IntermediateDirectory: internal.StrPtr(buildDirectory.Path()),
 		StructureProvider:     cmake,
 	}
 
-	var err = cmake.Configure(context.Background(), desc, []string{})
+	var err = cmake.Configure(context.Background(), internal.ProjectConfiguratorOptions{ProjectInfo: info})
 	assert.NoError(t, err)
 
 	var structure *internal.ProjectStructure
-	structure, err = cmake.Structure(context.Background(), desc)
+	structure, err = cmake.Structure(context.Background(), info)
 	assert.NoError(t, err)
 
 	if assert.NotNil(t, structure) {
@@ -56,12 +56,12 @@ func TestCMakeRealProjectConfigureAndBuildAndRun(t *testing.T) {
 		assert.Equal(t, []string{"main.cpp", "test.cpp"}, structure.GetFiles())
 	}
 
-	err = cmake.BuildAll(context.Background(), desc, []string{})
+	err = cmake.BuildAll(context.Background(), info, []string{})
 	assert.NoError(t, err)
 
-	err = cmake.BuildTargets(context.Background(), desc, []string{"main"}, []string{})
+	err = cmake.BuildTargets(context.Background(), info, []string{"main"}, []string{})
 	assert.NoError(t, err)
 
-	err = cmake.RunTarget(context.Background(), desc, "main", []string{})
+	err = cmake.RunTarget(context.Background(), info, "main", []string{})
 	assert.NoError(t, err)
 }

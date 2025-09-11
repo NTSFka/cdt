@@ -58,9 +58,9 @@ type configuratorTool interface {
 
 type ConfiguratorFallback []configuratorTool
 
-func (f *ConfiguratorFallback) Configure(ctx context.Context, info internal.ProjectInfo, args []string) error {
+func (f *ConfiguratorFallback) Configure(ctx context.Context, options internal.ProjectConfiguratorOptions) error {
 	return runFirstAvailable(*f, "configurator", func(tool configuratorTool) error {
-		return tool.Configure(ctx, info, args)
+		return tool.Configure(ctx, options)
 	})
 }
 

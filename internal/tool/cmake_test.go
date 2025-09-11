@@ -48,7 +48,7 @@ func TestCMake_Configure(t *testing.T) {
 
 	buildDir := t.TempDir()
 
-	desc := internal.ProjectInfo{
+	info := internal.ProjectInfo{
 		Directory:             "project",
 		IntermediateDirectory: &buildDir,
 		StructureProvider:     cmake,
@@ -60,7 +60,7 @@ func TestCMake_Configure(t *testing.T) {
 		"-B", buildDir,
 	}).Return(nil)
 
-	err := cmake.Configure(context.Background(), desc, []string{})
+	err := cmake.Configure(context.Background(), internal.ProjectConfiguratorOptions{ProjectInfo: info})
 	assert.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -73,7 +73,7 @@ func TestCMake_Configure_Failed(t *testing.T) {
 
 	buildDir := t.TempDir()
 
-	desc := internal.ProjectInfo{
+	info := internal.ProjectInfo{
 		Directory:             "project",
 		IntermediateDirectory: &buildDir,
 		StructureProvider:     cmake,
@@ -85,7 +85,7 @@ func TestCMake_Configure_Failed(t *testing.T) {
 		"-B", buildDir,
 	}).Return(errors.New("failed"))
 
-	err := cmake.Configure(context.Background(), desc, []string{})
+	err := cmake.Configure(context.Background(), internal.ProjectConfiguratorOptions{ProjectInfo: info})
 	assert.EqualError(t, err, "failed")
 
 	exec.AssertExpectations(t)

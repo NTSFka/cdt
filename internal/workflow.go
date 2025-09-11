@@ -2,10 +2,18 @@ package internal
 
 import "context"
 
+// ProjectConfiguratorOptions are options for configuring a project
+type ProjectConfiguratorOptions struct {
+	ProjectInfo
+
+	// ExtraArgs are extra arguments for the specific configurator implementation
+	ExtraArgs []string
+}
+
 // A ProjectConfigurator allow configuring a project
 type ProjectConfigurator interface {
 	// Configure the project
-	Configure(ctx context.Context, info ProjectInfo, args []string) error
+	Configure(ctx context.Context, options ProjectConfiguratorOptions) error
 }
 
 // A ProjectBuilder allow building a project

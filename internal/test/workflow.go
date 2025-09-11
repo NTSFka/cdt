@@ -18,8 +18,8 @@ func NewProjectConfigurator(t *testing.T) *ProjectConfigurator {
 	return &configurator
 }
 
-func (t *ProjectConfigurator) Configure(ctx context.Context, info internal.ProjectInfo, args []string) error {
-	return t.Called(ctx, info, args).Error(0)
+func (t *ProjectConfigurator) Configure(ctx context.Context, options internal.ProjectConfiguratorOptions) error {
+	return t.Called(ctx, options).Error(0)
 }
 
 type ProjectBuilder struct {

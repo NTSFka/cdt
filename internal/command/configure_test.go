@@ -39,7 +39,7 @@ func TestConfigure_NotSupported(t *testing.T) {
 
 func TestConfigure_Configure_Success(t *testing.T) {
 	configurator := test.NewProjectConfigurator(t)
-	configurator.On("Configure", mock.Anything, mock.Anything, []string{}).
+	configurator.On("Configure", mock.Anything, mock.Anything).
 		Return(nil)
 
 	err := runConfigure(context.Background(), configurator)
@@ -50,7 +50,7 @@ func TestConfigure_Configure_Success(t *testing.T) {
 
 func TestConfigure_Configure_Failure(t *testing.T) {
 	configurator := test.NewProjectConfigurator(t)
-	configurator.On("Configure", mock.Anything, mock.Anything, []string{}).
+	configurator.On("Configure", mock.Anything, mock.Anything).
 		Return(errors.New("failed"))
 
 	err := runConfigure(context.Background(), configurator)
@@ -78,7 +78,7 @@ func newTestConfiguratorTool(t *testing.T) *newConfiguratorTool {
 
 func TestConfigure_Tool_Success(t *testing.T) {
 	configurator := newTestConfiguratorTool(t)
-	configurator.On("Configure", mock.Anything, mock.Anything, []string{}).
+	configurator.On("Configure", mock.Anything, mock.Anything).
 		Return(nil)
 
 	err := runConfigureTool(context.Background(), configurator, "--tool", "tool1")
@@ -89,7 +89,7 @@ func TestConfigure_Tool_Success(t *testing.T) {
 
 func TestConfigure_Tool_Failed(t *testing.T) {
 	configurator := newTestConfiguratorTool(t)
-	configurator.On("Configure", mock.Anything, mock.Anything, []string{}).
+	configurator.On("Configure", mock.Anything, mock.Anything).
 		Return(errors.New("failed"))
 
 	err := runConfigureTool(context.Background(), configurator, "--tool", "tool1")

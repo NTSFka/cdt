@@ -33,7 +33,7 @@ func DetectCMake(ctx context.Context, environment internal.Environment) *CMake {
 }
 
 func (c *CMake) Structure(ctx context.Context, info internal.ProjectInfo) (*internal.ProjectStructure, error) {
-	if err := c.Configure(ctx, info, []string{}); err != nil {
+	if err := c.Configure(ctx, internal.ProjectConfiguratorOptions{ProjectInfo: info}); err != nil {
 		return nil, err
 	}
 
@@ -59,27 +59,28 @@ func (c *CMake) Structure(ctx context.Context, info internal.ProjectInfo) (*inte
 	return &structure, nil
 }
 
-func (c *CMake) Configure(ctx context.Context, info internal.ProjectInfo, args []string) error {
-	if info.IntermediateDirectory == nil {
+func (c *CMake) Configure(ctx context.Context, options internal.ProjectConfiguratorOptions) error {
+	if options.IntermediateDirectory == nil {
 		return internal.ErrNoIntermediateDirectory
 	}
 
-	fileApi := utils.NewCmakeFileApi(*info.IntermediateDirectory)
+	fileApi := utils.NewCmakeFileApi(*options.IntermediateDirectory)
 
 	if err := fileApi.Query("codemodel", 2); err != nil {
 		return err
 	}
 
-	callArgs := args
+	var callArgs []string
 	callArgs = append(callArgs, "-DCMAKE_EXPORT_COMPILE_COMMANDS=ON")
 	callArgs = append(callArgs, "-S", ".")
-	callArgs = append(callArgs, "-B", *info.IntermediateDirectory)
+	callArgs = append(callArgs, "-B", *options.IntermediateDirectory)
+	callArgs = append(callArgs, options.ExtraArgs...)
 
-	return c.RunForProject(ctx, info, callArgs)
+	return c.RunForProject(ctx, options.ProjectInfo, callArgs)
 }
 
 func (c *CMake) BuildAll(ctx context.Context, info internal.ProjectInfo, args []string) error {
-	if err := c.Configure(ctx, info, []string{}); err != nil {
+	if err := c.Configure(ctx, internal.ProjectConfiguratorOptions{ProjectInfo: info}); err != nil {
 		return err
 	}
 
@@ -94,7 +95,7 @@ func (c *CMake) BuildAll(ctx context.Context, info internal.ProjectInfo, args []
 }
 
 func (c *CMake) BuildTargets(ctx context.Context, info internal.ProjectInfo, targets []string, args []string) error {
-	if err := c.Configure(ctx, info, []string{}); err != nil {
+	if err := c.Configure(ctx, internal.ProjectConfiguratorOptions{ProjectInfo: info}); err != nil {
 		return err
 	}
 
