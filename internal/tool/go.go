@@ -70,46 +70,46 @@ func (g *Go) Structure(ctx context.Context, info internal.ProjectInfo) (*interna
 	return &structure, nil
 }
 
-func (g *Go) BuildAll(ctx context.Context, info internal.ProjectInfo, args []string) error {
-	return g.RunForProject(ctx, info, append(args, "build"))
+func (g *Go) BuildAll(ctx context.Context, options internal.ProjectBuilderOptions) error {
+	return g.RunForProject(ctx, options.ProjectInfo, append(options.ExtraArgs, "build"))
 }
 
-func (g *Go) BuildTargets(ctx context.Context, info internal.ProjectInfo, targets []string, args []string) error {
-	return g.RunForProject(ctx, info, append(append(args, "build"), targets...))
+func (g *Go) BuildTargets(ctx context.Context, options internal.ProjectBuilderOptions, targets []string) error {
+	return g.RunForProject(ctx, options.ProjectInfo, append(append(options.ExtraArgs, "build"), targets...))
 }
 
-func (g *Go) RunTarget(ctx context.Context, info internal.ProjectInfo, target string, args []string) error {
-	return g.RunForProject(ctx, info, append(args, "run", target))
+func (g *Go) RunTarget(ctx context.Context, options internal.ProjectRunnerOptions, target string) error {
+	return g.RunForProject(ctx, options.ProjectInfo, append(options.ExtraArgs, "run", target))
 }
 
-func (g *Go) TestAll(ctx context.Context, info internal.ProjectInfo, args []string) error {
-	return g.RunForProject(ctx, info, append(args, "test", "./..."))
+func (g *Go) TestAll(ctx context.Context, options internal.ProjectTesterOptions) error {
+	return g.RunForProject(ctx, options.ProjectInfo, append(options.ExtraArgs, "test", "./..."))
 }
 
-func (g *Go) Test(ctx context.Context, info internal.ProjectInfo, pattern string, args []string) error {
-	return g.RunForProject(ctx, info, append(args, "test", pattern))
+func (g *Go) TestPattern(ctx context.Context, options internal.ProjectTesterOptions, pattern string) error {
+	return g.RunForProject(ctx, options.ProjectInfo, append(options.ExtraArgs, "test", pattern))
 }
 
-func (g *Go) FormatAll(ctx context.Context, info internal.ProjectInfo, args []string) error {
-	return g.RunForProject(ctx, info, append(args, "fmt", "./..."))
+func (g *Go) FormatAll(ctx context.Context, options internal.ProjectFormatterOptions) error {
+	return g.RunForProject(ctx, options.ProjectInfo, append(options.ExtraArgs, "fmt", "./..."))
 }
 
-func (g *Go) FormatFiles(ctx context.Context, info internal.ProjectInfo, filenames []string, args []string) error {
-	return g.RunForProject(ctx, info, append(append(args, "fmt"), filenames...))
+func (g *Go) FormatFiles(ctx context.Context, options internal.ProjectFormatterOptions, filenames []string) error {
+	return g.RunForProject(ctx, options.ProjectInfo, append(append(options.ExtraArgs, "fmt"), filenames...))
 }
 
-func (g *Go) FormatCheckAll(_ context.Context, _ internal.ProjectInfo, _ []string) error {
+func (g *Go) FormatCheckAll(_ context.Context, _ internal.ProjectFormatterOptions) error {
 	return errors.New("go fmt doesn't support check mode")
 }
 
-func (g *Go) FormatCheckFiles(_ context.Context, _ internal.ProjectInfo, _ []string, _ []string) error {
+func (g *Go) FormatCheckFiles(_ context.Context, _ internal.ProjectFormatterOptions, _ []string) error {
 	return errors.New("go fmt doesn't support check mode")
 }
 
-func (g *Go) LintAll(ctx context.Context, info internal.ProjectInfo, args []string) error {
-	return g.RunForProject(ctx, info, append(args, "vet", "./..."))
+func (g *Go) LintAll(ctx context.Context, options internal.ProjectLinterOptions) error {
+	return g.RunForProject(ctx, options.ProjectInfo, append(options.ExtraArgs, "vet", "./..."))
 }
 
-func (g *Go) LintFiles(ctx context.Context, info internal.ProjectInfo, filenames []string, args []string) error {
-	return g.RunForProject(ctx, info, append(append(args, "vet"), filenames...))
+func (g *Go) LintFiles(ctx context.Context, options internal.ProjectLinterOptions, filenames []string) error {
+	return g.RunForProject(ctx, options.ProjectInfo, append(append(options.ExtraArgs, "vet"), filenames...))
 }

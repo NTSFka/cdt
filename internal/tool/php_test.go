@@ -48,12 +48,12 @@ func TestPHP_PHP_RunTarget(t *testing.T) {
 
 	tool := NewPHP(exec.LazyExecutable("php"))
 
-	desc := internal.ProjectInfo{Directory: "."}
+	info := internal.ProjectInfo{Directory: "."}
 
 	exec.OnRun("php", []string{"-f", "index.php"}).
 		Return(nil)
 
-	err := tool.RunTarget(context.Background(), desc, "index.php", []string{})
+	err := tool.RunTarget(context.Background(), internal.ProjectRunnerOptions{ProjectInfo: info}, "index.php")
 	assert.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -64,12 +64,12 @@ func TestPHP_PHP_RunTarget_Fail(t *testing.T) {
 
 	tool := NewPHP(exec.LazyExecutable("php"))
 
-	desc := internal.ProjectInfo{Directory: "."}
+	info := internal.ProjectInfo{Directory: "."}
 
 	exec.OnRun("php", []string{"-f", "index.php"}).
 		Return(errors.New("failed"))
 
-	err := tool.RunTarget(context.Background(), desc, "index.php", []string{})
+	err := tool.RunTarget(context.Background(), internal.ProjectRunnerOptions{ProjectInfo: info}, "index.php")
 	assert.EqualError(t, err, "failed")
 
 	exec.AssertExpectations(t)

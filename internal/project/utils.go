@@ -58,9 +58,9 @@ type configuratorTool interface {
 
 type ConfiguratorFallback []configuratorTool
 
-func (f *ConfiguratorFallback) Configure(ctx context.Context, info internal.ProjectInfo, args []string) error {
+func (f *ConfiguratorFallback) Configure(ctx context.Context, options internal.ProjectConfiguratorOptions) error {
 	return runFirstAvailable(*f, "configurator", func(tool configuratorTool) error {
-		return tool.Configure(ctx, info, args)
+		return tool.Configure(ctx, options)
 	})
 }
 
@@ -71,15 +71,15 @@ type builderTool interface {
 
 type BuilderFallback []builderTool
 
-func (f *BuilderFallback) BuildAll(ctx context.Context, info internal.ProjectInfo, args []string) error {
+func (f *BuilderFallback) BuildAll(ctx context.Context, options internal.ProjectBuilderOptions) error {
 	return runFirstAvailable(*f, "builder", func(tool builderTool) error {
-		return tool.BuildAll(ctx, info, args)
+		return tool.BuildAll(ctx, options)
 	})
 }
 
-func (f *BuilderFallback) BuildTargets(ctx context.Context, info internal.ProjectInfo, targets []string, args []string) error {
+func (f *BuilderFallback) BuildTargets(ctx context.Context, options internal.ProjectBuilderOptions, targets []string) error {
 	return runFirstAvailable(*f, "builder", func(tool builderTool) error {
-		return tool.BuildTargets(ctx, info, targets, args)
+		return tool.BuildTargets(ctx, options, targets)
 	})
 }
 
@@ -90,15 +90,15 @@ type testerTool interface {
 
 type TesterFallback []testerTool
 
-func (f *TesterFallback) TestAll(ctx context.Context, info internal.ProjectInfo, args []string) error {
+func (f *TesterFallback) TestAll(ctx context.Context, options internal.ProjectTesterOptions) error {
 	return runFirstAvailable(*f, "tester", func(tool testerTool) error {
-		return tool.TestAll(ctx, info, args)
+		return tool.TestAll(ctx, options)
 	})
 }
 
-func (f *TesterFallback) Test(ctx context.Context, info internal.ProjectInfo, pattern string, args []string) error {
+func (f *TesterFallback) TestPattern(ctx context.Context, options internal.ProjectTesterOptions, pattern string) error {
 	return runFirstAvailable(*f, "tester", func(tool testerTool) error {
-		return tool.Test(ctx, info, pattern, args)
+		return tool.TestPattern(ctx, options, pattern)
 	})
 }
 
@@ -109,27 +109,27 @@ type formatterTool interface {
 
 type FormatterFallback []formatterTool
 
-func (f *FormatterFallback) FormatAll(ctx context.Context, info internal.ProjectInfo, args []string) error {
+func (f *FormatterFallback) FormatAll(ctx context.Context, options internal.ProjectFormatterOptions) error {
 	return runFirstAvailable(*f, "formatter", func(tool formatterTool) error {
-		return tool.FormatAll(ctx, info, args)
+		return tool.FormatAll(ctx, options)
 	})
 }
 
-func (f *FormatterFallback) FormatFiles(ctx context.Context, info internal.ProjectInfo, filenames []string, args []string) error {
+func (f *FormatterFallback) FormatFiles(ctx context.Context, options internal.ProjectFormatterOptions, filenames []string) error {
 	return runFirstAvailable(*f, "formatter", func(tool formatterTool) error {
-		return tool.FormatFiles(ctx, info, filenames, args)
+		return tool.FormatFiles(ctx, options, filenames)
 	})
 }
 
-func (f *FormatterFallback) FormatCheckAll(ctx context.Context, info internal.ProjectInfo, args []string) error {
+func (f *FormatterFallback) FormatCheckAll(ctx context.Context, options internal.ProjectFormatterOptions) error {
 	return runFirstAvailable(*f, "formatter", func(tool formatterTool) error {
-		return tool.FormatCheckAll(ctx, info, args)
+		return tool.FormatCheckAll(ctx, options)
 	})
 }
 
-func (f *FormatterFallback) FormatCheckFiles(ctx context.Context, info internal.ProjectInfo, filenames []string, args []string) error {
+func (f *FormatterFallback) FormatCheckFiles(ctx context.Context, options internal.ProjectFormatterOptions, filenames []string) error {
 	return runFirstAvailable(*f, "formatter", func(tool formatterTool) error {
-		return tool.FormatCheckFiles(ctx, info, filenames, args)
+		return tool.FormatCheckFiles(ctx, options, filenames)
 	})
 }
 
@@ -140,29 +140,29 @@ type linterTool interface {
 
 type LinterList []linterTool
 
-func (f *LinterList) LintAll(ctx context.Context, info internal.ProjectInfo, args []string) error {
+func (f *LinterList) LintAll(ctx context.Context, options internal.ProjectLinterOptions) error {
 	return runAllAvailable(*f, "linter", func(tool linterTool) error {
-		return tool.LintAll(ctx, info, args)
+		return tool.LintAll(ctx, options)
 	})
 }
 
-func (f *LinterList) LintFiles(ctx context.Context, info internal.ProjectInfo, filenames []string, args []string) error {
+func (f *LinterList) LintFiles(ctx context.Context, options internal.ProjectLinterOptions, filenames []string) error {
 	return runAllAvailable(*f, "linter", func(tool linterTool) error {
-		return tool.LintFiles(ctx, info, filenames, args)
+		return tool.LintFiles(ctx, options, filenames)
 	})
 }
 
 type LinterFallback []linterTool
 
-func (f *LinterFallback) LintAll(ctx context.Context, info internal.ProjectInfo, args []string) error {
+func (f *LinterFallback) LintAll(ctx context.Context, options internal.ProjectLinterOptions) error {
 	return runFirstAvailable(*f, "linter", func(tool linterTool) error {
-		return tool.LintAll(ctx, info, args)
+		return tool.LintAll(ctx, options)
 	})
 }
 
-func (f *LinterFallback) LintFiles(ctx context.Context, info internal.ProjectInfo, filenames []string, args []string) error {
+func (f *LinterFallback) LintFiles(ctx context.Context, options internal.ProjectLinterOptions, filenames []string) error {
 	return runFirstAvailable(*f, "linter", func(tool linterTool) error {
-		return tool.LintFiles(ctx, info, filenames, args)
+		return tool.LintFiles(ctx, options, filenames)
 	})
 }
 
@@ -173,9 +173,9 @@ type runnerTool interface {
 
 type RunnerFallback []runnerTool
 
-func (f *RunnerFallback) RunTarget(ctx context.Context, info internal.ProjectInfo, target string, args []string) error {
+func (f *RunnerFallback) RunTarget(ctx context.Context, options internal.ProjectRunnerOptions, target string) error {
 	return runFirstAvailable(*f, "runner", func(tool runnerTool) error {
-		return tool.RunTarget(ctx, info, target, args)
+		return tool.RunTarget(ctx, options, target)
 	})
 }
 
@@ -186,38 +186,38 @@ type dependencyManagerTool interface {
 
 type DependencyManagerFallback []dependencyManagerTool
 
-func (f *DependencyManagerFallback) AddDependencies(ctx context.Context, info internal.ProjectInfo, dependencies []string, dev bool) error {
+func (f *DependencyManagerFallback) AddDependencies(ctx context.Context, options internal.ProjectDependencyManagerOptions, dependencies []string, dev bool) error {
 	return runFirstAvailable(*f, "dependency management", func(tool dependencyManagerTool) error {
-		return tool.AddDependencies(ctx, info, dependencies, dev)
+		return tool.AddDependencies(ctx, options, dependencies, dev)
 	})
 }
 
-func (f *DependencyManagerFallback) RemoveDependencies(ctx context.Context, info internal.ProjectInfo, dependencies []string, dev bool) error {
+func (f *DependencyManagerFallback) RemoveDependencies(ctx context.Context, options internal.ProjectDependencyManagerOptions, dependencies []string, dev bool) error {
 	return runFirstAvailable(*f, "dependency management", func(tool dependencyManagerTool) error {
-		return tool.RemoveDependencies(ctx, info, dependencies, dev)
+		return tool.RemoveDependencies(ctx, options, dependencies, dev)
 	})
 }
 
-func (f *DependencyManagerFallback) UpdateDependencies(ctx context.Context, info internal.ProjectInfo, dependencies []string) error {
+func (f *DependencyManagerFallback) UpdateDependencies(ctx context.Context, options internal.ProjectDependencyManagerOptions, dependencies []string) error {
 	return runFirstAvailable(*f, "dependency management", func(tool dependencyManagerTool) error {
-		return tool.UpdateDependencies(ctx, info, dependencies)
+		return tool.UpdateDependencies(ctx, options, dependencies)
 	})
 }
 
-func (f *DependencyManagerFallback) FetchDependencies(ctx context.Context, info internal.ProjectInfo, noDev bool) error {
+func (f *DependencyManagerFallback) FetchDependencies(ctx context.Context, options internal.ProjectDependencyManagerOptions, noDev bool) error {
 	return runFirstAvailable(*f, "dependency management", func(tool dependencyManagerTool) error {
-		return tool.FetchDependencies(ctx, info, noDev)
+		return tool.FetchDependencies(ctx, options, noDev)
 	})
 }
 
-func (f *DependencyManagerFallback) ListDependencies(ctx context.Context, info internal.ProjectInfo) error {
+func (f *DependencyManagerFallback) ListDependencies(ctx context.Context, options internal.ProjectDependencyManagerOptions) error {
 	return runFirstAvailable(*f, "dependency management", func(tool dependencyManagerTool) error {
-		return tool.ListDependencies(ctx, info)
+		return tool.ListDependencies(ctx, options)
 	})
 }
 
-func (f *DependencyManagerFallback) AuditDependencies(ctx context.Context, info internal.ProjectInfo) error {
+func (f *DependencyManagerFallback) AuditDependencies(ctx context.Context, options internal.ProjectDependencyManagerOptions) error {
 	return runFirstAvailable(*f, "dependency management", func(tool dependencyManagerTool) error {
-		return tool.AuditDependencies(ctx, info)
+		return tool.AuditDependencies(ctx, options)
 	})
 }

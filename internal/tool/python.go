@@ -32,8 +32,8 @@ func NewPython(detect func() *internal.Executable) *Python {
 	}
 }
 
-func (p *Python) RunTarget(ctx context.Context, info internal.ProjectInfo, target string, args []string) error {
-	return p.RunForProject(ctx, info, append([]string{target}, args...))
+func (p *Python) RunTarget(ctx context.Context, options internal.ProjectRunnerOptions, target string) error {
+	return p.RunForProject(ctx, options.ProjectInfo, append([]string{target}, options.ExtraArgs...))
 }
 
 func (p *Python) Aliases() []string {

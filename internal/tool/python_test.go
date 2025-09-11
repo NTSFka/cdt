@@ -50,12 +50,12 @@ func TestPython_Python_RunTarget(t *testing.T) {
 
 	tool := NewPython(python.LazyExecutable("python3"))
 
-	desc := internal.ProjectInfo{Directory: "."}
+	info := internal.ProjectInfo{Directory: "."}
 
 	python.OnRun("python3", []string{"main.py"}).
 		Return(nil)
 
-	err := tool.RunTarget(context.Background(), desc, "main.py", []string{})
+	err := tool.RunTarget(context.Background(), internal.ProjectRunnerOptions{ProjectInfo: info}, "main.py")
 	assert.NoError(t, err)
 
 	python.AssertExpectations(t)
@@ -66,12 +66,12 @@ func TestPython_Python_RunTarget_Fail(t *testing.T) {
 
 	tool := NewPython(python.LazyExecutable("python3"))
 
-	desc := internal.ProjectInfo{Directory: "."}
+	info := internal.ProjectInfo{Directory: "."}
 
 	python.OnRun("python3", []string{"main.py"}).
 		Return(errors.New("failed"))
 
-	err := tool.RunTarget(context.Background(), desc, "main.py", []string{})
+	err := tool.RunTarget(context.Background(), internal.ProjectRunnerOptions{ProjectInfo: info}, "main.py")
 	assert.EqualError(t, err, "failed")
 
 	python.AssertExpectations(t)

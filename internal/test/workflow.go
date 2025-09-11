@@ -18,8 +18,8 @@ func NewProjectConfigurator(t *testing.T) *ProjectConfigurator {
 	return &configurator
 }
 
-func (t *ProjectConfigurator) Configure(ctx context.Context, info internal.ProjectInfo, args []string) error {
-	return t.Called(ctx, info, args).Error(0)
+func (t *ProjectConfigurator) Configure(ctx context.Context, options internal.ProjectConfiguratorOptions) error {
+	return t.Called(ctx, options).Error(0)
 }
 
 type ProjectBuilder struct {
@@ -32,12 +32,12 @@ func NewProjectBuilder(t *testing.T) *ProjectBuilder {
 	return &builder
 }
 
-func (t *ProjectBuilder) BuildAll(ctx context.Context, info internal.ProjectInfo, args []string) error {
-	return t.Called(ctx, info, args).Error(0)
+func (t *ProjectBuilder) BuildAll(ctx context.Context, options internal.ProjectBuilderOptions) error {
+	return t.Called(ctx, options).Error(0)
 }
 
-func (t *ProjectBuilder) BuildTargets(ctx context.Context, info internal.ProjectInfo, targets []string, args []string) error {
-	return t.Called(ctx, info, targets, args).Error(0)
+func (t *ProjectBuilder) BuildTargets(ctx context.Context, options internal.ProjectBuilderOptions, targets []string) error {
+	return t.Called(ctx, options, targets).Error(0)
 }
 
 type ProjectFormatter struct {
@@ -50,20 +50,20 @@ func NewProjectFormatter(t *testing.T) *ProjectFormatter {
 	return &formatter
 }
 
-func (t *ProjectFormatter) FormatAll(ctx context.Context, info internal.ProjectInfo, args []string) error {
-	return t.Called(ctx, info, args).Error(0)
+func (t *ProjectFormatter) FormatAll(ctx context.Context, options internal.ProjectFormatterOptions) error {
+	return t.Called(ctx, options).Error(0)
 }
 
-func (t *ProjectFormatter) FormatFiles(ctx context.Context, info internal.ProjectInfo, filenames []string, args []string) error {
-	return t.Called(ctx, info, filenames, args).Error(0)
+func (t *ProjectFormatter) FormatFiles(ctx context.Context, options internal.ProjectFormatterOptions, filenames []string) error {
+	return t.Called(ctx, options, filenames).Error(0)
 }
 
-func (t *ProjectFormatter) FormatCheckAll(ctx context.Context, info internal.ProjectInfo, args []string) error {
-	return t.Called(ctx, info, args).Error(0)
+func (t *ProjectFormatter) FormatCheckAll(ctx context.Context, options internal.ProjectFormatterOptions) error {
+	return t.Called(ctx, options).Error(0)
 }
 
-func (t *ProjectFormatter) FormatCheckFiles(ctx context.Context, info internal.ProjectInfo, filenames []string, args []string) error {
-	return t.Called(ctx, info, filenames, args).Error(0)
+func (t *ProjectFormatter) FormatCheckFiles(ctx context.Context, options internal.ProjectFormatterOptions, filenames []string) error {
+	return t.Called(ctx, options, filenames).Error(0)
 }
 
 type ProjectLinter struct {
@@ -76,12 +76,12 @@ func NewProjectLinter(t *testing.T) *ProjectLinter {
 	return &linter
 }
 
-func (t *ProjectLinter) LintAll(ctx context.Context, info internal.ProjectInfo, args []string) error {
-	return t.Called(ctx, info, args).Error(0)
+func (t *ProjectLinter) LintAll(ctx context.Context, options internal.ProjectLinterOptions) error {
+	return t.Called(ctx, options).Error(0)
 }
 
-func (t *ProjectLinter) LintFiles(ctx context.Context, info internal.ProjectInfo, filenames []string, args []string) error {
-	return t.Called(ctx, info, filenames, args).Error(0)
+func (t *ProjectLinter) LintFiles(ctx context.Context, options internal.ProjectLinterOptions, filenames []string) error {
+	return t.Called(ctx, options, filenames).Error(0)
 }
 
 type ProjectTester struct {
@@ -90,16 +90,17 @@ type ProjectTester struct {
 
 func NewProjectTester(t *testing.T) *ProjectTester {
 	tester := ProjectTester{}
-	tester.Mock.Test(t)
+	tester.Test(t)
+
 	return &tester
 }
 
-func (t *ProjectTester) TestAll(ctx context.Context, info internal.ProjectInfo, args []string) error {
-	return t.Called(ctx, info, args).Error(0)
+func (t *ProjectTester) TestAll(ctx context.Context, options internal.ProjectTesterOptions) error {
+	return t.Called(ctx, options).Error(0)
 }
 
-func (t *ProjectTester) Test(ctx context.Context, info internal.ProjectInfo, pattern string, args []string) error {
-	return t.Called(ctx, info, pattern, args).Error(0)
+func (t *ProjectTester) TestPattern(ctx context.Context, options internal.ProjectTesterOptions, pattern string) error {
+	return t.Called(ctx, options, pattern).Error(0)
 }
 
 type ProjectRunner struct {
@@ -112,8 +113,8 @@ func NewProjectRunner(t *testing.T) *ProjectRunner {
 	return &runner
 }
 
-func (t *ProjectRunner) RunTarget(ctx context.Context, info internal.ProjectInfo, target string, args []string) error {
-	return t.Called(ctx, info, target, args).Error(0)
+func (t *ProjectRunner) RunTarget(ctx context.Context, options internal.ProjectRunnerOptions, target string) error {
+	return t.Called(ctx, options, target).Error(0)
 }
 
 type StructureProvider struct {
@@ -141,26 +142,26 @@ func NewDependencyManager(t *testing.T) *DependencyManager {
 	return &manager
 }
 
-func (d *DependencyManager) AddDependencies(ctx context.Context, info internal.ProjectInfo, dependencies []string, dev bool) error {
-	return d.Called(ctx, info, dependencies, dev).Error(0)
+func (d *DependencyManager) AddDependencies(ctx context.Context, options internal.ProjectDependencyManagerOptions, dependencies []string, dev bool) error {
+	return d.Called(ctx, options, dependencies, dev).Error(0)
 }
 
-func (d *DependencyManager) RemoveDependencies(ctx context.Context, info internal.ProjectInfo, dependencies []string, dev bool) error {
-	return d.Called(ctx, info, dependencies, dev).Error(0)
+func (d *DependencyManager) RemoveDependencies(ctx context.Context, options internal.ProjectDependencyManagerOptions, dependencies []string, dev bool) error {
+	return d.Called(ctx, options, dependencies, dev).Error(0)
 }
 
-func (d *DependencyManager) UpdateDependencies(ctx context.Context, info internal.ProjectInfo, dependencies []string) error {
-	return d.Called(ctx, info, dependencies).Error(0)
+func (d *DependencyManager) UpdateDependencies(ctx context.Context, options internal.ProjectDependencyManagerOptions, dependencies []string) error {
+	return d.Called(ctx, options, dependencies).Error(0)
 }
 
-func (d *DependencyManager) FetchDependencies(ctx context.Context, info internal.ProjectInfo, noDev bool) error {
-	return d.Called(ctx, info, noDev).Error(0)
+func (d *DependencyManager) FetchDependencies(ctx context.Context, options internal.ProjectDependencyManagerOptions, noDev bool) error {
+	return d.Called(ctx, options, noDev).Error(0)
 }
 
-func (d *DependencyManager) ListDependencies(ctx context.Context, info internal.ProjectInfo) error {
-	return d.Called(ctx, info).Error(0)
+func (d *DependencyManager) ListDependencies(ctx context.Context, options internal.ProjectDependencyManagerOptions) error {
+	return d.Called(ctx, options).Error(0)
 }
 
-func (d *DependencyManager) AuditDependencies(ctx context.Context, info internal.ProjectInfo) error {
-	return d.Called(ctx, info).Error(0)
+func (d *DependencyManager) AuditDependencies(ctx context.Context, options internal.ProjectDependencyManagerOptions) error {
+	return d.Called(ctx, options).Error(0)
 }

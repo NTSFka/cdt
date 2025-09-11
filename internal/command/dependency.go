@@ -108,7 +108,12 @@ func dependencyAddCommandAction(ctx context.Context, cmd *cli.Command) error {
 	dependencies := cmd.StringArgs("dependencies")
 	dev := cmd.Bool("dev")
 
-	if err := manager.AddDependencies(ctx, c.Project.Info, dependencies, dev); err != nil {
+	options := internal.ProjectDependencyManagerOptions{
+		ProjectInfo: c.Project.Info,
+		ExtraArgs:   cmd.Args().Tail(),
+	}
+
+	if err := manager.AddDependencies(ctx, options, dependencies, dev); err != nil {
 		return fmt.Errorf("failed to add dependencies: %w", err)
 	}
 
@@ -126,7 +131,12 @@ func dependencyRemoveCommandAction(ctx context.Context, cmd *cli.Command) error 
 	dependencies := cmd.StringArgs("dependencies")
 	dev := cmd.Bool("dev")
 
-	if err := manager.RemoveDependencies(ctx, c.Project.Info, dependencies, dev); err != nil {
+	options := internal.ProjectDependencyManagerOptions{
+		ProjectInfo: c.Project.Info,
+		ExtraArgs:   cmd.Args().Tail(),
+	}
+
+	if err := manager.RemoveDependencies(ctx, options, dependencies, dev); err != nil {
 		return fmt.Errorf("failed to remove dependencies: %w", err)
 	}
 
@@ -143,7 +153,12 @@ func dependencyUpdateCommandAction(ctx context.Context, cmd *cli.Command) error 
 
 	dependencies := cmd.StringArgs("dependencies")
 
-	if err := manager.UpdateDependencies(ctx, c.Project.Info, dependencies); err != nil {
+	options := internal.ProjectDependencyManagerOptions{
+		ProjectInfo: c.Project.Info,
+		ExtraArgs:   cmd.Args().Tail(),
+	}
+
+	if err := manager.UpdateDependencies(ctx, options, dependencies); err != nil {
 		return fmt.Errorf("failed to update dependencies: %w", err)
 	}
 
@@ -160,7 +175,12 @@ func dependencyFetchCommandAction(ctx context.Context, cmd *cli.Command) error {
 
 	noDev := cmd.Bool("no-dev")
 
-	if err := manager.FetchDependencies(ctx, c.Project.Info, noDev); err != nil {
+	options := internal.ProjectDependencyManagerOptions{
+		ProjectInfo: c.Project.Info,
+		ExtraArgs:   cmd.Args().Tail(),
+	}
+
+	if err := manager.FetchDependencies(ctx, options, noDev); err != nil {
 		return fmt.Errorf("failed to fetch dependencies: %w", err)
 	}
 
@@ -175,7 +195,12 @@ func dependencyListCommandAction(ctx context.Context, cmd *cli.Command) error {
 		return err
 	}
 
-	if err := manager.ListDependencies(ctx, c.Project.Info); err != nil {
+	options := internal.ProjectDependencyManagerOptions{
+		ProjectInfo: c.Project.Info,
+		ExtraArgs:   cmd.Args().Tail(),
+	}
+
+	if err := manager.ListDependencies(ctx, options); err != nil {
 		return fmt.Errorf("failed to list dependencies: %w", err)
 	}
 
@@ -190,7 +215,12 @@ func dependencyAuditCommandAction(ctx context.Context, cmd *cli.Command) error {
 		return err
 	}
 
-	if err := manager.AuditDependencies(ctx, c.Project.Info); err != nil {
+	options := internal.ProjectDependencyManagerOptions{
+		ProjectInfo: c.Project.Info,
+		ExtraArgs:   cmd.Args().Tail(),
+	}
+
+	if err := manager.AuditDependencies(ctx, options); err != nil {
 		return fmt.Errorf("failed to audit dependencies: %w", err)
 	}
 

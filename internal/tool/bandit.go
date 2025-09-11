@@ -44,12 +44,12 @@ func (b *Bandit) buildPaths(directory string, filenames []string) []string {
 	return paths
 }
 
-func (b *Bandit) LintAll(ctx context.Context, info internal.ProjectInfo, args []string) error {
-	return b.RunForProject(ctx, info, append([]string{"*"}, args...))
+func (b *Bandit) LintAll(ctx context.Context, options internal.ProjectLinterOptions) error {
+	return b.RunForProject(ctx, options.ProjectInfo, append([]string{"*"}, options.ExtraArgs...))
 }
 
-func (b *Bandit) LintFiles(ctx context.Context, info internal.ProjectInfo, filenames []string, args []string) error {
-	paths := b.buildPaths(info.Directory, filenames)
+func (b *Bandit) LintFiles(ctx context.Context, options internal.ProjectLinterOptions, filenames []string) error {
+	paths := b.buildPaths(options.Directory, filenames)
 
-	return b.RunForProject(ctx, info, append(args, paths...))
+	return b.RunForProject(ctx, options.ProjectInfo, append(options.ExtraArgs, paths...))
 }

@@ -39,7 +39,7 @@ func TestBuild_NotSupported(t *testing.T) {
 
 func TestBuild_BuildAll_Success(t *testing.T) {
 	builder := test.NewProjectBuilder(t)
-	builder.On("BuildAll", mock.Anything, mock.Anything, []string{}).
+	builder.On("BuildAll", mock.Anything, mock.Anything).
 		Return(nil)
 
 	err := runBuild(context.Background(), builder)
@@ -50,7 +50,7 @@ func TestBuild_BuildAll_Success(t *testing.T) {
 
 func TestBuild_BuildAll_Failure(t *testing.T) {
 	builder := test.NewProjectBuilder(t)
-	builder.On("BuildAll", mock.Anything, mock.Anything, []string{}).
+	builder.On("BuildAll", mock.Anything, mock.Anything).
 		Return(errors.New("failed"))
 
 	err := runBuild(context.Background(), builder)
@@ -77,7 +77,7 @@ func newTestBuilderTool(t *testing.T) *testBuilderTool {
 
 func TestBuild_Tool_Success(t *testing.T) {
 	builder := newTestBuilderTool(t)
-	builder.On("BuildAll", mock.Anything, mock.Anything, []string{}).
+	builder.On("BuildAll", mock.Anything, mock.Anything).
 		Return(nil)
 
 	err := runBuildTool(context.Background(), builder, "--tool", "tool1")
@@ -88,7 +88,7 @@ func TestBuild_Tool_Success(t *testing.T) {
 
 func TestBuild_Tool_Failed(t *testing.T) {
 	builder := newTestBuilderTool(t)
-	builder.On("BuildAll", mock.Anything, mock.Anything, []string{}).
+	builder.On("BuildAll", mock.Anything, mock.Anything).
 		Return(errors.New("failed"))
 
 	err := runBuildTool(context.Background(), builder, "--tool", "tool1")
@@ -127,7 +127,7 @@ func TestBuild_Tool_NotSupported(t *testing.T) {
 func TestBuild_BuildTargets_Success(t *testing.T) {
 	builder := test.NewProjectBuilder(t)
 
-	builder.On("BuildTargets", mock.Anything, mock.Anything, []string{"target1", "target2"}, []string{}).
+	builder.On("BuildTargets", mock.Anything, mock.Anything, []string{"target1", "target2"}).
 		Return(nil)
 
 	err := runBuild(context.Background(), builder, "target1", "target2")
@@ -139,7 +139,7 @@ func TestBuild_BuildTargets_Success(t *testing.T) {
 func TestBuild_BuildTargets_Failure(t *testing.T) {
 	builder := test.NewProjectBuilder(t)
 
-	builder.On("BuildTargets", mock.Anything, mock.Anything, []string{"target1", "target2"}, []string{}).
+	builder.On("BuildTargets", mock.Anything, mock.Anything, []string{"target1", "target2"}).
 		Return(errors.New("failed"))
 
 	err := runBuild(context.Background(), builder, "target1", "target2")

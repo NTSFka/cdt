@@ -30,10 +30,10 @@ func DetectGolangCILint(ctx context.Context, environment internal.Environment) *
 	})
 }
 
-func (c *GolangCILint) LintAll(ctx context.Context, info internal.ProjectInfo, args []string) error {
-	return c.RunForProject(ctx, info, append(args, "run"))
+func (c *GolangCILint) LintAll(ctx context.Context, options internal.ProjectLinterOptions) error {
+	return c.RunForProject(ctx, options.ProjectInfo, append(options.ExtraArgs, "run"))
 }
 
-func (c *GolangCILint) LintFiles(ctx context.Context, info internal.ProjectInfo, filenames []string, args []string) error {
-	return c.RunForProject(ctx, info, append(append(args, "run"), filenames...))
+func (c *GolangCILint) LintFiles(ctx context.Context, options internal.ProjectLinterOptions, filenames []string) error {
+	return c.RunForProject(ctx, options.ProjectInfo, append(append(options.ExtraArgs, "run"), filenames...))
 }

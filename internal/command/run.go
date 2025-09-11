@@ -59,7 +59,12 @@ func runCommandAction(ctx context.Context, cmd *cli.Command) error {
 		return errors.New("target is required")
 	}
 
-	if err := runner.RunTarget(ctx, c.Project.Info, target, cmd.Args().Slice()); err != nil {
+	options := internal.ProjectRunnerOptions{
+		ProjectInfo: c.Project.Info,
+		ExtraArgs:   cmd.Args().Tail(),
+	}
+
+	if err := runner.RunTarget(ctx, options, target); err != nil {
 		return fmt.Errorf("%w", err)
 	}
 

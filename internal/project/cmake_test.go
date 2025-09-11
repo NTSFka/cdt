@@ -81,7 +81,7 @@ func TestCMakeType_Project_TestAll(t *testing.T) {
 		cmakeMock.OnRunAnything("cmake-test").Return(nil)
 		ctestMock.OnRun("ctest-test", []string{"--test-dir", buildDir}).Return(nil)
 
-		err = p.Workflow.Tester.TestAll(context.Background(), p.Info, []string{})
+		err = p.Workflow.Tester.TestAll(context.Background(), internal.ProjectTesterOptions{ProjectInfo: p.Info})
 		assert.NoError(t, err)
 
 		cmakeMock.AssertExpectations(t)
@@ -113,7 +113,7 @@ func TestCMakeType_Project_TestAll_BuildFailed(t *testing.T) {
 	if assert.NotNil(t, p.Workflow.Tester) {
 		cmakeMock.OnRunAnything("cmake-test").Return(errors.New("failed"))
 
-		err = p.Workflow.Tester.TestAll(context.Background(), p.Info, []string{})
+		err = p.Workflow.Tester.TestAll(context.Background(), internal.ProjectTesterOptions{ProjectInfo: p.Info})
 		assert.EqualError(t, err, "build failed: failed")
 
 		cmakeMock.AssertExpectations(t)
@@ -146,7 +146,7 @@ func TestCMakeProject_Project_Test(t *testing.T) {
 		cmakeMock.OnRunAnything("cmake-test").Return(nil)
 		ctestMock.OnRun("ctest-test", []string{"-R", "my-test", "--test-dir", buildDir}).Return(nil)
 
-		err = p.Workflow.Tester.Test(context.Background(), p.Info, "my-test", []string{})
+		err = p.Workflow.Tester.TestPattern(context.Background(), internal.ProjectTesterOptions{ProjectInfo: p.Info}, "my-test")
 		assert.NoError(t, err)
 
 		cmakeMock.AssertExpectations(t)
@@ -178,7 +178,7 @@ func TestCMakeProject_Project_TestBuild_Failed(t *testing.T) {
 	if assert.NotNil(t, p.Workflow.Tester) {
 		cmakeMock.OnRunAnything("cmake-test").Return(errors.New("failed"))
 
-		err = p.Workflow.Tester.Test(context.Background(), p.Info, "my-test", []string{})
+		err = p.Workflow.Tester.TestPattern(context.Background(), internal.ProjectTesterOptions{ProjectInfo: p.Info}, "my-test")
 		assert.EqualError(t, err, "build failed: failed")
 
 		cmakeMock.AssertExpectations(t)

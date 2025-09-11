@@ -30,10 +30,10 @@ func NewPyTest(detect func() *internal.Executable) *PyTest {
 	}
 }
 
-func (p *PyTest) TestAll(ctx context.Context, info internal.ProjectInfo, args []string) error {
-	return p.RunForProject(ctx, info, args)
+func (p *PyTest) TestAll(ctx context.Context, options internal.ProjectTesterOptions) error {
+	return p.RunForProject(ctx, options.ProjectInfo, options.ExtraArgs)
 }
 
-func (p *PyTest) Test(ctx context.Context, info internal.ProjectInfo, pattern string, args []string) error {
-	return p.RunForProject(ctx, info, append(args, pattern))
+func (p *PyTest) TestPattern(ctx context.Context, options internal.ProjectTesterOptions, pattern string) error {
+	return p.RunForProject(ctx, options.ProjectInfo, append(options.ExtraArgs, pattern))
 }

@@ -73,12 +73,12 @@ func TestPHPStan_PHPStan_LintAll(t *testing.T) {
 
 	tool := NewPHPStan(exec.LazyExecutable("lint"))
 
-	desc := internal.ProjectInfo{Directory: "."}
+	info := internal.ProjectInfo{Directory: "."}
 
 	exec.OnRun("lint", []string{"analyse"}).
 		Return(nil)
 
-	err := tool.LintAll(context.Background(), desc, []string{})
+	err := tool.LintAll(context.Background(), internal.ProjectLinterOptions{ProjectInfo: info})
 	assert.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -89,12 +89,12 @@ func TestPHPStan_PHPStan_Lint(t *testing.T) {
 
 	tool := NewPHPStan(exec.LazyExecutable("lint"))
 
-	desc := internal.ProjectInfo{Directory: "."}
+	info := internal.ProjectInfo{Directory: "."}
 
 	exec.OnRun("lint", []string{"analyse", "file.php", "/path/to/file2.php"}).
 		Return(nil)
 
-	err := tool.LintFiles(context.Background(), desc, []string{"file.php", "/path/to/file2.php"}, []string{})
+	err := tool.LintFiles(context.Background(), internal.ProjectLinterOptions{ProjectInfo: info}, []string{"file.php", "/path/to/file2.php"})
 	assert.NoError(t, err)
 
 	exec.AssertExpectations(t)

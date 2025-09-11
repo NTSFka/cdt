@@ -2,79 +2,135 @@ package internal
 
 import "context"
 
+// ProjectConfiguratorOptions are options for configuring a project
+type ProjectConfiguratorOptions struct {
+	ProjectInfo
+
+	// ExtraArgs are extra arguments for the specific configurator implementation
+	ExtraArgs []string
+}
+
 // A ProjectConfigurator allow configuring a project
 type ProjectConfigurator interface {
 	// Configure the project
-	Configure(ctx context.Context, info ProjectInfo, args []string) error
+	Configure(ctx context.Context, options ProjectConfiguratorOptions) error
+}
+
+// ProjectBuilderOptions are options for building a project
+type ProjectBuilderOptions struct {
+	ProjectInfo
+
+	// ExtraArgs are extra arguments for the specific builder implementation
+	ExtraArgs []string
 }
 
 // A ProjectBuilder allow building a project
 type ProjectBuilder interface {
 	// BuildAll builds all targets in the project
-	BuildAll(ctx context.Context, info ProjectInfo, args []string) error
+	BuildAll(ctx context.Context, options ProjectBuilderOptions) error
 
 	// BuildTargets builds specific targets in the project
-	BuildTargets(ctx context.Context, info ProjectInfo, targets []string, args []string) error
+	BuildTargets(ctx context.Context, options ProjectBuilderOptions, targets []string) error
+}
+
+// ProjectTesterOptions are options for testing a project
+type ProjectTesterOptions struct {
+	ProjectInfo
+
+	// ExtraArgs are extra arguments for the specific tester implementation
+	ExtraArgs []string
 }
 
 // A ProjectTester allow testing a project
 type ProjectTester interface {
 	// TestAll runs all tests in the project
-	TestAll(ctx context.Context, info ProjectInfo, args []string) error
+	TestAll(ctx context.Context, options ProjectTesterOptions) error
 
-	// Test runs tests that match the pattern
-	Test(ctx context.Context, info ProjectInfo, pattern string, args []string) error
+	// TestPattern runs tests that match the pattern
+	TestPattern(ctx context.Context, options ProjectTesterOptions, pattern string) error
+}
+
+// ProjectFormatterOptions are options for formatting a project
+type ProjectFormatterOptions struct {
+	ProjectInfo
+
+	// ExtraArgs are extra arguments for the specific formatter implementation
+	ExtraArgs []string
 }
 
 // A ProjectFormatter allow formatting files of a project
 type ProjectFormatter interface {
 	// FormatAll formates all files in the project
-	FormatAll(ctx context.Context, info ProjectInfo, args []string) error
+	FormatAll(ctx context.Context, options ProjectFormatterOptions) error
 
 	// FormatFiles formates specified files in the project
-	FormatFiles(ctx context.Context, info ProjectInfo, filenames []string, args []string) error
+	FormatFiles(ctx context.Context, options ProjectFormatterOptions, filenames []string) error
 
 	// FormatCheckAll check if all files in the project are formatted
-	FormatCheckAll(ctx context.Context, info ProjectInfo, args []string) error
+	FormatCheckAll(ctx context.Context, options ProjectFormatterOptions) error
 
 	// FormatCheckFiles check if all specified files in the project are formatted
-	FormatCheckFiles(ctx context.Context, info ProjectInfo, filenames []string, args []string) error
+	FormatCheckFiles(ctx context.Context, options ProjectFormatterOptions, filenames []string) error
+}
+
+// ProjectLinterOptions are options for linting a project
+type ProjectLinterOptions struct {
+	ProjectInfo
+
+	// ExtraArgs are extra arguments for the specific linter implementation
+	ExtraArgs []string
 }
 
 // A ProjectLinter allow linting files of a project
 type ProjectLinter interface {
 	// LintAll lints all project files
-	LintAll(ctx context.Context, info ProjectInfo, args []string) error
+	LintAll(ctx context.Context, options ProjectLinterOptions) error
 
 	// LintFiles perform linting on specified files
-	LintFiles(ctx context.Context, info ProjectInfo, filenames []string, args []string) error
+	LintFiles(ctx context.Context, options ProjectLinterOptions, filenames []string) error
+}
+
+// ProjectRunnerOptions are options for running a target in the project
+type ProjectRunnerOptions struct {
+	ProjectInfo
+
+	// ExtraArgs are extra arguments for the specific runner implementation
+	ExtraArgs []string
 }
 
 // A ProjectRunner allow running executables of a project
 type ProjectRunner interface {
 	// RunTarget run a target
-	RunTarget(ctx context.Context, info ProjectInfo, target string, args []string) error
+	RunTarget(ctx context.Context, options ProjectRunnerOptions, target string) error
+}
+
+// ProjectDependencyManagerOptions are options for managing of project dependencies
+type ProjectDependencyManagerOptions struct {
+	ProjectInfo
+
+	// ExtraArgs are extra arguments for the specific dependency manager implementation
+	ExtraArgs []string
 }
 
 // ProjectDependencyManager manages project dependencies (libraries, packaged, etc.)
 type ProjectDependencyManager interface {
 	// AddDependencies adds new dependencies to the project
-	AddDependencies(ctx context.Context, info ProjectInfo, dependencies []string, dev bool) error
+	AddDependencies(ctx context.Context, options ProjectDependencyManagerOptions, dependencies []string, dev bool) error
 
 	// RemoveDependencies removes the dependencies from the project
-	RemoveDependencies(ctx context.Context, info ProjectInfo, dependencies []string, dev bool) error
+	RemoveDependencies(ctx context.Context, options ProjectDependencyManagerOptions, dependencies []string, dev bool) error
 
 	// UpdateDependencies updates specified dependencies in the project (empty dependencies mean update all)
-	UpdateDependencies(ctx context.Context, info ProjectInfo, dependencies []string) error
+	UpdateDependencies(ctx context.Context, options ProjectDependencyManagerOptions, dependencies []string) error
 
 	// FetchDependencies fetches all specified dependencies to the project
-	FetchDependencies(ctx context.Context, info ProjectInfo, noDev bool) error
+	FetchDependencies(ctx context.Context, options ProjectDependencyManagerOptions, noDev bool) error
 
 	// ListDependencies lists all specified dependencies in the project
-	ListDependencies(ctx context.Context, info ProjectInfo) error
+	ListDependencies(ctx context.Context, options ProjectDependencyManagerOptions) error
 
 	// AuditDependencies audits all specified dependencies in the project for security issues
-	AuditDependencies(ctx context.Context, info ProjectInfo) error
+	AuditDependencies(ctx context.Context, options ProjectDependencyManagerOptions) error
 }
 
 // A Workflow describes how to work on a project

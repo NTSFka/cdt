@@ -60,18 +60,23 @@ func formatCommandAction(ctx context.Context, cmd *cli.Command) error {
 		return errors.New("project doesn't support source formatting")
 	}
 
+	options := internal.ProjectFormatterOptions{
+		ProjectInfo: c.Project.Info,
+		ExtraArgs:   cmd.Args().Tail(),
+	}
+
 	var err error
 	if cmd.Bool("check") {
 		if files := cmd.StringArgs("files"); len(files) > 0 {
-			err = formatter.FormatCheckFiles(ctx, c.Project.Info, files, cmd.Args().Tail())
+			err = formatter.FormatCheckFiles(ctx, options, files)
 		} else {
-			err = formatter.FormatCheckAll(ctx, c.Project.Info, cmd.Args().Tail())
+			err = formatter.FormatCheckAll(ctx, options)
 		}
 	} else {
 		if files := cmd.StringArgs("files"); len(files) > 0 {
-			err = formatter.FormatFiles(ctx, c.Project.Info, files, cmd.Args().Tail())
+			err = formatter.FormatFiles(ctx, options, files)
 		} else {
-			err = formatter.FormatAll(ctx, c.Project.Info, cmd.Args().Tail())
+			err = formatter.FormatAll(ctx, options)
 		}
 	}
 

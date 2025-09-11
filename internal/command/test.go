@@ -12,7 +12,7 @@ import (
 func NewTestCommand() *cli.Command {
 	return &cli.Command{
 		Name:   "test",
-		Usage:  "Test the project",
+		Usage:  "TestPattern the project",
 		Action: testCommandAction,
 		Flags: []cli.Flag{
 			&cli.StringFlag{
@@ -55,12 +55,17 @@ func testCommandAction(ctx context.Context, cmd *cli.Command) error {
 		return errors.New("project doesn't support testing")
 	}
 
+	options := internal.ProjectTesterOptions{
+		ProjectInfo: c.Project.Info,
+		ExtraArgs:   cmd.Args().Tail(),
+	}
+
 	var err error
 
 	if pattern := cmd.StringArgs("pattern"); len(pattern) != 0 {
-		err = tester.Test(ctx, c.Project.Info, pattern[0], cmd.Args().Tail())
+		err = tester.TestPattern(ctx, options, pattern[0])
 	} else {
-		err = tester.TestAll(ctx, c.Project.Info, cmd.Args().Tail())
+		err = tester.TestAll(ctx, options)
 	}
 
 	if err != nil {

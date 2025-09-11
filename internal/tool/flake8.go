@@ -44,12 +44,12 @@ func (p *Flake8) buildPaths(directory string, filenames []string) []string {
 	return paths
 }
 
-func (p *Flake8) LintAll(ctx context.Context, info internal.ProjectInfo, args []string) error {
-	return p.RunForProject(ctx, info, args)
+func (p *Flake8) LintAll(ctx context.Context, options internal.ProjectLinterOptions) error {
+	return p.RunForProject(ctx, options.ProjectInfo, options.ExtraArgs)
 }
 
-func (p *Flake8) LintFiles(ctx context.Context, info internal.ProjectInfo, filenames []string, args []string) error {
-	paths := p.buildPaths(info.Directory, filenames)
+func (p *Flake8) LintFiles(ctx context.Context, options internal.ProjectLinterOptions, filenames []string) error {
+	paths := p.buildPaths(options.Directory, filenames)
 
-	return p.RunForProject(ctx, info, append(args, paths...))
+	return p.RunForProject(ctx, options.ProjectInfo, append(options.ExtraArgs, paths...))
 }

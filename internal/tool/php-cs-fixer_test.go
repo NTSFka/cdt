@@ -73,12 +73,12 @@ func TestPHPCSFixer_PHPCSFixer_FormatAll(t *testing.T) {
 
 	tool := NewPHPCSFixer(exec.LazyExecutable("format"))
 
-	desc := internal.ProjectInfo{Directory: "."}
+	info := internal.ProjectInfo{Directory: "."}
 
 	exec.OnRun("format", []string{"fix"}).
 		Return(nil)
 
-	err := tool.FormatAll(context.Background(), desc, []string{})
+	err := tool.FormatAll(context.Background(), internal.ProjectFormatterOptions{ProjectInfo: info})
 	assert.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -89,12 +89,12 @@ func TestPHPCSFixer_PHPCSFixer_FormatFiles(t *testing.T) {
 
 	tool := NewPHPCSFixer(exec.LazyExecutable("format"))
 
-	desc := internal.ProjectInfo{Directory: "."}
+	info := internal.ProjectInfo{Directory: "."}
 
 	exec.OnRun("format", []string{"fix", "tests/*"}).
 		Return(nil)
 
-	err := tool.FormatFiles(context.Background(), desc, []string{"tests/*"}, []string{})
+	err := tool.FormatFiles(context.Background(), internal.ProjectFormatterOptions{ProjectInfo: info}, []string{"tests/*"})
 	assert.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -105,12 +105,12 @@ func TestPHPCSFixer_PHPCSFixer_FormatCheckAll(t *testing.T) {
 
 	tool := NewPHPCSFixer(exec.LazyExecutable("format"))
 
-	desc := internal.ProjectInfo{Directory: "."}
+	info := internal.ProjectInfo{Directory: "."}
 
 	exec.OnRun("format", []string{"fix", "--dry-run"}).
 		Return(nil)
 
-	err := tool.FormatCheckAll(context.Background(), desc, []string{})
+	err := tool.FormatCheckAll(context.Background(), internal.ProjectFormatterOptions{ProjectInfo: info})
 	assert.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -121,12 +121,12 @@ func TestPHPCSFixer_PHPCSFixer_FormatCheckFiles(t *testing.T) {
 
 	tool := NewPHPCSFixer(exec.LazyExecutable("format"))
 
-	desc := internal.ProjectInfo{Directory: "."}
+	info := internal.ProjectInfo{Directory: "."}
 
 	exec.OnRun("format", []string{"fix", "--dry-run", "tests/*", "/path/to/file.php"}).
 		Return(nil)
 
-	err := tool.FormatCheckFiles(context.Background(), desc, []string{"tests/*", "/path/to/file.php"}, []string{})
+	err := tool.FormatCheckFiles(context.Background(), internal.ProjectFormatterOptions{ProjectInfo: info}, []string{"tests/*", "/path/to/file.php"})
 	assert.NoError(t, err)
 
 	exec.AssertExpectations(t)

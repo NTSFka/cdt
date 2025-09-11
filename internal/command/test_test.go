@@ -39,7 +39,7 @@ func TestTest_CannotBeTested(t *testing.T) {
 
 func TestTest_TestAll_Success(t *testing.T) {
 	tester := test.NewProjectTester(t)
-	tester.On("TestAll", mock.Anything, mock.Anything, []string{}).
+	tester.On("TestAll", mock.Anything, mock.Anything).
 		Return(nil)
 
 	err := runTest(context.Background(), tester)
@@ -50,7 +50,7 @@ func TestTest_TestAll_Success(t *testing.T) {
 
 func TestTest_TestAll_Failure(t *testing.T) {
 	tester := test.NewProjectTester(t)
-	tester.On("TestAll", mock.Anything, mock.Anything, []string{}).
+	tester.On("TestAll", mock.Anything, mock.Anything).
 		Return(errors.New("failed"))
 
 	err := runTest(context.Background(), tester)
@@ -71,13 +71,14 @@ func newTestTesterTool(t *testing.T) *testTesterTool {
 		internal.MakeExecutableTool("tool1", "", "", internal.Tags{}, nil),
 		test.ProjectTester{},
 	}
-	tester.Mock.Test(t)
+
+	tester.Test(t)
 	return tester
 }
 
 func TestTest_Tool_Success(t *testing.T) {
 	tester := newTestTesterTool(t)
-	tester.On("TestAll", mock.Anything, mock.Anything, []string{}).
+	tester.On("TestAll", mock.Anything, mock.Anything).
 		Return(nil)
 
 	err := runTestTool(context.Background(), tester, "--tool", "tool1")
@@ -88,7 +89,7 @@ func TestTest_Tool_Success(t *testing.T) {
 
 func TestTest_Tool_Failed(t *testing.T) {
 	tester := newTestTesterTool(t)
-	tester.On("TestAll", mock.Anything, mock.Anything, []string{}).
+	tester.On("TestAll", mock.Anything, mock.Anything).
 		Return(errors.New("failed"))
 
 	err := runTestTool(context.Background(), tester, "--tool", "tool1")
@@ -126,7 +127,7 @@ func TestTest_Tool_NotSupported(t *testing.T) {
 
 func TestTest_TestTargets_Success(t *testing.T) {
 	tester := test.NewProjectTester(t)
-	tester.On("Test", mock.Anything, mock.Anything, "pattern", []string{}).
+	tester.On("TestPattern", mock.Anything, mock.Anything, "pattern").
 		Return(nil)
 
 	err := runTest(context.Background(), tester, "pattern")
@@ -137,7 +138,7 @@ func TestTest_TestTargets_Success(t *testing.T) {
 
 func TestTest_TestTargets_Failure(t *testing.T) {
 	tester := test.NewProjectTester(t)
-	tester.On("Test", mock.Anything, mock.Anything, "pattern", []string{}).
+	tester.On("TestPattern", mock.Anything, mock.Anything, "pattern").
 		Return(errors.New("failed"))
 
 	err := runTest(context.Background(), tester, "pattern")
