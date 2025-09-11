@@ -178,12 +178,12 @@ func TestGo_RunTarget(t *testing.T) {
 
 	tool := NewGo(exec.LazyExecutable("go"))
 
-	p := internal.ProjectInfo{Directory: "."}
+	info := internal.ProjectInfo{Directory: "."}
 
 	exec.OnRun("go", []string{"run", "target1"}).
 		Return(nil)
 
-	err := tool.RunTarget(context.Background(), p, "target1", []string{})
+	err := tool.RunTarget(context.Background(), internal.ProjectRunnerOptions{ProjectInfo: info}, "target1")
 	assert.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -194,12 +194,12 @@ func TestGo_RunTarget_Failed(t *testing.T) {
 
 	tool := NewGo(exec.LazyExecutable("go"))
 
-	p := internal.ProjectInfo{Directory: "."}
+	info := internal.ProjectInfo{Directory: "."}
 
 	exec.OnRun("go", []string{"run", "target1"}).
 		Return(errors.New("failed"))
 
-	err := tool.RunTarget(context.Background(), p, "target1", []string{})
+	err := tool.RunTarget(context.Background(), internal.ProjectRunnerOptions{ProjectInfo: info}, "target1")
 	assert.EqualError(t, err, "failed")
 
 	exec.AssertExpectations(t)

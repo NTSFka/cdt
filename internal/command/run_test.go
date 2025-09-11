@@ -48,7 +48,7 @@ func TestRun_Target_NoTarget(t *testing.T) {
 
 func TestRun_Target_Success(t *testing.T) {
 	runner := test.NewProjectRunner(t)
-	runner.On("RunTarget", mock.Anything, mock.Anything, "target1", []string{}).
+	runner.On("RunTarget", mock.Anything, mock.Anything, "target1").
 		Return(nil)
 
 	err := runRun(context.Background(), runner, "target1")
@@ -59,7 +59,7 @@ func TestRun_Target_Success(t *testing.T) {
 
 func TestRun_Target_Failure(t *testing.T) {
 	runner := test.NewProjectRunner(t)
-	runner.On("RunTarget", mock.Anything, mock.Anything, "target1", []string{}).
+	runner.On("RunTarget", mock.Anything, mock.Anything, "target1").
 		Return(errors.New("failed"))
 
 	err := runRun(context.Background(), runner, "target1")
@@ -86,7 +86,7 @@ func newTestRunnerTool(t *testing.T) *testRunnerTool {
 
 func TestRun_Tool_Success(t *testing.T) {
 	runner := newTestRunnerTool(t)
-	runner.On("RunTarget", mock.Anything, mock.Anything, "target1", []string{}).
+	runner.On("RunTarget", mock.Anything, mock.Anything, "target1").
 		Return(nil)
 
 	err := runRunTool(context.Background(), runner, "--tool", "tool1", "target1")
@@ -97,7 +97,7 @@ func TestRun_Tool_Success(t *testing.T) {
 
 func TestRun_Tool_Failed(t *testing.T) {
 	runner := newTestRunnerTool(t)
-	runner.On("RunTarget", mock.Anything, mock.Anything, "target1", []string{}).
+	runner.On("RunTarget", mock.Anything, mock.Anything, "target1").
 		Return(errors.New("failed"))
 
 	err := runRunTool(context.Background(), runner, "--tool", "tool1", "target1")

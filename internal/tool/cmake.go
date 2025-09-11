@@ -111,16 +111,16 @@ func (c *CMake) BuildTargets(ctx context.Context, options internal.ProjectBuilde
 	return c.RunForProject(ctx, options.ProjectInfo, callArgs)
 }
 
-func (c *CMake) RunTarget(ctx context.Context, info internal.ProjectInfo, target string, args []string) error {
-	if err := c.BuildTargets(ctx, internal.ProjectBuilderOptions{ProjectInfo: info}, []string{target}); err != nil {
+func (c *CMake) RunTarget(ctx context.Context, options internal.ProjectRunnerOptions, target string) error {
+	if err := c.BuildTargets(ctx, internal.ProjectBuilderOptions{ProjectInfo: options.ProjectInfo}, []string{target}); err != nil {
 		return err
 	}
 
-	if info.IntermediateDirectory == nil {
+	if options.IntermediateDirectory == nil {
 		return internal.ErrNoIntermediateDirectory
 	}
 
-	fileApi := utils.NewCmakeFileApi(*info.IntermediateDirectory)
+	fileApi := utils.NewCmakeFileApi(*options.IntermediateDirectory)
 
 	reply, err := fileApi.Reply()
 	if err != nil {
@@ -131,11 +131,11 @@ func (c *CMake) RunTarget(ctx context.Context, info internal.ProjectInfo, target
 		if t.Name == target && t.Type == utils.TargetExecutable {
 			// TODO: run environment?
 			executable := internal.Executable{
-				Path:    filepath.Join(*info.IntermediateDirectory, t.Name),
+				Path:    filepath.Join(*options.IntermediateDirectory, t.Name),
 				Runtime: internal.SystemEnvironment,
 			}
 
-			return executable.Run(ctx, internal.RunOptions{Directory: info.Directory}, args)
+			return executable.Run(ctx, internal.RunOptions{Directory: options.Directory}, options.ExtraArgs)
 		}
 	}
 

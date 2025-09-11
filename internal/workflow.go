@@ -90,10 +90,18 @@ type ProjectLinter interface {
 	LintFiles(ctx context.Context, options ProjectLinterOptions, filenames []string) error
 }
 
+// ProjectRunnerOptions are options for running a target in the project
+type ProjectRunnerOptions struct {
+	ProjectInfo
+
+	// ExtraArgs are extra arguments for the specific runner implementation
+	ExtraArgs []string
+}
+
 // A ProjectRunner allow running executables of a project
 type ProjectRunner interface {
 	// RunTarget run a target
-	RunTarget(ctx context.Context, info ProjectInfo, target string, args []string) error
+	RunTarget(ctx context.Context, options ProjectRunnerOptions, target string) error
 }
 
 // ProjectDependencyManager manages project dependencies (libraries, packaged, etc.)

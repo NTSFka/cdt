@@ -310,7 +310,7 @@ func TestCMake_RunTarget_Failed(t *testing.T) {
 
 	buildDir := t.TempDir()
 
-	desc := internal.ProjectInfo{
+	info := internal.ProjectInfo{
 		Directory:             "project",
 		IntermediateDirectory: &buildDir,
 		StructureProvider:     cmake,
@@ -331,7 +331,7 @@ func TestCMake_RunTarget_Failed(t *testing.T) {
 	}).
 		Return(errors.New("failed"))
 
-	err := cmake.RunTarget(context.Background(), desc, "target1", []string{})
+	err := cmake.RunTarget(context.Background(), internal.ProjectRunnerOptions{ProjectInfo: info}, "target1")
 	assert.EqualError(t, err, "failed")
 
 	exec.AssertExpectations(t)

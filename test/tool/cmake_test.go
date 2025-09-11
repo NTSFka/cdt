@@ -62,6 +62,6 @@ func TestCMakeRealProjectConfigureAndBuildAndRun(t *testing.T) {
 	err = cmake.BuildTargets(context.Background(), internal.ProjectBuilderOptions{ProjectInfo: info}, []string{"main"})
 	assert.NoError(t, err)
 
-	err = cmake.RunTarget(context.Background(), info, "main", []string{})
+	err = cmake.RunTarget(context.Background(), internal.ProjectRunnerOptions{ProjectInfo: info}, "main")
 	assert.NoError(t, err)
 }

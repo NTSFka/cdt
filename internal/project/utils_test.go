@@ -859,7 +859,7 @@ func createRunnerTool(id string, executable *internal.Executable) *struct {
 func TestRunnerFallback_RunTarget_Empty(t *testing.T) {
 	fallback := &RunnerFallback{}
 
-	err := fallback.RunTarget(context.Background(), internal.ProjectInfo{}, "target1", []string{})
+	err := fallback.RunTarget(context.Background(), internal.ProjectRunnerOptions{}, "target1")
 
 	assert.EqualError(t, err, "no runner tool available: none")
 }
@@ -870,7 +870,7 @@ func TestRunnerFallback_RunTarget_NoAvailable(t *testing.T) {
 
 	fallback := &RunnerFallback{tool1, tool2}
 
-	err := fallback.RunTarget(context.Background(), internal.ProjectInfo{}, "target1", []string{})
+	err := fallback.RunTarget(context.Background(), internal.ProjectRunnerOptions{}, "target1")
 
 	assert.EqualError(t, err, "no runner tool available: test1, test2")
 
@@ -886,9 +886,9 @@ func TestRunnerFallback_RunTarget_Available1(t *testing.T) {
 
 	tool1.Test(t)
 	tool2.Test(t)
-	tool1.On("RunTarget", mock.Anything, mock.Anything, "target1", []string{}).Return(nil)
+	tool1.On("RunTarget", mock.Anything, mock.Anything, "target1").Return(nil)
 
-	err := fallback.RunTarget(context.Background(), internal.ProjectInfo{}, "target1", []string{})
+	err := fallback.RunTarget(context.Background(), internal.ProjectRunnerOptions{}, "target1")
 
 	assert.NoError(t, err)
 
@@ -904,9 +904,9 @@ func TestRunnerFallback_RunTarget_Available2(t *testing.T) {
 
 	tool1.Test(t)
 	tool2.Test(t)
-	tool2.On("RunTarget", mock.Anything, mock.Anything, "target1", []string{}).Return(nil)
+	tool2.On("RunTarget", mock.Anything, mock.Anything, "target1").Return(nil)
 
-	err := fallback.RunTarget(context.Background(), internal.ProjectInfo{}, "target1", []string{})
+	err := fallback.RunTarget(context.Background(), internal.ProjectRunnerOptions{}, "target1")
 
 	assert.NoError(t, err)
 

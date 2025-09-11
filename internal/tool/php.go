@@ -29,6 +29,6 @@ func NewPHP(detect func() *internal.Executable) *PHP {
 	}
 }
 
-func (p *PHP) RunTarget(ctx context.Context, info internal.ProjectInfo, target string, args []string) error {
-	return p.RunForProject(ctx, info, append([]string{"-f", target}, args...))
+func (p *PHP) RunTarget(ctx context.Context, options internal.ProjectRunnerOptions, target string) error {
+	return p.RunForProject(ctx, options.ProjectInfo, append([]string{"-f", target}, options.ExtraArgs...))
 }

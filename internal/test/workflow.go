@@ -113,8 +113,8 @@ func NewProjectRunner(t *testing.T) *ProjectRunner {
 	return &runner
 }
 
-func (t *ProjectRunner) RunTarget(ctx context.Context, info internal.ProjectInfo, target string, args []string) error {
-	return t.Called(ctx, info, target, args).Error(0)
+func (t *ProjectRunner) RunTarget(ctx context.Context, options internal.ProjectRunnerOptions, target string) error {
+	return t.Called(ctx, options, target).Error(0)
 }
 
 type StructureProvider struct {

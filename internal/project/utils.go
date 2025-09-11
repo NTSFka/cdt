@@ -173,9 +173,9 @@ type runnerTool interface {
 
 type RunnerFallback []runnerTool
 
-func (f *RunnerFallback) RunTarget(ctx context.Context, info internal.ProjectInfo, target string, args []string) error {
+func (f *RunnerFallback) RunTarget(ctx context.Context, options internal.ProjectRunnerOptions, target string) error {
 	return runFirstAvailable(*f, "runner", func(tool runnerTool) error {
-		return tool.RunTarget(ctx, info, target, args)
+		return tool.RunTarget(ctx, options, target)
 	})
 }
 
