@@ -15,11 +15,12 @@ available**.
 
 ### Environment
 
-The tool supports running tools in different environments like docker.
+The tool supports running tools in different environments like docker. More information is available in
+the [documentation](doc/environment.md).
 
 ```shell
-# Build and run main.go in docker container
-cdt --environment docker:golang:1.24 run main.go
+# Build and run main.go in a docker container
+cdt -e docker:golang:1.24 run main.go
 ```
 
 ### Configuration

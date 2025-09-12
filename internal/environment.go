@@ -48,6 +48,9 @@ type EnvironmentProvider interface {
 	// Name returns provider name
 	Name() string
 
+	// ParameterInfo describes what the parameter should be
+	ParameterInfo() string
+
 	// Info Get provider information
 	Info() string
 
@@ -68,7 +71,7 @@ func (p *EnvironmentProviders) PrintTable(writer io.Writer) {
 
 	t := table.NewWriter()
 	t.SetOutputMirror(writer)
-	t.AppendHeader(table.Row{"ID (aliases)", "Name", "Available", "Info"})
+	t.AppendHeader(table.Row{"ID (aliases)", "Available", "Name", "Parameter", "Info"})
 
 	if width := DetectTermWidth(writer); width != nil {
 		t.SetAllowedRowLength(*width)
@@ -85,8 +88,9 @@ func (p *EnvironmentProviders) PrintTable(writer io.Writer) {
 
 		t.AppendRow(table.Row{
 			id,
-			tool.Name(),
 			tool.IsAvailable(),
+			tool.Name(),
+			tool.ParameterInfo(),
 			tool.Info(),
 		})
 	}
@@ -117,6 +121,10 @@ func (s *systemEnvironmentProvider) Name() string {
 
 func (s *systemEnvironmentProvider) Info() string {
 	return "Native OS system environment"
+}
+
+func (s *systemEnvironmentProvider) ParameterInfo() string {
+	return "-"
 }
 
 func (s *systemEnvironmentProvider) IsAvailable() bool {

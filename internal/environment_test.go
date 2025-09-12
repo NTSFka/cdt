@@ -28,6 +28,10 @@ func (t *testEnvironmentProvider) Aliases() []string {
 	return []string{}
 }
 
+func (t *testEnvironmentProvider) ParameterInfo() string {
+	return "test"
+}
+
 func (t *testEnvironmentProvider) Detect(_ string) *Environment {
 	return nil
 }

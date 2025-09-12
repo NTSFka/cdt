@@ -40,6 +40,10 @@ func (p *Python) Aliases() []string {
 	return []string{"pyenv"}
 }
 
+func (p *Python) ParameterInfo() string {
+	return "path to virtual environment directory"
+}
+
 func (p *Python) Detect(directory string) *internal.Environment {
 	// Check if the directory contains a venv
 	for _, dir := range []string{"venv", ".venv"} {

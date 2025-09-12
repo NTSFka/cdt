@@ -38,6 +38,10 @@ func (d *Docker) Aliases() []string {
 	return []string{"d"}
 }
 
+func (d *Docker) ParameterInfo() string {
+	return "image name"
+}
+
 func (d *Docker) Detect(_ string) *internal.Environment {
 	// No way to detect an environment (yet)
 	return nil

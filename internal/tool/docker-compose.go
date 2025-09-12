@@ -37,6 +37,10 @@ func (d *DockerCompose) Aliases() []string {
 	return []string{"dc"}
 }
 
+func (d *DockerCompose) ParameterInfo() string {
+	return "service name"
+}
+
 func (d *DockerCompose) Detect(_ string) *internal.Environment {
 	// In docker compose there might be multiple environments, which one is the one?
 	return nil
