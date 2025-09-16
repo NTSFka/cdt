@@ -34,12 +34,13 @@ func DefaultConfig() Config {
 
 // ConfigWorkflow stores the project's workflow tools
 type ConfigWorkflow struct {
-	Configure *string
-	Build     *string
-	Test      *string
-	Format    *string
-	Lint      *string
-	Run       *string
+	Configure  *string
+	Build      *string
+	Test       *string
+	Format     *string
+	Lint       *string
+	Run        *string
+	Dependency *string
 }
 
 // FileConfig stores configuration from file
@@ -65,12 +66,13 @@ func (c *FileConfig) UpdateConfig(config *Config) {
 		switch workflow := c.Project.Workflow.(type) {
 		case *FileConfigProjectWorkflow:
 			config.Workflow = &ConfigWorkflow{
-				Configure: workflow.Configure,
-				Build:     workflow.Build,
-				Test:      workflow.Test,
-				Format:    workflow.Format,
-				Lint:      workflow.Lint,
-				Run:       workflow.Run,
+				Configure:  workflow.Configure,
+				Build:      workflow.Build,
+				Test:       workflow.Test,
+				Format:     workflow.Format,
+				Lint:       workflow.Lint,
+				Run:        workflow.Run,
+				Dependency: workflow.Dependency,
 			}
 		case string:
 			config.Workflow = workflow
@@ -106,6 +108,8 @@ type FileConfigProjectWorkflow struct {
 	Lint *string `yaml:"lint"`
 	// Run stores ID of a tool that be used as ProjectRunner
 	Run *string `yaml:"run"`
+	// Run stores ID of a tool that be used as ProjectDependencyManager
+	Dependency *string `yaml:"dependency"`
 }
 
 // LoadConfigFile loads configuration from a reader

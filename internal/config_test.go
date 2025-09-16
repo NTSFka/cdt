@@ -1,10 +1,11 @@
 package internal
 
 import (
-	"github.com/stretchr/testify/assert"
 	"io"
 	"strings"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestLoadConfigFile_Empty(t *testing.T) {
@@ -60,6 +61,7 @@ project:
         format: tool4
         lint: tool5
         run: tool6
+        dependency: tool7
 `,
 	)
 
@@ -106,6 +108,10 @@ project:
 
 					if assert.NotNil(t, workflow.Run) {
 						assert.Equal(t, "tool6", *workflow.Run)
+					}
+
+					if assert.NotNil(t, workflow.Dependency) {
+						assert.Equal(t, "tool7", *workflow.Dependency)
 					}
 				}
 			}
@@ -173,12 +179,13 @@ func TestFileConfig_UpdateConfig(t *testing.T) {
 			BuildDirectory: StrPtr("/project/build"),
 			Environment:    StrPtr("env:arg"),
 			Workflow: &FileConfigProjectWorkflow{
-				Configure: StrPtr("tool1"),
-				Build:     StrPtr("tool2"),
-				Test:      StrPtr("tool3"),
-				Format:    StrPtr("tool4"),
-				Lint:      StrPtr("tool5"),
-				Run:       StrPtr("tool6"),
+				Configure:  StrPtr("tool1"),
+				Build:      StrPtr("tool2"),
+				Test:       StrPtr("tool3"),
+				Format:     StrPtr("tool4"),
+				Lint:       StrPtr("tool5"),
+				Run:        StrPtr("tool6"),
+				Dependency: StrPtr("tool7"),
 			},
 		},
 	}
@@ -224,6 +231,10 @@ func TestFileConfig_UpdateConfig(t *testing.T) {
 
 			if assert.NotNil(t, workflow.Run) {
 				assert.Equal(t, "tool6", *workflow.Run)
+			}
+
+			if assert.NotNil(t, workflow.Dependency) {
+				assert.Equal(t, "tool7", *workflow.Dependency)
 			}
 		}
 	}
