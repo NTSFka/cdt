@@ -27,6 +27,7 @@ cdt -e docker:golang:1.24 run main.go
 
 The tool tries to detect the best workflow from the project directory, but in some cases the default ones might not be
 suitable for your project. The tool reads configuration file `cdt.yml` from root directory and use it as configuration.
+More information is available in the [documentation](doc/configuration.md).
 
 ```yaml
 project:
