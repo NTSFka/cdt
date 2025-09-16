@@ -42,9 +42,9 @@ func NewApp(buildContext func(config internal.Config) (*internal.Context, error)
 				Value:   "system",
 			},
 			&cli.StringFlag{
-				Name:    "type",
-				Aliases: []string{"t"},
-				Usage:   "What project type to use, e.g. `go`. If not specified the value from configuration file or detected type will be used.",
+				Name:    "workflow",
+				Aliases: []string{"w"},
+				Usage:   "What workflow to use, e.g. `go`. If not specified the value from configuration file or detected workflow will be used.",
 			},
 			&cli.StringFlag{
 				Name:    "config",
@@ -126,8 +126,8 @@ func createConfig(cmd *cli.Command) (*internal.Config, error) {
 	}
 
 	// Override configuration file
-	if cmd.Count("type") > 0 {
-		config.Workflow = cmd.String("type")
+	if cmd.Count("workflow") > 0 {
+		config.Workflow = cmd.String("workflow")
 	}
 
 	// Override configuration file

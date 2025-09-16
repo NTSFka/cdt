@@ -114,7 +114,7 @@ func TestApp_Run_ConfigFull(t *testing.T) {
 		"--root", "/path/to/project",
 		"--build", "/path/to/build",
 		"--environment", "env:arg",
-		"--type", "go",
+		"--workflow", "go",
 		"__test__",
 	})
 
@@ -149,7 +149,7 @@ func TestApp_Run_ConfigFullAlias(t *testing.T) {
 		"-r", "/path/to/project",
 		"-b", "/path/to/build",
 		"-e", "env:arg",
-		"-t", "go",
+		"-w", "go",
 		"__test__",
 	})
 
