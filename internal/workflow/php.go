@@ -1,4 +1,4 @@
-package project
+package workflow
 
 import (
 	"cdt/internal"
@@ -6,17 +6,17 @@ import (
 	"path/filepath"
 )
 
-type PHPType struct{}
+type PHP struct{}
 
-func (p *PHPType) Id() string {
+func (p *PHP) Id() string {
 	return "php"
 }
 
-func (p *PHPType) Detect(directory string) bool {
+func (p *PHP) Detect(directory string) bool {
 	return internal.PathExists(filepath.Join(directory, "composer.json"))
 }
 
-func (p *PHPType) Create(config Config, tools internal.Tools) internal.Project {
+func (p *PHP) Create(config Config, tools internal.Tools) internal.Project {
 	php := internal.GetTool[*tool.PHP](tools)
 	phpStan := internal.GetTool[*tool.PHPStan](tools)
 	phpCsFixer := internal.GetTool[*tool.PHPCSFixer](tools)
@@ -25,6 +25,7 @@ func (p *PHPType) Create(config Config, tools internal.Tools) internal.Project {
 	composer := internal.GetTool[*tool.Composer](tools)
 
 	workflow := internal.Workflow{
+		Name:              p.Id(),
 		Configurator:      nil,
 		Builder:           nil,
 		Runner:            php,
@@ -35,8 +36,10 @@ func (p *PHPType) Create(config Config, tools internal.Tools) internal.Project {
 	}
 
 	return internal.Project{
-		Type:     "php",
-		Info:     internal.ProjectInfo{Directory: config.Directory, StructureProvider: &internal.EmptyProjectStructureProvider{}},
+		Info: internal.ProjectInfo{
+			Directory:         config.Directory,
+			StructureProvider: &internal.EmptyProjectStructureProvider{},
+		},
 		Workflow: workflow,
 	}
 }

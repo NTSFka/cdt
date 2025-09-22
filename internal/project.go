@@ -78,9 +78,6 @@ func (p *FixedProjectStructureProvider) Structure(_ context.Context, _ ProjectIn
 
 // A Project describes a project and its workflow
 type Project struct {
-	// Type is the type of the project
-	Type string
-
 	// Info provides information about the project
 	Info ProjectInfo
 

@@ -135,6 +135,9 @@ type ProjectDependencyManager interface {
 
 // A Workflow describes how to work on a project
 type Workflow struct {
+	// Name is the name of the workflow
+	Name string
+
 	// Configurator stores a configurator for the project
 	Configurator ProjectConfigurator
 

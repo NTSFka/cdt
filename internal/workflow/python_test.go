@@ -1,4 +1,4 @@
-package project
+package workflow
 
 import (
 	"cdt/internal"
@@ -11,28 +11,28 @@ import (
 )
 
 func TestPythonType_Detect_NoModFile(t *testing.T) {
-	projectType := PythonType{}
+	workflowType := Python{}
 
-	res := projectType.Detect("dir1")
+	res := workflowType.Detect("dir1")
 
 	assert.False(t, res)
 }
 
 func TestPythonType_Detect_ModFile(t *testing.T) {
-	projectType := PythonType{}
+	workflowType := Python{}
 
 	dir := t.TempDir()
 
 	_, err := os.Create(filepath.Join(dir, "pyproject.toml"))
 	assert.NoError(t, err)
 
-	res := projectType.Detect(dir)
+	res := workflowType.Detect(dir)
 
 	assert.True(t, res)
 }
 
 func TestPythonType_Create(t *testing.T) {
-	projectType := PythonType{}
+	workflowType := Python{}
 
 	tools := internal.Tools{
 		tool.NewPython(func() *internal.Executable { return &internal.Executable{Path: "php-test"} }),
@@ -46,7 +46,7 @@ func TestPythonType_Create(t *testing.T) {
 		tool.NewBlack(func() *internal.Executable { return &internal.Executable{Path: "black-test"} }),
 	}
 
-	p := projectType.Create(Config{Directory: "dir1"}, tools)
+	p := workflowType.Create(Config{Directory: "dir1"}, tools)
 
 	if assert.NotNil(t, p) {
 		assert.Nil(t, p.Workflow.Configurator)

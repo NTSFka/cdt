@@ -2,8 +2,8 @@ package main
 
 import (
 	"cdt/internal"
-	"cdt/internal/project"
 	"cdt/internal/tool"
+	"cdt/internal/workflow"
 	"cdt/pkg"
 	"context"
 	"fmt"
@@ -56,7 +56,7 @@ func buildContext(ctx context.Context, config internal.Config) (*internal.Contex
 
 	tools := tool.InitTools(ctx, env)
 
-	p, err := project.BuildProject(config, tools)
+	p, err := workflow.CreateProject(config, tools)
 
 	if err != nil {
 		return nil, err

@@ -1,4 +1,4 @@
-package project
+package workflow
 
 import (
 	"cdt/internal"
@@ -14,28 +14,28 @@ import (
 )
 
 func TestCMakeType_Detect_NoCMakeLists(t *testing.T) {
-	projectType := CMakeType{}
+	workflowType := CMake{}
 
-	res := projectType.Detect("dir1")
+	res := workflowType.Detect("dir1")
 
 	assert.False(t, res)
 }
 
 func TestCMakeType_Detect_CMakeLists(t *testing.T) {
-	projectType := CMakeType{}
+	workflowType := CMake{}
 
 	dir := t.TempDir()
 
 	_, err := os.OpenFile(filepath.Join(dir, "CMakeLists.txt"), os.O_RDONLY|os.O_CREATE, 0644)
 	assert.NoError(t, err)
 
-	res := projectType.Detect(dir)
+	res := workflowType.Detect(dir)
 
 	assert.True(t, res)
 }
 
 func TestCMakeType_Create_CustomBuildDirectory(t *testing.T) {
-	projectType := CMakeType{}
+	workflowType := CMake{}
 
 	tools := internal.Tools{
 		tool.NewCMake(func() *internal.Executable { return &internal.Executable{Path: "cmake-test"} }),
@@ -46,7 +46,7 @@ func TestCMakeType_Create_CustomBuildDirectory(t *testing.T) {
 
 	buildDirectory := "my-build-directory"
 
-	p := projectType.Create(Config{Directory: "dir1", BuildDirectory: &buildDirectory}, tools)
+	p := workflowType.Create(Config{Directory: "dir1", IntermediateDirectory: &buildDirectory}, tools)
 
 	assert.Equal(t, "dir1", p.Info.Directory)
 	if assert.NotNil(t, p.Info.IntermediateDirectory) {
@@ -57,7 +57,7 @@ func TestCMakeType_Create_CustomBuildDirectory(t *testing.T) {
 }
 
 func TestCMakeType_Project_TestAll(t *testing.T) {
-	projectType := CMakeType{}
+	workflowType := CMake{}
 	cmakeMock := test.NewExecutable(t)
 	ctestMock := test.NewExecutable(t)
 
@@ -75,7 +75,7 @@ func TestCMakeType_Project_TestAll(t *testing.T) {
 
 	buildDir := filepath.Join(dir, "build")
 
-	p := projectType.Create(Config{Directory: dir, BuildDirectory: &buildDir}, tools)
+	p := workflowType.Create(Config{Directory: dir, IntermediateDirectory: &buildDir}, tools)
 
 	if assert.NotNil(t, p.Workflow.Tester) {
 		cmakeMock.OnRunAnything("cmake-test").Return(nil)
@@ -90,7 +90,7 @@ func TestCMakeType_Project_TestAll(t *testing.T) {
 }
 
 func TestCMakeType_Project_TestAll_BuildFailed(t *testing.T) {
-	projectType := CMakeType{}
+	workflowType := CMake{}
 	cmakeMock := test.NewExecutable(t)
 	ctestMock := test.NewExecutable(t)
 
@@ -108,7 +108,7 @@ func TestCMakeType_Project_TestAll_BuildFailed(t *testing.T) {
 
 	buildDir := filepath.Join(dir, "build")
 
-	p := projectType.Create(Config{Directory: dir, BuildDirectory: &buildDir}, tools)
+	p := workflowType.Create(Config{Directory: dir, IntermediateDirectory: &buildDir}, tools)
 
 	if assert.NotNil(t, p.Workflow.Tester) {
 		cmakeMock.OnRunAnything("cmake-test").Return(errors.New("failed"))
@@ -122,7 +122,7 @@ func TestCMakeType_Project_TestAll_BuildFailed(t *testing.T) {
 }
 
 func TestCMakeProject_Project_Test(t *testing.T) {
-	projectType := CMakeType{}
+	workflowType := CMake{}
 	cmakeMock := test.NewExecutable(t)
 	ctestMock := test.NewExecutable(t)
 
@@ -140,7 +140,7 @@ func TestCMakeProject_Project_Test(t *testing.T) {
 
 	buildDir := filepath.Join(dir, "build")
 
-	p := projectType.Create(Config{Directory: dir, BuildDirectory: &buildDir}, tools)
+	p := workflowType.Create(Config{Directory: dir, IntermediateDirectory: &buildDir}, tools)
 
 	if assert.NotNil(t, p.Workflow.Tester) {
 		cmakeMock.OnRunAnything("cmake-test").Return(nil)
@@ -155,7 +155,7 @@ func TestCMakeProject_Project_Test(t *testing.T) {
 }
 
 func TestCMakeProject_Project_TestBuild_Failed(t *testing.T) {
-	projectType := CMakeType{}
+	workflowType := CMake{}
 	cmakeMock := test.NewExecutable(t)
 	ctestMock := test.NewExecutable(t)
 
@@ -173,7 +173,7 @@ func TestCMakeProject_Project_TestBuild_Failed(t *testing.T) {
 
 	buildDir := filepath.Join(dir, "build")
 
-	p := projectType.Create(Config{Directory: dir, BuildDirectory: &buildDir}, tools)
+	p := workflowType.Create(Config{Directory: dir, IntermediateDirectory: &buildDir}, tools)
 
 	if assert.NotNil(t, p.Workflow.Tester) {
 		cmakeMock.OnRunAnything("cmake-test").Return(errors.New("failed"))

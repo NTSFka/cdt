@@ -1,4 +1,4 @@
-package project
+package workflow
 
 import (
 	"cdt/internal"
@@ -8,17 +8,17 @@ import (
 	"path/filepath"
 )
 
-type CMakeType struct{}
+type CMake struct{}
 
-func (c *CMakeType) Id() string {
+func (c *CMake) Id() string {
 	return "cmake"
 }
 
-func (c *CMakeType) Detect(directory string) bool {
+func (c *CMake) Detect(directory string) bool {
 	return internal.PathExists(filepath.Join(directory, "CMakeLists.txt"))
 }
 
-func (c *CMakeType) Create(config Config, tools internal.Tools) internal.Project {
+func (c *CMake) Create(config Config, tools internal.Tools) internal.Project {
 	cmake := internal.GetTool[*tool.CMake](tools)
 	ctest := internal.GetTool[*tool.CTest](tools)
 	clangFormat := internal.GetTool[*tool.ClangFormat](tools)
@@ -30,6 +30,7 @@ func (c *CMakeType) Create(config Config, tools internal.Tools) internal.Project
 	}
 
 	workflow := internal.Workflow{
+		Name:         c.Id(),
 		Configurator: cmake,
 		Builder:      cmake,
 		Tester:       tester,
@@ -40,15 +41,18 @@ func (c *CMakeType) Create(config Config, tools internal.Tools) internal.Project
 
 	var buildDirectory string
 
-	if config.BuildDirectory != nil {
-		buildDirectory = *config.BuildDirectory
+	if config.IntermediateDirectory != nil {
+		buildDirectory = *config.IntermediateDirectory
 	} else {
 		buildDirectory = filepath.Join("build", "dev")
 	}
 
 	return internal.Project{
-		Type:     "cmake",
-		Info:     internal.ProjectInfo{Directory: config.Directory, IntermediateDirectory: &buildDirectory, StructureProvider: cmake},
+		Info: internal.ProjectInfo{
+			Directory:             config.Directory,
+			IntermediateDirectory: &buildDirectory,
+			StructureProvider:     cmake,
+		},
 		Workflow: workflow,
 	}
 }

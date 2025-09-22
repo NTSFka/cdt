@@ -1,12 +1,13 @@
-package project
+package workflow
 
 import (
 	"cdt/internal"
 	"cdt/internal/tool"
-	"github.com/stretchr/testify/assert"
 	"os"
 	"path/filepath"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func createGoModFile(dir string) error {
@@ -16,35 +17,35 @@ func createGoModFile(dir string) error {
 }
 
 func TestGoType_Detect_NoModFile(t *testing.T) {
-	projectType := GoType{}
+	workflowType := Go{}
 
-	res := projectType.Detect("dir1")
+	res := workflowType.Detect("dir1")
 
 	assert.False(t, res)
 }
 
 func TestGoType_Detect_ModFile(t *testing.T) {
-	projectType := GoType{}
+	workflowType := Go{}
 
 	dir := t.TempDir()
 
 	err := createGoModFile(dir)
 	assert.NoError(t, err)
 
-	res := projectType.Detect(dir)
+	res := workflowType.Detect(dir)
 
 	assert.True(t, res)
 }
 
 func TestGoType_Create(t *testing.T) {
-	projectType := GoType{}
+	workflowType := Go{}
 
 	tools := internal.Tools{
 		tool.NewGo(func() *internal.Executable { return &internal.Executable{Path: "go-test"} }),
 		tool.NewGolangCILint(func() *internal.Executable { return nil }),
 	}
 
-	p := projectType.Create(Config{Directory: "dir1"}, tools)
+	p := workflowType.Create(Config{Directory: "dir1"}, tools)
 
 	if assert.NotNil(t, p) {
 		assert.Nil(t, p.Workflow.Configurator)

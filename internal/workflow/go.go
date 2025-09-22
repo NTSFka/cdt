@@ -1,4 +1,4 @@
-package project
+package workflow
 
 import (
 	"cdt/internal"
@@ -6,22 +6,23 @@ import (
 	"path/filepath"
 )
 
-type GoType struct {
+type Go struct {
 }
 
-func (g *GoType) Id() string {
+func (g *Go) Id() string {
 	return "go"
 }
 
-func (g *GoType) Detect(directory string) bool {
+func (g *Go) Detect(directory string) bool {
 	return internal.PathExists(filepath.Join(directory, "go.mod"))
 }
 
-func (g *GoType) Create(config Config, tools internal.Tools) internal.Project {
+func (g *Go) Create(config Config, tools internal.Tools) internal.Project {
 	goTool := internal.GetTool[*tool.Go](tools)
 	goLint := internal.GetTool[*tool.GolangCILint](tools)
 
 	workflow := internal.Workflow{
+		Name:         g.Id(),
 		Configurator: nil,
 		Builder:      goTool,
 		Runner:       goTool,
@@ -31,8 +32,10 @@ func (g *GoType) Create(config Config, tools internal.Tools) internal.Project {
 	}
 
 	return internal.Project{
-		Type:     "go",
-		Info:     internal.ProjectInfo{Directory: config.Directory, StructureProvider: goTool},
+		Info: internal.ProjectInfo{
+			Directory:         config.Directory,
+			StructureProvider: goTool,
+		},
 		Workflow: workflow,
 	}
 }

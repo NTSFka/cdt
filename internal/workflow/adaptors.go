@@ -1,4 +1,4 @@
-package project
+package workflow
 
 import (
 	"cdt/internal"
@@ -56,6 +56,7 @@ type configuratorTool interface {
 	internal.Tool
 }
 
+// ConfiguratorFallback run the first available configurator
 type ConfiguratorFallback []configuratorTool
 
 func (f *ConfiguratorFallback) Configure(ctx context.Context, options internal.ProjectConfiguratorOptions) error {
@@ -69,6 +70,7 @@ type builderTool interface {
 	internal.Tool
 }
 
+// BuilderFallback run the first available builder
 type BuilderFallback []builderTool
 
 func (f *BuilderFallback) BuildAll(ctx context.Context, options internal.ProjectBuilderOptions) error {
@@ -88,6 +90,7 @@ type testerTool interface {
 	internal.Tool
 }
 
+// TesterFallback run the first available tester
 type TesterFallback []testerTool
 
 func (f *TesterFallback) TestAll(ctx context.Context, options internal.ProjectTesterOptions) error {
@@ -107,6 +110,7 @@ type formatterTool interface {
 	internal.Tool
 }
 
+// FormatterFallback run the first available formatter
 type FormatterFallback []formatterTool
 
 func (f *FormatterFallback) FormatAll(ctx context.Context, options internal.ProjectFormatterOptions) error {
@@ -138,6 +142,7 @@ type linterTool interface {
 	internal.Tool
 }
 
+// LinterList run all available linters
 type LinterList []linterTool
 
 func (f *LinterList) LintAll(ctx context.Context, options internal.ProjectLinterOptions) error {
@@ -152,6 +157,7 @@ func (f *LinterList) LintFiles(ctx context.Context, options internal.ProjectLint
 	})
 }
 
+// LinterFallback run the first available linter
 type LinterFallback []linterTool
 
 func (f *LinterFallback) LintAll(ctx context.Context, options internal.ProjectLinterOptions) error {
@@ -171,6 +177,7 @@ type runnerTool interface {
 	internal.Tool
 }
 
+// RunnerFallback run the first available runner
 type RunnerFallback []runnerTool
 
 func (f *RunnerFallback) RunTarget(ctx context.Context, options internal.ProjectRunnerOptions, target string) error {
@@ -184,6 +191,7 @@ type dependencyManagerTool interface {
 	internal.Tool
 }
 
+// DependencyManagerFallback run the first available dependency manager
 type DependencyManagerFallback []dependencyManagerTool
 
 func (f *DependencyManagerFallback) AddDependencies(ctx context.Context, options internal.ProjectDependencyManagerOptions, dependencies []string, dev bool) error {

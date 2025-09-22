@@ -148,10 +148,6 @@ cdt project files
 - [Python](https://www.python.org/)
 - [Ruff](https://docs.astral.sh/ruff/)
 
-## Supported project types
+## Supported workflow types
 
-- CMake
-- Go
-- PHP
-- Python
-
+The list of supported workflow types is available in the [documentation](doc/workflow.md).

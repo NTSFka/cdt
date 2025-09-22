@@ -1,4 +1,4 @@
-package project
+package workflow
 
 import (
 	"cdt/internal"
@@ -6,17 +6,17 @@ import (
 	"path/filepath"
 )
 
-type PythonType struct{}
+type Python struct{}
 
-func (p *PythonType) Id() string {
+func (p *Python) Id() string {
 	return "python"
 }
 
-func (p *PythonType) Detect(directory string) bool {
+func (p *Python) Detect(directory string) bool {
 	return internal.PathExists(filepath.Join(directory, "pyproject.toml"))
 }
 
-func (p *PythonType) Create(config Config, tools internal.Tools) internal.Project {
+func (p *Python) Create(config Config, tools internal.Tools) internal.Project {
 	python := internal.GetTool[*tool.Python](tools)
 	pyTest := internal.GetTool[*tool.PyTest](tools)
 	pip := internal.GetTool[*tool.Pip](tools)
@@ -28,6 +28,7 @@ func (p *PythonType) Create(config Config, tools internal.Tools) internal.Projec
 	black := internal.GetTool[*tool.Black](tools)
 
 	workflow := internal.Workflow{
+		Name:              p.Id(),
 		Configurator:      nil,
 		Builder:           nil,
 		Runner:            python,
@@ -38,8 +39,10 @@ func (p *PythonType) Create(config Config, tools internal.Tools) internal.Projec
 	}
 
 	return internal.Project{
-		Type:     "python",
-		Info:     internal.ProjectInfo{Directory: config.Directory, StructureProvider: &internal.EmptyProjectStructureProvider{}},
+		Info: internal.ProjectInfo{
+			Directory:         config.Directory,
+			StructureProvider: &internal.EmptyProjectStructureProvider{},
+		},
 		Workflow: workflow,
 	}
 }
