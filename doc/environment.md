@@ -25,6 +25,16 @@ cdt -e <tool-id>:<parameter> ...
 The chosen environment is used for all commands, and when it is not already running, it will be used otherwise it
 will be started and automatically stopped at the end of the command.
 
+## Execute commands in the environment
+
+When an unsupported tool is required to execute, it's possible to use the `cdt exec` command which invoke command in
+selected environment.
+
+```shell
+# prints: go version go1.24.5 linux/amd64
+cdt -e docker:golang:1.24 exec go version
+```
+
 ## Supported environments
 
 The following table lists the supported environments:

@@ -151,3 +151,9 @@ cdt project files
 ## Supported workflow types
 
 The list of supported workflow types is available in the [documentation](doc/workflow.md).
+
+
+## Development
+
+The cdt tool can be extended by additional tools or workflow types. More information is available in the
+[developer documentation](doc/dev).
