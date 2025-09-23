@@ -12,6 +12,8 @@ import (
 	"strings"
 )
 
+var version = "dev"
+
 func parseEnvironment(environment string) (string, string) {
 	parts := strings.SplitN(environment, ":", 2)
 
@@ -77,6 +79,8 @@ func main() {
 	app := pkg.NewApp(func(config internal.Config) (*internal.Context, error) {
 		return buildContext(ctx, config)
 	})
+
+	app.Version = version
 
 	if err := app.Run(ctx, os.Args); err != nil {
 		fmt.Printf("ERROR: %v\n", err)

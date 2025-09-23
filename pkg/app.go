@@ -19,7 +19,6 @@ func NewApp(buildContext func(config internal.Config) (*internal.Context, error)
 	return &cli.Command{
 		Name:                  "cdt",
 		Usage:                 "A common developer tool",
-		Version:               "0.1.0",
 		EnableShellCompletion: true,
 		Authors:               []any{"Jiří Fatka"},
 		Flags: []cli.Flag{
