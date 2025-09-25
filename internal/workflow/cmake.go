@@ -63,6 +63,10 @@ type cmakeTester struct {
 	ctestTool *tool.CTest
 }
 
+func (t *cmakeTester) Details() string {
+	return "ctest"
+}
+
 func (t *cmakeTester) TestAll(ctx context.Context, options internal.ProjectTesterOptions) error {
 	if err := t.cmakeTool.BuildAll(ctx, internal.ProjectBuilderOptions{ProjectInfo: options.ProjectInfo}); err != nil {
 		return fmt.Errorf("build failed: %w", err)

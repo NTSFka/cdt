@@ -51,6 +51,21 @@ func runAllAvailable[T internal.Tool](tools []T, name string, run func(T) error)
 	return err
 }
 
+// Adaptor returns information about workflow adaptor.
+type Adaptor interface {
+	Details() string
+}
+
+func adaptorToolIds[T internal.Tool](name string, tools []T) string {
+	ids := make([]string, 0, len(tools))
+
+	for _, tool := range tools {
+		ids = append(ids, tool.Id())
+	}
+
+	return fmt.Sprintf("%v (%v)", name, strings.Join(ids, ", "))
+}
+
 type configuratorTool interface {
 	internal.ProjectConfigurator
 	internal.Tool
@@ -58,6 +73,10 @@ type configuratorTool interface {
 
 // ConfiguratorFallback run the first available configurator
 type ConfiguratorFallback []configuratorTool
+
+func (f *ConfiguratorFallback) Details() string {
+	return adaptorToolIds("fallback", *f)
+}
 
 func (f *ConfiguratorFallback) Configure(ctx context.Context, options internal.ProjectConfiguratorOptions) error {
 	return runFirstAvailable(*f, "configurator", func(tool configuratorTool) error {
@@ -72,6 +91,10 @@ type builderTool interface {
 
 // BuilderFallback run the first available builder
 type BuilderFallback []builderTool
+
+func (f *BuilderFallback) Details() string {
+	return adaptorToolIds("fallback", *f)
+}
 
 func (f *BuilderFallback) BuildAll(ctx context.Context, options internal.ProjectBuilderOptions) error {
 	return runFirstAvailable(*f, "builder", func(tool builderTool) error {
@@ -93,6 +116,10 @@ type testerTool interface {
 // TesterFallback run the first available tester
 type TesterFallback []testerTool
 
+func (f *TesterFallback) Details() string {
+	return adaptorToolIds("fallback", *f)
+}
+
 func (f *TesterFallback) TestAll(ctx context.Context, options internal.ProjectTesterOptions) error {
 	return runFirstAvailable(*f, "tester", func(tool testerTool) error {
 		return tool.TestAll(ctx, options)
@@ -112,6 +139,10 @@ type formatterTool interface {
 
 // FormatterFallback run the first available formatter
 type FormatterFallback []formatterTool
+
+func (f *FormatterFallback) Details() string {
+	return adaptorToolIds("fallback", *f)
+}
 
 func (f *FormatterFallback) FormatAll(ctx context.Context, options internal.ProjectFormatterOptions) error {
 	return runFirstAvailable(*f, "formatter", func(tool formatterTool) error {
@@ -145,6 +176,10 @@ type linterTool interface {
 // LinterList run all available linters
 type LinterList []linterTool
 
+func (f *LinterList) Details() string {
+	return adaptorToolIds("list", *f)
+}
+
 func (f *LinterList) LintAll(ctx context.Context, options internal.ProjectLinterOptions) error {
 	return runAllAvailable(*f, "linter", func(tool linterTool) error {
 		return tool.LintAll(ctx, options)
@@ -159,6 +194,10 @@ func (f *LinterList) LintFiles(ctx context.Context, options internal.ProjectLint
 
 // LinterFallback run the first available linter
 type LinterFallback []linterTool
+
+func (f *LinterFallback) Details() string {
+	return adaptorToolIds("fallback", *f)
+}
 
 func (f *LinterFallback) LintAll(ctx context.Context, options internal.ProjectLinterOptions) error {
 	return runFirstAvailable(*f, "linter", func(tool linterTool) error {
@@ -180,6 +219,10 @@ type runnerTool interface {
 // RunnerFallback run the first available runner
 type RunnerFallback []runnerTool
 
+func (f *RunnerFallback) Details() string {
+	return adaptorToolIds("fallback", *f)
+}
+
 func (f *RunnerFallback) RunTarget(ctx context.Context, options internal.ProjectRunnerOptions, target string) error {
 	return runFirstAvailable(*f, "runner", func(tool runnerTool) error {
 		return tool.RunTarget(ctx, options, target)
@@ -193,6 +236,10 @@ type dependencyManagerTool interface {
 
 // DependencyManagerFallback run the first available dependency manager
 type DependencyManagerFallback []dependencyManagerTool
+
+func (f *DependencyManagerFallback) Details() string {
+	return adaptorToolIds("fallback", *f)
+}
 
 func (f *DependencyManagerFallback) AddDependencies(ctx context.Context, options internal.ProjectDependencyManagerOptions, dependencies []string, dev bool) error {
 	return runFirstAvailable(*f, "dependency management", func(tool dependencyManagerTool) error {

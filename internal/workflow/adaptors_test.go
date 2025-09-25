@@ -25,6 +25,21 @@ func createConfiguratorTool(id string, executable *internal.Executable) *struct 
 	}
 }
 
+func TestConfiguratorFallback_Details_Empty(t *testing.T) {
+	fallback := &ConfiguratorFallback{}
+
+	assert.Equal(t, "fallback ()", fallback.Details())
+}
+
+func TestConfiguratorFallback_Details(t *testing.T) {
+	tool1 := createConfiguratorTool("test1", nil)
+	tool2 := createConfiguratorTool("test2", nil)
+
+	fallback := &ConfiguratorFallback{tool1, tool2}
+
+	assert.Equal(t, "fallback (test1, test2)", fallback.Details())
+}
+
 func TestConfiguratorFallback_Configure_Empty(t *testing.T) {
 	fallback := &ConfiguratorFallback{}
 
@@ -96,6 +111,21 @@ func createBuilderTool(id string, executable *internal.Executable) *struct {
 		}),
 		test.ProjectBuilder{},
 	}
+}
+
+func TestBuilderFallback_Details_Empty(t *testing.T) {
+	fallback := &BuilderFallback{}
+
+	assert.Equal(t, "fallback ()", fallback.Details())
+}
+
+func TestBuilderFallback_Details(t *testing.T) {
+	tool1 := createBuilderTool("test1", nil)
+	tool2 := createBuilderTool("test2", nil)
+
+	fallback := &BuilderFallback{tool1, tool2}
+
+	assert.Equal(t, "fallback (test1, test2)", fallback.Details())
 }
 
 func TestBuilderFallback_BuildAll_Empty(t *testing.T) {
@@ -229,6 +259,21 @@ func createTesterTool(id string, executable *internal.Executable) *struct {
 	}
 }
 
+func TestTesterFallback_Details_Empty(t *testing.T) {
+	fallback := &TesterFallback{}
+
+	assert.Equal(t, "fallback ()", fallback.Details())
+}
+
+func TestTesterFallback_Details(t *testing.T) {
+	tool1 := createTesterTool("test1", nil)
+	tool2 := createTesterTool("test2", nil)
+
+	fallback := &TesterFallback{tool1, tool2}
+
+	assert.Equal(t, "fallback (test1, test2)", fallback.Details())
+}
+
 func TestTesterFallback_TestAll_Empty(t *testing.T) {
 	fallback := &TesterFallback{}
 
@@ -358,6 +403,21 @@ func createFormatterTool(id string, executable *internal.Executable) *struct {
 		}),
 		test.ProjectFormatter{},
 	}
+}
+
+func TestFormatterFallback_Details_Empty(t *testing.T) {
+	fallback := &FormatterFallback{}
+
+	assert.Equal(t, "fallback ()", fallback.Details())
+}
+
+func TestFormatterFallback_Details(t *testing.T) {
+	tool1 := createFormatterTool("test1", nil)
+	tool2 := createFormatterTool("test2", nil)
+
+	fallback := &FormatterFallback{tool1, tool2}
+
+	assert.Equal(t, "fallback (test1, test2)", fallback.Details())
 }
 
 func TestFormatterFallback_FormatAll_Empty(t *testing.T) {
@@ -607,6 +667,21 @@ func createLinterTool(id string, executable *internal.Executable) *struct {
 	}
 }
 
+func TestLinterFallback_Details_Empty(t *testing.T) {
+	fallback := &LinterFallback{}
+
+	assert.Equal(t, "fallback ()", fallback.Details())
+}
+
+func TestLinterFallback_Details(t *testing.T) {
+	tool1 := createLinterTool("test1", nil)
+	tool2 := createLinterTool("test2", nil)
+
+	fallback := &LinterFallback{tool1, tool2}
+
+	assert.Equal(t, "fallback (test1, test2)", fallback.Details())
+}
+
 func TestLinterFallback_LintAll_Empty(t *testing.T) {
 	fallback := &LinterFallback{}
 
@@ -721,6 +796,21 @@ func TestLinterFallback_LintFiles_Available2(t *testing.T) {
 
 	tool1.AssertExpectations(t)
 	tool2.AssertExpectations(t)
+}
+
+func TestLinterList_Details_Empty(t *testing.T) {
+	list := &LinterList{}
+
+	assert.Equal(t, "list ()", list.Details())
+}
+
+func TestLinterList_Details(t *testing.T) {
+	tool1 := createLinterTool("test1", nil)
+	tool2 := createLinterTool("test2", nil)
+
+	list := &LinterList{tool1, tool2}
+
+	assert.Equal(t, "list (test1, test2)", list.Details())
 }
 
 func TestLinterList_LintAll_Empty(t *testing.T) {
@@ -856,6 +946,21 @@ func createRunnerTool(id string, executable *internal.Executable) *struct {
 	}
 }
 
+func TestRunnerFallback_Details_Empty(t *testing.T) {
+	fallback := &RunnerFallback{}
+
+	assert.Equal(t, "fallback ()", fallback.Details())
+}
+
+func TestRunnerFallback_Details(t *testing.T) {
+	tool1 := createRunnerTool("test1", nil)
+	tool2 := createRunnerTool("test2", nil)
+
+	fallback := &RunnerFallback{tool1, tool2}
+
+	assert.Equal(t, "fallback (test1, test2)", fallback.Details())
+}
+
 func TestRunnerFallback_RunTarget_Empty(t *testing.T) {
 	fallback := &RunnerFallback{}
 
@@ -927,6 +1032,21 @@ func createDependencyManagerTool(id string, executable *internal.Executable) *st
 		}),
 		test.DependencyManager{},
 	}
+}
+
+func TestDependencyManagerFallback_Details_Empty(t *testing.T) {
+	fallback := &DependencyManagerFallback{}
+
+	assert.Equal(t, "fallback ()", fallback.Details())
+}
+
+func TestDependencyManagerFallback_Details(t *testing.T) {
+	tool1 := createDependencyManagerTool("test1", nil)
+	tool2 := createDependencyManagerTool("test2", nil)
+
+	fallback := &DependencyManagerFallback{tool1, tool2}
+
+	assert.Equal(t, "fallback (test1, test2)", fallback.Details())
 }
 
 func TestDependencyManagerFallback_AddDependencies_Empty(t *testing.T) {
