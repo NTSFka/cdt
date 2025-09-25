@@ -390,3 +390,99 @@ func TestGo_Go_Lint(t *testing.T) {
 
 	exec.AssertExpectations(t)
 }
+
+func TestGo_Go_AddDependencies(t *testing.T) {
+	exec := test.NewExecutable(t)
+
+	tool := NewGo(exec.LazyExecutable("go"))
+
+	info := internal.ProjectInfo{Directory: "."}
+
+	exec.OnRun("go", []string{"get", "dep1"}).
+		Return(nil)
+
+	err := tool.AddDependencies(context.Background(), internal.ProjectDependencyManagerOptions{ProjectInfo: info}, []string{"dep1"}, false)
+	assert.NoError(t, err)
+
+	exec.AssertExpectations(t)
+}
+
+func TestGo_Go_RemoveDependencies(t *testing.T) {
+	exec := test.NewExecutable(t)
+
+	tool := NewGo(exec.LazyExecutable("go"))
+
+	info := internal.ProjectInfo{Directory: "."}
+
+	exec.OnRun("go", []string{"get", "dep1@none"}).
+		Return(nil)
+
+	err := tool.RemoveDependencies(context.Background(), internal.ProjectDependencyManagerOptions{ProjectInfo: info}, []string{"dep1"}, false)
+	assert.NoError(t, err)
+
+	exec.AssertExpectations(t)
+}
+
+func TestGo_Go_UpdateDependencies(t *testing.T) {
+	exec := test.NewExecutable(t)
+
+	tool := NewGo(exec.LazyExecutable("go"))
+
+	info := internal.ProjectInfo{Directory: "."}
+
+	exec.OnRun("go", []string{"get", "dep1"}).
+		Return(nil)
+
+	err := tool.UpdateDependencies(context.Background(), internal.ProjectDependencyManagerOptions{ProjectInfo: info}, []string{"dep1"})
+	assert.NoError(t, err)
+
+	exec.AssertExpectations(t)
+}
+
+func TestGo_Go_FetchDependencies(t *testing.T) {
+	exec := test.NewExecutable(t)
+
+	tool := NewGo(exec.LazyExecutable("go"))
+
+	info := internal.ProjectInfo{Directory: "."}
+
+	exec.OnRun("go", []string{"mod", "tidy"}).
+		Return(nil)
+
+	err := tool.FetchDependencies(context.Background(), internal.ProjectDependencyManagerOptions{ProjectInfo: info}, false)
+	assert.NoError(t, err)
+
+	exec.AssertExpectations(t)
+}
+
+func TestGo_Go_ListDependencies(t *testing.T) {
+	exec := test.NewExecutable(t)
+
+	tool := NewGo(exec.LazyExecutable("go"))
+
+	info := internal.ProjectInfo{Directory: "."}
+
+	exec.OnRun("go", []string{"list", "-m", "all"}).
+		Return(nil)
+
+	err := tool.ListDependencies(context.Background(), internal.ProjectDependencyManagerOptions{ProjectInfo: info})
+	assert.NoError(t, err)
+
+	exec.AssertExpectations(t)
+}
+
+func TestGo_Go_AuditDependencies(t *testing.T) {
+	exec := test.NewExecutable(t)
+
+	tool := NewGo(exec.LazyExecutable("go"))
+
+	info := internal.ProjectInfo{Directory: "."}
+
+	exec.OnRun("go", []string{"audit"}).
+		Return(nil)
+
+	err := tool.AuditDependencies(context.Background(), internal.ProjectDependencyManagerOptions{ProjectInfo: info})
+	assert.EqualError(t, err, "not supported")
+
+	exec.AssertExpectations(t)
+}

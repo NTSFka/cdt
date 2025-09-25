@@ -22,13 +22,14 @@ func (g *Go) Create(config Config, tools internal.Tools) internal.Project {
 	goLint := internal.GetTool[*tool.GolangCILint](tools)
 
 	workflow := internal.Workflow{
-		Name:         g.Id(),
-		Configurator: nil,
-		Builder:      goTool,
-		Runner:       goTool,
-		Tester:       goTool,
-		Formatter:    goTool,
-		Linter:       &LinterList{goTool, goLint},
+		Name:              g.Id(),
+		Configurator:      nil,
+		Builder:           goTool,
+		Runner:            goTool,
+		Tester:            goTool,
+		Formatter:         goTool,
+		Linter:            &LinterList{goTool, goLint},
+		DependencyManager: goTool,
 	}
 
 	return internal.Project{

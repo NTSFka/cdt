@@ -54,5 +54,6 @@ func TestGoType_Create(t *testing.T) {
 		assert.NotNil(t, p.Workflow.Linter)
 		assert.NotNil(t, p.Workflow.Formatter)
 		assert.NotNil(t, p.Workflow.Runner)
+		assert.NotNil(t, p.Workflow.DependencyManager)
 	}
 }

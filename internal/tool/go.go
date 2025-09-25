@@ -113,3 +113,33 @@ func (g *Go) LintAll(ctx context.Context, options internal.ProjectLinterOptions)
 func (g *Go) LintFiles(ctx context.Context, options internal.ProjectLinterOptions, filenames []string) error {
 	return g.RunForProject(ctx, options.ProjectInfo, append(append(options.ExtraArgs, "vet"), filenames...))
 }
+
+func (g *Go) AddDependencies(ctx context.Context, options internal.ProjectDependencyManagerOptions, dependencies []string, _ bool) error {
+	return g.RunForProject(ctx, options.ProjectInfo, append(append(options.ExtraArgs, "get"), dependencies...))
+}
+
+func (g *Go) RemoveDependencies(ctx context.Context, options internal.ProjectDependencyManagerOptions, dependencies []string, _ bool) error {
+	var noneDependencies []string
+
+	for _, dependency := range dependencies {
+		noneDependencies = append(noneDependencies, dependency+"@none")
+	}
+
+	return g.RunForProject(ctx, options.ProjectInfo, append(append(options.ExtraArgs, "get"), noneDependencies...))
+}
+
+func (g *Go) UpdateDependencies(ctx context.Context, options internal.ProjectDependencyManagerOptions, dependencies []string) error {
+	return g.RunForProject(ctx, options.ProjectInfo, append(append(options.ExtraArgs, "get"), dependencies...))
+}
+
+func (g *Go) FetchDependencies(ctx context.Context, options internal.ProjectDependencyManagerOptions, _ bool) error {
+	return g.RunForProject(ctx, options.ProjectInfo, append(options.ExtraArgs, "mod", "tidy"))
+}
+
+func (g *Go) ListDependencies(ctx context.Context, options internal.ProjectDependencyManagerOptions) error {
+	return g.RunForProject(ctx, options.ProjectInfo, append(options.ExtraArgs, "list", "-m", "all"))
+}
+
+func (g *Go) AuditDependencies(ctx context.Context, _ internal.ProjectDependencyManagerOptions) error {
+	return errors.New("not supported")
+}
