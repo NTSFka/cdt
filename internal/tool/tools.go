@@ -14,6 +14,7 @@ func InitTools(ctx context.Context, environment internal.Environment) internal.T
 		DetectCTest(ctx, environment),
 		DetectGo(ctx, environment),
 		DetectGolangCILint(ctx, environment),
+		DetectNilAway(ctx, environment),
 		DetectDocker(ctx, environment),
 		DetectDockerCompose(ctx, environment),
 		DetectPHP(ctx, environment),
