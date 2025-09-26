@@ -1,11 +1,12 @@
 package workflow
 
 import (
-	"cdt/internal"
-	"cdt/internal/tool"
 	"context"
 	"fmt"
 	"path/filepath"
+
+	"cdt/internal"
+	"cdt/internal/tool"
 )
 
 type CMake struct{}
@@ -75,10 +76,18 @@ func (t *cmakeTester) TestAll(ctx context.Context, options internal.ProjectTeste
 	return t.ctestTool.RunForProject(ctx, options.ProjectInfo, options.ExtraArgs)
 }
 
-func (t *cmakeTester) TestPattern(ctx context.Context, options internal.ProjectTesterOptions, pattern string) error {
+func (t *cmakeTester) TestPattern(
+	ctx context.Context,
+	options internal.ProjectTesterOptions,
+	pattern string,
+) error {
 	if err := t.cmakeTool.BuildAll(ctx, internal.ProjectBuilderOptions{ProjectInfo: options.ProjectInfo}); err != nil {
 		return fmt.Errorf("build failed: %w", err)
 	}
 
-	return t.ctestTool.RunForProject(ctx, options.ProjectInfo, append(options.ExtraArgs, "-R", pattern))
+	return t.ctestTool.RunForProject(
+		ctx,
+		options.ProjectInfo,
+		append(options.ExtraArgs, "-R", pattern),
+	)
 }

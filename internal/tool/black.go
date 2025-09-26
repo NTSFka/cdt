@@ -1,9 +1,10 @@
 package tool
 
 import (
-	"cdt/internal"
 	"context"
 	"path/filepath"
+
+	"cdt/internal"
 )
 
 type Black struct {
@@ -34,14 +35,25 @@ func (b *Black) FormatAll(ctx context.Context, options internal.ProjectFormatter
 	return b.RunForProject(ctx, options.ProjectInfo, options.ExtraArgs)
 }
 
-func (b *Black) FormatFiles(ctx context.Context, options internal.ProjectFormatterOptions, filenames []string) error {
+func (b *Black) FormatFiles(
+	ctx context.Context,
+	options internal.ProjectFormatterOptions,
+	filenames []string,
+) error {
 	paths := b.buildPaths(options.Directory, filenames)
 
 	return b.RunForProject(ctx, options.ProjectInfo, append(options.ExtraArgs, paths...))
 }
 
-func (b *Black) FormatCheckAll(ctx context.Context, options internal.ProjectFormatterOptions) error {
-	return b.RunForProject(ctx, options.ProjectInfo, append([]string{"--check"}, options.ExtraArgs...))
+func (b *Black) FormatCheckAll(
+	ctx context.Context,
+	options internal.ProjectFormatterOptions,
+) error {
+	return b.RunForProject(
+		ctx,
+		options.ProjectInfo,
+		append([]string{"--check"}, options.ExtraArgs...),
+	)
 }
 
 func (b *Black) FormatCheckFiles(
@@ -51,7 +63,11 @@ func (b *Black) FormatCheckFiles(
 ) error {
 	paths := b.buildPaths(options.Directory, filenames)
 
-	return b.RunForProject(ctx, options.ProjectInfo, append(append([]string{"--check"}, options.ExtraArgs...), paths...))
+	return b.RunForProject(
+		ctx,
+		options.ProjectInfo,
+		append(append([]string{"--check"}, options.ExtraArgs...), paths...),
+	)
 }
 
 func (b *Black) buildPaths(directory string, filenames []string) []string {

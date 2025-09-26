@@ -1,8 +1,9 @@
 package tool
 
 import (
-	"cdt/internal"
 	"context"
+
+	"cdt/internal"
 )
 
 type PHPUnit struct {
@@ -43,6 +44,10 @@ func (p *PHPUnit) TestAll(ctx context.Context, options internal.ProjectTesterOpt
 	return p.RunForProject(ctx, options.ProjectInfo, options.ExtraArgs)
 }
 
-func (p *PHPUnit) TestPattern(ctx context.Context, options internal.ProjectTesterOptions, pattern string) error {
+func (p *PHPUnit) TestPattern(
+	ctx context.Context,
+	options internal.ProjectTesterOptions,
+	pattern string,
+) error {
 	return p.RunForProject(ctx, options.ProjectInfo, append(options.ExtraArgs, pattern))
 }

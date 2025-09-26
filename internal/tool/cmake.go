@@ -1,11 +1,12 @@
 package tool
 
 import (
-	"cdt/internal"
-	"cdt/internal/utils"
 	"context"
 	"fmt"
 	"path/filepath"
+
+	"cdt/internal"
+	"cdt/internal/utils"
 )
 
 type CMake struct {
@@ -19,7 +20,12 @@ func NewCMake(detect func() *internal.Executable) *CMake {
 			"cmake",
 			"CMake",
 			"A Powerful Software Build System",
-			internal.Tags{internal.ToolTagC, internal.ToolTagCpp, internal.ToolTagConfigure, internal.ToolTagBuild},
+			internal.Tags{
+				internal.ToolTagC,
+				internal.ToolTagCpp,
+				internal.ToolTagConfigure,
+				internal.ToolTagBuild,
+			},
 			detect,
 		),
 	}
@@ -32,7 +38,10 @@ func DetectCMake(ctx context.Context, environment internal.Environment) *CMake {
 	})
 }
 
-func (c *CMake) Structure(ctx context.Context, info internal.ProjectInfo) (*internal.ProjectStructure, error) {
+func (c *CMake) Structure(
+	ctx context.Context,
+	info internal.ProjectInfo,
+) (*internal.ProjectStructure, error) {
 	if err := c.Configure(ctx, internal.ProjectConfiguratorOptions{ProjectInfo: info}); err != nil {
 		return nil, err
 	}
@@ -94,7 +103,11 @@ func (c *CMake) BuildAll(ctx context.Context, options internal.ProjectBuilderOpt
 	return c.RunForProject(ctx, options.ProjectInfo, callArgs)
 }
 
-func (c *CMake) BuildTargets(ctx context.Context, options internal.ProjectBuilderOptions, targets []string) error {
+func (c *CMake) BuildTargets(
+	ctx context.Context,
+	options internal.ProjectBuilderOptions,
+	targets []string,
+) error {
 	if err := c.Configure(ctx, internal.ProjectConfiguratorOptions{ProjectInfo: options.ProjectInfo}); err != nil {
 		return err
 	}
@@ -111,7 +124,11 @@ func (c *CMake) BuildTargets(ctx context.Context, options internal.ProjectBuilde
 	return c.RunForProject(ctx, options.ProjectInfo, callArgs)
 }
 
-func (c *CMake) RunTarget(ctx context.Context, options internal.ProjectRunnerOptions, target string) error {
+func (c *CMake) RunTarget(
+	ctx context.Context,
+	options internal.ProjectRunnerOptions,
+	target string,
+) error {
 	buildOptions := internal.ProjectBuilderOptions{ProjectInfo: options.ProjectInfo}
 
 	if err := c.BuildTargets(ctx, buildOptions, []string{target}); err != nil {
@@ -137,7 +154,11 @@ func (c *CMake) RunTarget(ctx context.Context, options internal.ProjectRunnerOpt
 				Runtime: internal.SystemEnvironment,
 			}
 
-			return executable.Run(ctx, internal.RunOptions{Directory: options.Directory}, options.ExtraArgs)
+			return executable.Run(
+				ctx,
+				internal.RunOptions{Directory: options.Directory},
+				options.ExtraArgs,
+			)
 		}
 	}
 

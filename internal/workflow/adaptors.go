@@ -1,11 +1,12 @@
 package workflow
 
 import (
-	"cdt/internal"
 	"context"
 	"errors"
 	"fmt"
 	"strings"
+
+	"cdt/internal"
 )
 
 func runFirstAvailable[T internal.Tool](tools []T, name string, run func(T) error) error {
@@ -80,7 +81,10 @@ func (f *ConfiguratorFallback) Details() string {
 	return adaptorToolIds("fallback", *f)
 }
 
-func (f *ConfiguratorFallback) Configure(ctx context.Context, options internal.ProjectConfiguratorOptions) error {
+func (f *ConfiguratorFallback) Configure(
+	ctx context.Context,
+	options internal.ProjectConfiguratorOptions,
+) error {
 	return runFirstAvailable(*f, "configurator", func(tool configuratorTool) error {
 		return tool.Configure(ctx, options)
 	})
@@ -98,7 +102,10 @@ func (f *BuilderFallback) Details() string {
 	return adaptorToolIds("fallback", *f)
 }
 
-func (f *BuilderFallback) BuildAll(ctx context.Context, options internal.ProjectBuilderOptions) error {
+func (f *BuilderFallback) BuildAll(
+	ctx context.Context,
+	options internal.ProjectBuilderOptions,
+) error {
 	return runFirstAvailable(*f, "builder", func(tool builderTool) error {
 		return tool.BuildAll(ctx, options)
 	})
@@ -132,7 +139,11 @@ func (f *TesterFallback) TestAll(ctx context.Context, options internal.ProjectTe
 	})
 }
 
-func (f *TesterFallback) TestPattern(ctx context.Context, options internal.ProjectTesterOptions, pattern string) error {
+func (f *TesterFallback) TestPattern(
+	ctx context.Context,
+	options internal.ProjectTesterOptions,
+	pattern string,
+) error {
 	return runFirstAvailable(*f, "tester", func(tool testerTool) error {
 		return tool.TestPattern(ctx, options, pattern)
 	})
@@ -150,7 +161,10 @@ func (f *FormatterFallback) Details() string {
 	return adaptorToolIds("fallback", *f)
 }
 
-func (f *FormatterFallback) FormatAll(ctx context.Context, options internal.ProjectFormatterOptions) error {
+func (f *FormatterFallback) FormatAll(
+	ctx context.Context,
+	options internal.ProjectFormatterOptions,
+) error {
 	return runFirstAvailable(*f, "formatter", func(tool formatterTool) error {
 		return tool.FormatAll(ctx, options)
 	})
@@ -166,7 +180,10 @@ func (f *FormatterFallback) FormatFiles(
 	})
 }
 
-func (f *FormatterFallback) FormatCheckAll(ctx context.Context, options internal.ProjectFormatterOptions) error {
+func (f *FormatterFallback) FormatCheckAll(
+	ctx context.Context,
+	options internal.ProjectFormatterOptions,
+) error {
 	return runFirstAvailable(*f, "formatter", func(tool formatterTool) error {
 		return tool.FormatCheckAll(ctx, options)
 	})
@@ -200,7 +217,11 @@ func (f *LinterList) LintAll(ctx context.Context, options internal.ProjectLinter
 	})
 }
 
-func (f *LinterList) LintFiles(ctx context.Context, options internal.ProjectLinterOptions, filenames []string) error {
+func (f *LinterList) LintFiles(
+	ctx context.Context,
+	options internal.ProjectLinterOptions,
+	filenames []string,
+) error {
 	return runAllAvailable(*f, "linter", func(tool linterTool) error {
 		return tool.LintFiles(ctx, options, filenames)
 	})
@@ -241,7 +262,11 @@ func (f *RunnerFallback) Details() string {
 	return adaptorToolIds("fallback", *f)
 }
 
-func (f *RunnerFallback) RunTarget(ctx context.Context, options internal.ProjectRunnerOptions, target string) error {
+func (f *RunnerFallback) RunTarget(
+	ctx context.Context,
+	options internal.ProjectRunnerOptions,
+	target string,
+) error {
 	return runFirstAvailable(*f, "runner", func(tool runnerTool) error {
 		return tool.RunTarget(ctx, options, target)
 	})

@@ -1,10 +1,11 @@
 package tool_test
 
 import (
+	"testing"
+
 	"cdt/internal"
 	"cdt/internal/test"
 	"cdt/internal/tool"
-	"testing"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -95,7 +96,11 @@ func TestPHPCSFixer_PHPCSFixer_FormatFiles(t *testing.T) {
 	exec.OnRun("format", []string{"fix", "tests/*"}).
 		Return(nil)
 
-	err := phpcsFixer.FormatFiles(t.Context(), internal.ProjectFormatterOptions{ProjectInfo: info}, []string{"tests/*"})
+	err := phpcsFixer.FormatFiles(
+		t.Context(),
+		internal.ProjectFormatterOptions{ProjectInfo: info},
+		[]string{"tests/*"},
+	)
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -111,7 +116,10 @@ func TestPHPCSFixer_PHPCSFixer_FormatCheckAll(t *testing.T) {
 	exec.OnRun("format", []string{"fix", "--dry-run"}).
 		Return(nil)
 
-	err := phpcsFixer.FormatCheckAll(t.Context(), internal.ProjectFormatterOptions{ProjectInfo: info})
+	err := phpcsFixer.FormatCheckAll(
+		t.Context(),
+		internal.ProjectFormatterOptions{ProjectInfo: info},
+	)
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)

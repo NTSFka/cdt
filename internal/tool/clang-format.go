@@ -1,11 +1,12 @@
 package tool
 
 import (
-	"cdt/internal"
 	"context"
 	"fmt"
 	"os"
 	"path/filepath"
+
+	"cdt/internal"
 )
 
 // ClangFormat is a formatter for the clang-format tool.
@@ -34,7 +35,10 @@ func NewClangFormat(detect func() *internal.Executable) *ClangFormat {
 }
 
 // FormatAll formats all files in the project.
-func (c *ClangFormat) FormatAll(ctx context.Context, options internal.ProjectFormatterOptions) error {
+func (c *ClangFormat) FormatAll(
+	ctx context.Context,
+	options internal.ProjectFormatterOptions,
+) error {
 	structure, err := options.Structure(ctx)
 
 	if err != nil {
@@ -62,7 +66,10 @@ func (c *ClangFormat) FormatFiles(
 }
 
 // FormatCheckAll checks all files if some needs formatting.
-func (c *ClangFormat) FormatCheckAll(ctx context.Context, options internal.ProjectFormatterOptions) error {
+func (c *ClangFormat) FormatCheckAll(
+	ctx context.Context,
+	options internal.ProjectFormatterOptions,
+) error {
 	structure, err := options.Structure(ctx)
 
 	if err != nil {

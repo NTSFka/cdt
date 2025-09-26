@@ -1,10 +1,11 @@
 package tool_test
 
 import (
+	"testing"
+
 	"cdt/internal"
 	"cdt/internal/test"
 	"cdt/internal/tool"
-	"testing"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -183,7 +184,11 @@ func TestComposer_Composer_FetchDependencies(t *testing.T) {
 	exec.OnRun("composer", []string{"install"}).
 		Return(nil)
 
-	err := composer.FetchDependencies(t.Context(), internal.ProjectDependencyManagerOptions{ProjectInfo: info}, false)
+	err := composer.FetchDependencies(
+		t.Context(),
+		internal.ProjectDependencyManagerOptions{ProjectInfo: info},
+		false,
+	)
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -199,7 +204,11 @@ func TestComposer_Composer_FetchDependencies_NoDev(t *testing.T) {
 	exec.OnRun("composer", []string{"install", "--no-dev"}).
 		Return(nil)
 
-	err := composer.FetchDependencies(t.Context(), internal.ProjectDependencyManagerOptions{ProjectInfo: info}, true)
+	err := composer.FetchDependencies(
+		t.Context(),
+		internal.ProjectDependencyManagerOptions{ProjectInfo: info},
+		true,
+	)
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -215,7 +224,10 @@ func TestComposer_Composer_ListDependencies(t *testing.T) {
 	exec.OnRun("composer", []string{"show"}).
 		Return(nil)
 
-	err := composer.ListDependencies(t.Context(), internal.ProjectDependencyManagerOptions{ProjectInfo: info})
+	err := composer.ListDependencies(
+		t.Context(),
+		internal.ProjectDependencyManagerOptions{ProjectInfo: info},
+	)
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -231,7 +243,10 @@ func TestComposer_Composer_AuditDependencies(t *testing.T) {
 	exec.OnRun("composer", []string{"audit"}).
 		Return(nil)
 
-	err := composer.AuditDependencies(t.Context(), internal.ProjectDependencyManagerOptions{ProjectInfo: info})
+	err := composer.AuditDependencies(
+		t.Context(),
+		internal.ProjectDependencyManagerOptions{ProjectInfo: info},
+	)
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)

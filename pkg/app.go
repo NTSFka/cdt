@@ -1,13 +1,14 @@
 package pkg
 
 import (
-	"cdt/internal"
-	"cdt/internal/command"
 	"context"
 	"fmt"
 	"log/slog"
 	"os"
 	"path/filepath"
+
+	"cdt/internal"
+	"cdt/internal/command"
 
 	"github.com/urfave/cli/v3"
 )

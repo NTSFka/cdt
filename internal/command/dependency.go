@@ -1,10 +1,11 @@
 package command
 
 import (
-	"cdt/internal"
 	"context"
 	"errors"
 	"fmt"
+
+	"cdt/internal"
 
 	"github.com/urfave/cli/v3"
 )
@@ -228,12 +229,15 @@ func dependencyAuditCommandAction(ctx context.Context, cmd *cli.Command) error {
 	return nil
 }
 
-func getDependencyManager(c internal.Context, cmd *cli.Command) (internal.ProjectDependencyManager, error) {
-	manager := c.Project.Workflow.DependencyManager
+func getDependencyManager(
+	cmdContext internal.Context,
+	cmd *cli.Command,
+) (internal.ProjectDependencyManager, error) {
+	manager := cmdContext.Project.Workflow.DependencyManager
 
 	if cmd.IsSet("tool") {
 		toolName := cmd.String("tool")
-		tool := c.Tools.Get(toolName)
+		tool := cmdContext.Tools.Get(toolName)
 
 		if tool == nil {
 			return nil, fmt.Errorf("tool '%s' not found", toolName)

@@ -1,9 +1,10 @@
 package test
 
 import (
-	"cdt/internal"
 	"context"
 	"testing"
+
+	"cdt/internal"
 
 	"github.com/stretchr/testify/mock"
 )

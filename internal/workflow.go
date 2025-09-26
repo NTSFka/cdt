@@ -115,16 +115,34 @@ type ProjectDependencyManagerOptions struct {
 // ProjectDependencyManager manages project dependencies (libraries, packaged, etc.)
 type ProjectDependencyManager interface {
 	// AddDependencies adds new dependencies to the project
-	AddDependencies(ctx context.Context, options ProjectDependencyManagerOptions, dependencies []string, dev bool) error
+	AddDependencies(
+		ctx context.Context,
+		options ProjectDependencyManagerOptions,
+		dependencies []string,
+		dev bool,
+	) error
 
 	// RemoveDependencies removes the dependencies from the project
-	RemoveDependencies(ctx context.Context, options ProjectDependencyManagerOptions, dependencies []string, dev bool) error
+	RemoveDependencies(
+		ctx context.Context,
+		options ProjectDependencyManagerOptions,
+		dependencies []string,
+		dev bool,
+	) error
 
 	// UpdateDependencies updates specified dependencies in the project (empty dependencies mean update all)
-	UpdateDependencies(ctx context.Context, options ProjectDependencyManagerOptions, dependencies []string) error
+	UpdateDependencies(
+		ctx context.Context,
+		options ProjectDependencyManagerOptions,
+		dependencies []string,
+	) error
 
 	// FetchDependencies fetches all specified dependencies to the project
-	FetchDependencies(ctx context.Context, options ProjectDependencyManagerOptions, noDev bool) error
+	FetchDependencies(
+		ctx context.Context,
+		options ProjectDependencyManagerOptions,
+		noDev bool,
+	) error
 
 	// ListDependencies lists all specified dependencies in the project
 	ListDependencies(ctx context.Context, options ProjectDependencyManagerOptions) error

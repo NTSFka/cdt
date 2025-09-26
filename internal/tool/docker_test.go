@@ -1,13 +1,14 @@
 package tool_test
 
 import (
-	"cdt/internal"
-	"cdt/internal/test"
-	"cdt/internal/tool"
 	"errors"
 	"fmt"
 	"path/filepath"
 	"testing"
+
+	"cdt/internal"
+	"cdt/internal/test"
+	"cdt/internal/tool"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -26,7 +27,9 @@ func TestDocker_NewDocker_NoExecutable(t *testing.T) {
 }
 
 func TestDocker_NewDocker_WithExecutable(t *testing.T) {
-	docker := tool.NewDocker(func() *internal.Executable { return &internal.Executable{Path: "/bin/docker"} })
+	docker := tool.NewDocker(
+		func() *internal.Executable { return &internal.Executable{Path: "/bin/docker"} },
+	)
 
 	assert.NotNil(t, docker)
 	assert.Equal(t, "docker", docker.Id())
@@ -60,7 +63,9 @@ func TestDocker_DetectDocker_Found(t *testing.T) {
 }
 
 func TestDocker_Detect(t *testing.T) {
-	docker := tool.NewDocker(func() *internal.Executable { return &internal.Executable{Path: "docker"} })
+	docker := tool.NewDocker(
+		func() *internal.Executable { return &internal.Executable{Path: "docker"} },
+	)
 	assert.NotNil(t, docker)
 
 	env := docker.Detect(".")
@@ -68,7 +73,9 @@ func TestDocker_Detect(t *testing.T) {
 }
 
 func TestDocker_CreateEnvironment(t *testing.T) {
-	docker := tool.NewDocker(func() *internal.Executable { return &internal.Executable{Path: "docker"} })
+	docker := tool.NewDocker(
+		func() *internal.Executable { return &internal.Executable{Path: "docker"} },
+	)
 	assert.NotNil(t, docker)
 
 	env, err := docker.CreateEnvironment(".", "image1")
@@ -79,7 +86,9 @@ func TestDocker_CreateEnvironment(t *testing.T) {
 }
 
 func TestDocker_CreateEnvironment_NoImage(t *testing.T) {
-	docker := tool.NewDocker(func() *internal.Executable { return &internal.Executable{Path: "docker"} })
+	docker := tool.NewDocker(
+		func() *internal.Executable { return &internal.Executable{Path: "docker"} },
+	)
 	assert.NotNil(t, docker)
 
 	env, err := docker.CreateEnvironment(".", "")
@@ -487,7 +496,12 @@ func TestDocker_Environment_RunExecutable_AutoStart_Failed(t *testing.T) {
 		Return(errors.New("failed")).
 		Once()
 
-	err := env.RunExecutable(t.Context(), internal.RunOptions{}, "/usr/bin/tool1", []string{"arg1", "arg2"})
+	err := env.RunExecutable(
+		t.Context(),
+		internal.RunOptions{},
+		"/usr/bin/tool1",
+		[]string{"arg1", "arg2"},
+	)
 	require.EqualError(t, err, "docker run failed: failed")
 
 	runMock.AssertExpectations(t)

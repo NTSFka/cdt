@@ -1,10 +1,11 @@
 package tool_test
 
 import (
+	"testing"
+
 	"cdt/internal"
 	"cdt/internal/test"
 	"cdt/internal/tool"
-	"testing"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -95,7 +96,11 @@ func TestPHPUnit_PHPUnit_Test(t *testing.T) {
 	exec.OnRun("test", []string{"tests/*"}).
 		Return(nil)
 
-	err := phpUnit.TestPattern(t.Context(), internal.ProjectTesterOptions{ProjectInfo: info}, "tests/*")
+	err := phpUnit.TestPattern(
+		t.Context(),
+		internal.ProjectTesterOptions{ProjectInfo: info},
+		"tests/*",
+	)
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)

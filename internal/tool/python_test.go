@@ -1,13 +1,14 @@
 package tool_test
 
 import (
-	"cdt/internal"
-	"cdt/internal/test"
-	"cdt/internal/tool"
 	"errors"
 	"os"
 	"path/filepath"
 	"testing"
+
+	"cdt/internal"
+	"cdt/internal/test"
+	"cdt/internal/tool"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -56,7 +57,11 @@ func TestPython_Python_RunTarget(t *testing.T) {
 	executable.OnRun("python3", []string{"main.py"}).
 		Return(nil)
 
-	err := python.RunTarget(t.Context(), internal.ProjectRunnerOptions{ProjectInfo: info}, "main.py")
+	err := python.RunTarget(
+		t.Context(),
+		internal.ProjectRunnerOptions{ProjectInfo: info},
+		"main.py",
+	)
 	require.NoError(t, err)
 
 	executable.AssertExpectations(t)
@@ -72,7 +77,11 @@ func TestPython_Python_RunTarget_Fail(t *testing.T) {
 	executable.OnRun("python3", []string{"main.py"}).
 		Return(errors.New("failed"))
 
-	err := python.RunTarget(t.Context(), internal.ProjectRunnerOptions{ProjectInfo: info}, "main.py")
+	err := python.RunTarget(
+		t.Context(),
+		internal.ProjectRunnerOptions{ProjectInfo: info},
+		"main.py",
+	)
 	require.EqualError(t, err, "failed")
 
 	executable.AssertExpectations(t)
@@ -171,7 +180,9 @@ func TestPython_Environment_Cleanup(t *testing.T) {
 }
 
 func TestPython_Environment_FindExecutable(t *testing.T) {
-	python := tool.NewPython(func() *internal.Executable { return &internal.Executable{Path: "python"} })
+	python := tool.NewPython(
+		func() *internal.Executable { return &internal.Executable{Path: "python"} },
+	)
 	assert.NotNil(t, python)
 
 	testDir := t.TempDir()
@@ -190,7 +201,9 @@ func TestPython_Environment_FindExecutable(t *testing.T) {
 }
 
 func TestPython_Environment_FindExecutable_Windows(t *testing.T) {
-	python := tool.NewPython(func() *internal.Executable { return &internal.Executable{Path: "python"} })
+	python := tool.NewPython(
+		func() *internal.Executable { return &internal.Executable{Path: "python"} },
+	)
 	assert.NotNil(t, python)
 
 	testDir := t.TempDir()
@@ -209,7 +222,9 @@ func TestPython_Environment_FindExecutable_Windows(t *testing.T) {
 }
 
 func TestPython_Environment_FindExecutable_Failed(t *testing.T) {
-	python := tool.NewPython(func() *internal.Executable { return &internal.Executable{Path: "python"} })
+	python := tool.NewPython(
+		func() *internal.Executable { return &internal.Executable{Path: "python"} },
+	)
 	assert.NotNil(t, python)
 
 	testDir := t.TempDir()
@@ -222,7 +237,9 @@ func TestPython_Environment_FindExecutable_Failed(t *testing.T) {
 }
 
 func TestPython_Environment_RunExecutable_NotFound(t *testing.T) {
-	python := tool.NewPython(func() *internal.Executable { return &internal.Executable{Path: "python"} })
+	python := tool.NewPython(
+		func() *internal.Executable { return &internal.Executable{Path: "python"} },
+	)
 	assert.NotNil(t, python)
 
 	testDir := t.TempDir()

@@ -2,10 +2,11 @@ package internal_test
 
 import (
 	"bytes"
-	"cdt/internal"
 	"os"
 	"path/filepath"
 	"testing"
+
+	"cdt/internal"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"

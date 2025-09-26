@@ -68,7 +68,13 @@ type ExecutableTool struct {
 }
 
 // MakeExecutableTool creates an executable tool.
-func MakeExecutableTool(id string, name string, info string, tags Tags, detect func() *Executable) ExecutableTool {
+func MakeExecutableTool(
+	id string,
+	name string,
+	info string,
+	tags Tags,
+	detect func() *Executable,
+) ExecutableTool {
 	return ExecutableTool{
 		id:         id,
 		name:       name,
@@ -81,7 +87,13 @@ func MakeExecutableTool(id string, name string, info string, tags Tags, detect f
 }
 
 // NewExecutableTool creates an executable tool.
-func NewExecutableTool(id string, name string, info string, tags Tags, detect func() *Executable) *ExecutableTool {
+func NewExecutableTool(
+	id string,
+	name string,
+	info string,
+	tags Tags,
+	detect func() *Executable,
+) *ExecutableTool {
 	executable := MakeExecutableTool(id, name, info, tags, detect)
 
 	return &executable

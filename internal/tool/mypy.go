@@ -1,9 +1,10 @@
 package tool
 
 import (
-	"cdt/internal"
 	"context"
 	"path/filepath"
+
+	"cdt/internal"
 )
 
 type MyPy struct {
@@ -34,7 +35,11 @@ func (m *MyPy) LintAll(ctx context.Context, options internal.ProjectLinterOption
 	return m.RunForProject(ctx, options.ProjectInfo, append([]string{"*.py"}, options.ExtraArgs...))
 }
 
-func (m *MyPy) LintFiles(ctx context.Context, options internal.ProjectLinterOptions, filenames []string) error {
+func (m *MyPy) LintFiles(
+	ctx context.Context,
+	options internal.ProjectLinterOptions,
+	filenames []string,
+) error {
 	paths := m.buildPaths(options.Directory, filenames)
 
 	return m.RunForProject(ctx, options.ProjectInfo, append(options.ExtraArgs, paths...))

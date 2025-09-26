@@ -10,8 +10,8 @@ import (
 	"github.com/fatih/color"
 )
 
-// Info prints CDT action.
-func Info(format string, a ...any) {
+// Infof prints CDT action.
+func Infof(format string, a ...any) {
 	_, _ = color.New(color.FgCyan).Printf("[cdt] %v\n", fmt.Sprintf(format, a...))
 }
 

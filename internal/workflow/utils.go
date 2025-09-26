@@ -1,8 +1,9 @@
 package workflow
 
 import (
-	"cdt/internal"
 	"fmt"
+
+	"cdt/internal"
 )
 
 func getTool[T any](name *string, tools internal.Tools, what string) (*T, error) {

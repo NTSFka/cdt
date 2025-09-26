@@ -1,11 +1,12 @@
 package tool_test
 
 import (
+	"errors"
+	"testing"
+
 	"cdt/internal"
 	"cdt/internal/test"
 	"cdt/internal/tool"
-	"errors"
-	"testing"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -60,7 +61,9 @@ func TestDockerCompose_DetectDockerCompose_Found(t *testing.T) {
 }
 
 func TestDockerCompose_Detect(t *testing.T) {
-	dockerCompose := tool.NewDockerCompose(func() *internal.Executable { return &internal.Executable{Path: "docker"} })
+	dockerCompose := tool.NewDockerCompose(
+		func() *internal.Executable { return &internal.Executable{Path: "docker"} },
+	)
 	assert.NotNil(t, dockerCompose)
 
 	env := dockerCompose.Detect(".")
@@ -68,7 +71,9 @@ func TestDockerCompose_Detect(t *testing.T) {
 }
 
 func TestDockerCompose_CreateEnvironment(t *testing.T) {
-	dockerCompose := tool.NewDockerCompose(func() *internal.Executable { return &internal.Executable{Path: "docker"} })
+	dockerCompose := tool.NewDockerCompose(
+		func() *internal.Executable { return &internal.Executable{Path: "docker"} },
+	)
 	assert.NotNil(t, dockerCompose)
 
 	env, err := dockerCompose.CreateEnvironment(".", "service1")
@@ -79,7 +84,9 @@ func TestDockerCompose_CreateEnvironment(t *testing.T) {
 }
 
 func TestDockerCompose_CreateEnvironment_NoService(t *testing.T) {
-	dockerCompose := tool.NewDockerCompose(func() *internal.Executable { return &internal.Executable{Path: "docker"} })
+	dockerCompose := tool.NewDockerCompose(
+		func() *internal.Executable { return &internal.Executable{Path: "docker"} },
+	)
 	assert.NotNil(t, dockerCompose)
 
 	env, err := dockerCompose.CreateEnvironment(".", "")
@@ -115,7 +122,10 @@ func (m *dockerComposeRunMock) OnState(service string, result bool) *mock.Call {
 	return m.OnCallOutput([]string{"compose", "ps", "--format", "json", service}, output)
 }
 
-func dockerComposePrepare(t *testing.T, service string) (*dockerComposeRunMock, internal.Environment) {
+func dockerComposePrepare(
+	t *testing.T,
+	service string,
+) (*dockerComposeRunMock, internal.Environment) {
 	runMock := dockerComposeRunMock{}
 
 	dockerCompose := tool.NewDockerCompose(runMock.LazyExecutable("docker"))
@@ -418,7 +428,12 @@ func TestDockerCompose_Environment_RunExecutable_AutoStart_Failed(t *testing.T) 
 	// Start
 	runMock.OnCall([]string{"compose", "up", "-d"}).Return(errors.New("failed"))
 
-	err := env.RunExecutable(t.Context(), internal.RunOptions{}, "/usr/bin/tool1", []string{"arg1", "arg2"})
+	err := env.RunExecutable(
+		t.Context(),
+		internal.RunOptions{},
+		"/usr/bin/tool1",
+		[]string{"arg1", "arg2"},
+	)
 	require.EqualError(t, err, "docker compose start failed: failed")
 
 	runMock.AssertExpectations(t)

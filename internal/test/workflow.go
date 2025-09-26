@@ -1,9 +1,10 @@
 package test
 
 import (
-	"cdt/internal"
 	"context"
 	"testing"
+
+	"cdt/internal"
 
 	"github.com/stretchr/testify/mock"
 )
@@ -19,7 +20,10 @@ func NewProjectConfigurator(t *testing.T) *ProjectConfigurator {
 	return &configurator
 }
 
-func (t *ProjectConfigurator) Configure(ctx context.Context, options internal.ProjectConfiguratorOptions) error {
+func (t *ProjectConfigurator) Configure(
+	ctx context.Context,
+	options internal.ProjectConfiguratorOptions,
+) error {
 	return t.Called(ctx, options).Error(0)
 }
 
@@ -34,7 +38,10 @@ func NewProjectBuilder(t *testing.T) *ProjectBuilder {
 	return &builder
 }
 
-func (t *ProjectBuilder) BuildAll(ctx context.Context, options internal.ProjectBuilderOptions) error {
+func (t *ProjectBuilder) BuildAll(
+	ctx context.Context,
+	options internal.ProjectBuilderOptions,
+) error {
 	return t.Called(ctx, options).Error(0)
 }
 
@@ -57,7 +64,10 @@ func NewProjectFormatter(t *testing.T) *ProjectFormatter {
 	return &formatter
 }
 
-func (t *ProjectFormatter) FormatAll(ctx context.Context, options internal.ProjectFormatterOptions) error {
+func (t *ProjectFormatter) FormatAll(
+	ctx context.Context,
+	options internal.ProjectFormatterOptions,
+) error {
 	return t.Called(ctx, options).Error(0)
 }
 
@@ -69,7 +79,10 @@ func (t *ProjectFormatter) FormatFiles(
 	return t.Called(ctx, options, filenames).Error(0)
 }
 
-func (t *ProjectFormatter) FormatCheckAll(ctx context.Context, options internal.ProjectFormatterOptions) error {
+func (t *ProjectFormatter) FormatCheckAll(
+	ctx context.Context,
+	options internal.ProjectFormatterOptions,
+) error {
 	return t.Called(ctx, options).Error(0)
 }
 
@@ -119,7 +132,11 @@ func (t *ProjectTester) TestAll(ctx context.Context, options internal.ProjectTes
 	return t.Called(ctx, options).Error(0)
 }
 
-func (t *ProjectTester) TestPattern(ctx context.Context, options internal.ProjectTesterOptions, pattern string) error {
+func (t *ProjectTester) TestPattern(
+	ctx context.Context,
+	options internal.ProjectTesterOptions,
+	pattern string,
+) error {
 	return t.Called(ctx, options, pattern).Error(0)
 }
 
@@ -134,7 +151,11 @@ func NewProjectRunner(t *testing.T) *ProjectRunner {
 	return &runner
 }
 
-func (t *ProjectRunner) RunTarget(ctx context.Context, options internal.ProjectRunnerOptions, target string) error {
+func (t *ProjectRunner) RunTarget(
+	ctx context.Context,
+	options internal.ProjectRunnerOptions,
+	target string,
+) error {
 	return t.Called(ctx, options, target).Error(0)
 }
 

@@ -1,13 +1,14 @@
 package command_test
 
 import (
+	"context"
+	"testing"
+
 	"cdt/internal"
 	"cdt/internal/command"
 	"cdt/internal/test"
 	"cdt/internal/tool"
 	"cdt/internal/workflow"
-	"context"
-	"testing"
 
 	"github.com/stretchr/testify/require"
 )
@@ -33,9 +34,15 @@ func TestWorkflowShow_Custom(t *testing.T) {
 		internal.ExecutableTool
 		test.ProjectConfigurator
 	}{
-		internal.MakeExecutableTool("test1", "Test", "", internal.Tags{}, func() *internal.Executable {
-			return nil
-		}),
+		internal.MakeExecutableTool(
+			"test1",
+			"Test",
+			"",
+			internal.Tags{},
+			func() *internal.Executable {
+				return nil
+			},
+		),
 		test.ProjectConfigurator{},
 	}
 
@@ -43,9 +50,15 @@ func TestWorkflowShow_Custom(t *testing.T) {
 		internal.ExecutableTool
 		test.ProjectLinter
 	}{
-		internal.MakeExecutableTool("test1", "Test 1", "", internal.Tags{}, func() *internal.Executable {
-			return nil
-		}),
+		internal.MakeExecutableTool(
+			"test1",
+			"Test 1",
+			"",
+			internal.Tags{},
+			func() *internal.Executable {
+				return nil
+			},
+		),
 		test.ProjectLinter{},
 	}
 
@@ -53,9 +66,15 @@ func TestWorkflowShow_Custom(t *testing.T) {
 		internal.ExecutableTool
 		test.ProjectLinter
 	}{
-		internal.MakeExecutableTool("test2", "Test 2", "", internal.Tags{}, func() *internal.Executable {
-			return nil
-		}),
+		internal.MakeExecutableTool(
+			"test2",
+			"Test 2",
+			"",
+			internal.Tags{},
+			func() *internal.Executable {
+				return nil
+			},
+		),
 		test.ProjectLinter{},
 	}
 

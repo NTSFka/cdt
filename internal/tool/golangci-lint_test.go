@@ -1,10 +1,11 @@
 package tool_test
 
 import (
+	"testing"
+
 	"cdt/internal"
 	"cdt/internal/test"
 	"cdt/internal/tool"
-	"testing"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -67,7 +68,11 @@ func TestGolangCILint_GolangCILint_Lint(t *testing.T) {
 	exec.OnRun("lint", []string{"run", "mod1"}).
 		Return(nil)
 
-	err := golangCILint.LintFiles(t.Context(), internal.ProjectLinterOptions{ProjectInfo: info}, []string{"mod1"})
+	err := golangCILint.LintFiles(
+		t.Context(),
+		internal.ProjectLinterOptions{ProjectInfo: info},
+		[]string{"mod1"},
+	)
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)

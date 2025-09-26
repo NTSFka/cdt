@@ -1,9 +1,10 @@
 package tool
 
 import (
-	"cdt/internal"
 	"context"
 	"path/filepath"
+
+	"cdt/internal"
 )
 
 type Flake8 struct {
@@ -34,7 +35,11 @@ func (p *Flake8) LintAll(ctx context.Context, options internal.ProjectLinterOpti
 	return p.RunForProject(ctx, options.ProjectInfo, options.ExtraArgs)
 }
 
-func (p *Flake8) LintFiles(ctx context.Context, options internal.ProjectLinterOptions, filenames []string) error {
+func (p *Flake8) LintFiles(
+	ctx context.Context,
+	options internal.ProjectLinterOptions,
+	filenames []string,
+) error {
 	paths := p.buildPaths(options.Directory, filenames)
 
 	return p.RunForProject(ctx, options.ProjectInfo, append(options.ExtraArgs, paths...))

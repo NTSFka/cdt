@@ -1,11 +1,12 @@
 package tool
 
 import (
-	"cdt/internal"
 	"context"
 	"fmt"
 	"os"
 	"path/filepath"
+
+	"cdt/internal"
 )
 
 type ClangTidy struct {
@@ -47,10 +48,18 @@ func (c *ClangTidy) LintAll(ctx context.Context, options internal.ProjectLinterO
 
 	toolArgs := c.buildArgs(options.Directory, *options.IntermediateDirectory, paths)
 
-	return c.ExecutableTool.RunForProject(ctx, options.ProjectInfo, append(toolArgs, options.ExtraArgs...))
+	return c.ExecutableTool.RunForProject(
+		ctx,
+		options.ProjectInfo,
+		append(toolArgs, options.ExtraArgs...),
+	)
 }
 
-func (c *ClangTidy) LintFiles(ctx context.Context, options internal.ProjectLinterOptions, filenames []string) error {
+func (c *ClangTidy) LintFiles(
+	ctx context.Context,
+	options internal.ProjectLinterOptions,
+	filenames []string,
+) error {
 	paths := c.buildPaths(options.Directory, filenames)
 
 	if options.IntermediateDirectory == nil {
@@ -59,10 +68,18 @@ func (c *ClangTidy) LintFiles(ctx context.Context, options internal.ProjectLinte
 
 	toolArgs := c.buildArgs(options.Directory, *options.IntermediateDirectory, paths)
 
-	return c.ExecutableTool.RunForProject(ctx, options.ProjectInfo, append(toolArgs, options.ExtraArgs...))
+	return c.ExecutableTool.RunForProject(
+		ctx,
+		options.ProjectInfo,
+		append(toolArgs, options.ExtraArgs...),
+	)
 }
 
-func (c *ClangTidy) RunForProject(ctx context.Context, info internal.ProjectInfo, args []string) error {
+func (c *ClangTidy) RunForProject(
+	ctx context.Context,
+	info internal.ProjectInfo,
+	args []string,
+) error {
 	toolArgs := []string{
 		info.Directory,
 	}
@@ -84,7 +101,11 @@ func (c *ClangTidy) buildPaths(directory string, filenames []string) []string {
 	return paths
 }
 
-func (c *ClangTidy) buildArgs(rootDirectory string, buildDirectory string, paths []string) []string {
+func (c *ClangTidy) buildArgs(
+	rootDirectory string,
+	buildDirectory string,
+	paths []string,
+) []string {
 	var args []string
 
 	configFile := filepath.Join(rootDirectory, ".clang-tidy")

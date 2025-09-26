@@ -1,9 +1,10 @@
 package tool
 
 import (
-	"cdt/internal"
 	"context"
 	"errors"
+
+	"cdt/internal"
 )
 
 type Pip struct {
@@ -76,7 +77,11 @@ func (p *Pip) UpdateDependencies(
 	)
 }
 
-func (p *Pip) FetchDependencies(ctx context.Context, options internal.ProjectDependencyManagerOptions, _ bool) error {
+func (p *Pip) FetchDependencies(
+	ctx context.Context,
+	options internal.ProjectDependencyManagerOptions,
+	_ bool,
+) error {
 	return p.RunForProject(
 		ctx,
 		options.ProjectInfo,
@@ -84,10 +89,16 @@ func (p *Pip) FetchDependencies(ctx context.Context, options internal.ProjectDep
 	)
 }
 
-func (p *Pip) ListDependencies(ctx context.Context, options internal.ProjectDependencyManagerOptions) error {
+func (p *Pip) ListDependencies(
+	ctx context.Context,
+	options internal.ProjectDependencyManagerOptions,
+) error {
 	return p.RunForProject(ctx, options.ProjectInfo, append([]string{"list"}, options.ExtraArgs...))
 }
 
-func (p *Pip) AuditDependencies(_ context.Context, _ internal.ProjectDependencyManagerOptions) error {
+func (p *Pip) AuditDependencies(
+	_ context.Context,
+	_ internal.ProjectDependencyManagerOptions,
+) error {
 	return errors.New("not supported")
 }

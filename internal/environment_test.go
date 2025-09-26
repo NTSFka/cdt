@@ -2,8 +2,9 @@ package internal_test
 
 import (
 	"bytes"
-	"cdt/internal"
 	"testing"
+
+	"cdt/internal"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -49,7 +50,10 @@ func (t *testEnvironmentProvider) IsAvailable() bool {
 	return false
 }
 
-func (t *testEnvironmentProvider) CreateEnvironment(_ string, _ string) (internal.Environment, error) {
+func (t *testEnvironmentProvider) CreateEnvironment(
+	_ string,
+	_ string,
+) (internal.Environment, error) {
 	return nil, nil // nolint: nilnil
 }
 

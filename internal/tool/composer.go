@@ -1,8 +1,9 @@
 package tool
 
 import (
-	"cdt/internal"
 	"context"
+
+	"cdt/internal"
 )
 
 type Composer struct {
@@ -95,10 +96,20 @@ func (c *Composer) FetchDependencies(
 	return c.RunForProject(ctx, options.ProjectInfo, args)
 }
 
-func (c *Composer) ListDependencies(ctx context.Context, options internal.ProjectDependencyManagerOptions) error {
+func (c *Composer) ListDependencies(
+	ctx context.Context,
+	options internal.ProjectDependencyManagerOptions,
+) error {
 	return c.RunForProject(ctx, options.ProjectInfo, append([]string{"show"}, options.ExtraArgs...))
 }
 
-func (c *Composer) AuditDependencies(ctx context.Context, options internal.ProjectDependencyManagerOptions) error {
-	return c.RunForProject(ctx, options.ProjectInfo, append([]string{"audit"}, options.ExtraArgs...))
+func (c *Composer) AuditDependencies(
+	ctx context.Context,
+	options internal.ProjectDependencyManagerOptions,
+) error {
+	return c.RunForProject(
+		ctx,
+		options.ProjectInfo,
+		append([]string{"audit"}, options.ExtraArgs...),
+	)
 }

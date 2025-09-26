@@ -1,11 +1,12 @@
 package tool_test
 
 import (
-	"cdt/internal"
-	"cdt/internal/tool"
 	"context"
 	"runtime"
 	"testing"
+
+	"cdt/internal"
+	"cdt/internal/tool"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -13,7 +14,12 @@ import (
 )
 
 // Check if a tool exists in the given environment.
-func checkTool(t *testing.T, ctx context.Context, environment internal.Environment, toolName string) {
+func checkTool(
+	t *testing.T,
+	ctx context.Context,
+	environment internal.Environment,
+	toolName string,
+) {
 	if executable := environment.FindExecutable(ctx, toolName); executable == nil {
 		t.Skipf("unable to find tool: %v", toolName)
 	}
@@ -67,7 +73,11 @@ func TestCMakeRealProjectConfigureAndBuildAndRun(t *testing.T) {
 	err = cmake.BuildAll(t.Context(), internal.ProjectBuilderOptions{ProjectInfo: info})
 	require.NoError(t, err)
 
-	err = cmake.BuildTargets(t.Context(), internal.ProjectBuilderOptions{ProjectInfo: info}, []string{"main"})
+	err = cmake.BuildTargets(
+		t.Context(),
+		internal.ProjectBuilderOptions{ProjectInfo: info},
+		[]string{"main"},
+	)
 	require.NoError(t, err)
 
 	err = cmake.RunTarget(t.Context(), internal.ProjectRunnerOptions{ProjectInfo: info}, "main")

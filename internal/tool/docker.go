@@ -2,13 +2,14 @@ package tool
 
 import (
 	"bytes"
-	"cdt/internal"
 	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"path/filepath"
 	"strings"
+
+	"cdt/internal"
 )
 
 // A Docker is a tool that wraps docker executable.
@@ -84,7 +85,7 @@ func (d *dockerEnvironment) Start(ctx context.Context) error {
 	absPath, err := filepath.Abs(d.directory)
 	internal.Assert(err == nil, "failed to determine absolute path")
 
-	internal.Info("Docker start: %v", d.imageName)
+	internal.Infof("Docker start: %v", d.imageName)
 
 	return internal.Trace(ctx, "docker.start", func() error {
 		output, err := d.runOutput(ctx, []string{
@@ -138,7 +139,7 @@ func (d *dockerEnvironment) IsRunning(ctx context.Context) bool {
 func (d *dockerEnvironment) Stop(ctx context.Context) error {
 	internal.Assert(d.containerId != "", "container ID is not set")
 
-	internal.Info("Docker stop")
+	internal.Infof("Docker stop")
 
 	return internal.Trace(ctx, "docker.stop", func() error {
 		_, err := d.runOutput(ctx, []string{"stop", d.containerId})

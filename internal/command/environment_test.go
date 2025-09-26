@@ -1,18 +1,23 @@
 package command_test
 
 import (
-	"cdt/internal"
-	"cdt/internal/command"
-	"cdt/internal/test"
 	"context"
 	"errors"
 	"testing"
+
+	"cdt/internal"
+	"cdt/internal/command"
+	"cdt/internal/test"
 
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 )
 
-func runWithEnvironment(ctx context.Context, environment internal.Environment, args ...string) error {
+func runWithEnvironment(
+	ctx context.Context,
+	environment internal.Environment,
+	args ...string,
+) error {
 	return test.RunCommand(ctx, command.NewEnvironmentCommand(), internal.Context{
 		Environment: environment,
 	}, args...)

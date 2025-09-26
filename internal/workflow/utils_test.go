@@ -1,13 +1,14 @@
 package workflow_test
 
 import (
+	"os"
+	"path/filepath"
+	"testing"
+
 	"cdt/internal"
 	"cdt/internal/test"
 	"cdt/internal/tool"
 	"cdt/internal/workflow"
-	"os"
-	"path/filepath"
-	"testing"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -348,7 +349,10 @@ func TestBuildProject_Custom(t *testing.T) {
 		internal.ProjectRunner
 	}{internal.MakeExecutableTool("tool6", "Test", "Test", internal.Tags{}, nil), nil}
 
-	project, err := workflow.CreateProject(config, internal.Tools{tool1, tool2, tool3, tool4, tool5, tool6})
+	project, err := workflow.CreateProject(
+		config,
+		internal.Tools{tool1, tool2, tool3, tool4, tool5, tool6},
+	)
 
 	require.NoError(t, err)
 

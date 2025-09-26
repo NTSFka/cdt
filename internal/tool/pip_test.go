@@ -1,10 +1,11 @@
 package tool_test
 
 import (
+	"testing"
+
 	"cdt/internal"
 	"cdt/internal/test"
 	"cdt/internal/tool"
-	"testing"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -138,7 +139,11 @@ func TestPip_Pip_FetchDependencies(t *testing.T) {
 	exec.OnRun("pip", []string{"install", "-r", "requirements.txt"}).
 		Return(nil)
 
-	err := pip.FetchDependencies(t.Context(), internal.ProjectDependencyManagerOptions{ProjectInfo: info}, false)
+	err := pip.FetchDependencies(
+		t.Context(),
+		internal.ProjectDependencyManagerOptions{ProjectInfo: info},
+		false,
+	)
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -154,7 +159,10 @@ func TestPip_Pip_ListDependencies(t *testing.T) {
 	exec.OnRun("pip", []string{"list"}).
 		Return(nil)
 
-	err := pip.ListDependencies(t.Context(), internal.ProjectDependencyManagerOptions{ProjectInfo: info})
+	err := pip.ListDependencies(
+		t.Context(),
+		internal.ProjectDependencyManagerOptions{ProjectInfo: info},
+	)
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -170,7 +178,10 @@ func TestPip_Pip_AuditDependencies(t *testing.T) {
 	exec.OnRun("pip", []string{"audit"}).
 		Return(nil)
 
-	err := pip.AuditDependencies(t.Context(), internal.ProjectDependencyManagerOptions{ProjectInfo: info})
+	err := pip.AuditDependencies(
+		t.Context(),
+		internal.ProjectDependencyManagerOptions{ProjectInfo: info},
+	)
 	require.EqualError(t, err, "not supported")
 
 	exec.AssertExpectations(t)

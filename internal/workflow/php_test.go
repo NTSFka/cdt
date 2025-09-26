@@ -1,13 +1,14 @@
 package workflow_test
 
 import (
+	"os"
+	"path/filepath"
+	"testing"
+
 	"cdt/internal"
 	"cdt/internal/test"
 	"cdt/internal/tool"
 	"cdt/internal/workflow"
-	"os"
-	"path/filepath"
-	"testing"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -39,11 +40,21 @@ func TestPHPType_Create(t *testing.T) {
 
 	tools := internal.Tools{
 		tool.NewPHP(func() *internal.Executable { return &internal.Executable{Path: "php-test"} }),
-		tool.NewPHPUnit(func() *internal.Executable { return &internal.Executable{Path: "phpunit-test"} }),
-		tool.NewParaTest(func() *internal.Executable { return &internal.Executable{Path: "paratest-test"} }),
-		tool.NewPHPStan(func() *internal.Executable { return &internal.Executable{Path: "phpstan-test"} }),
-		tool.NewPHPCSFixer(func() *internal.Executable { return &internal.Executable{Path: "php-cs-fixer-test"} }),
-		tool.NewComposer(func() *internal.Executable { return &internal.Executable{Path: "composer-test"} }),
+		tool.NewPHPUnit(
+			func() *internal.Executable { return &internal.Executable{Path: "phpunit-test"} },
+		),
+		tool.NewParaTest(
+			func() *internal.Executable { return &internal.Executable{Path: "paratest-test"} },
+		),
+		tool.NewPHPStan(
+			func() *internal.Executable { return &internal.Executable{Path: "phpstan-test"} },
+		),
+		tool.NewPHPCSFixer(
+			func() *internal.Executable { return &internal.Executable{Path: "php-cs-fixer-test"} },
+		),
+		tool.NewComposer(
+			func() *internal.Executable { return &internal.Executable{Path: "composer-test"} },
+		),
 	}
 
 	project := workflowType.Create(workflow.Config{Directory: "dir1"}, tools)
@@ -66,19 +77,28 @@ func TestPHPType_Project_TestAll_Paratest(t *testing.T) {
 		tool.NewPHP(func() *internal.Executable { return &internal.Executable{Path: "php-test"} }),
 		tool.NewPHPUnit(phpunitMock.LazyExecutable("phpunit-test")),
 		tool.NewParaTest(paratestMock.LazyExecutable("paratest-test")),
-		tool.NewPHPStan(func() *internal.Executable { return &internal.Executable{Path: "phpstan-test"} }),
-		tool.NewPHPCSFixer(func() *internal.Executable { return &internal.Executable{Path: "php-cs-fixer-test"} }),
-		tool.NewComposer(func() *internal.Executable { return &internal.Executable{Path: "composer-test"} }),
+		tool.NewPHPStan(
+			func() *internal.Executable { return &internal.Executable{Path: "phpstan-test"} },
+		),
+		tool.NewPHPCSFixer(
+			func() *internal.Executable { return &internal.Executable{Path: "php-cs-fixer-test"} },
+		),
+		tool.NewComposer(
+			func() *internal.Executable { return &internal.Executable{Path: "composer-test"} },
+		),
 	}
 
 	dir := t.TempDir()
 
-	p := workflowType.Create(workflow.Config{Directory: dir}, tools)
+	project := workflowType.Create(workflow.Config{Directory: dir}, tools)
 
-	require.NotNil(t, p.Workflow.Tester)
+	require.NotNil(t, project.Workflow.Tester)
 	paratestMock.OnRunAnything("paratest-test").Return(nil)
 
-	err := p.Workflow.Tester.TestAll(t.Context(), internal.ProjectTesterOptions{ProjectInfo: p.Info})
+	err := project.Workflow.Tester.TestAll(
+		t.Context(),
+		internal.ProjectTesterOptions{ProjectInfo: project.Info},
+	)
 	require.NoError(t, err)
 
 	paratestMock.AssertExpectations(t)
@@ -94,19 +114,28 @@ func TestPHPType_Project_TestAll_PHPUnit(t *testing.T) {
 		tool.NewPHP(func() *internal.Executable { return &internal.Executable{Path: "php-test"} }),
 		tool.NewPHPUnit(phpunitMock.LazyExecutable("phpunit-test")),
 		tool.NewParaTest(func() *internal.Executable { return nil }),
-		tool.NewPHPStan(func() *internal.Executable { return &internal.Executable{Path: "phpstan-test"} }),
-		tool.NewPHPCSFixer(func() *internal.Executable { return &internal.Executable{Path: "php-cs-fixer-test"} }),
-		tool.NewComposer(func() *internal.Executable { return &internal.Executable{Path: "composer-test"} }),
+		tool.NewPHPStan(
+			func() *internal.Executable { return &internal.Executable{Path: "phpstan-test"} },
+		),
+		tool.NewPHPCSFixer(
+			func() *internal.Executable { return &internal.Executable{Path: "php-cs-fixer-test"} },
+		),
+		tool.NewComposer(
+			func() *internal.Executable { return &internal.Executable{Path: "composer-test"} },
+		),
 	}
 
 	dir := t.TempDir()
 
-	p := workflowType.Create(workflow.Config{Directory: dir}, tools)
+	project := workflowType.Create(workflow.Config{Directory: dir}, tools)
 
-	require.NotNil(t, p.Workflow.Tester)
+	require.NotNil(t, project.Workflow.Tester)
 	phpunitMock.OnRunAnything("phpunit-test").Return(nil)
 
-	err := p.Workflow.Tester.TestAll(t.Context(), internal.ProjectTesterOptions{ProjectInfo: p.Info})
+	err := project.Workflow.Tester.TestAll(
+		t.Context(),
+		internal.ProjectTesterOptions{ProjectInfo: project.Info},
+	)
 	require.NoError(t, err)
 
 	paratestMock.AssertExpectations(t)
@@ -122,19 +151,29 @@ func TestPHPType_Project_Test_Paratest(t *testing.T) {
 		tool.NewPHP(func() *internal.Executable { return &internal.Executable{Path: "php-test"} }),
 		tool.NewPHPUnit(phpunitMock.LazyExecutable("phpunit-test")),
 		tool.NewParaTest(paratestMock.LazyExecutable("paratest-test")),
-		tool.NewPHPStan(func() *internal.Executable { return &internal.Executable{Path: "phpstan-test"} }),
-		tool.NewPHPCSFixer(func() *internal.Executable { return &internal.Executable{Path: "php-cs-fixer-test"} }),
-		tool.NewComposer(func() *internal.Executable { return &internal.Executable{Path: "composer-test"} }),
+		tool.NewPHPStan(
+			func() *internal.Executable { return &internal.Executable{Path: "phpstan-test"} },
+		),
+		tool.NewPHPCSFixer(
+			func() *internal.Executable { return &internal.Executable{Path: "php-cs-fixer-test"} },
+		),
+		tool.NewComposer(
+			func() *internal.Executable { return &internal.Executable{Path: "composer-test"} },
+		),
 	}
 
 	dir := t.TempDir()
 
-	p := workflowType.Create(workflow.Config{Directory: dir}, tools)
+	project := workflowType.Create(workflow.Config{Directory: dir}, tools)
 
-	require.NotNil(t, p.Workflow.Tester)
+	require.NotNil(t, project.Workflow.Tester)
 	paratestMock.OnRunAnything("paratest-test").Return(nil)
 
-	err := p.Workflow.Tester.TestPattern(t.Context(), internal.ProjectTesterOptions{ProjectInfo: p.Info}, "my-test")
+	err := project.Workflow.Tester.TestPattern(
+		t.Context(),
+		internal.ProjectTesterOptions{ProjectInfo: project.Info},
+		"my-test",
+	)
 	require.NoError(t, err)
 
 	paratestMock.AssertExpectations(t)
@@ -150,19 +189,29 @@ func TestPHPType_Project_Test_PHPUnit(t *testing.T) {
 		tool.NewPHP(func() *internal.Executable { return &internal.Executable{Path: "php-test"} }),
 		tool.NewPHPUnit(phpunitMock.LazyExecutable("phpunit-test")),
 		tool.NewParaTest(func() *internal.Executable { return nil }),
-		tool.NewPHPStan(func() *internal.Executable { return &internal.Executable{Path: "phpstan-test"} }),
-		tool.NewPHPCSFixer(func() *internal.Executable { return &internal.Executable{Path: "php-cs-fixer-test"} }),
-		tool.NewComposer(func() *internal.Executable { return &internal.Executable{Path: "composer-test"} }),
+		tool.NewPHPStan(
+			func() *internal.Executable { return &internal.Executable{Path: "phpstan-test"} },
+		),
+		tool.NewPHPCSFixer(
+			func() *internal.Executable { return &internal.Executable{Path: "php-cs-fixer-test"} },
+		),
+		tool.NewComposer(
+			func() *internal.Executable { return &internal.Executable{Path: "composer-test"} },
+		),
 	}
 
 	dir := t.TempDir()
 
-	p := workflowType.Create(workflow.Config{Directory: dir}, tools)
+	project := workflowType.Create(workflow.Config{Directory: dir}, tools)
 
-	require.NotNil(t, p.Workflow.Tester)
+	require.NotNil(t, project.Workflow.Tester)
 	phpunitMock.OnRunAnything("phpunit-test").Return(nil)
 
-	err := p.Workflow.Tester.TestPattern(t.Context(), internal.ProjectTesterOptions{ProjectInfo: p.Info}, "my-test")
+	err := project.Workflow.Tester.TestPattern(
+		t.Context(),
+		internal.ProjectTesterOptions{ProjectInfo: project.Info},
+		"my-test",
+	)
 	require.NoError(t, err)
 
 	paratestMock.AssertExpectations(t)

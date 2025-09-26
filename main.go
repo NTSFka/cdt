@@ -1,15 +1,16 @@
 package main
 
 import (
-	"cdt/internal"
-	"cdt/internal/tool"
-	"cdt/internal/workflow"
-	"cdt/pkg"
 	"context"
 	"fmt"
 	"os"
 	"slices"
 	"strings"
+
+	"cdt/internal"
+	"cdt/internal/tool"
+	"cdt/internal/workflow"
+	"cdt/pkg"
 )
 
 var version = "dev"
@@ -38,7 +39,8 @@ func initEnvironment(
 		toolName, argument := parseEnvironment(*environment)
 
 		for _, provider := range envProviders {
-			if provider.IsAvailable() && (provider.Id() == toolName || slices.Contains(provider.Aliases(), toolName)) {
+			if provider.IsAvailable() &&
+				(provider.Id() == toolName || slices.Contains(provider.Aliases(), toolName)) {
 				return provider.CreateEnvironment(directory, argument)
 			}
 		}

@@ -2,11 +2,12 @@ package tool
 
 import (
 	"bytes"
-	"cdt/internal"
 	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
+
+	"cdt/internal"
 )
 
 // A Go is a tool that wraps golang main tool `go`.
@@ -41,7 +42,10 @@ func DetectGo(ctx context.Context, environment internal.Environment) *Go {
 	})
 }
 
-func (g *Go) Structure(ctx context.Context, info internal.ProjectInfo) (*internal.ProjectStructure, error) {
+func (g *Go) Structure(
+	ctx context.Context,
+	info internal.ProjectInfo,
+) (*internal.ProjectStructure, error) {
 	structure := internal.ProjectStructure{
 		Targets: make(map[string]internal.ProjectTarget),
 	}
@@ -76,11 +80,23 @@ func (g *Go) BuildAll(ctx context.Context, options internal.ProjectBuilderOption
 	return g.RunForProject(ctx, options.ProjectInfo, append(options.ExtraArgs, "build"))
 }
 
-func (g *Go) BuildTargets(ctx context.Context, options internal.ProjectBuilderOptions, targets []string) error {
-	return g.RunForProject(ctx, options.ProjectInfo, append(append(options.ExtraArgs, "build"), targets...))
+func (g *Go) BuildTargets(
+	ctx context.Context,
+	options internal.ProjectBuilderOptions,
+	targets []string,
+) error {
+	return g.RunForProject(
+		ctx,
+		options.ProjectInfo,
+		append(append(options.ExtraArgs, "build"), targets...),
+	)
 }
 
-func (g *Go) RunTarget(ctx context.Context, options internal.ProjectRunnerOptions, target string) error {
+func (g *Go) RunTarget(
+	ctx context.Context,
+	options internal.ProjectRunnerOptions,
+	target string,
+) error {
 	return g.RunForProject(ctx, options.ProjectInfo, append(options.ExtraArgs, "run", target))
 }
 
@@ -88,7 +104,11 @@ func (g *Go) TestAll(ctx context.Context, options internal.ProjectTesterOptions)
 	return g.RunForProject(ctx, options.ProjectInfo, append(options.ExtraArgs, "test", "./..."))
 }
 
-func (g *Go) TestPattern(ctx context.Context, options internal.ProjectTesterOptions, pattern string) error {
+func (g *Go) TestPattern(
+	ctx context.Context,
+	options internal.ProjectTesterOptions,
+	pattern string,
+) error {
 	return g.RunForProject(ctx, options.ProjectInfo, append(options.ExtraArgs, "test", pattern))
 }
 
@@ -96,15 +116,27 @@ func (g *Go) FormatAll(ctx context.Context, options internal.ProjectFormatterOpt
 	return g.RunForProject(ctx, options.ProjectInfo, append(options.ExtraArgs, "fmt", "./..."))
 }
 
-func (g *Go) FormatFiles(ctx context.Context, options internal.ProjectFormatterOptions, filenames []string) error {
-	return g.RunForProject(ctx, options.ProjectInfo, append(append(options.ExtraArgs, "fmt"), filenames...))
+func (g *Go) FormatFiles(
+	ctx context.Context,
+	options internal.ProjectFormatterOptions,
+	filenames []string,
+) error {
+	return g.RunForProject(
+		ctx,
+		options.ProjectInfo,
+		append(append(options.ExtraArgs, "fmt"), filenames...),
+	)
 }
 
 func (g *Go) FormatCheckAll(_ context.Context, _ internal.ProjectFormatterOptions) error {
 	return errors.New("go fmt doesn't support check mode")
 }
 
-func (g *Go) FormatCheckFiles(_ context.Context, _ internal.ProjectFormatterOptions, _ []string) error {
+func (g *Go) FormatCheckFiles(
+	_ context.Context,
+	_ internal.ProjectFormatterOptions,
+	_ []string,
+) error {
 	return errors.New("go fmt doesn't support check mode")
 }
 
@@ -112,8 +144,16 @@ func (g *Go) LintAll(ctx context.Context, options internal.ProjectLinterOptions)
 	return g.RunForProject(ctx, options.ProjectInfo, append(options.ExtraArgs, "vet", "./..."))
 }
 
-func (g *Go) LintFiles(ctx context.Context, options internal.ProjectLinterOptions, filenames []string) error {
-	return g.RunForProject(ctx, options.ProjectInfo, append(append(options.ExtraArgs, "vet"), filenames...))
+func (g *Go) LintFiles(
+	ctx context.Context,
+	options internal.ProjectLinterOptions,
+	filenames []string,
+) error {
+	return g.RunForProject(
+		ctx,
+		options.ProjectInfo,
+		append(append(options.ExtraArgs, "vet"), filenames...),
+	)
 }
 
 func (g *Go) AddDependencies(
@@ -122,7 +162,11 @@ func (g *Go) AddDependencies(
 	dependencies []string,
 	_ bool,
 ) error {
-	return g.RunForProject(ctx, options.ProjectInfo, append(append(options.ExtraArgs, "get"), dependencies...))
+	return g.RunForProject(
+		ctx,
+		options.ProjectInfo,
+		append(append(options.ExtraArgs, "get"), dependencies...),
+	)
 }
 
 func (g *Go) RemoveDependencies(
@@ -137,7 +181,11 @@ func (g *Go) RemoveDependencies(
 		noneDependencies = append(noneDependencies, dependency+"@none")
 	}
 
-	return g.RunForProject(ctx, options.ProjectInfo, append(append(options.ExtraArgs, "get"), noneDependencies...))
+	return g.RunForProject(
+		ctx,
+		options.ProjectInfo,
+		append(append(options.ExtraArgs, "get"), noneDependencies...),
+	)
 }
 
 func (g *Go) UpdateDependencies(
@@ -145,17 +193,31 @@ func (g *Go) UpdateDependencies(
 	options internal.ProjectDependencyManagerOptions,
 	dependencies []string,
 ) error {
-	return g.RunForProject(ctx, options.ProjectInfo, append(append(options.ExtraArgs, "get"), dependencies...))
+	return g.RunForProject(
+		ctx,
+		options.ProjectInfo,
+		append(append(options.ExtraArgs, "get"), dependencies...),
+	)
 }
 
-func (g *Go) FetchDependencies(ctx context.Context, options internal.ProjectDependencyManagerOptions, _ bool) error {
+func (g *Go) FetchDependencies(
+	ctx context.Context,
+	options internal.ProjectDependencyManagerOptions,
+	_ bool,
+) error {
 	return g.RunForProject(ctx, options.ProjectInfo, append(options.ExtraArgs, "mod", "tidy"))
 }
 
-func (g *Go) ListDependencies(ctx context.Context, options internal.ProjectDependencyManagerOptions) error {
+func (g *Go) ListDependencies(
+	ctx context.Context,
+	options internal.ProjectDependencyManagerOptions,
+) error {
 	return g.RunForProject(ctx, options.ProjectInfo, append(options.ExtraArgs, "list", "-m", "all"))
 }
 
-func (g *Go) AuditDependencies(_ context.Context, _ internal.ProjectDependencyManagerOptions) error {
+func (g *Go) AuditDependencies(
+	_ context.Context,
+	_ internal.ProjectDependencyManagerOptions,
+) error {
 	return errors.New("not supported")
 }

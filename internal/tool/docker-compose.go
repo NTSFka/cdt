@@ -2,12 +2,13 @@ package tool
 
 import (
 	"bytes"
-	"cdt/internal"
 	"context"
 	"encoding/json"
 	"fmt"
 	"os"
 	"strings"
+
+	"cdt/internal"
 )
 
 // A DockerCompose wraps docker compose tool to manage tools environment.
@@ -30,7 +31,9 @@ func NewDockerCompose(detect func() *internal.Executable) *DockerCompose {
 
 // DetectDockerCompose create a docker compose tool with detected docker executable in the given environment.
 func DetectDockerCompose(ctx context.Context, environment internal.Environment) *DockerCompose {
-	return NewDockerCompose(func() *internal.Executable { return environment.FindExecutable(ctx, "docker") })
+	return NewDockerCompose(
+		func() *internal.Executable { return environment.FindExecutable(ctx, "docker") },
+	)
 }
 
 func (d *DockerCompose) Aliases() []string {
@@ -75,7 +78,7 @@ func (d *dockerComposeEnvironment) Id() string {
 }
 
 func (d *dockerComposeEnvironment) Start(ctx context.Context) error {
-	internal.Info("Docker compose start: %v", d.service)
+	internal.Infof("Docker compose start: %v", d.service)
 
 	return internal.Trace(ctx, "docker-compose.start", func() error {
 		// It starts all services
@@ -104,7 +107,7 @@ func (d *dockerComposeEnvironment) IsRunning(ctx context.Context) bool {
 }
 
 func (d *dockerComposeEnvironment) Stop(ctx context.Context) error {
-	internal.Info("Docker compose stop: %v", d.service)
+	internal.Infof("Docker compose stop: %v", d.service)
 
 	// It stops all services
 	return internal.Trace(ctx, "docker.stop", func() error {
@@ -122,7 +125,10 @@ func (d *dockerComposeEnvironment) Cleanup(ctx context.Context) error {
 	}, "service", d.service)
 }
 
-func (d *dockerComposeEnvironment) FindExecutable(ctx context.Context, name string) *internal.Executable {
+func (d *dockerComposeEnvironment) FindExecutable(
+	ctx context.Context,
+	name string,
+) *internal.Executable {
 	if err := d.autoStart(ctx); err != nil {
 		return nil
 	}
@@ -166,7 +172,13 @@ func (d *dockerComposeEnvironment) RunExecutable(
 func (d *dockerComposeEnvironment) run(ctx context.Context, args []string) error {
 	return d.dockerCompose.Run(
 		ctx,
-		internal.RunOptions{Directory: d.directory, Input: os.Stdin, Output: os.Stdout, Error: os.Stderr, Silent: true},
+		internal.RunOptions{
+			Directory: d.directory,
+			Input:     os.Stdin,
+			Output:    os.Stdout,
+			Error:     os.Stderr,
+			Silent:    true,
+		},
 		append([]string{"compose"}, args...),
 	)
 }

@@ -1,8 +1,9 @@
 package tool
 
 import (
-	"cdt/internal"
 	"context"
+
+	"cdt/internal"
 )
 
 // A GolangCILint is a tool that wraps golang main tool `golangci-lint`.
@@ -34,6 +35,14 @@ func (c *GolangCILint) LintAll(ctx context.Context, options internal.ProjectLint
 	return c.RunForProject(ctx, options.ProjectInfo, append(options.ExtraArgs, "run"))
 }
 
-func (c *GolangCILint) LintFiles(ctx context.Context, options internal.ProjectLinterOptions, filenames []string) error {
-	return c.RunForProject(ctx, options.ProjectInfo, append(append(options.ExtraArgs, "run"), filenames...))
+func (c *GolangCILint) LintFiles(
+	ctx context.Context,
+	options internal.ProjectLinterOptions,
+	filenames []string,
+) error {
+	return c.RunForProject(
+		ctx,
+		options.ProjectInfo,
+		append(append(options.ExtraArgs, "run"), filenames...),
+	)
 }

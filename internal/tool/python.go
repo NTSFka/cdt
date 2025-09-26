@@ -1,11 +1,12 @@
 package tool
 
 import (
-	"cdt/internal"
 	"context"
 	"errors"
 	"os/exec"
 	"path/filepath"
+
+	"cdt/internal"
 )
 
 type Python struct {
@@ -32,7 +33,11 @@ func NewPython(detect func() *internal.Executable) *Python {
 	}
 }
 
-func (p *Python) RunTarget(ctx context.Context, options internal.ProjectRunnerOptions, target string) error {
+func (p *Python) RunTarget(
+	ctx context.Context,
+	options internal.ProjectRunnerOptions,
+	target string,
+) error {
 	return p.RunForProject(ctx, options.ProjectInfo, append([]string{target}, options.ExtraArgs...))
 }
 
@@ -118,7 +123,10 @@ func (e *pythonVirtualEnvironment) Cleanup(_ context.Context) error {
 	return nil
 }
 
-func (e *pythonVirtualEnvironment) FindExecutable(ctx context.Context, name string) *internal.Executable {
+func (e *pythonVirtualEnvironment) FindExecutable(
+	ctx context.Context,
+	name string,
+) *internal.Executable {
 	return internal.Trace(ctx, "pyenv.find_executable", func() *internal.Executable {
 		if path := e.findPath(name); path != nil {
 			return &internal.Executable{

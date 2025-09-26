@@ -1,17 +1,22 @@
 package command_test
 
 import (
+	"context"
+	"testing"
+
 	"cdt/internal"
 	"cdt/internal/command"
 	"cdt/internal/test"
-	"context"
-	"testing"
 
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 )
 
-func runProject(ctx context.Context, structureProvider internal.ProjectStructureProvider, args ...string) error {
+func runProject(
+	ctx context.Context,
+	structureProvider internal.ProjectStructureProvider,
+	args ...string,
+) error {
 	return test.RunCommand(ctx, command.NewProjectCommand(), internal.Context{
 		Project: internal.Project{
 			Info: internal.ProjectInfo{Directory: "", StructureProvider: structureProvider},
@@ -21,7 +26,8 @@ func runProject(ctx context.Context, structureProvider internal.ProjectStructure
 
 func TestProjectTargets(t *testing.T) {
 	structure := test.NewStructureProvider(t)
-	structure.On("Structure", mock.Anything, mock.Anything).Return(&internal.ProjectStructure{}, nil)
+	structure.On("Structure", mock.Anything, mock.Anything).
+		Return(&internal.ProjectStructure{}, nil)
 
 	err := runProject(t.Context(), structure, "targets")
 
@@ -31,7 +37,8 @@ func TestProjectTargets(t *testing.T) {
 
 func TestProjectFiles(t *testing.T) {
 	structure := test.NewStructureProvider(t)
-	structure.On("Structure", mock.Anything, mock.Anything).Return(&internal.ProjectStructure{}, nil)
+	structure.On("Structure", mock.Anything, mock.Anything).
+		Return(&internal.ProjectStructure{}, nil)
 
 	err := runProject(t.Context(), structure, "files")
 

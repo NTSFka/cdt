@@ -46,7 +46,7 @@ func (e *Executable) Run(ctx context.Context, options RunOptions, args []string)
 	runArgs := e.buildArgs(args)
 
 	if !options.Silent {
-		Info("%v: %v %v", e.Runtime.Id(), e.Path, strings.Join(runArgs, " "))
+		Infof("%v: %v %v", e.Runtime.Id(), e.Path, strings.Join(runArgs, " "))
 	}
 
 	return Trace(

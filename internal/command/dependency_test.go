@@ -1,19 +1,24 @@
 package command_test
 
 import (
-	"cdt/internal"
-	"cdt/internal/command"
-	"cdt/internal/test"
 	"context"
 	"errors"
 	"testing"
+
+	"cdt/internal"
+	"cdt/internal/command"
+	"cdt/internal/test"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 )
 
-func runDependency(ctx context.Context, manager internal.ProjectDependencyManager, args ...string) error {
+func runDependency(
+	ctx context.Context,
+	manager internal.ProjectDependencyManager,
+	args ...string,
+) error {
 	return test.RunCommand(ctx, command.NewDependencyCommand(), internal.Context{
 		Project: internal.Project{
 			Workflow: internal.Workflow{
@@ -268,7 +273,10 @@ func TestDependency_Tool_NotFound(t *testing.T) {
 
 	for _, data := range dataSet {
 		t.Run(data[0], func(t *testing.T) {
-			err := runDependencyTool(t.Context(), manager, append([]string{"--tool", "tool2"}, data...)...)
+			err := runDependencyTool(
+				t.Context(),
+				manager,
+				append([]string{"--tool", "tool2"}, data...)...)
 
 			require.Error(t, err)
 			assert.Equal(t, "tool 'tool2' not found", err.Error())
@@ -296,7 +304,10 @@ func TestDependency_Tool_NotSupported(t *testing.T) {
 
 	for _, data := range dataSet {
 		t.Run(data[0], func(t *testing.T) {
-			err := runDependencyTool(t.Context(), &linter, append([]string{"--tool", "tool1"}, data...)...)
+			err := runDependencyTool(
+				t.Context(),
+				&linter,
+				append([]string{"--tool", "tool1"}, data...)...)
 
 			require.Error(t, err)
 			assert.Equal(t, "tool 'tool1' doesn't support dependency management", err.Error())

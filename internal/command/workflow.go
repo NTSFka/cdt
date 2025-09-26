@@ -1,11 +1,12 @@
 package command
 
 import (
-	"cdt/internal"
-	"cdt/internal/workflow"
 	"context"
 	"fmt"
 	"io"
+
+	"cdt/internal"
+	"cdt/internal/workflow"
 
 	"github.com/urfave/cli/v3"
 )
@@ -77,7 +78,10 @@ func workflowCommandShowAction(ctx context.Context, cmd *cli.Command) error {
 					IntermediateDirectory: cmdContext.Config.BuildDirectory,
 				}
 
-				workflowPrintWorkflow(cmd.Writer, workflowType.Create(config, cmdContext.Tools).Workflow)
+				workflowPrintWorkflow(
+					cmd.Writer,
+					workflowType.Create(config, cmdContext.Tools).Workflow,
+				)
 			}
 		}
 	} else {

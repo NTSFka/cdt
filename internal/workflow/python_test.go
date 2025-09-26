@@ -1,12 +1,13 @@
 package workflow_test
 
 import (
-	"cdt/internal"
-	"cdt/internal/tool"
-	"cdt/internal/workflow"
 	"os"
 	"path/filepath"
 	"testing"
+
+	"cdt/internal"
+	"cdt/internal/tool"
+	"cdt/internal/workflow"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -37,15 +38,31 @@ func TestPythonType_Create(t *testing.T) {
 	workflowType := workflow.Python{}
 
 	tools := internal.Tools{
-		tool.NewPython(func() *internal.Executable { return &internal.Executable{Path: "php-test"} }),
-		tool.NewPyTest(func() *internal.Executable { return &internal.Executable{Path: "pytest-test"} }),
+		tool.NewPython(
+			func() *internal.Executable { return &internal.Executable{Path: "php-test"} },
+		),
+		tool.NewPyTest(
+			func() *internal.Executable { return &internal.Executable{Path: "pytest-test"} },
+		),
 		tool.NewPip(func() *internal.Executable { return &internal.Executable{Path: "pip-test"} }),
-		tool.NewPylint(func() *internal.Executable { return &internal.Executable{Path: "pylint-test"} }),
-		tool.NewFlake8(func() *internal.Executable { return &internal.Executable{Path: "flake8-test"} }),
-		tool.NewMyPy(func() *internal.Executable { return &internal.Executable{Path: "mypy-test"} }),
-		tool.NewRuff(func() *internal.Executable { return &internal.Executable{Path: "ruff-test"} }),
-		tool.NewBandit(func() *internal.Executable { return &internal.Executable{Path: "bandit-test"} }),
-		tool.NewBlack(func() *internal.Executable { return &internal.Executable{Path: "black-test"} }),
+		tool.NewPylint(
+			func() *internal.Executable { return &internal.Executable{Path: "pylint-test"} },
+		),
+		tool.NewFlake8(
+			func() *internal.Executable { return &internal.Executable{Path: "flake8-test"} },
+		),
+		tool.NewMyPy(
+			func() *internal.Executable { return &internal.Executable{Path: "mypy-test"} },
+		),
+		tool.NewRuff(
+			func() *internal.Executable { return &internal.Executable{Path: "ruff-test"} },
+		),
+		tool.NewBandit(
+			func() *internal.Executable { return &internal.Executable{Path: "bandit-test"} },
+		),
+		tool.NewBlack(
+			func() *internal.Executable { return &internal.Executable{Path: "black-test"} },
+		),
 	}
 
 	project := workflowType.Create(workflow.Config{Directory: "dir1"}, tools)

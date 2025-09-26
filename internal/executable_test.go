@@ -1,10 +1,11 @@
 package internal_test
 
 import (
-	"cdt/internal"
 	"context"
 	"errors"
 	"testing"
+
+	"cdt/internal"
 
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"

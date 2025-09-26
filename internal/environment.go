@@ -176,7 +176,12 @@ func (s *systemEnvironment) FindExecutable(ctx context.Context, name string) *Ex
 	}, "name", name)
 }
 
-func (s *systemEnvironment) RunExecutable(ctx context.Context, options RunOptions, path string, args []string) error {
+func (s *systemEnvironment) RunExecutable(
+	ctx context.Context,
+	options RunOptions,
+	path string,
+	args []string,
+) error {
 	command := exec.CommandContext(ctx, path, args...)
 	command.Dir = options.Directory
 	command.Stdin = options.Input

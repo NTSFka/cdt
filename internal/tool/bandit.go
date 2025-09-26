@@ -1,9 +1,10 @@
 package tool
 
 import (
-	"cdt/internal"
 	"context"
 	"path/filepath"
+
+	"cdt/internal"
 )
 
 type Bandit struct {
@@ -34,7 +35,11 @@ func (b *Bandit) LintAll(ctx context.Context, options internal.ProjectLinterOpti
 	return b.RunForProject(ctx, options.ProjectInfo, append([]string{"*"}, options.ExtraArgs...))
 }
 
-func (b *Bandit) LintFiles(ctx context.Context, options internal.ProjectLinterOptions, filenames []string) error {
+func (b *Bandit) LintFiles(
+	ctx context.Context,
+	options internal.ProjectLinterOptions,
+	filenames []string,
+) error {
 	paths := b.buildPaths(options.Directory, filenames)
 
 	return b.RunForProject(ctx, options.ProjectInfo, append(options.ExtraArgs, paths...))

@@ -1,9 +1,10 @@
 package tool
 
 import (
-	"cdt/internal"
 	"context"
 	"path/filepath"
+
+	"cdt/internal"
 )
 
 type PHPCSFixer struct {
@@ -40,7 +41,10 @@ func NewPHPCSFixer(detect func() *internal.Executable) *PHPCSFixer {
 	}
 }
 
-func (p *PHPCSFixer) FormatAll(ctx context.Context, options internal.ProjectFormatterOptions) error {
+func (p *PHPCSFixer) FormatAll(
+	ctx context.Context,
+	options internal.ProjectFormatterOptions,
+) error {
 	return p.RunForProject(ctx, options.ProjectInfo, append([]string{"fix"}, options.ExtraArgs...))
 }
 
@@ -51,11 +55,22 @@ func (p *PHPCSFixer) FormatFiles(
 ) error {
 	paths := p.buildPaths(options.Directory, filenames)
 
-	return p.RunForProject(ctx, options.ProjectInfo, append(append([]string{"fix"}, options.ExtraArgs...), paths...))
+	return p.RunForProject(
+		ctx,
+		options.ProjectInfo,
+		append(append([]string{"fix"}, options.ExtraArgs...), paths...),
+	)
 }
 
-func (p *PHPCSFixer) FormatCheckAll(ctx context.Context, options internal.ProjectFormatterOptions) error {
-	return p.RunForProject(ctx, options.ProjectInfo, append([]string{"fix", "--dry-run"}, options.ExtraArgs...))
+func (p *PHPCSFixer) FormatCheckAll(
+	ctx context.Context,
+	options internal.ProjectFormatterOptions,
+) error {
+	return p.RunForProject(
+		ctx,
+		options.ProjectInfo,
+		append([]string{"fix", "--dry-run"}, options.ExtraArgs...),
+	)
 }
 
 func (p *PHPCSFixer) FormatCheckFiles(

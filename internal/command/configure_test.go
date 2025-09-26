@@ -1,19 +1,24 @@
 package command_test
 
 import (
-	"cdt/internal"
-	"cdt/internal/command"
-	"cdt/internal/test"
 	"context"
 	"errors"
 	"testing"
+
+	"cdt/internal"
+	"cdt/internal/command"
+	"cdt/internal/test"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 )
 
-func runConfigure(ctx context.Context, configurator internal.ProjectConfigurator, args ...string) error {
+func runConfigure(
+	ctx context.Context,
+	configurator internal.ProjectConfigurator,
+	args ...string,
+) error {
 	return test.RunCommand(ctx, command.NewConfigureCommand(), internal.Context{
 		Project: internal.Project{
 			Workflow: internal.Workflow{

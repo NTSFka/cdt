@@ -1,8 +1,9 @@
 package tool
 
 import (
-	"cdt/internal"
 	"context"
+
+	"cdt/internal"
 )
 
 // InitTools initializes all supported tools for a given environment.
@@ -45,7 +46,10 @@ func InitTools(ctx context.Context, environment internal.Environment) internal.T
 }
 
 // InitEnvironmentProviders initializes environment providers.
-func InitEnvironmentProviders(ctx context.Context, environment internal.Environment) internal.EnvironmentProviders {
+func InitEnvironmentProviders(
+	ctx context.Context,
+	environment internal.Environment,
+) internal.EnvironmentProviders {
 	return internal.EnvironmentProviders{
 		internal.SystemEnvironmentProvider,
 		DetectDocker(ctx, environment),

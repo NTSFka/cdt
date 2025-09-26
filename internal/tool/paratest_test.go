@@ -1,10 +1,11 @@
 package tool_test
 
 import (
+	"testing"
+
 	"cdt/internal"
 	"cdt/internal/test"
 	"cdt/internal/tool"
-	"testing"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -95,7 +96,11 @@ func TestParaTest_ParaTest_Test(t *testing.T) {
 	exec.OnRun("test", []string{"tests/*"}).
 		Return(nil)
 
-	err := paraTest.TestPattern(t.Context(), internal.ProjectTesterOptions{ProjectInfo: info}, "tests/*")
+	err := paraTest.TestPattern(
+		t.Context(),
+		internal.ProjectTesterOptions{ProjectInfo: info},
+		"tests/*",
+	)
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)

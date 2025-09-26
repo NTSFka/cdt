@@ -1,10 +1,11 @@
 package tool_test
 
 import (
+	"testing"
+
 	"cdt/internal"
 	"cdt/internal/test"
 	"cdt/internal/tool"
-	"testing"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -105,7 +106,11 @@ func TestRuff_Ruff_FormatFiles(t *testing.T) {
 	exec.OnRun("format", []string{"format", "tests/*"}).
 		Return(nil)
 
-	err := ruff.FormatFiles(t.Context(), internal.ProjectFormatterOptions{ProjectInfo: info}, []string{"tests/*"})
+	err := ruff.FormatFiles(
+		t.Context(),
+		internal.ProjectFormatterOptions{ProjectInfo: info},
+		[]string{"tests/*"},
+	)
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)

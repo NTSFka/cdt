@@ -1,12 +1,13 @@
 package command_test
 
 import (
-	"cdt/internal"
-	"cdt/internal/command"
-	"cdt/internal/test"
 	"context"
 	"errors"
 	"testing"
+
+	"cdt/internal"
+	"cdt/internal/command"
+	"cdt/internal/test"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"

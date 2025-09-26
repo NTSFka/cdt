@@ -1,12 +1,13 @@
 package workflow_test
 
 import (
-	"cdt/internal"
-	"cdt/internal/tool"
-	"cdt/internal/workflow"
 	"os"
 	"path/filepath"
 	"testing"
+
+	"cdt/internal"
+	"cdt/internal/tool"
+	"cdt/internal/workflow"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"

@@ -1,9 +1,10 @@
 package tool
 
 import (
-	"cdt/internal"
 	"context"
 	"path/filepath"
+
+	"cdt/internal"
 )
 
 type Ruff struct {
@@ -31,27 +32,55 @@ func NewRuff(detect func() *internal.Executable) *Ruff {
 }
 
 func (r *Ruff) LintAll(ctx context.Context, options internal.ProjectLinterOptions) error {
-	return r.RunForProject(ctx, options.ProjectInfo, append([]string{"check"}, options.ExtraArgs...))
+	return r.RunForProject(
+		ctx,
+		options.ProjectInfo,
+		append([]string{"check"}, options.ExtraArgs...),
+	)
 }
 
-func (r *Ruff) LintFiles(ctx context.Context, options internal.ProjectLinterOptions, filenames []string) error {
+func (r *Ruff) LintFiles(
+	ctx context.Context,
+	options internal.ProjectLinterOptions,
+	filenames []string,
+) error {
 	paths := r.buildPaths(options.Directory, filenames)
 
-	return r.RunForProject(ctx, options.ProjectInfo, append(append([]string{"check"}, options.ExtraArgs...), paths...))
+	return r.RunForProject(
+		ctx,
+		options.ProjectInfo,
+		append(append([]string{"check"}, options.ExtraArgs...), paths...),
+	)
 }
 
 func (r *Ruff) FormatAll(ctx context.Context, options internal.ProjectFormatterOptions) error {
-	return r.RunForProject(ctx, options.ProjectInfo, append([]string{"format"}, options.ExtraArgs...))
+	return r.RunForProject(
+		ctx,
+		options.ProjectInfo,
+		append([]string{"format"}, options.ExtraArgs...),
+	)
 }
 
-func (r *Ruff) FormatFiles(ctx context.Context, options internal.ProjectFormatterOptions, filenames []string) error {
+func (r *Ruff) FormatFiles(
+	ctx context.Context,
+	options internal.ProjectFormatterOptions,
+	filenames []string,
+) error {
 	paths := r.buildPaths(options.Directory, filenames)
 
-	return r.RunForProject(ctx, options.ProjectInfo, append(append([]string{"format"}, options.ExtraArgs...), paths...))
+	return r.RunForProject(
+		ctx,
+		options.ProjectInfo,
+		append(append([]string{"format"}, options.ExtraArgs...), paths...),
+	)
 }
 
 func (r *Ruff) FormatCheckAll(ctx context.Context, options internal.ProjectFormatterOptions) error {
-	return r.RunForProject(ctx, options.ProjectInfo, append([]string{"format", "--check"}, options.ExtraArgs...))
+	return r.RunForProject(
+		ctx,
+		options.ProjectInfo,
+		append([]string{"format", "--check"}, options.ExtraArgs...),
+	)
 }
 
 func (r *Ruff) FormatCheckFiles(

@@ -1,9 +1,10 @@
 package tool
 
 import (
-	"cdt/internal"
 	"context"
 	"path/filepath"
+
+	"cdt/internal"
 )
 
 type PHPStan struct {
@@ -41,13 +42,25 @@ func NewPHPStan(detect func() *internal.Executable) *PHPStan {
 }
 
 func (p *PHPStan) LintAll(ctx context.Context, options internal.ProjectLinterOptions) error {
-	return p.RunForProject(ctx, options.ProjectInfo, append([]string{"analyse"}, options.ExtraArgs...))
+	return p.RunForProject(
+		ctx,
+		options.ProjectInfo,
+		append([]string{"analyse"}, options.ExtraArgs...),
+	)
 }
 
-func (p *PHPStan) LintFiles(ctx context.Context, options internal.ProjectLinterOptions, filenames []string) error {
+func (p *PHPStan) LintFiles(
+	ctx context.Context,
+	options internal.ProjectLinterOptions,
+	filenames []string,
+) error {
 	paths := p.buildPaths(options.Directory, filenames)
 
-	return p.RunForProject(ctx, options.ProjectInfo, append(append([]string{"analyse"}, options.ExtraArgs...), paths...))
+	return p.RunForProject(
+		ctx,
+		options.ProjectInfo,
+		append(append([]string{"analyse"}, options.ExtraArgs...), paths...),
+	)
 }
 
 func (p *PHPStan) buildPaths(directory string, filenames []string) []string {

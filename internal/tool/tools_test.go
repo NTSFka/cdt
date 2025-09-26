@@ -1,9 +1,10 @@
 package tool_test
 
 import (
+	"testing"
+
 	"cdt/internal/test"
 	"cdt/internal/tool"
-	"testing"
 
 	"github.com/stretchr/testify/assert"
 )

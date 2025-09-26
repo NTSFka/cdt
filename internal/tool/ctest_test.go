@@ -1,11 +1,12 @@
 package tool_test
 
 import (
+	"errors"
+	"testing"
+
 	"cdt/internal"
 	"cdt/internal/test"
 	"cdt/internal/tool"
-	"errors"
-	"testing"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -60,7 +61,10 @@ func TestCTest_RunForProject(t *testing.T) {
 
 	ctest := tool.NewCTest(exec.LazyExecutable("ctest"))
 
-	desc := internal.ProjectInfo{Directory: "project", IntermediateDirectory: internal.StrPtr("build")}
+	desc := internal.ProjectInfo{
+		Directory:             "project",
+		IntermediateDirectory: internal.StrPtr("build"),
+	}
 
 	exec.OnRun("ctest", []string{"--test-dir", "build"}).
 		Return(nil)
@@ -76,7 +80,10 @@ func TestCTest_RunForProject_Failed(t *testing.T) {
 
 	ctest := tool.NewCTest(exec.LazyExecutable("ctest"))
 
-	desc := internal.ProjectInfo{Directory: "project", IntermediateDirectory: internal.StrPtr("build")}
+	desc := internal.ProjectInfo{
+		Directory:             "project",
+		IntermediateDirectory: internal.StrPtr("build"),
+	}
 
 	exec.OnRun("ctest", []string{"--test-dir", "build"}).
 		Return(errors.New("failed"))

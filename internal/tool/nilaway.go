@@ -1,8 +1,9 @@
 package tool
 
 import (
-	"cdt/internal"
 	"context"
+
+	"cdt/internal"
 )
 
 // A NilAway is a tool that wraps golang main tool `nilaway`.
@@ -34,6 +35,10 @@ func (c *NilAway) LintAll(ctx context.Context, options internal.ProjectLinterOpt
 	return c.RunForProject(ctx, options.ProjectInfo, append(options.ExtraArgs, "./..."))
 }
 
-func (c *NilAway) LintFiles(ctx context.Context, options internal.ProjectLinterOptions, modules []string) error {
+func (c *NilAway) LintFiles(
+	ctx context.Context,
+	options internal.ProjectLinterOptions,
+	modules []string,
+) error {
 	return c.RunForProject(ctx, options.ProjectInfo, append(options.ExtraArgs, modules...))
 }

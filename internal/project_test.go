@@ -1,8 +1,9 @@
 package internal_test
 
 import (
-	"cdt/internal"
 	"testing"
+
+	"cdt/internal"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"

@@ -1,8 +1,9 @@
 package tool
 
 import (
-	"cdt/internal"
 	"context"
+
+	"cdt/internal"
 )
 
 type ParaTest struct {
@@ -43,6 +44,10 @@ func (p *ParaTest) TestAll(ctx context.Context, options internal.ProjectTesterOp
 	return p.RunForProject(ctx, options.ProjectInfo, options.ExtraArgs)
 }
 
-func (p *ParaTest) TestPattern(ctx context.Context, options internal.ProjectTesterOptions, pattern string) error {
+func (p *ParaTest) TestPattern(
+	ctx context.Context,
+	options internal.ProjectTesterOptions,
+	pattern string,
+) error {
 	return p.RunForProject(ctx, options.ProjectInfo, append(options.ExtraArgs, pattern))
 }

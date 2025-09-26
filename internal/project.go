@@ -63,7 +63,10 @@ type EmptyProjectStructureProvider struct {
 }
 
 // Structure returns project structure.
-func (p *EmptyProjectStructureProvider) Structure(_ context.Context, _ ProjectInfo) (*ProjectStructure, error) {
+func (p *EmptyProjectStructureProvider) Structure(
+	_ context.Context,
+	_ ProjectInfo,
+) (*ProjectStructure, error) {
 	return &ProjectStructure{}, nil
 }
 
@@ -73,7 +76,10 @@ type FixedProjectStructureProvider struct {
 }
 
 // Structure returns project structure.
-func (p *FixedProjectStructureProvider) Structure(_ context.Context, _ ProjectInfo) (*ProjectStructure, error) {
+func (p *FixedProjectStructureProvider) Structure(
+	_ context.Context,
+	_ ProjectInfo,
+) (*ProjectStructure, error) {
 	return &p.ProjectStructure, nil
 }
 
