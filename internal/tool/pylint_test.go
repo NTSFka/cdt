@@ -3,7 +3,6 @@ package tool
 import (
 	"cdt/internal"
 	"cdt/internal/test"
-	"context"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -16,7 +15,7 @@ func TestPylint_DetectPylint(t *testing.T) {
 	env.OnFindExecutable("pylint").
 		Return(env.NewExecutable("/bin/tool"))
 
-	tool := DetectPylint(context.Background(), env)
+	tool := DetectPylint(t.Context(), env)
 	assert.NotNil(t, tool)
 	assert.Equal(t, "pylint", tool.Id())
 	assert.True(t, tool.IsAvailable())
@@ -34,7 +33,7 @@ func TestPylint_DetectPylint_NotFound(t *testing.T) {
 	env.OnFindExecutable("pylint").
 		Return(nil)
 
-	tool := DetectPylint(context.Background(), env)
+	tool := DetectPylint(t.Context(), env)
 	assert.NotNil(t, tool)
 	assert.Equal(t, "pylint", tool.Id())
 	assert.False(t, tool.IsAvailable())
@@ -53,7 +52,7 @@ func TestPylint_Pylint_LintAll(t *testing.T) {
 	exec.OnRun("lint", []string{"*"}).
 		Return(nil)
 
-	err := tool.LintAll(context.Background(), internal.ProjectLinterOptions{ProjectInfo: info})
+	err := tool.LintAll(t.Context(), internal.ProjectLinterOptions{ProjectInfo: info})
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -69,7 +68,7 @@ func TestPylint_Pylint_Lint(t *testing.T) {
 	exec.OnRun("lint", []string{"file.py", "/path/to/file2.py"}).
 		Return(nil)
 
-	err := tool.LintFiles(context.Background(), internal.ProjectLinterOptions{ProjectInfo: info}, []string{"file.py", "/path/to/file2.py"})
+	err := tool.LintFiles(t.Context(), internal.ProjectLinterOptions{ProjectInfo: info}, []string{"file.py", "/path/to/file2.py"})
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)

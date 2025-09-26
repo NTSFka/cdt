@@ -22,7 +22,7 @@ func TestProjectTargets(t *testing.T) {
 	structure := test.NewStructureProvider(t)
 	structure.On("Structure", mock.Anything, mock.Anything).Return(&internal.ProjectStructure{}, nil)
 
-	err := runProject(context.Background(), structure, "targets")
+	err := runProject(t.Context(), structure, "targets")
 
 	require.NoError(t, err)
 	structure.AssertExpectations(t)
@@ -32,7 +32,7 @@ func TestProjectFiles(t *testing.T) {
 	structure := test.NewStructureProvider(t)
 	structure.On("Structure", mock.Anything, mock.Anything).Return(&internal.ProjectStructure{}, nil)
 
-	err := runProject(context.Background(), structure, "files")
+	err := runProject(t.Context(), structure, "files")
 
 	require.NoError(t, err)
 	structure.AssertExpectations(t)

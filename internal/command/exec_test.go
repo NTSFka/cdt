@@ -22,7 +22,7 @@ func TestExec_NoCommand(t *testing.T) {
 	env := test.NewEnvironment(t)
 	env.Test(t)
 
-	err := execRun(context.Background(), env)
+	err := execRun(t.Context(), env)
 
 	require.EqualError(t, err, "COMMAND is required")
 
@@ -36,7 +36,7 @@ func TestExec_Target_Success(t *testing.T) {
 	env.On("RunExecutable", mock.Anything, mock.Anything, "echo", []string{"Hello!"}).
 		Return(nil)
 
-	err := execRun(context.Background(), env, "echo", "Hello!")
+	err := execRun(t.Context(), env, "echo", "Hello!")
 	require.NoError(t, err)
 
 	env.AssertExpectations(t)
@@ -49,7 +49,7 @@ func TestExec_Target_Failure(t *testing.T) {
 	env.On("RunExecutable", mock.Anything, mock.Anything, "echo", []string{"Hello!"}).
 		Return(errors.New("failed"))
 
-	err := execRun(context.Background(), env, "echo", "Hello!")
+	err := execRun(t.Context(), env, "echo", "Hello!")
 
 	require.Error(t, err)
 	assert.Equal(t, "command failed: failed", err.Error())

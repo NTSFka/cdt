@@ -3,7 +3,6 @@ package tool
 import (
 	"cdt/internal"
 	"cdt/internal/test"
-	"context"
 	"errors"
 	"fmt"
 	"path/filepath"
@@ -38,7 +37,7 @@ func TestDocker_DetectDocker_NotFound(t *testing.T) {
 	env.OnFindExecutable("docker").
 		Return(nil)
 
-	tool := DetectDocker(context.Background(), env)
+	tool := DetectDocker(t.Context(), env)
 	assert.NotNil(t, tool)
 	assert.Equal(t, "docker", tool.Id())
 	assert.False(t, tool.IsAvailable())
@@ -51,7 +50,7 @@ func TestDocker_DetectDocker_Found(t *testing.T) {
 	env.OnFindExecutable("docker").
 		Return(env.NewExecutable("docker"))
 
-	tool := DetectDocker(context.Background(), env)
+	tool := DetectDocker(t.Context(), env)
 	assert.NotNil(t, tool)
 	assert.Equal(t, "docker", tool.Id())
 	assert.True(t, tool.IsAvailable())
@@ -142,7 +141,7 @@ func TestDocker_Environment_Start(t *testing.T) {
 	runMock.OnStart("image1", "3961248ad455").
 		Return(nil)
 
-	err := env.Start(context.Background())
+	err := env.Start(t.Context())
 	require.NoError(t, err)
 
 	runMock.AssertExpectations(t)
@@ -154,7 +153,7 @@ func TestDocker_Environment_Start_Failed(t *testing.T) {
 	runMock.OnStart("image2", "").
 		Return(errors.New("failed"))
 
-	err := env.Start(context.Background())
+	err := env.Start(t.Context())
 	require.EqualError(t, err, "docker run failed: failed")
 
 	runMock.AssertExpectations(t)
@@ -167,7 +166,7 @@ func TestDocker_Environment_Start_AlreadyRunning(t *testing.T) {
 	runMock.OnInspectResult("89054a3c5ff8", true).
 		Return(nil)
 
-	err := env.Start(context.Background())
+	err := env.Start(t.Context())
 	require.NoError(t, err)
 
 	runMock.AssertExpectations(t)
@@ -180,7 +179,7 @@ func TestDocker_Environment_IsRunning_True(t *testing.T) {
 	runMock.OnInspectResult("3d2219139f14", true).
 		Return(nil)
 
-	result := env.IsRunning(context.Background())
+	result := env.IsRunning(t.Context())
 	assert.True(t, result)
 
 	runMock.AssertExpectations(t)
@@ -193,7 +192,7 @@ func TestDocker_Environment_IsRunning_False(t *testing.T) {
 	runMock.OnInspectResult("e24aa1130c46", false).
 		Return(nil)
 
-	result := env.IsRunning(context.Background())
+	result := env.IsRunning(t.Context())
 	assert.False(t, result)
 
 	runMock.AssertExpectations(t)
@@ -206,7 +205,7 @@ func TestDocker_Environment_IsRunning_InvalidJson(t *testing.T) {
 	runMock.OnInspect("8ae4358f08b6", `{"invalid": "json"`).
 		Return(nil)
 
-	result := env.IsRunning(context.Background())
+	result := env.IsRunning(t.Context())
 	assert.False(t, result)
 
 	runMock.AssertExpectations(t)
@@ -219,7 +218,7 @@ func TestDocker_Environment_IsRunning_EmptyJsonArray(t *testing.T) {
 	runMock.OnInspect("827e5611389a", `[]`).
 		Return(nil)
 
-	result := env.IsRunning(context.Background())
+	result := env.IsRunning(t.Context())
 	assert.False(t, result)
 
 	runMock.AssertExpectations(t)
@@ -232,7 +231,7 @@ func TestDocker_Environment_IsRunning_Failed(t *testing.T) {
 	runMock.OnInspect("bd49ab6a6a00", "").
 		Return(errors.New("failed"))
 
-	result := env.IsRunning(context.Background())
+	result := env.IsRunning(t.Context())
 	assert.False(t, result)
 
 	runMock.AssertExpectations(t)
@@ -245,7 +244,7 @@ func TestDocker_Environment_Stop(t *testing.T) {
 	runMock.OnCall([]string{"stop", "93cff8e00c49"}).
 		Return(nil)
 
-	err := env.Stop(context.Background())
+	err := env.Stop(t.Context())
 	require.NoError(t, err)
 
 	runMock.AssertExpectations(t)
@@ -258,7 +257,7 @@ func TestDocker_Environment_Stop_Failed(t *testing.T) {
 	runMock.OnCall([]string{"stop", "62473370e7ee"}).
 		Return(errors.New("failed"))
 
-	err := env.Stop(context.Background())
+	err := env.Stop(t.Context())
 	require.EqualError(t, err, "docker run failed: failed")
 
 	runMock.AssertExpectations(t)
@@ -267,7 +266,7 @@ func TestDocker_Environment_Stop_Failed(t *testing.T) {
 func TestDocker_Environment_Cleanup(t *testing.T) {
 	runMock, env := dockerPrepare(t, "image11")
 
-	err := env.Cleanup(context.Background())
+	err := env.Cleanup(t.Context())
 	require.NoError(t, err)
 
 	runMock.AssertExpectations(t)
@@ -281,7 +280,7 @@ func TestDocker_Environment_Cleanup_Running(t *testing.T) {
 	runMock.OnCall([]string{"stop", "c31b2ec8b325"}).
 		Return(nil)
 
-	err := env.Cleanup(context.Background())
+	err := env.Cleanup(t.Context())
 	require.NoError(t, err)
 
 	runMock.AssertExpectations(t)
@@ -295,7 +294,7 @@ func TestDocker_Environment_Cleanup_Running_Failed(t *testing.T) {
 	runMock.OnCall([]string{"stop", "e01c76bb1351"}).
 		Return(errors.New("failed"))
 
-	err := env.Cleanup(context.Background())
+	err := env.Cleanup(t.Context())
 	require.EqualError(t, err, "docker run failed: failed")
 
 	runMock.AssertExpectations(t)
@@ -313,7 +312,7 @@ func TestDocker_Environment_FindExecutable(t *testing.T) {
 	runMock.OnCallOutput([]string{"exec", "15dc587d6d92", "which", "tool1"}, "/usr/bin/tool1").
 		Return(nil)
 
-	executable := env.FindExecutable(context.Background(), "tool1")
+	executable := env.FindExecutable(t.Context(), "tool1")
 	require.NotNil(t, executable)
 	assert.Equal(t, "/usr/bin/tool1", executable.Path)
 
@@ -332,7 +331,7 @@ func TestDocker_Environment_FindExecutable_Failed(t *testing.T) {
 	runMock.OnCallOutput([]string{"exec", "15dc587d6d92", "which", "tool1"}, "/usr/bin/tool1").
 		Return(errors.New("failed"))
 
-	executable := env.FindExecutable(context.Background(), "tool1")
+	executable := env.FindExecutable(t.Context(), "tool1")
 	assert.Nil(t, executable)
 
 	runMock.AssertExpectations(t)
@@ -348,7 +347,7 @@ func TestDocker_Environment_FindExecutable_AutoStart(t *testing.T) {
 	runMock.OnCallOutput([]string{"exec", "e1ff62268161", "which", "tool1"}, "/usr/bin/tool1").
 		Return(nil)
 
-	executable := env.FindExecutable(context.Background(), "tool1")
+	executable := env.FindExecutable(t.Context(), "tool1")
 	require.NotNil(t, executable)
 	assert.Equal(t, "/usr/bin/tool1", executable.Path)
 
@@ -362,7 +361,7 @@ func TestDocker_Environment_FindExecutable_AutoStart_Failed(t *testing.T) {
 	runMock.OnStart("image17", "db0ac83ce405").
 		Return(errors.New("failed"))
 
-	executable := env.FindExecutable(context.Background(), "tool1")
+	executable := env.FindExecutable(t.Context(), "tool1")
 	assert.Nil(t, executable)
 
 	runMock.AssertExpectations(t)
@@ -381,7 +380,7 @@ func TestDocker_Environment_RunExecutable(t *testing.T) {
 		Return(nil).
 		Once()
 
-	err := env.RunExecutable(context.Background(), internal.RunOptions{}, "tool1", []string{"arg1", "arg2"})
+	err := env.RunExecutable(t.Context(), internal.RunOptions{}, "tool1", []string{"arg1", "arg2"})
 	require.NoError(t, err)
 
 	runMock.AssertExpectations(t)
@@ -400,7 +399,7 @@ func TestDocker_Environment_RunExecutable_Failed(t *testing.T) {
 		Return(errors.New("failed")).
 		Once()
 
-	err := env.RunExecutable(context.Background(), internal.RunOptions{}, "tool1", []string{"arg1", "arg2"})
+	err := env.RunExecutable(t.Context(), internal.RunOptions{}, "tool1", []string{"arg1", "arg2"})
 	require.EqualError(t, err, "failed")
 
 	runMock.AssertExpectations(t)
@@ -418,7 +417,7 @@ func TestDocker_Environment_RunExecutable_AutoStart(t *testing.T) {
 		Return(nil).
 		Once()
 
-	err := env.RunExecutable(context.Background(), internal.RunOptions{}, "tool1", []string{"arg1", "arg2"})
+	err := env.RunExecutable(t.Context(), internal.RunOptions{}, "tool1", []string{"arg1", "arg2"})
 	require.NoError(t, err)
 
 	runMock.AssertExpectations(t)
@@ -432,7 +431,7 @@ func TestDocker_Environment_RunExecutable_AutoStart_Failed(t *testing.T) {
 		Return(errors.New("failed")).
 		Once()
 
-	err := env.RunExecutable(context.Background(), internal.RunOptions{}, "/usr/bin/tool1", []string{"arg1", "arg2"})
+	err := env.RunExecutable(t.Context(), internal.RunOptions{}, "/usr/bin/tool1", []string{"arg1", "arg2"})
 	require.EqualError(t, err, "docker run failed: failed")
 
 	runMock.AssertExpectations(t)

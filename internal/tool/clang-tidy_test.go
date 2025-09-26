@@ -3,7 +3,6 @@ package tool
 import (
 	"cdt/internal"
 	"cdt/internal/test"
-	"context"
 	"errors"
 	"fmt"
 	"os"
@@ -19,7 +18,7 @@ func TestClangTidy_DetectClangTidy(t *testing.T) {
 	env.OnFindExecutable("clang-tidy").
 		Return(env.NewExecutable("/bin/clang-tidy"))
 
-	tool := DetectClangTidy(context.Background(), env)
+	tool := DetectClangTidy(t.Context(), env)
 	assert.NotNil(t, tool)
 	assert.Equal(t, "clang-tidy", tool.Id())
 	assert.True(t, tool.IsAvailable())
@@ -36,7 +35,7 @@ func TestClangTidy_DetectClangTidy_NotFound(t *testing.T) {
 	env.OnFindExecutable("clang-tidy").
 		Return(nil)
 
-	tool := DetectClangTidy(context.Background(), env)
+	tool := DetectClangTidy(t.Context(), env)
 	assert.NotNil(t, tool)
 	assert.Equal(t, "clang-tidy", tool.Id())
 	assert.False(t, tool.IsAvailable())
@@ -71,7 +70,7 @@ func TestClangTidy_LintAll(t *testing.T) {
 	}).
 		Return(nil)
 
-	err := tool.LintAll(context.Background(), internal.ProjectLinterOptions{ProjectInfo: info})
+	err := tool.LintAll(t.Context(), internal.ProjectLinterOptions{ProjectInfo: info})
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -103,7 +102,7 @@ func TestClangTidy_LintAll_Failed(t *testing.T) {
 	}).
 		Return(errors.New("failed"))
 
-	err := tool.LintAll(context.Background(), internal.ProjectLinterOptions{ProjectInfo: info})
+	err := tool.LintAll(t.Context(), internal.ProjectLinterOptions{ProjectInfo: info})
 	require.EqualError(t, err, "failed")
 
 	exec.AssertExpectations(t)
@@ -139,7 +138,7 @@ func TestClangTidy_LintAll_CustomConfig(t *testing.T) {
 	}).
 		Return(nil)
 
-	err = tool.LintAll(context.Background(), internal.ProjectLinterOptions{ProjectInfo: info})
+	err = tool.LintAll(t.Context(), internal.ProjectLinterOptions{ProjectInfo: info})
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -159,7 +158,7 @@ func TestClangTidy_LintFiles(t *testing.T) {
 	}).
 		Return(nil)
 
-	err := tool.LintFiles(context.Background(), internal.ProjectLinterOptions{ProjectInfo: info}, []string{"file1.go", filepath.Join(info.Directory, "file3.go")})
+	err := tool.LintFiles(t.Context(), internal.ProjectLinterOptions{ProjectInfo: info}, []string{"file1.go", filepath.Join(info.Directory, "file3.go")})
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -178,7 +177,7 @@ func TestClangTidy_LintFiles_Failed(t *testing.T) {
 	}).
 		Return(errors.New("failed"))
 
-	err := tool.LintFiles(context.Background(), internal.ProjectLinterOptions{ProjectInfo: info}, []string{"file1.go"})
+	err := tool.LintFiles(t.Context(), internal.ProjectLinterOptions{ProjectInfo: info}, []string{"file1.go"})
 	require.EqualError(t, err, "failed")
 
 	exec.AssertExpectations(t)
@@ -201,7 +200,7 @@ func TestClangTidy_LintFiles_CustomConfig(t *testing.T) {
 	}).
 		Return(nil)
 
-	err = tool.LintFiles(context.Background(), internal.ProjectLinterOptions{ProjectInfo: info}, []string{"file1.go"})
+	err = tool.LintFiles(t.Context(), internal.ProjectLinterOptions{ProjectInfo: info}, []string{"file1.go"})
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -217,7 +216,7 @@ func TestClangTidy_Run(t *testing.T) {
 	exec.OnRun("clang-tidy", []string{desc.Directory}).
 		Return(nil)
 
-	err := tool.RunForProject(context.Background(), desc, []string{})
+	err := tool.RunForProject(t.Context(), desc, []string{})
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -233,7 +232,7 @@ func TestClangTidy_Run_Failed(t *testing.T) {
 	exec.OnRun("clang-tidy", []string{desc.Directory}).
 		Return(errors.New("failed"))
 
-	err := tool.RunForProject(context.Background(), desc, []string{})
+	err := tool.RunForProject(t.Context(), desc, []string{})
 	require.EqualError(t, err, "failed")
 
 	exec.AssertExpectations(t)

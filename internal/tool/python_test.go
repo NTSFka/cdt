@@ -3,7 +3,6 @@ package tool
 import (
 	"cdt/internal"
 	"cdt/internal/test"
-	"context"
 	"errors"
 	"os"
 	"path/filepath"
@@ -19,7 +18,7 @@ func TestPython_DetectPython(t *testing.T) {
 	env.OnFindExecutable("python3").
 		Return(env.NewExecutable("/bin/tool"))
 
-	tool := DetectPython(context.Background(), env)
+	tool := DetectPython(t.Context(), env)
 	assert.NotNil(t, tool)
 	assert.Equal(t, "python", tool.Id())
 	assert.True(t, tool.IsAvailable())
@@ -37,7 +36,7 @@ func TestPython_DetectPython_NotFound(t *testing.T) {
 	env.OnFindExecutable("python3").
 		Return(nil)
 
-	tool := DetectPython(context.Background(), env)
+	tool := DetectPython(t.Context(), env)
 	assert.NotNil(t, tool)
 	assert.Equal(t, "python", tool.Id())
 	assert.False(t, tool.IsAvailable())
@@ -56,7 +55,7 @@ func TestPython_Python_RunTarget(t *testing.T) {
 	python.OnRun("python3", []string{"main.py"}).
 		Return(nil)
 
-	err := tool.RunTarget(context.Background(), internal.ProjectRunnerOptions{ProjectInfo: info}, "main.py")
+	err := tool.RunTarget(t.Context(), internal.ProjectRunnerOptions{ProjectInfo: info}, "main.py")
 	require.NoError(t, err)
 
 	python.AssertExpectations(t)
@@ -72,7 +71,7 @@ func TestPython_Python_RunTarget_Fail(t *testing.T) {
 	python.OnRun("python3", []string{"main.py"}).
 		Return(errors.New("failed"))
 
-	err := tool.RunTarget(context.Background(), internal.ProjectRunnerOptions{ProjectInfo: info}, "main.py")
+	err := tool.RunTarget(t.Context(), internal.ProjectRunnerOptions{ProjectInfo: info}, "main.py")
 	require.EqualError(t, err, "failed")
 
 	python.AssertExpectations(t)
@@ -119,7 +118,7 @@ func TestPython_Environment_Start(t *testing.T) {
 
 	python.OnRun("python", []string{"-m", "venv", ".venv"}).Return(nil)
 
-	err = env.Start(context.Background())
+	err = env.Start(t.Context())
 	require.NoError(t, err)
 
 	python.AssertExpectations(t)
@@ -134,7 +133,7 @@ func TestPython_Environment_IsRunning_True(t *testing.T) {
 	env, err := tool.CreateEnvironment(".", ".venv")
 	require.NoError(t, err)
 
-	result := env.IsRunning(context.Background())
+	result := env.IsRunning(t.Context())
 	assert.True(t, result)
 
 	python.AssertExpectations(t)
@@ -149,7 +148,7 @@ func TestPython_Environment_Stop(t *testing.T) {
 	env, err := tool.CreateEnvironment(".", ".venv")
 	require.NoError(t, err)
 
-	err = env.Stop(context.Background())
+	err = env.Stop(t.Context())
 	require.NoError(t, err)
 
 	python.AssertExpectations(t)
@@ -164,7 +163,7 @@ func TestPython_Environment_Cleanup(t *testing.T) {
 	env, err := tool.CreateEnvironment(".", ".venv")
 	require.NoError(t, err)
 
-	err = env.Cleanup(context.Background())
+	err = env.Cleanup(t.Context())
 	require.NoError(t, err)
 
 	python.AssertExpectations(t)
@@ -184,7 +183,7 @@ func TestPython_Environment_FindExecutable(t *testing.T) {
 	_, err = os.OpenFile(filepath.Join(testDir, "bin", "tool1"), os.O_RDONLY|os.O_CREATE, 0600)
 	require.NoError(t, err)
 
-	executable := env.FindExecutable(context.Background(), "tool1")
+	executable := env.FindExecutable(t.Context(), "tool1")
 	require.NotNil(t, executable)
 	assert.Equal(t, "tool1", executable.Path)
 }
@@ -203,7 +202,7 @@ func TestPython_Environment_FindExecutable_Windows(t *testing.T) {
 	_, err = os.OpenFile(filepath.Join(testDir, "Scripts", "tool1"), os.O_RDONLY|os.O_CREATE, 0600)
 	require.NoError(t, err)
 
-	executable := env.FindExecutable(context.Background(), "tool1")
+	executable := env.FindExecutable(t.Context(), "tool1")
 	require.NotNil(t, executable)
 	assert.Equal(t, "tool1", executable.Path)
 }
@@ -217,7 +216,7 @@ func TestPython_Environment_FindExecutable_Failed(t *testing.T) {
 	env, err := tool.CreateEnvironment(".", testDir)
 	require.NoError(t, err)
 
-	executable := env.FindExecutable(context.Background(), "tool1")
+	executable := env.FindExecutable(t.Context(), "tool1")
 	assert.Nil(t, executable)
 }
 
@@ -230,6 +229,6 @@ func TestPython_Environment_RunExecutable_NotFound(t *testing.T) {
 	env, err := tool.CreateEnvironment(".", testDir)
 	require.NoError(t, err)
 
-	err = env.RunExecutable(context.Background(), internal.RunOptions{}, "echo", []string{"arg1", "arg2"})
+	err = env.RunExecutable(t.Context(), internal.RunOptions{}, "echo", []string{"arg1", "arg2"})
 	require.EqualError(t, err, "executable not found")
 }

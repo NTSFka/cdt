@@ -25,7 +25,7 @@ func TestApp_Run_ContextBuild_Failed(t *testing.T) {
 		return nil
 	}})
 
-	err := app.Run(context.Background(), []string{"cdt", "__test__"})
+	err := app.Run(t.Context(), []string{"cdt", "__test__"})
 
 	require.EqualError(t, err, "failed")
 }
@@ -46,7 +46,7 @@ func TestApp_Run_Environment_Cleanup(t *testing.T) {
 
 	env.On("Cleanup", mock.Anything).Return(nil)
 
-	err := app.Run(context.Background(), []string{"cdt", "__test__"})
+	err := app.Run(t.Context(), []string{"cdt", "__test__"})
 
 	require.NoError(t, err)
 
@@ -63,7 +63,7 @@ func TestApp_Run_Debug(t *testing.T) {
 		return nil
 	}})
 
-	err := app.Run(context.Background(), []string{"cdt", "--debug", "__test__"})
+	err := app.Run(t.Context(), []string{"cdt", "--debug", "__test__"})
 
 	require.NoError(t, err)
 }
@@ -82,7 +82,7 @@ func TestApp_Run_ConfigDefault(t *testing.T) {
 		return nil
 	}})
 
-	err := app.Run(context.Background(), []string{"cdt", "__test__"})
+	err := app.Run(t.Context(), []string{"cdt", "__test__"})
 
 	require.NoError(t, err)
 	require.NotNil(t, config)
@@ -109,7 +109,7 @@ func TestApp_Run_ConfigFull(t *testing.T) {
 		return nil
 	}})
 
-	err := app.Run(context.Background(), []string{"cdt",
+	err := app.Run(t.Context(), []string{"cdt",
 		"--root", "/path/to/project",
 		"--build", "/path/to/build",
 		"--environment", "env:arg",
@@ -142,7 +142,7 @@ func TestApp_Run_ConfigFullAlias(t *testing.T) {
 		return nil
 	}})
 
-	err := app.Run(context.Background(), []string{"cdt",
+	err := app.Run(t.Context(), []string{"cdt",
 		"-r", "/path/to/project",
 		"-b", "/path/to/build",
 		"-e", "env:arg",
@@ -184,7 +184,7 @@ project:
     environment: env:arg
 `), 0600))
 
-	err := app.Run(context.Background(), []string{"cdt",
+	err := app.Run(t.Context(), []string{"cdt",
 		"-r", tempDir,
 		"__test__",
 	})
@@ -222,7 +222,7 @@ project:
     environment: env:arg
 `), 0600))
 
-	err := app.Run(context.Background(), []string{"cdt",
+	err := app.Run(t.Context(), []string{"cdt",
 		"--config", configFilePath,
 		"__test__",
 	})
@@ -260,7 +260,7 @@ project:
     environment: env:arg
 `), 0600))
 
-	err := app.Run(context.Background(), []string{"cdt",
+	err := app.Run(t.Context(), []string{"cdt",
 		"-c", configFilePath,
 		"__test__",
 	})
@@ -291,7 +291,7 @@ func TestApp_Run_ConfigFile_CustomPath_UnreadableFile(t *testing.T) {
 Hello world!
 `), 0000))
 
-	err := app.Run(context.Background(), []string{"cdt",
+	err := app.Run(t.Context(), []string{"cdt",
 		"--config", configFilePath,
 		"__test__",
 	})
@@ -315,7 +315,7 @@ func TestApp_Run_ConfigFile_CustomPath_InvalidContent(t *testing.T) {
 Hello world!
 `), 0600))
 
-	err := app.Run(context.Background(), []string{"cdt",
+	err := app.Run(t.Context(), []string{"cdt",
 		"--config", configFilePath,
 		"__test__",
 	})

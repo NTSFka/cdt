@@ -3,7 +3,6 @@ package workflow
 import (
 	"cdt/internal"
 	"cdt/internal/test"
-	"context"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -44,7 +43,7 @@ func TestConfiguratorFallback_Details(t *testing.T) {
 func TestConfiguratorFallback_Configure_Empty(t *testing.T) {
 	fallback := &ConfiguratorFallback{}
 
-	err := fallback.Configure(context.Background(), internal.ProjectConfiguratorOptions{})
+	err := fallback.Configure(t.Context(), internal.ProjectConfiguratorOptions{})
 
 	require.EqualError(t, err, "no configurator tool available: none")
 }
@@ -55,7 +54,7 @@ func TestConfiguratorFallback_Configure_NoAvailable(t *testing.T) {
 
 	fallback := &ConfiguratorFallback{tool1, tool2}
 
-	err := fallback.Configure(context.Background(), internal.ProjectConfiguratorOptions{})
+	err := fallback.Configure(t.Context(), internal.ProjectConfiguratorOptions{})
 
 	require.EqualError(t, err, "no configurator tool available: test1, test2")
 
@@ -73,7 +72,7 @@ func TestConfiguratorFallback_Configure_Available1(t *testing.T) {
 	tool2.Test(t)
 	tool1.On("Configure", mock.Anything, mock.Anything).Return(nil)
 
-	err := fallback.Configure(context.Background(), internal.ProjectConfiguratorOptions{})
+	err := fallback.Configure(t.Context(), internal.ProjectConfiguratorOptions{})
 
 	require.NoError(t, err)
 
@@ -91,7 +90,7 @@ func TestConfiguratorFallback_Configure_Available2(t *testing.T) {
 	tool2.Test(t)
 	tool2.On("Configure", mock.Anything, mock.Anything).Return(nil)
 
-	err := fallback.Configure(context.Background(), internal.ProjectConfiguratorOptions{})
+	err := fallback.Configure(t.Context(), internal.ProjectConfiguratorOptions{})
 
 	require.NoError(t, err)
 
@@ -132,7 +131,7 @@ func TestBuilderFallback_Details(t *testing.T) {
 func TestBuilderFallback_BuildAll_Empty(t *testing.T) {
 	fallback := &BuilderFallback{}
 
-	err := fallback.BuildAll(context.Background(), internal.ProjectBuilderOptions{})
+	err := fallback.BuildAll(t.Context(), internal.ProjectBuilderOptions{})
 
 	require.EqualError(t, err, "no builder tool available: none")
 }
@@ -143,7 +142,7 @@ func TestBuilderFallback_BuildAll_NoAvailable(t *testing.T) {
 
 	fallback := &BuilderFallback{tool1, tool2}
 
-	err := fallback.BuildAll(context.Background(), internal.ProjectBuilderOptions{})
+	err := fallback.BuildAll(t.Context(), internal.ProjectBuilderOptions{})
 
 	require.EqualError(t, err, "no builder tool available: test1, test2")
 
@@ -161,7 +160,7 @@ func TestBuilderFallback_BuildAll_Available1(t *testing.T) {
 	tool2.Test(t)
 	tool1.On("BuildAll", mock.Anything, mock.Anything).Return(nil)
 
-	err := fallback.BuildAll(context.Background(), internal.ProjectBuilderOptions{})
+	err := fallback.BuildAll(t.Context(), internal.ProjectBuilderOptions{})
 
 	require.NoError(t, err)
 
@@ -179,7 +178,7 @@ func TestBuilderFallback_BuildAll_Available2(t *testing.T) {
 	tool2.Test(t)
 	tool2.On("BuildAll", mock.Anything, mock.Anything).Return(nil)
 
-	err := fallback.BuildAll(context.Background(), internal.ProjectBuilderOptions{})
+	err := fallback.BuildAll(t.Context(), internal.ProjectBuilderOptions{})
 
 	require.NoError(t, err)
 
@@ -190,7 +189,7 @@ func TestBuilderFallback_BuildAll_Available2(t *testing.T) {
 func TestBuilderFallback_BuildTargets_Empty(t *testing.T) {
 	fallback := &BuilderFallback{}
 
-	err := fallback.BuildTargets(context.Background(), internal.ProjectBuilderOptions{}, []string{"target1"})
+	err := fallback.BuildTargets(t.Context(), internal.ProjectBuilderOptions{}, []string{"target1"})
 
 	require.EqualError(t, err, "no builder tool available: none")
 }
@@ -201,7 +200,7 @@ func TestBuilderFallback_BuildTargets_NoAvailable(t *testing.T) {
 
 	fallback := &BuilderFallback{tool1, tool2}
 
-	err := fallback.BuildTargets(context.Background(), internal.ProjectBuilderOptions{}, []string{"target1"})
+	err := fallback.BuildTargets(t.Context(), internal.ProjectBuilderOptions{}, []string{"target1"})
 
 	require.EqualError(t, err, "no builder tool available: test1, test2")
 
@@ -219,7 +218,7 @@ func TestBuilderFallback_BuildTargets_Available1(t *testing.T) {
 	tool2.Test(t)
 	tool1.On("BuildTargets", mock.Anything, mock.Anything, []string{"target1"}).Return(nil)
 
-	err := fallback.BuildTargets(context.Background(), internal.ProjectBuilderOptions{}, []string{"target1"})
+	err := fallback.BuildTargets(t.Context(), internal.ProjectBuilderOptions{}, []string{"target1"})
 
 	require.NoError(t, err)
 
@@ -237,7 +236,7 @@ func TestBuilderFallback_BuildTargets_Available2(t *testing.T) {
 	tool2.Test(t)
 	tool2.On("BuildTargets", mock.Anything, mock.Anything, []string{"target1"}).Return(nil)
 
-	err := fallback.BuildTargets(context.Background(), internal.ProjectBuilderOptions{}, []string{"target1"})
+	err := fallback.BuildTargets(t.Context(), internal.ProjectBuilderOptions{}, []string{"target1"})
 
 	require.NoError(t, err)
 
@@ -278,7 +277,7 @@ func TestTesterFallback_Details(t *testing.T) {
 func TestTesterFallback_TestAll_Empty(t *testing.T) {
 	fallback := &TesterFallback{}
 
-	err := fallback.TestAll(context.Background(), internal.ProjectTesterOptions{})
+	err := fallback.TestAll(t.Context(), internal.ProjectTesterOptions{})
 
 	require.EqualError(t, err, "no tester tool available: none")
 }
@@ -289,7 +288,7 @@ func TestTesterFallback_TestAll_NoAvailable(t *testing.T) {
 
 	fallback := &TesterFallback{tool1, tool2}
 
-	err := fallback.TestAll(context.Background(), internal.ProjectTesterOptions{})
+	err := fallback.TestAll(t.Context(), internal.ProjectTesterOptions{})
 
 	require.EqualError(t, err, "no tester tool available: test1, test2")
 
@@ -307,7 +306,7 @@ func TestTesterFallback_TestAll_Available1(t *testing.T) {
 	tool2.Test(t)
 	tool1.On("TestAll", mock.Anything, mock.Anything).Return(nil)
 
-	err := fallback.TestAll(context.Background(), internal.ProjectTesterOptions{})
+	err := fallback.TestAll(t.Context(), internal.ProjectTesterOptions{})
 
 	require.NoError(t, err)
 
@@ -325,7 +324,7 @@ func TestTesterFallback_TestAll_Available2(t *testing.T) {
 	tool2.Test(t)
 	tool2.On("TestAll", mock.Anything, mock.Anything).Return(nil)
 
-	err := fallback.TestAll(context.Background(), internal.ProjectTesterOptions{})
+	err := fallback.TestAll(t.Context(), internal.ProjectTesterOptions{})
 
 	require.NoError(t, err)
 
@@ -336,7 +335,7 @@ func TestTesterFallback_TestAll_Available2(t *testing.T) {
 func TestTesterFallback_Test_Empty(t *testing.T) {
 	fallback := &TesterFallback{}
 
-	err := fallback.TestPattern(context.Background(), internal.ProjectTesterOptions{}, "target1")
+	err := fallback.TestPattern(t.Context(), internal.ProjectTesterOptions{}, "target1")
 
 	require.EqualError(t, err, "no tester tool available: none")
 }
@@ -347,7 +346,7 @@ func TestTesterFallback_Test_NoAvailable(t *testing.T) {
 
 	fallback := &TesterFallback{tool1, tool2}
 
-	err := fallback.TestPattern(context.Background(), internal.ProjectTesterOptions{}, "target1")
+	err := fallback.TestPattern(t.Context(), internal.ProjectTesterOptions{}, "target1")
 
 	require.EqualError(t, err, "no tester tool available: test1, test2")
 
@@ -365,7 +364,7 @@ func TestTesterFallback_Test_Available1(t *testing.T) {
 	tool2.Test(t)
 	tool1.On("TestPattern", mock.Anything, mock.Anything, "target1").Return(nil)
 
-	err := fallback.TestPattern(context.Background(), internal.ProjectTesterOptions{}, "target1")
+	err := fallback.TestPattern(t.Context(), internal.ProjectTesterOptions{}, "target1")
 
 	require.NoError(t, err)
 
@@ -383,7 +382,7 @@ func TestTesterFallback_Test_Available2(t *testing.T) {
 	tool2.Test(t)
 	tool2.On("TestPattern", mock.Anything, mock.Anything, "target1").Return(nil)
 
-	err := fallback.TestPattern(context.Background(), internal.ProjectTesterOptions{}, "target1")
+	err := fallback.TestPattern(t.Context(), internal.ProjectTesterOptions{}, "target1")
 
 	require.NoError(t, err)
 
@@ -424,7 +423,7 @@ func TestFormatterFallback_Details(t *testing.T) {
 func TestFormatterFallback_FormatAll_Empty(t *testing.T) {
 	fallback := &FormatterFallback{}
 
-	err := fallback.FormatAll(context.Background(), internal.ProjectFormatterOptions{})
+	err := fallback.FormatAll(t.Context(), internal.ProjectFormatterOptions{})
 
 	require.EqualError(t, err, "no formatter tool available: none")
 }
@@ -435,7 +434,7 @@ func TestFormatterFallback_FormatAll_NoAvailable(t *testing.T) {
 
 	fallback := &FormatterFallback{tool1, tool2}
 
-	err := fallback.FormatAll(context.Background(), internal.ProjectFormatterOptions{})
+	err := fallback.FormatAll(t.Context(), internal.ProjectFormatterOptions{})
 
 	require.EqualError(t, err, "no formatter tool available: test1, test2")
 
@@ -453,7 +452,7 @@ func TestFormatterFallback_FormatAll_Available1(t *testing.T) {
 	tool2.Test(t)
 	tool1.On("FormatAll", mock.Anything, mock.Anything).Return(nil)
 
-	err := fallback.FormatAll(context.Background(), internal.ProjectFormatterOptions{})
+	err := fallback.FormatAll(t.Context(), internal.ProjectFormatterOptions{})
 
 	require.NoError(t, err)
 
@@ -471,7 +470,7 @@ func TestFormatterFallback_FormatAll_Available2(t *testing.T) {
 	tool2.Test(t)
 	tool2.On("FormatAll", mock.Anything, mock.Anything).Return(nil)
 
-	err := fallback.FormatAll(context.Background(), internal.ProjectFormatterOptions{})
+	err := fallback.FormatAll(t.Context(), internal.ProjectFormatterOptions{})
 
 	require.NoError(t, err)
 
@@ -482,7 +481,7 @@ func TestFormatterFallback_FormatAll_Available2(t *testing.T) {
 func TestFormatterFallback_FormatFiles_Empty(t *testing.T) {
 	fallback := &FormatterFallback{}
 
-	err := fallback.FormatFiles(context.Background(), internal.ProjectFormatterOptions{}, []string{"file1"})
+	err := fallback.FormatFiles(t.Context(), internal.ProjectFormatterOptions{}, []string{"file1"})
 
 	require.EqualError(t, err, "no formatter tool available: none")
 }
@@ -493,7 +492,7 @@ func TestFormatterFallback_FormatFiles_NoAvailable(t *testing.T) {
 
 	fallback := &FormatterFallback{tool1, tool2}
 
-	err := fallback.FormatFiles(context.Background(), internal.ProjectFormatterOptions{}, []string{"file1"})
+	err := fallback.FormatFiles(t.Context(), internal.ProjectFormatterOptions{}, []string{"file1"})
 
 	require.EqualError(t, err, "no formatter tool available: test1, test2")
 
@@ -511,7 +510,7 @@ func TestFormatterFallback_FormatFiles_Available1(t *testing.T) {
 	tool2.Test(t)
 	tool1.On("FormatFiles", mock.Anything, mock.Anything, []string{"file1"}).Return(nil)
 
-	err := fallback.FormatFiles(context.Background(), internal.ProjectFormatterOptions{}, []string{"file1"})
+	err := fallback.FormatFiles(t.Context(), internal.ProjectFormatterOptions{}, []string{"file1"})
 
 	require.NoError(t, err)
 
@@ -529,7 +528,7 @@ func TestFormatterFallback_FormatFiles_Available2(t *testing.T) {
 	tool2.Test(t)
 	tool2.On("FormatFiles", mock.Anything, mock.Anything, []string{"file1"}).Return(nil)
 
-	err := fallback.FormatFiles(context.Background(), internal.ProjectFormatterOptions{}, []string{"file1"})
+	err := fallback.FormatFiles(t.Context(), internal.ProjectFormatterOptions{}, []string{"file1"})
 
 	require.NoError(t, err)
 
@@ -540,7 +539,7 @@ func TestFormatterFallback_FormatFiles_Available2(t *testing.T) {
 func TestFormatterFallback_FormatCheckAll_Empty(t *testing.T) {
 	fallback := &FormatterFallback{}
 
-	err := fallback.FormatCheckAll(context.Background(), internal.ProjectFormatterOptions{})
+	err := fallback.FormatCheckAll(t.Context(), internal.ProjectFormatterOptions{})
 
 	require.EqualError(t, err, "no formatter tool available: none")
 }
@@ -551,7 +550,7 @@ func TestFormatterFallback_FormatCheckAll_NoAvailable(t *testing.T) {
 
 	fallback := &FormatterFallback{tool1, tool2}
 
-	err := fallback.FormatCheckAll(context.Background(), internal.ProjectFormatterOptions{})
+	err := fallback.FormatCheckAll(t.Context(), internal.ProjectFormatterOptions{})
 
 	require.EqualError(t, err, "no formatter tool available: test1, test2")
 
@@ -569,7 +568,7 @@ func TestFormatterFallback_FormatCheckAll_Available1(t *testing.T) {
 	tool2.Test(t)
 	tool1.On("FormatCheckAll", mock.Anything, mock.Anything).Return(nil)
 
-	err := fallback.FormatCheckAll(context.Background(), internal.ProjectFormatterOptions{})
+	err := fallback.FormatCheckAll(t.Context(), internal.ProjectFormatterOptions{})
 
 	require.NoError(t, err)
 
@@ -587,7 +586,7 @@ func TestFormatterFallback_FormatCheckAll_Available2(t *testing.T) {
 	tool2.Test(t)
 	tool2.On("FormatCheckAll", mock.Anything, mock.Anything).Return(nil)
 
-	err := fallback.FormatCheckAll(context.Background(), internal.ProjectFormatterOptions{})
+	err := fallback.FormatCheckAll(t.Context(), internal.ProjectFormatterOptions{})
 
 	require.NoError(t, err)
 
@@ -598,7 +597,7 @@ func TestFormatterFallback_FormatCheckAll_Available2(t *testing.T) {
 func TestFormatterFallback_FormatCheckFiles_Empty(t *testing.T) {
 	fallback := &FormatterFallback{}
 
-	err := fallback.FormatCheckFiles(context.Background(), internal.ProjectFormatterOptions{}, []string{"file1"})
+	err := fallback.FormatCheckFiles(t.Context(), internal.ProjectFormatterOptions{}, []string{"file1"})
 
 	require.EqualError(t, err, "no formatter tool available: none")
 }
@@ -609,7 +608,7 @@ func TestFormatterFallback_FormatCheckFiles_NoAvailable(t *testing.T) {
 
 	fallback := &FormatterFallback{tool1, tool2}
 
-	err := fallback.FormatCheckFiles(context.Background(), internal.ProjectFormatterOptions{}, []string{"file1"})
+	err := fallback.FormatCheckFiles(t.Context(), internal.ProjectFormatterOptions{}, []string{"file1"})
 
 	require.EqualError(t, err, "no formatter tool available: test1, test2")
 
@@ -627,7 +626,7 @@ func TestFormatterFallback_FormatCheckFiles_Available1(t *testing.T) {
 	tool2.Test(t)
 	tool1.On("FormatCheckFiles", mock.Anything, mock.Anything, []string{"file1"}).Return(nil)
 
-	err := fallback.FormatCheckFiles(context.Background(), internal.ProjectFormatterOptions{}, []string{"file1"})
+	err := fallback.FormatCheckFiles(t.Context(), internal.ProjectFormatterOptions{}, []string{"file1"})
 
 	require.NoError(t, err)
 
@@ -645,7 +644,7 @@ func TestFormatterFallback_FormatCheckFiles_Available2(t *testing.T) {
 	tool2.Test(t)
 	tool2.On("FormatCheckFiles", mock.Anything, mock.Anything, []string{"file1"}).Return(nil)
 
-	err := fallback.FormatCheckFiles(context.Background(), internal.ProjectFormatterOptions{}, []string{"file1"})
+	err := fallback.FormatCheckFiles(t.Context(), internal.ProjectFormatterOptions{}, []string{"file1"})
 
 	require.NoError(t, err)
 
@@ -686,7 +685,7 @@ func TestLinterFallback_Details(t *testing.T) {
 func TestLinterFallback_LintAll_Empty(t *testing.T) {
 	fallback := &LinterFallback{}
 
-	err := fallback.LintAll(context.Background(), internal.ProjectLinterOptions{})
+	err := fallback.LintAll(t.Context(), internal.ProjectLinterOptions{})
 
 	require.EqualError(t, err, "no linter tool available: none")
 }
@@ -697,7 +696,7 @@ func TestLinterFallback_LintAll_NoAvailable(t *testing.T) {
 
 	fallback := &LinterFallback{tool1, tool2}
 
-	err := fallback.LintAll(context.Background(), internal.ProjectLinterOptions{})
+	err := fallback.LintAll(t.Context(), internal.ProjectLinterOptions{})
 
 	require.EqualError(t, err, "no linter tool available: test1, test2")
 
@@ -715,7 +714,7 @@ func TestLinterFallback_LintAll_Available1(t *testing.T) {
 	tool2.Test(t)
 	tool1.On("LintAll", mock.Anything, mock.Anything).Return(nil)
 
-	err := fallback.LintAll(context.Background(), internal.ProjectLinterOptions{})
+	err := fallback.LintAll(t.Context(), internal.ProjectLinterOptions{})
 
 	require.NoError(t, err)
 
@@ -733,7 +732,7 @@ func TestLinterFallback_LintAll_Available2(t *testing.T) {
 	tool2.Test(t)
 	tool2.On("LintAll", mock.Anything, mock.Anything).Return(nil)
 
-	err := fallback.LintAll(context.Background(), internal.ProjectLinterOptions{})
+	err := fallback.LintAll(t.Context(), internal.ProjectLinterOptions{})
 
 	require.NoError(t, err)
 
@@ -744,7 +743,7 @@ func TestLinterFallback_LintAll_Available2(t *testing.T) {
 func TestLinterFallback_LintFiles_Empty(t *testing.T) {
 	fallback := &LinterFallback{}
 
-	err := fallback.LintFiles(context.Background(), internal.ProjectLinterOptions{}, []string{"file1"})
+	err := fallback.LintFiles(t.Context(), internal.ProjectLinterOptions{}, []string{"file1"})
 
 	require.EqualError(t, err, "no linter tool available: none")
 }
@@ -755,7 +754,7 @@ func TestLinterFallback_LintFiles_NoAvailable(t *testing.T) {
 
 	fallback := &LinterFallback{tool1, tool2}
 
-	err := fallback.LintFiles(context.Background(), internal.ProjectLinterOptions{}, []string{"file1"})
+	err := fallback.LintFiles(t.Context(), internal.ProjectLinterOptions{}, []string{"file1"})
 
 	require.EqualError(t, err, "no linter tool available: test1, test2")
 
@@ -773,7 +772,7 @@ func TestLinterFallback_LintFiles_Available1(t *testing.T) {
 	tool2.Test(t)
 	tool1.On("LintFiles", mock.Anything, mock.Anything, []string{"file1"}).Return(nil)
 
-	err := fallback.LintFiles(context.Background(), internal.ProjectLinterOptions{}, []string{"file1"})
+	err := fallback.LintFiles(t.Context(), internal.ProjectLinterOptions{}, []string{"file1"})
 
 	require.NoError(t, err)
 
@@ -791,7 +790,7 @@ func TestLinterFallback_LintFiles_Available2(t *testing.T) {
 	tool2.Test(t)
 	tool2.On("LintFiles", mock.Anything, mock.Anything, []string{"file1"}).Return(nil)
 
-	err := fallback.LintFiles(context.Background(), internal.ProjectLinterOptions{}, []string{"file1"})
+	err := fallback.LintFiles(t.Context(), internal.ProjectLinterOptions{}, []string{"file1"})
 
 	require.NoError(t, err)
 
@@ -817,7 +816,7 @@ func TestLinterList_Details(t *testing.T) {
 func TestLinterList_LintAll_Empty(t *testing.T) {
 	list := &LinterList{}
 
-	err := list.LintAll(context.Background(), internal.ProjectLinterOptions{})
+	err := list.LintAll(t.Context(), internal.ProjectLinterOptions{})
 
 	require.EqualError(t, err, "no linter tool available: none")
 }
@@ -828,7 +827,7 @@ func TestLinterList_LintAll_NoAvailable(t *testing.T) {
 
 	list := &LinterList{tool1, tool2}
 
-	err := list.LintAll(context.Background(), internal.ProjectLinterOptions{})
+	err := list.LintAll(t.Context(), internal.ProjectLinterOptions{})
 
 	require.EqualError(t, err, "no linter tool available: test1, test2")
 
@@ -846,7 +845,7 @@ func TestLinterList_LintAll_Available1(t *testing.T) {
 	tool2.Test(t)
 	tool1.On("LintAll", mock.Anything, mock.Anything).Return(nil)
 
-	err := list.LintAll(context.Background(), internal.ProjectLinterOptions{})
+	err := list.LintAll(t.Context(), internal.ProjectLinterOptions{})
 
 	require.NoError(t, err)
 
@@ -865,7 +864,7 @@ func TestLinterList_LintAll_Available2(t *testing.T) {
 	tool1.On("LintAll", mock.Anything, mock.Anything).Return(nil)
 	tool2.On("LintAll", mock.Anything, mock.Anything).Return(nil)
 
-	err := list.LintAll(context.Background(), internal.ProjectLinterOptions{})
+	err := list.LintAll(t.Context(), internal.ProjectLinterOptions{})
 
 	require.NoError(t, err)
 
@@ -876,7 +875,7 @@ func TestLinterList_LintAll_Available2(t *testing.T) {
 func TestLinterList_LintFiles_Empty(t *testing.T) {
 	list := &LinterList{}
 
-	err := list.LintFiles(context.Background(), internal.ProjectLinterOptions{}, []string{"file1"})
+	err := list.LintFiles(t.Context(), internal.ProjectLinterOptions{}, []string{"file1"})
 
 	require.EqualError(t, err, "no linter tool available: none")
 }
@@ -887,7 +886,7 @@ func TestLinterList_LintFiles_NoAvailable(t *testing.T) {
 
 	list := &LinterList{tool1, tool2}
 
-	err := list.LintFiles(context.Background(), internal.ProjectLinterOptions{}, []string{"file1"})
+	err := list.LintFiles(t.Context(), internal.ProjectLinterOptions{}, []string{"file1"})
 
 	require.EqualError(t, err, "no linter tool available: test1, test2")
 
@@ -905,7 +904,7 @@ func TestLinterList_LintFiles_Available1(t *testing.T) {
 	tool2.Test(t)
 	tool1.On("LintFiles", mock.Anything, mock.Anything, []string{"file1"}).Return(nil)
 
-	err := list.LintFiles(context.Background(), internal.ProjectLinterOptions{}, []string{"file1"})
+	err := list.LintFiles(t.Context(), internal.ProjectLinterOptions{}, []string{"file1"})
 
 	require.NoError(t, err)
 
@@ -924,7 +923,7 @@ func TestLinterList_LintFiles_Available2(t *testing.T) {
 	tool1.On("LintFiles", mock.Anything, mock.Anything, []string{"file1"}).Return(nil)
 	tool2.On("LintFiles", mock.Anything, mock.Anything, []string{"file1"}).Return(nil)
 
-	err := list.LintFiles(context.Background(), internal.ProjectLinterOptions{}, []string{"file1"})
+	err := list.LintFiles(t.Context(), internal.ProjectLinterOptions{}, []string{"file1"})
 
 	require.NoError(t, err)
 
@@ -965,7 +964,7 @@ func TestRunnerFallback_Details(t *testing.T) {
 func TestRunnerFallback_RunTarget_Empty(t *testing.T) {
 	fallback := &RunnerFallback{}
 
-	err := fallback.RunTarget(context.Background(), internal.ProjectRunnerOptions{}, "target1")
+	err := fallback.RunTarget(t.Context(), internal.ProjectRunnerOptions{}, "target1")
 
 	require.EqualError(t, err, "no runner tool available: none")
 }
@@ -976,7 +975,7 @@ func TestRunnerFallback_RunTarget_NoAvailable(t *testing.T) {
 
 	fallback := &RunnerFallback{tool1, tool2}
 
-	err := fallback.RunTarget(context.Background(), internal.ProjectRunnerOptions{}, "target1")
+	err := fallback.RunTarget(t.Context(), internal.ProjectRunnerOptions{}, "target1")
 
 	require.EqualError(t, err, "no runner tool available: test1, test2")
 
@@ -994,7 +993,7 @@ func TestRunnerFallback_RunTarget_Available1(t *testing.T) {
 	tool2.Test(t)
 	tool1.On("RunTarget", mock.Anything, mock.Anything, "target1").Return(nil)
 
-	err := fallback.RunTarget(context.Background(), internal.ProjectRunnerOptions{}, "target1")
+	err := fallback.RunTarget(t.Context(), internal.ProjectRunnerOptions{}, "target1")
 
 	require.NoError(t, err)
 
@@ -1012,7 +1011,7 @@ func TestRunnerFallback_RunTarget_Available2(t *testing.T) {
 	tool2.Test(t)
 	tool2.On("RunTarget", mock.Anything, mock.Anything, "target1").Return(nil)
 
-	err := fallback.RunTarget(context.Background(), internal.ProjectRunnerOptions{}, "target1")
+	err := fallback.RunTarget(t.Context(), internal.ProjectRunnerOptions{}, "target1")
 
 	require.NoError(t, err)
 
@@ -1053,7 +1052,7 @@ func TestDependencyManagerFallback_Details(t *testing.T) {
 func TestDependencyManagerFallback_AddDependencies_Empty(t *testing.T) {
 	fallback := &DependencyManagerFallback{}
 
-	err := fallback.AddDependencies(context.Background(), internal.ProjectDependencyManagerOptions{}, []string{"dep1"}, false)
+	err := fallback.AddDependencies(t.Context(), internal.ProjectDependencyManagerOptions{}, []string{"dep1"}, false)
 
 	require.EqualError(t, err, "no dependency management tool available: none")
 }
@@ -1064,7 +1063,7 @@ func TestDependencyManagerFallback_AddDependencies_NoAvailable(t *testing.T) {
 
 	fallback := &DependencyManagerFallback{tool1, tool2}
 
-	err := fallback.AddDependencies(context.Background(), internal.ProjectDependencyManagerOptions{}, []string{"dep1"}, false)
+	err := fallback.AddDependencies(t.Context(), internal.ProjectDependencyManagerOptions{}, []string{"dep1"}, false)
 
 	require.EqualError(t, err, "no dependency management tool available: test1, test2")
 
@@ -1082,7 +1081,7 @@ func TestDependencyManagerFallback_AddDependencies_Available1(t *testing.T) {
 	tool2.Test(t)
 	tool1.On("AddDependencies", mock.Anything, mock.Anything, []string{"dep1"}, false).Return(nil)
 
-	err := fallback.AddDependencies(context.Background(), internal.ProjectDependencyManagerOptions{}, []string{"dep1"}, false)
+	err := fallback.AddDependencies(t.Context(), internal.ProjectDependencyManagerOptions{}, []string{"dep1"}, false)
 
 	require.NoError(t, err)
 
@@ -1100,7 +1099,7 @@ func TestDependencyManagerFallback_AddDependencies_Available2(t *testing.T) {
 	tool2.Test(t)
 	tool2.On("AddDependencies", mock.Anything, mock.Anything, []string{"dep1"}, false).Return(nil)
 
-	err := fallback.AddDependencies(context.Background(), internal.ProjectDependencyManagerOptions{}, []string{"dep1"}, false)
+	err := fallback.AddDependencies(t.Context(), internal.ProjectDependencyManagerOptions{}, []string{"dep1"}, false)
 
 	require.NoError(t, err)
 
@@ -1111,7 +1110,7 @@ func TestDependencyManagerFallback_AddDependencies_Available2(t *testing.T) {
 func TestDependencyManagerFallback_RemoveDependencies_Empty(t *testing.T) {
 	fallback := &DependencyManagerFallback{}
 
-	err := fallback.RemoveDependencies(context.Background(), internal.ProjectDependencyManagerOptions{}, []string{"dep1"}, false)
+	err := fallback.RemoveDependencies(t.Context(), internal.ProjectDependencyManagerOptions{}, []string{"dep1"}, false)
 
 	require.EqualError(t, err, "no dependency management tool available: none")
 }
@@ -1122,7 +1121,7 @@ func TestDependencyManagerFallback_RemoveDependencies_NoAvailable(t *testing.T) 
 
 	fallback := &DependencyManagerFallback{tool1, tool2}
 
-	err := fallback.RemoveDependencies(context.Background(), internal.ProjectDependencyManagerOptions{}, []string{"dep1"}, false)
+	err := fallback.RemoveDependencies(t.Context(), internal.ProjectDependencyManagerOptions{}, []string{"dep1"}, false)
 
 	require.EqualError(t, err, "no dependency management tool available: test1, test2")
 
@@ -1140,7 +1139,7 @@ func TestDependencyManagerFallback_RemoveDependencies_Available1(t *testing.T) {
 	tool2.Test(t)
 	tool1.On("RemoveDependencies", mock.Anything, mock.Anything, []string{"dep1"}, false).Return(nil)
 
-	err := fallback.RemoveDependencies(context.Background(), internal.ProjectDependencyManagerOptions{}, []string{"dep1"}, false)
+	err := fallback.RemoveDependencies(t.Context(), internal.ProjectDependencyManagerOptions{}, []string{"dep1"}, false)
 
 	require.NoError(t, err)
 
@@ -1158,7 +1157,7 @@ func TestDependencyManagerFallback_RemoveDependencies_Available2(t *testing.T) {
 	tool2.Test(t)
 	tool2.On("RemoveDependencies", mock.Anything, mock.Anything, []string{"dep1"}, false).Return(nil)
 
-	err := fallback.RemoveDependencies(context.Background(), internal.ProjectDependencyManagerOptions{}, []string{"dep1"}, false)
+	err := fallback.RemoveDependencies(t.Context(), internal.ProjectDependencyManagerOptions{}, []string{"dep1"}, false)
 
 	require.NoError(t, err)
 
@@ -1169,7 +1168,7 @@ func TestDependencyManagerFallback_RemoveDependencies_Available2(t *testing.T) {
 func TestDependencyManagerFallback_UpdateDependencies_Empty(t *testing.T) {
 	fallback := &DependencyManagerFallback{}
 
-	err := fallback.UpdateDependencies(context.Background(), internal.ProjectDependencyManagerOptions{}, []string{"dep1"})
+	err := fallback.UpdateDependencies(t.Context(), internal.ProjectDependencyManagerOptions{}, []string{"dep1"})
 
 	require.EqualError(t, err, "no dependency management tool available: none")
 }
@@ -1180,7 +1179,7 @@ func TestDependencyManagerFallback_UpdateDependencies_NoAvailable(t *testing.T) 
 
 	fallback := &DependencyManagerFallback{tool1, tool2}
 
-	err := fallback.UpdateDependencies(context.Background(), internal.ProjectDependencyManagerOptions{}, []string{"dep1"})
+	err := fallback.UpdateDependencies(t.Context(), internal.ProjectDependencyManagerOptions{}, []string{"dep1"})
 
 	require.EqualError(t, err, "no dependency management tool available: test1, test2")
 
@@ -1198,7 +1197,7 @@ func TestDependencyManagerFallback_UpdateDependencies_Available1(t *testing.T) {
 	tool2.Test(t)
 	tool1.On("UpdateDependencies", mock.Anything, mock.Anything, []string{"dep1"}).Return(nil)
 
-	err := fallback.UpdateDependencies(context.Background(), internal.ProjectDependencyManagerOptions{}, []string{"dep1"})
+	err := fallback.UpdateDependencies(t.Context(), internal.ProjectDependencyManagerOptions{}, []string{"dep1"})
 
 	require.NoError(t, err)
 
@@ -1216,7 +1215,7 @@ func TestDependencyManagerFallback_UpdateDependencies_Available2(t *testing.T) {
 	tool2.Test(t)
 	tool2.On("UpdateDependencies", mock.Anything, mock.Anything, []string{"dep1"}).Return(nil)
 
-	err := fallback.UpdateDependencies(context.Background(), internal.ProjectDependencyManagerOptions{}, []string{"dep1"})
+	err := fallback.UpdateDependencies(t.Context(), internal.ProjectDependencyManagerOptions{}, []string{"dep1"})
 
 	require.NoError(t, err)
 
@@ -1227,7 +1226,7 @@ func TestDependencyManagerFallback_UpdateDependencies_Available2(t *testing.T) {
 func TestDependencyManagerFallback_FetchDependencies_Empty(t *testing.T) {
 	fallback := &DependencyManagerFallback{}
 
-	err := fallback.FetchDependencies(context.Background(), internal.ProjectDependencyManagerOptions{}, false)
+	err := fallback.FetchDependencies(t.Context(), internal.ProjectDependencyManagerOptions{}, false)
 
 	require.EqualError(t, err, "no dependency management tool available: none")
 }
@@ -1238,7 +1237,7 @@ func TestDependencyManagerFallback_FetchDependencies_NoAvailable(t *testing.T) {
 
 	fallback := &DependencyManagerFallback{tool1, tool2}
 
-	err := fallback.FetchDependencies(context.Background(), internal.ProjectDependencyManagerOptions{}, false)
+	err := fallback.FetchDependencies(t.Context(), internal.ProjectDependencyManagerOptions{}, false)
 
 	require.EqualError(t, err, "no dependency management tool available: test1, test2")
 
@@ -1256,7 +1255,7 @@ func TestDependencyManagerFallback_FetchDependencies_Available1(t *testing.T) {
 	tool2.Test(t)
 	tool1.On("FetchDependencies", mock.Anything, mock.Anything, false).Return(nil)
 
-	err := fallback.FetchDependencies(context.Background(), internal.ProjectDependencyManagerOptions{}, false)
+	err := fallback.FetchDependencies(t.Context(), internal.ProjectDependencyManagerOptions{}, false)
 
 	require.NoError(t, err)
 
@@ -1274,7 +1273,7 @@ func TestDependencyManagerFallback_FetchDependencies_Available2(t *testing.T) {
 	tool2.Test(t)
 	tool2.On("FetchDependencies", mock.Anything, mock.Anything, false).Return(nil)
 
-	err := fallback.FetchDependencies(context.Background(), internal.ProjectDependencyManagerOptions{}, false)
+	err := fallback.FetchDependencies(t.Context(), internal.ProjectDependencyManagerOptions{}, false)
 
 	require.NoError(t, err)
 
@@ -1285,7 +1284,7 @@ func TestDependencyManagerFallback_FetchDependencies_Available2(t *testing.T) {
 func TestDependencyManagerFallback_ListDependencies_Empty(t *testing.T) {
 	fallback := &DependencyManagerFallback{}
 
-	err := fallback.ListDependencies(context.Background(), internal.ProjectDependencyManagerOptions{})
+	err := fallback.ListDependencies(t.Context(), internal.ProjectDependencyManagerOptions{})
 
 	require.EqualError(t, err, "no dependency management tool available: none")
 }
@@ -1296,7 +1295,7 @@ func TestDependencyManagerFallback_ListDependencies_NoAvailable(t *testing.T) {
 
 	fallback := &DependencyManagerFallback{tool1, tool2}
 
-	err := fallback.ListDependencies(context.Background(), internal.ProjectDependencyManagerOptions{})
+	err := fallback.ListDependencies(t.Context(), internal.ProjectDependencyManagerOptions{})
 
 	require.EqualError(t, err, "no dependency management tool available: test1, test2")
 
@@ -1314,7 +1313,7 @@ func TestDependencyManagerFallback_ListDependencies_Available1(t *testing.T) {
 	tool2.Test(t)
 	tool1.On("ListDependencies", mock.Anything, mock.Anything).Return(nil)
 
-	err := fallback.ListDependencies(context.Background(), internal.ProjectDependencyManagerOptions{})
+	err := fallback.ListDependencies(t.Context(), internal.ProjectDependencyManagerOptions{})
 
 	require.NoError(t, err)
 
@@ -1332,7 +1331,7 @@ func TestDependencyManagerFallback_ListDependencies_Available2(t *testing.T) {
 	tool2.Test(t)
 	tool2.On("ListDependencies", mock.Anything, mock.Anything).Return(nil)
 
-	err := fallback.ListDependencies(context.Background(), internal.ProjectDependencyManagerOptions{})
+	err := fallback.ListDependencies(t.Context(), internal.ProjectDependencyManagerOptions{})
 
 	require.NoError(t, err)
 
@@ -1343,7 +1342,7 @@ func TestDependencyManagerFallback_ListDependencies_Available2(t *testing.T) {
 func TestDependencyManagerFallback_AuditDependencies_Empty(t *testing.T) {
 	fallback := &DependencyManagerFallback{}
 
-	err := fallback.AuditDependencies(context.Background(), internal.ProjectDependencyManagerOptions{})
+	err := fallback.AuditDependencies(t.Context(), internal.ProjectDependencyManagerOptions{})
 
 	require.EqualError(t, err, "no dependency management tool available: none")
 }
@@ -1354,7 +1353,7 @@ func TestDependencyManagerFallback_AuditDependencies_NoAvailable(t *testing.T) {
 
 	fallback := &DependencyManagerFallback{tool1, tool2}
 
-	err := fallback.AuditDependencies(context.Background(), internal.ProjectDependencyManagerOptions{})
+	err := fallback.AuditDependencies(t.Context(), internal.ProjectDependencyManagerOptions{})
 
 	require.EqualError(t, err, "no dependency management tool available: test1, test2")
 
@@ -1372,7 +1371,7 @@ func TestDependencyManagerFallback_AuditDependencies_Available1(t *testing.T) {
 	tool2.Test(t)
 	tool1.On("AuditDependencies", mock.Anything, mock.Anything).Return(nil)
 
-	err := fallback.AuditDependencies(context.Background(), internal.ProjectDependencyManagerOptions{})
+	err := fallback.AuditDependencies(t.Context(), internal.ProjectDependencyManagerOptions{})
 
 	require.NoError(t, err)
 
@@ -1390,7 +1389,7 @@ func TestDependencyManagerFallback_AuditDependencies_Available2(t *testing.T) {
 	tool2.Test(t)
 	tool2.On("AuditDependencies", mock.Anything, mock.Anything).Return(nil)
 
-	err := fallback.AuditDependencies(context.Background(), internal.ProjectDependencyManagerOptions{})
+	err := fallback.AuditDependencies(t.Context(), internal.ProjectDependencyManagerOptions{})
 
 	require.NoError(t, err)
 

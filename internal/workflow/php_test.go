@@ -4,7 +4,6 @@ import (
 	"cdt/internal"
 	"cdt/internal/test"
 	"cdt/internal/tool"
-	"context"
 	"os"
 	"path/filepath"
 	"testing"
@@ -78,7 +77,7 @@ func TestPHPType_Project_TestAll_Paratest(t *testing.T) {
 	require.NotNil(t, p.Workflow.Tester)
 	paratestMock.OnRunAnything("paratest-test").Return(nil)
 
-	err := p.Workflow.Tester.TestAll(context.Background(), internal.ProjectTesterOptions{ProjectInfo: p.Info})
+	err := p.Workflow.Tester.TestAll(t.Context(), internal.ProjectTesterOptions{ProjectInfo: p.Info})
 	require.NoError(t, err)
 
 	paratestMock.AssertExpectations(t)
@@ -106,7 +105,7 @@ func TestPHPType_Project_TestAll_PHPUnit(t *testing.T) {
 	require.NotNil(t, p.Workflow.Tester)
 	phpunitMock.OnRunAnything("phpunit-test").Return(nil)
 
-	err := p.Workflow.Tester.TestAll(context.Background(), internal.ProjectTesterOptions{ProjectInfo: p.Info})
+	err := p.Workflow.Tester.TestAll(t.Context(), internal.ProjectTesterOptions{ProjectInfo: p.Info})
 	require.NoError(t, err)
 
 	paratestMock.AssertExpectations(t)
@@ -134,7 +133,7 @@ func TestPHPType_Project_Test_Paratest(t *testing.T) {
 	require.NotNil(t, p.Workflow.Tester)
 	paratestMock.OnRunAnything("paratest-test").Return(nil)
 
-	err := p.Workflow.Tester.TestPattern(context.Background(), internal.ProjectTesterOptions{ProjectInfo: p.Info}, "my-test")
+	err := p.Workflow.Tester.TestPattern(t.Context(), internal.ProjectTesterOptions{ProjectInfo: p.Info}, "my-test")
 	require.NoError(t, err)
 
 	paratestMock.AssertExpectations(t)
@@ -162,7 +161,7 @@ func TestPHPType_Project_Test_PHPUnit(t *testing.T) {
 	require.NotNil(t, p.Workflow.Tester)
 	phpunitMock.OnRunAnything("phpunit-test").Return(nil)
 
-	err := p.Workflow.Tester.TestPattern(context.Background(), internal.ProjectTesterOptions{ProjectInfo: p.Info}, "my-test")
+	err := p.Workflow.Tester.TestPattern(t.Context(), internal.ProjectTesterOptions{ProjectInfo: p.Info}, "my-test")
 	require.NoError(t, err)
 
 	paratestMock.AssertExpectations(t)

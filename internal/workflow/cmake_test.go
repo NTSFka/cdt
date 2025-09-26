@@ -4,7 +4,6 @@ import (
 	"cdt/internal"
 	"cdt/internal/test"
 	"cdt/internal/tool"
-	"context"
 	"errors"
 	"os"
 	"path/filepath"
@@ -81,7 +80,7 @@ func TestCMakeType_Project_TestAll(t *testing.T) {
 	cmakeMock.OnRunAnything("cmake-test").Return(nil)
 	ctestMock.OnRun("ctest-test", []string{"--test-dir", buildDir}).Return(nil)
 
-	err = project.Workflow.Tester.TestAll(context.Background(), internal.ProjectTesterOptions{ProjectInfo: project.Info})
+	err = project.Workflow.Tester.TestAll(t.Context(), internal.ProjectTesterOptions{ProjectInfo: project.Info})
 	require.NoError(t, err)
 
 	cmakeMock.AssertExpectations(t)
@@ -112,7 +111,7 @@ func TestCMakeType_Project_TestAll_BuildFailed(t *testing.T) {
 	require.NotNil(t, p.Workflow.Tester)
 	cmakeMock.OnRunAnything("cmake-test").Return(errors.New("failed"))
 
-	err = p.Workflow.Tester.TestAll(context.Background(), internal.ProjectTesterOptions{ProjectInfo: p.Info})
+	err = p.Workflow.Tester.TestAll(t.Context(), internal.ProjectTesterOptions{ProjectInfo: p.Info})
 	require.EqualError(t, err, "build failed: failed")
 
 	cmakeMock.AssertExpectations(t)
@@ -144,7 +143,7 @@ func TestCMakeProject_Project_Test(t *testing.T) {
 	cmakeMock.OnRunAnything("cmake-test").Return(nil)
 	ctestMock.OnRun("ctest-test", []string{"-R", "my-test", "--test-dir", buildDir}).Return(nil)
 
-	err = project.Workflow.Tester.TestPattern(context.Background(), internal.ProjectTesterOptions{ProjectInfo: project.Info}, "my-test")
+	err = project.Workflow.Tester.TestPattern(t.Context(), internal.ProjectTesterOptions{ProjectInfo: project.Info}, "my-test")
 	require.NoError(t, err)
 
 	cmakeMock.AssertExpectations(t)
@@ -175,7 +174,7 @@ func TestCMakeProject_Project_TestBuild_Failed(t *testing.T) {
 	require.NotNil(t, p.Workflow.Tester)
 	cmakeMock.OnRunAnything("cmake-test").Return(errors.New("failed"))
 
-	err = p.Workflow.Tester.TestPattern(context.Background(), internal.ProjectTesterOptions{ProjectInfo: p.Info}, "my-test")
+	err = p.Workflow.Tester.TestPattern(t.Context(), internal.ProjectTesterOptions{ProjectInfo: p.Info}, "my-test")
 	require.EqualError(t, err, "build failed: failed")
 
 	cmakeMock.AssertExpectations(t)

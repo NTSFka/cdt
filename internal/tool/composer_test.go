@@ -3,7 +3,6 @@ package tool
 import (
 	"cdt/internal"
 	"cdt/internal/test"
-	"context"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -17,7 +16,7 @@ func TestComposer_DetectComposer_Phar(t *testing.T) {
 	env.OnFindExecutable("composer.phar").
 		Return(env.NewExecutable("/bin/tool"))
 
-	tool := DetectComposer(context.Background(), env)
+	tool := DetectComposer(t.Context(), env)
 	assert.NotNil(t, tool)
 	assert.Equal(t, "composer", tool.Id())
 	assert.True(t, tool.IsAvailable())
@@ -40,7 +39,7 @@ func TestComposer_DetectComposer_System(t *testing.T) {
 	env.OnFindExecutable("composer").
 		Return(env.NewExecutable("/bin/tool"))
 
-	tool := DetectComposer(context.Background(), env)
+	tool := DetectComposer(t.Context(), env)
 	assert.NotNil(t, tool)
 	assert.Equal(t, "composer", tool.Id())
 	assert.True(t, tool.IsAvailable())
@@ -60,7 +59,7 @@ func TestComposer_DetectComposer_NotFound(t *testing.T) {
 	env.OnFindExecutable("composer").
 		Return(nil)
 
-	tool := DetectComposer(context.Background(), env)
+	tool := DetectComposer(t.Context(), env)
 	assert.NotNil(t, tool)
 	assert.Equal(t, "composer", tool.Id())
 	assert.False(t, tool.IsAvailable())
@@ -79,7 +78,7 @@ func TestComposer_Composer_AddDependencies(t *testing.T) {
 	exec.OnRun("composer", []string{"require", "dep1"}).
 		Return(nil)
 
-	err := tool.AddDependencies(context.Background(), internal.ProjectDependencyManagerOptions{ProjectInfo: info}, []string{"dep1"}, false)
+	err := tool.AddDependencies(t.Context(), internal.ProjectDependencyManagerOptions{ProjectInfo: info}, []string{"dep1"}, false)
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -95,7 +94,7 @@ func TestComposer_Composer_AddDependencies_Dev(t *testing.T) {
 	exec.OnRun("composer", []string{"require", "--dev", "dep1"}).
 		Return(nil)
 
-	err := tool.AddDependencies(context.Background(), internal.ProjectDependencyManagerOptions{ProjectInfo: info}, []string{"dep1"}, true)
+	err := tool.AddDependencies(t.Context(), internal.ProjectDependencyManagerOptions{ProjectInfo: info}, []string{"dep1"}, true)
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -111,7 +110,7 @@ func TestComposer_Composer_RemoveDependencies(t *testing.T) {
 	exec.OnRun("composer", []string{"remove", "dep1"}).
 		Return(nil)
 
-	err := tool.RemoveDependencies(context.Background(), internal.ProjectDependencyManagerOptions{ProjectInfo: info}, []string{"dep1"}, false)
+	err := tool.RemoveDependencies(t.Context(), internal.ProjectDependencyManagerOptions{ProjectInfo: info}, []string{"dep1"}, false)
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -127,7 +126,7 @@ func TestComposer_Composer_RemoveDependencies_Dev(t *testing.T) {
 	exec.OnRun("composer", []string{"remove", "--dev", "dep1"}).
 		Return(nil)
 
-	err := tool.RemoveDependencies(context.Background(), internal.ProjectDependencyManagerOptions{ProjectInfo: info}, []string{"dep1"}, true)
+	err := tool.RemoveDependencies(t.Context(), internal.ProjectDependencyManagerOptions{ProjectInfo: info}, []string{"dep1"}, true)
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -143,7 +142,7 @@ func TestComposer_Composer_UpdateDependencies(t *testing.T) {
 	exec.OnRun("composer", []string{"update", "dep1"}).
 		Return(nil)
 
-	err := tool.UpdateDependencies(context.Background(), internal.ProjectDependencyManagerOptions{ProjectInfo: info}, []string{"dep1"})
+	err := tool.UpdateDependencies(t.Context(), internal.ProjectDependencyManagerOptions{ProjectInfo: info}, []string{"dep1"})
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -159,7 +158,7 @@ func TestComposer_Composer_FetchDependencies(t *testing.T) {
 	exec.OnRun("composer", []string{"install"}).
 		Return(nil)
 
-	err := tool.FetchDependencies(context.Background(), internal.ProjectDependencyManagerOptions{ProjectInfo: info}, false)
+	err := tool.FetchDependencies(t.Context(), internal.ProjectDependencyManagerOptions{ProjectInfo: info}, false)
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -175,7 +174,7 @@ func TestComposer_Composer_FetchDependencies_NoDev(t *testing.T) {
 	exec.OnRun("composer", []string{"install", "--no-dev"}).
 		Return(nil)
 
-	err := tool.FetchDependencies(context.Background(), internal.ProjectDependencyManagerOptions{ProjectInfo: info}, true)
+	err := tool.FetchDependencies(t.Context(), internal.ProjectDependencyManagerOptions{ProjectInfo: info}, true)
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -191,7 +190,7 @@ func TestComposer_Composer_ListDependencies(t *testing.T) {
 	exec.OnRun("composer", []string{"show"}).
 		Return(nil)
 
-	err := tool.ListDependencies(context.Background(), internal.ProjectDependencyManagerOptions{ProjectInfo: info})
+	err := tool.ListDependencies(t.Context(), internal.ProjectDependencyManagerOptions{ProjectInfo: info})
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -207,7 +206,7 @@ func TestComposer_Composer_AuditDependencies(t *testing.T) {
 	exec.OnRun("composer", []string{"audit"}).
 		Return(nil)
 
-	err := tool.AuditDependencies(context.Background(), internal.ProjectDependencyManagerOptions{ProjectInfo: info})
+	err := tool.AuditDependencies(t.Context(), internal.ProjectDependencyManagerOptions{ProjectInfo: info})
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)

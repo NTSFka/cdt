@@ -3,7 +3,6 @@ package tool
 import (
 	"cdt/internal"
 	"cdt/internal/test"
-	"context"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -17,7 +16,7 @@ func TestPHPStan_DetectPHPStan_Composer(t *testing.T) {
 	env.OnFindExecutable("vendor/bin/phpstan").
 		Return(env.NewExecutable("/bin/tool"))
 
-	tool := DetectPHPStan(context.Background(), env)
+	tool := DetectPHPStan(t.Context(), env)
 	assert.NotNil(t, tool)
 	assert.Equal(t, "phpstan", tool.Id())
 	assert.True(t, tool.IsAvailable())
@@ -40,7 +39,7 @@ func TestPHPStan_DetectPHPStan_System(t *testing.T) {
 	env.OnFindExecutable("phpstan").
 		Return(env.NewExecutable("/bin/tool"))
 
-	tool := DetectPHPStan(context.Background(), env)
+	tool := DetectPHPStan(t.Context(), env)
 	assert.NotNil(t, tool)
 	assert.Equal(t, "phpstan", tool.Id())
 	assert.True(t, tool.IsAvailable())
@@ -60,7 +59,7 @@ func TestPHPStan_DetectPHPStan_NotFound(t *testing.T) {
 	env.OnFindExecutable("phpstan").
 		Return(nil)
 
-	tool := DetectPHPStan(context.Background(), env)
+	tool := DetectPHPStan(t.Context(), env)
 	assert.NotNil(t, tool)
 	assert.Equal(t, "phpstan", tool.Id())
 	assert.False(t, tool.IsAvailable())
@@ -79,7 +78,7 @@ func TestPHPStan_PHPStan_LintAll(t *testing.T) {
 	exec.OnRun("lint", []string{"analyse"}).
 		Return(nil)
 
-	err := tool.LintAll(context.Background(), internal.ProjectLinterOptions{ProjectInfo: info})
+	err := tool.LintAll(t.Context(), internal.ProjectLinterOptions{ProjectInfo: info})
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -95,7 +94,7 @@ func TestPHPStan_PHPStan_Lint(t *testing.T) {
 	exec.OnRun("lint", []string{"analyse", "file.php", "/path/to/file2.php"}).
 		Return(nil)
 
-	err := tool.LintFiles(context.Background(), internal.ProjectLinterOptions{ProjectInfo: info}, []string{"file.php", "/path/to/file2.php"})
+	err := tool.LintFiles(t.Context(), internal.ProjectLinterOptions{ProjectInfo: info}, []string{"file.php", "/path/to/file2.php"})
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)

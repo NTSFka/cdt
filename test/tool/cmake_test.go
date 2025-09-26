@@ -3,7 +3,6 @@ package tool
 import (
 	"cdt/internal"
 	"cdt/internal/tool"
-	"context"
 	"runtime"
 	"testing"
 
@@ -19,11 +18,11 @@ func TestCMakeRealProjectConfigureAndBuildAndRun(t *testing.T) {
 
 	environment := internal.SystemEnvironment
 
-	checkTool(t, context.Background(), environment, "cmake")
+	checkTool(t, t.Context(), environment, "cmake")
 
 	buildDirectory := fs.NewDir(t, "cdt-test")
 
-	cmake := tool.DetectCMake(context.Background(), environment)
+	cmake := tool.DetectCMake(t.Context(), environment)
 
 	info := internal.ProjectInfo{
 		Directory:             "data/cmake",
@@ -31,12 +30,12 @@ func TestCMakeRealProjectConfigureAndBuildAndRun(t *testing.T) {
 		StructureProvider:     cmake,
 	}
 
-	var err = cmake.Configure(context.Background(), internal.ProjectConfiguratorOptions{ProjectInfo: info})
+	var err = cmake.Configure(t.Context(), internal.ProjectConfiguratorOptions{ProjectInfo: info})
 
 	require.NoError(t, err)
 
 	var structure *internal.ProjectStructure
-	structure, err = cmake.Structure(context.Background(), info)
+	structure, err = cmake.Structure(t.Context(), info)
 	require.NoError(t, err)
 
 	require.NotNil(t, structure)
@@ -57,12 +56,12 @@ func TestCMakeRealProjectConfigureAndBuildAndRun(t *testing.T) {
 
 	assert.Equal(t, []string{"main.cpp", "test.cpp"}, structure.GetFiles())
 
-	err = cmake.BuildAll(context.Background(), internal.ProjectBuilderOptions{ProjectInfo: info})
+	err = cmake.BuildAll(t.Context(), internal.ProjectBuilderOptions{ProjectInfo: info})
 	require.NoError(t, err)
 
-	err = cmake.BuildTargets(context.Background(), internal.ProjectBuilderOptions{ProjectInfo: info}, []string{"main"})
+	err = cmake.BuildTargets(t.Context(), internal.ProjectBuilderOptions{ProjectInfo: info}, []string{"main"})
 	require.NoError(t, err)
 
-	err = cmake.RunTarget(context.Background(), internal.ProjectRunnerOptions{ProjectInfo: info}, "main")
+	err = cmake.RunTarget(t.Context(), internal.ProjectRunnerOptions{ProjectInfo: info}, "main")
 	require.NoError(t, err)
 }

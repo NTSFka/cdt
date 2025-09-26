@@ -3,7 +3,6 @@ package tool
 import (
 	"cdt/internal"
 	"cdt/internal/test"
-	"context"
 	"errors"
 	"testing"
 
@@ -17,7 +16,7 @@ func TestPHP_DetectPHP(t *testing.T) {
 	env.OnFindExecutable("php").
 		Return(env.NewExecutable("/bin/tool"))
 
-	tool := DetectPHP(context.Background(), env)
+	tool := DetectPHP(t.Context(), env)
 	assert.NotNil(t, tool)
 	assert.Equal(t, "php", tool.Id())
 	assert.True(t, tool.IsAvailable())
@@ -35,7 +34,7 @@ func TestPHP_DetectPHP_NotFound(t *testing.T) {
 	env.OnFindExecutable("php").
 		Return(nil)
 
-	tool := DetectPHP(context.Background(), env)
+	tool := DetectPHP(t.Context(), env)
 	assert.NotNil(t, tool)
 	assert.Equal(t, "php", tool.Id())
 	assert.False(t, tool.IsAvailable())
@@ -54,7 +53,7 @@ func TestPHP_PHP_RunTarget(t *testing.T) {
 	exec.OnRun("php", []string{"-f", "index.php"}).
 		Return(nil)
 
-	err := tool.RunTarget(context.Background(), internal.ProjectRunnerOptions{ProjectInfo: info}, "index.php")
+	err := tool.RunTarget(t.Context(), internal.ProjectRunnerOptions{ProjectInfo: info}, "index.php")
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -70,7 +69,7 @@ func TestPHP_PHP_RunTarget_Fail(t *testing.T) {
 	exec.OnRun("php", []string{"-f", "index.php"}).
 		Return(errors.New("failed"))
 
-	err := tool.RunTarget(context.Background(), internal.ProjectRunnerOptions{ProjectInfo: info}, "index.php")
+	err := tool.RunTarget(t.Context(), internal.ProjectRunnerOptions{ProjectInfo: info}, "index.php")
 	require.EqualError(t, err, "failed")
 
 	exec.AssertExpectations(t)

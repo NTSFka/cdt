@@ -31,7 +31,7 @@ func runConfigureTool(ctx context.Context, configurator internal.Tool, args ...s
 }
 
 func TestConfigure_NotSupported(t *testing.T) {
-	err := runConfigure(context.Background(), nil)
+	err := runConfigure(t.Context(), nil)
 
 	require.Error(t, err)
 	assert.Equal(t, "project doesn't support configuration", err.Error())
@@ -42,7 +42,7 @@ func TestConfigure_Configure_Success(t *testing.T) {
 	configurator.On("Configure", mock.Anything, mock.Anything).
 		Return(nil)
 
-	err := runConfigure(context.Background(), configurator)
+	err := runConfigure(t.Context(), configurator)
 
 	require.NoError(t, err)
 	configurator.AssertExpectations(t)
@@ -53,7 +53,7 @@ func TestConfigure_Configure_Failure(t *testing.T) {
 	configurator.On("Configure", mock.Anything, mock.Anything).
 		Return(errors.New("failed"))
 
-	err := runConfigure(context.Background(), configurator)
+	err := runConfigure(t.Context(), configurator)
 
 	require.Error(t, err)
 	assert.Equal(t, "failed", err.Error())
@@ -80,7 +80,7 @@ func TestConfigure_Tool_Success(t *testing.T) {
 	configurator.On("Configure", mock.Anything, mock.Anything).
 		Return(nil)
 
-	err := runConfigureTool(context.Background(), configurator, "--tool", "tool1")
+	err := runConfigureTool(t.Context(), configurator, "--tool", "tool1")
 
 	require.NoError(t, err)
 	configurator.AssertExpectations(t)
@@ -91,7 +91,7 @@ func TestConfigure_Tool_Failed(t *testing.T) {
 	configurator.On("Configure", mock.Anything, mock.Anything).
 		Return(errors.New("failed"))
 
-	err := runConfigureTool(context.Background(), configurator, "--tool", "tool1")
+	err := runConfigureTool(t.Context(), configurator, "--tool", "tool1")
 
 	require.Error(t, err)
 	assert.Equal(t, "failed", err.Error())
@@ -101,7 +101,7 @@ func TestConfigure_Tool_Failed(t *testing.T) {
 func TestConfigure_Tool_NotFound(t *testing.T) {
 	configurator := newTestConfiguratorTool(t)
 
-	err := runConfigureTool(context.Background(), configurator, "--tool", "tool2")
+	err := runConfigureTool(t.Context(), configurator, "--tool", "tool2")
 
 	require.Error(t, err)
 	assert.Equal(t, "tool 'tool2' not found", err.Error())
@@ -115,7 +115,7 @@ func TestConfigure_Tool_NotSupported(t *testing.T) {
 		internal.MakeExecutableTool("tool1", "", "", internal.Tags{}, nil),
 	}
 
-	err := runConfigureTool(context.Background(), configurator, "--tool", "tool1")
+	err := runConfigureTool(t.Context(), configurator, "--tool", "tool1")
 
 	require.Error(t, err)
 	assert.Equal(t, "tool 'tool1' doesn't support configuration", err.Error())

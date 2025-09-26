@@ -3,7 +3,6 @@ package tool
 import (
 	"cdt/internal"
 	"cdt/internal/test"
-	"context"
 	"errors"
 	"fmt"
 	"os"
@@ -19,7 +18,7 @@ func TestClangFormat_DetectClangFormat(t *testing.T) {
 	env.OnFindExecutable("clang-format").
 		Return(env.NewExecutable("/bin/clang-format"))
 
-	tool := DetectClangFormat(context.Background(), env)
+	tool := DetectClangFormat(t.Context(), env)
 	assert.NotNil(t, tool)
 	assert.Equal(t, "clang-format", tool.Id())
 	assert.True(t, tool.IsAvailable())
@@ -36,7 +35,7 @@ func TestClangFormat_DetectClangFormat_NotFound(t *testing.T) {
 	env.OnFindExecutable("clang-format").
 		Return(nil)
 
-	tool := DetectClangFormat(context.Background(), env)
+	tool := DetectClangFormat(t.Context(), env)
 	assert.NotNil(t, tool)
 	assert.Equal(t, "clang-format", tool.Id())
 	assert.False(t, tool.IsAvailable())
@@ -72,7 +71,7 @@ func TestClangFormat_FormatAll(t *testing.T) {
 	}).
 		Return(nil)
 
-	err := tool.FormatAll(context.Background(), internal.ProjectFormatterOptions{ProjectInfo: info})
+	err := tool.FormatAll(t.Context(), internal.ProjectFormatterOptions{ProjectInfo: info})
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -105,7 +104,7 @@ func TestClangFormat_FormatAll_Failed(t *testing.T) {
 	}).
 		Return(errors.New("failed"))
 
-	err := tool.FormatAll(context.Background(), internal.ProjectFormatterOptions{ProjectInfo: info})
+	err := tool.FormatAll(t.Context(), internal.ProjectFormatterOptions{ProjectInfo: info})
 	require.EqualError(t, err, "failed")
 
 	exec.AssertExpectations(t)
@@ -142,7 +141,7 @@ func TestClangFormat_FormatAll_CustomConfig(t *testing.T) {
 	}).
 		Return(nil)
 
-	err = tool.FormatAll(context.Background(), internal.ProjectFormatterOptions{ProjectInfo: info})
+	err = tool.FormatAll(t.Context(), internal.ProjectFormatterOptions{ProjectInfo: info})
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -163,7 +162,7 @@ func TestClangFormat_FormatFiles(t *testing.T) {
 	}).
 		Return(nil)
 
-	err := tool.FormatFiles(context.Background(), internal.ProjectFormatterOptions{ProjectInfo: info}, []string{"file1.go", filepath.Join(info.Directory, "file3.go")})
+	err := tool.FormatFiles(t.Context(), internal.ProjectFormatterOptions{ProjectInfo: info}, []string{"file1.go", filepath.Join(info.Directory, "file3.go")})
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -183,7 +182,7 @@ func TestClangFormat_FormatFiles_Failed(t *testing.T) {
 	}).
 		Return(errors.New("failed"))
 
-	err := tool.FormatFiles(context.Background(), internal.ProjectFormatterOptions{ProjectInfo: info}, []string{"file1.go"})
+	err := tool.FormatFiles(t.Context(), internal.ProjectFormatterOptions{ProjectInfo: info}, []string{"file1.go"})
 	require.EqualError(t, err, "failed")
 
 	exec.AssertExpectations(t)
@@ -207,7 +206,7 @@ func TestClangFormat_FormatFiles_CustomConfig(t *testing.T) {
 	}).
 		Return(nil)
 
-	err = tool.FormatFiles(context.Background(), internal.ProjectFormatterOptions{ProjectInfo: info}, []string{"file1.go"})
+	err = tool.FormatFiles(t.Context(), internal.ProjectFormatterOptions{ProjectInfo: info}, []string{"file1.go"})
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -240,7 +239,7 @@ func TestClangFormat_FormatCheckAll(t *testing.T) {
 	}).
 		Return(nil)
 
-	err := tool.FormatCheckAll(context.Background(), internal.ProjectFormatterOptions{ProjectInfo: info})
+	err := tool.FormatCheckAll(t.Context(), internal.ProjectFormatterOptions{ProjectInfo: info})
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -273,7 +272,7 @@ func TestClangFormat_FormatCheckAll_Failed(t *testing.T) {
 	}).
 		Return(errors.New("failed"))
 
-	err := tool.FormatCheckAll(context.Background(), internal.ProjectFormatterOptions{ProjectInfo: info})
+	err := tool.FormatCheckAll(t.Context(), internal.ProjectFormatterOptions{ProjectInfo: info})
 	require.EqualError(t, err, "failed")
 
 	exec.AssertExpectations(t)
@@ -310,7 +309,7 @@ func TestClangFormat_FormatCheckAll_CustomConfig(t *testing.T) {
 	}).
 		Return(nil)
 
-	err = tool.FormatCheckAll(context.Background(), internal.ProjectFormatterOptions{ProjectInfo: info})
+	err = tool.FormatCheckAll(t.Context(), internal.ProjectFormatterOptions{ProjectInfo: info})
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -331,7 +330,7 @@ func TestClangFormat_FormatCheckFiles(t *testing.T) {
 	}).
 		Return(nil)
 
-	err := tool.FormatCheckFiles(context.Background(), internal.ProjectFormatterOptions{ProjectInfo: info}, []string{"file1.go", filepath.Join(info.Directory, "file3.go")})
+	err := tool.FormatCheckFiles(t.Context(), internal.ProjectFormatterOptions{ProjectInfo: info}, []string{"file1.go", filepath.Join(info.Directory, "file3.go")})
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -351,7 +350,7 @@ func TestClangFormat_FormatCheckFiles_Failed(t *testing.T) {
 	}).
 		Return(errors.New("failed"))
 
-	err := tool.FormatCheckFiles(context.Background(), internal.ProjectFormatterOptions{ProjectInfo: info}, []string{"file1.go"})
+	err := tool.FormatCheckFiles(t.Context(), internal.ProjectFormatterOptions{ProjectInfo: info}, []string{"file1.go"})
 	require.EqualError(t, err, "failed")
 
 	exec.AssertExpectations(t)
@@ -375,7 +374,7 @@ func TestClangFormat_FormatCheckFiles_CustomConfig(t *testing.T) {
 	}).
 		Return(nil)
 
-	err = tool.FormatCheckFiles(context.Background(), internal.ProjectFormatterOptions{ProjectInfo: info}, []string{"file1.go"})
+	err = tool.FormatCheckFiles(t.Context(), internal.ProjectFormatterOptions{ProjectInfo: info}, []string{"file1.go"})
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -391,7 +390,7 @@ func TestClangFormat_Run(t *testing.T) {
 	exec.OnRun("clang-format", []string{}).
 		Return(nil)
 
-	err := tool.RunForProject(context.Background(), desc, []string{})
+	err := tool.RunForProject(t.Context(), desc, []string{})
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -407,7 +406,7 @@ func TestClangFormat_Run_Failed(t *testing.T) {
 	exec.OnRun("clang-format", []string{}).
 		Return(errors.New("failed"))
 
-	err := tool.RunForProject(context.Background(), desc, []string{})
+	err := tool.RunForProject(t.Context(), desc, []string{})
 	require.EqualError(t, err, "failed")
 
 	exec.AssertExpectations(t)

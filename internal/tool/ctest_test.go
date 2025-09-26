@@ -3,7 +3,6 @@ package tool
 import (
 	"cdt/internal"
 	"cdt/internal/test"
-	"context"
 	"errors"
 	"testing"
 
@@ -16,7 +15,7 @@ func TestCTest_DetectCTest(t *testing.T) {
 	env.OnFindExecutable("ctest").
 		Return(env.NewExecutable("/bin/ctest"))
 
-	tool := DetectCTest(context.Background(), env)
+	tool := DetectCTest(t.Context(), env)
 	assert.NotNil(t, tool)
 	assert.Equal(t, "ctest", tool.Id())
 	assert.True(t, tool.IsAvailable())
@@ -33,7 +32,7 @@ func TestCTest_DetectCTest_NotFound(t *testing.T) {
 	env.OnFindExecutable("ctest").
 		Return(nil)
 
-	tool := DetectCTest(context.Background(), env)
+	tool := DetectCTest(t.Context(), env)
 	assert.NotNil(t, tool)
 	assert.Equal(t, "ctest", tool.Id())
 	assert.False(t, tool.IsAvailable())
@@ -49,7 +48,7 @@ func TestCTest_RunForProject_NoIntermediateDirectory(t *testing.T) {
 
 	desc := internal.ProjectInfo{Directory: "project", IntermediateDirectory: nil}
 
-	err := tool.RunForProject(context.Background(), desc, []string{})
+	err := tool.RunForProject(t.Context(), desc, []string{})
 	require.ErrorIs(t, err, internal.ErrNoIntermediateDirectory)
 
 	exec.AssertExpectations(t)
@@ -65,7 +64,7 @@ func TestCTest_RunForProject(t *testing.T) {
 	exec.OnRun("ctest", []string{"--test-dir", "build"}).
 		Return(nil)
 
-	err := tool.RunForProject(context.Background(), desc, []string{})
+	err := tool.RunForProject(t.Context(), desc, []string{})
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -81,7 +80,7 @@ func TestCTest_RunForProject_Failed(t *testing.T) {
 	exec.OnRun("ctest", []string{"--test-dir", "build"}).
 		Return(errors.New("failed"))
 
-	err := tool.RunForProject(context.Background(), desc, []string{})
+	err := tool.RunForProject(t.Context(), desc, []string{})
 	require.EqualError(t, err, "failed")
 
 	exec.AssertExpectations(t)

@@ -67,7 +67,7 @@ linters:
     - unconvert
     - unparam
     - usestdlibvars
-    #- usetesting
+    - usetesting
     - varnamelen
     - wastedassign
     - whitespace

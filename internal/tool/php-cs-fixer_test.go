@@ -3,7 +3,6 @@ package tool
 import (
 	"cdt/internal"
 	"cdt/internal/test"
-	"context"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -17,7 +16,7 @@ func TestPHPCSFixer_DetectPHPCSFixer_Composer(t *testing.T) {
 	env.OnFindExecutable("vendor/bin/php-cs-fixer").
 		Return(env.NewExecutable("/bin/tool"))
 
-	tool := DetectPHPCSFixer(context.Background(), env)
+	tool := DetectPHPCSFixer(t.Context(), env)
 	assert.NotNil(t, tool)
 	assert.Equal(t, "php-cs-fixer", tool.Id())
 	assert.True(t, tool.IsAvailable())
@@ -40,7 +39,7 @@ func TestPHPCSFixer_DetectPHPCSFixer_System(t *testing.T) {
 	env.OnFindExecutable("php-cs-fixer").
 		Return(env.NewExecutable("/bin/tool"))
 
-	tool := DetectPHPCSFixer(context.Background(), env)
+	tool := DetectPHPCSFixer(t.Context(), env)
 	assert.NotNil(t, tool)
 	assert.Equal(t, "php-cs-fixer", tool.Id())
 	assert.True(t, tool.IsAvailable())
@@ -60,7 +59,7 @@ func TestPHPCSFixer_DetectPHPCSFixer_NotFound(t *testing.T) {
 	env.OnFindExecutable("php-cs-fixer").
 		Return(nil)
 
-	tool := DetectPHPCSFixer(context.Background(), env)
+	tool := DetectPHPCSFixer(t.Context(), env)
 	assert.NotNil(t, tool)
 	assert.Equal(t, "php-cs-fixer", tool.Id())
 	assert.False(t, tool.IsAvailable())
@@ -79,7 +78,7 @@ func TestPHPCSFixer_PHPCSFixer_FormatAll(t *testing.T) {
 	exec.OnRun("format", []string{"fix"}).
 		Return(nil)
 
-	err := tool.FormatAll(context.Background(), internal.ProjectFormatterOptions{ProjectInfo: info})
+	err := tool.FormatAll(t.Context(), internal.ProjectFormatterOptions{ProjectInfo: info})
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -95,7 +94,7 @@ func TestPHPCSFixer_PHPCSFixer_FormatFiles(t *testing.T) {
 	exec.OnRun("format", []string{"fix", "tests/*"}).
 		Return(nil)
 
-	err := tool.FormatFiles(context.Background(), internal.ProjectFormatterOptions{ProjectInfo: info}, []string{"tests/*"})
+	err := tool.FormatFiles(t.Context(), internal.ProjectFormatterOptions{ProjectInfo: info}, []string{"tests/*"})
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -111,7 +110,7 @@ func TestPHPCSFixer_PHPCSFixer_FormatCheckAll(t *testing.T) {
 	exec.OnRun("format", []string{"fix", "--dry-run"}).
 		Return(nil)
 
-	err := tool.FormatCheckAll(context.Background(), internal.ProjectFormatterOptions{ProjectInfo: info})
+	err := tool.FormatCheckAll(t.Context(), internal.ProjectFormatterOptions{ProjectInfo: info})
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -127,7 +126,7 @@ func TestPHPCSFixer_PHPCSFixer_FormatCheckFiles(t *testing.T) {
 	exec.OnRun("format", []string{"fix", "--dry-run", "tests/*", "/path/to/file.php"}).
 		Return(nil)
 
-	err := tool.FormatCheckFiles(context.Background(), internal.ProjectFormatterOptions{ProjectInfo: info}, []string{"tests/*", "/path/to/file.php"})
+	err := tool.FormatCheckFiles(t.Context(), internal.ProjectFormatterOptions{ProjectInfo: info}, []string{"tests/*", "/path/to/file.php"})
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)

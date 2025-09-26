@@ -16,13 +16,13 @@ func runWorkflow(ctx context.Context, context internal.Context, args ...string) 
 }
 
 func TestWorkflowList(t *testing.T) {
-	err := runWorkflow(context.Background(), internal.Context{}, "list")
+	err := runWorkflow(t.Context(), internal.Context{}, "list")
 
 	require.NoError(t, err)
 }
 
 func TestWorkflowShow_Empty(t *testing.T) {
-	err := runWorkflow(context.Background(), internal.Context{}, "show")
+	err := runWorkflow(t.Context(), internal.Context{}, "show")
 
 	require.NoError(t, err)
 }
@@ -58,7 +58,7 @@ func TestWorkflowShow_Custom(t *testing.T) {
 		test.ProjectLinter{},
 	}
 
-	err := runWorkflow(context.Background(), internal.Context{
+	err := runWorkflow(t.Context(), internal.Context{
 		Project: internal.Project{
 			Workflow: internal.Workflow{
 				Name:              "custom",
@@ -78,7 +78,7 @@ func TestWorkflowShow_Named(t *testing.T) {
 		tool.NewGolangCILint(func() *internal.Executable { return nil }),
 	}
 
-	err := runWorkflow(context.Background(), internal.Context{
+	err := runWorkflow(t.Context(), internal.Context{
 		Tools: tools,
 	}, "show", "go")
 

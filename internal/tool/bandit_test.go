@@ -3,7 +3,6 @@ package tool
 import (
 	"cdt/internal"
 	"cdt/internal/test"
-	"context"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -16,7 +15,7 @@ func TestBandit_DetectBandit(t *testing.T) {
 	env.OnFindExecutable("bandit").
 		Return(env.NewExecutable("/bin/tool"))
 
-	tool := DetectBandit(context.Background(), env)
+	tool := DetectBandit(t.Context(), env)
 	assert.NotNil(t, tool)
 	assert.Equal(t, "bandit", tool.Id())
 	assert.True(t, tool.IsAvailable())
@@ -34,7 +33,7 @@ func TestBandit_DetectBandit_NotFound(t *testing.T) {
 	env.OnFindExecutable("bandit").
 		Return(nil)
 
-	tool := DetectBandit(context.Background(), env)
+	tool := DetectBandit(t.Context(), env)
 	assert.NotNil(t, tool)
 	assert.Equal(t, "bandit", tool.Id())
 	assert.False(t, tool.IsAvailable())
@@ -53,7 +52,7 @@ func TestBandit_Bandit_LintAll(t *testing.T) {
 	exec.OnRun("lint", []string{"*"}).
 		Return(nil)
 
-	err := tool.LintAll(context.Background(), internal.ProjectLinterOptions{ProjectInfo: info})
+	err := tool.LintAll(t.Context(), internal.ProjectLinterOptions{ProjectInfo: info})
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -69,7 +68,7 @@ func TestBandit_Bandit_Lint(t *testing.T) {
 	exec.OnRun("lint", []string{"file.py", "/path/to/file2.py"}).
 		Return(nil)
 
-	err := tool.LintFiles(context.Background(), internal.ProjectLinterOptions{ProjectInfo: info}, []string{"file.py", "/path/to/file2.py"})
+	err := tool.LintFiles(t.Context(), internal.ProjectLinterOptions{ProjectInfo: info}, []string{"file.py", "/path/to/file2.py"})
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)

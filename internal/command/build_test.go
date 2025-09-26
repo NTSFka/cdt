@@ -31,7 +31,7 @@ func runBuildTool(ctx context.Context, builder internal.Tool, args ...string) er
 }
 
 func TestBuild_NotSupported(t *testing.T) {
-	err := runBuild(context.Background(), nil)
+	err := runBuild(t.Context(), nil)
 
 	require.Error(t, err)
 	assert.Equal(t, "project doesn't support building", err.Error())
@@ -42,7 +42,7 @@ func TestBuild_BuildAll_Success(t *testing.T) {
 	builder.On("BuildAll", mock.Anything, mock.Anything).
 		Return(nil)
 
-	err := runBuild(context.Background(), builder)
+	err := runBuild(t.Context(), builder)
 
 	require.NoError(t, err)
 	builder.AssertExpectations(t)
@@ -53,7 +53,7 @@ func TestBuild_BuildAll_Failure(t *testing.T) {
 	builder.On("BuildAll", mock.Anything, mock.Anything).
 		Return(errors.New("failed"))
 
-	err := runBuild(context.Background(), builder)
+	err := runBuild(t.Context(), builder)
 
 	require.Error(t, err)
 	assert.Equal(t, "failed", err.Error())
@@ -81,7 +81,7 @@ func TestBuild_Tool_Success(t *testing.T) {
 	builder.On("BuildAll", mock.Anything, mock.Anything).
 		Return(nil)
 
-	err := runBuildTool(context.Background(), builder, "--tool", "tool1")
+	err := runBuildTool(t.Context(), builder, "--tool", "tool1")
 
 	require.NoError(t, err)
 	builder.AssertExpectations(t)
@@ -92,7 +92,7 @@ func TestBuild_Tool_Failed(t *testing.T) {
 	builder.On("BuildAll", mock.Anything, mock.Anything).
 		Return(errors.New("failed"))
 
-	err := runBuildTool(context.Background(), builder, "--tool", "tool1")
+	err := runBuildTool(t.Context(), builder, "--tool", "tool1")
 
 	require.Error(t, err)
 	assert.Equal(t, "failed", err.Error())
@@ -103,7 +103,7 @@ func TestBuild_Tool_Failed(t *testing.T) {
 func TestBuild_Tool_NotFound(t *testing.T) {
 	builder := newTestBuilderTool(t)
 
-	err := runBuildTool(context.Background(), builder, "--tool", "tool2")
+	err := runBuildTool(t.Context(), builder, "--tool", "tool2")
 
 	require.Error(t, err)
 	assert.Equal(t, "tool 'tool2' not found", err.Error())
@@ -118,7 +118,7 @@ func TestBuild_Tool_NotSupported(t *testing.T) {
 		internal.MakeExecutableTool("tool1", "", "", internal.Tags{}, nil),
 	}
 
-	err := runBuildTool(context.Background(), &linter, "--tool", "tool1")
+	err := runBuildTool(t.Context(), &linter, "--tool", "tool1")
 
 	require.Error(t, err)
 	assert.Equal(t, "tool 'tool1' doesn't support building", err.Error())
@@ -130,7 +130,7 @@ func TestBuild_BuildTargets_Success(t *testing.T) {
 	builder.On("BuildTargets", mock.Anything, mock.Anything, []string{"target1", "target2"}).
 		Return(nil)
 
-	err := runBuild(context.Background(), builder, "target1", "target2")
+	err := runBuild(t.Context(), builder, "target1", "target2")
 
 	require.NoError(t, err)
 	builder.AssertExpectations(t)
@@ -142,7 +142,7 @@ func TestBuild_BuildTargets_Failure(t *testing.T) {
 	builder.On("BuildTargets", mock.Anything, mock.Anything, []string{"target1", "target2"}).
 		Return(errors.New("failed"))
 
-	err := runBuild(context.Background(), builder, "target1", "target2")
+	err := runBuild(t.Context(), builder, "target1", "target2")
 
 	require.Error(t, err)
 	assert.Equal(t, "failed", err.Error())

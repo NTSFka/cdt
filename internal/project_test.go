@@ -1,7 +1,6 @@
 package internal
 
 import (
-	"context"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -25,7 +24,7 @@ func TestProject_ProjectStructure_GetFiles(t *testing.T) {
 
 func TestProject_EmptyStructureProvider(t *testing.T) {
 	provider := EmptyProjectStructureProvider{}
-	structure, err := provider.Structure(context.Background(), ProjectInfo{})
+	structure, err := provider.Structure(t.Context(), ProjectInfo{})
 
 	require.NoError(t, err)
 	assert.NotNil(t, structure)
@@ -42,7 +41,7 @@ func TestProject_FixedStructureProvider(t *testing.T) {
 			},
 		},
 	}
-	structure, err := provider.Structure(context.Background(), ProjectInfo{})
+	structure, err := provider.Structure(t.Context(), ProjectInfo{})
 
 	require.NoError(t, err)
 	require.NotNil(t, structure)

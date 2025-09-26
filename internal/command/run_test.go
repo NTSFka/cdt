@@ -31,7 +31,7 @@ func runRunTool(ctx context.Context, runner internal.Tool, args ...string) error
 }
 
 func TestRun_NotSupported(t *testing.T) {
-	err := runRun(context.Background(), nil)
+	err := runRun(t.Context(), nil)
 
 	require.Error(t, err)
 	assert.Equal(t, "project doesn't support run of target", err.Error())
@@ -40,7 +40,7 @@ func TestRun_NotSupported(t *testing.T) {
 func TestRun_Target_NoTarget(t *testing.T) {
 	runner := test.NewProjectRunner(t)
 
-	err := runRun(context.Background(), runner)
+	err := runRun(t.Context(), runner)
 
 	require.EqualError(t, err, "target is required")
 	runner.AssertExpectations(t)
@@ -51,7 +51,7 @@ func TestRun_Target_Success(t *testing.T) {
 	runner.On("RunTarget", mock.Anything, mock.Anything, "target1").
 		Return(nil)
 
-	err := runRun(context.Background(), runner, "target1")
+	err := runRun(t.Context(), runner, "target1")
 
 	require.NoError(t, err)
 	runner.AssertExpectations(t)
@@ -62,7 +62,7 @@ func TestRun_Target_Failure(t *testing.T) {
 	runner.On("RunTarget", mock.Anything, mock.Anything, "target1").
 		Return(errors.New("failed"))
 
-	err := runRun(context.Background(), runner, "target1")
+	err := runRun(t.Context(), runner, "target1")
 
 	require.Error(t, err)
 	assert.Equal(t, "failed", err.Error())
@@ -90,7 +90,7 @@ func TestRun_Tool_Success(t *testing.T) {
 	runner.On("RunTarget", mock.Anything, mock.Anything, "target1").
 		Return(nil)
 
-	err := runRunTool(context.Background(), runner, "--tool", "tool1", "target1")
+	err := runRunTool(t.Context(), runner, "--tool", "tool1", "target1")
 
 	require.NoError(t, err)
 	runner.AssertExpectations(t)
@@ -101,7 +101,7 @@ func TestRun_Tool_Failed(t *testing.T) {
 	runner.On("RunTarget", mock.Anything, mock.Anything, "target1").
 		Return(errors.New("failed"))
 
-	err := runRunTool(context.Background(), runner, "--tool", "tool1", "target1")
+	err := runRunTool(t.Context(), runner, "--tool", "tool1", "target1")
 
 	require.Error(t, err)
 	assert.Equal(t, "failed", err.Error())
@@ -112,7 +112,7 @@ func TestRun_Tool_Failed(t *testing.T) {
 func TestRun_Tool_NotFound(t *testing.T) {
 	runner := newTestRunnerTool(t)
 
-	err := runRunTool(context.Background(), runner, "--tool", "tool2")
+	err := runRunTool(t.Context(), runner, "--tool", "tool2")
 
 	require.Error(t, err)
 	assert.Equal(t, "tool 'tool2' not found", err.Error())
@@ -127,7 +127,7 @@ func TestRun_Tool_NotSupported(t *testing.T) {
 		internal.MakeExecutableTool("tool1", "", "", internal.Tags{}, nil),
 	}
 
-	err := runRunTool(context.Background(), &linter, "--tool", "tool1")
+	err := runRunTool(t.Context(), &linter, "--tool", "tool1")
 
 	require.Error(t, err)
 	assert.Equal(t, "tool 'tool1' doesn't support run of target", err.Error())

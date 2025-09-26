@@ -3,7 +3,6 @@ package tool
 import (
 	"cdt/internal"
 	"cdt/internal/test"
-	"context"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -15,7 +14,7 @@ func TestNilAway_DetectNilAway(t *testing.T) {
 	env.OnFindExecutable("nilaway").
 		Return(env.NewExecutable("/bin/tool"))
 
-	tool := DetectNilAway(context.Background(), env)
+	tool := DetectNilAway(t.Context(), env)
 	assert.NotNil(t, tool)
 	assert.Equal(t, "nilaway", tool.Id())
 	assert.True(t, tool.IsAvailable())
@@ -32,7 +31,7 @@ func TestNilAway_DetectNilAway_NotFound(t *testing.T) {
 	env.OnFindExecutable("nilaway").
 		Return(nil)
 
-	tool := DetectNilAway(context.Background(), env)
+	tool := DetectNilAway(t.Context(), env)
 	assert.NotNil(t, tool)
 	assert.Equal(t, "nilaway", tool.Id())
 	assert.False(t, tool.IsAvailable())
@@ -51,7 +50,7 @@ func TestNilAway_NilAway_LintAll(t *testing.T) {
 	exec.OnRun("lint", []string{"./..."}).
 		Return(nil)
 
-	err := tool.LintAll(context.Background(), internal.ProjectLinterOptions{ProjectInfo: info})
+	err := tool.LintAll(t.Context(), internal.ProjectLinterOptions{ProjectInfo: info})
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -67,7 +66,7 @@ func TestNilAway_NilAway_Lint(t *testing.T) {
 	exec.OnRun("lint", []string{"mod1"}).
 		Return(nil)
 
-	err := tool.LintFiles(context.Background(), internal.ProjectLinterOptions{ProjectInfo: info}, []string{"mod1"})
+	err := tool.LintFiles(t.Context(), internal.ProjectLinterOptions{ProjectInfo: info}, []string{"mod1"})
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)

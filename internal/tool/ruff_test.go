@@ -3,7 +3,6 @@ package tool
 import (
 	"cdt/internal"
 	"cdt/internal/test"
-	"context"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -16,7 +15,7 @@ func TestRuff_DetectRuff(t *testing.T) {
 	env.OnFindExecutable("ruff").
 		Return(env.NewExecutable("/bin/tool"))
 
-	tool := DetectRuff(context.Background(), env)
+	tool := DetectRuff(t.Context(), env)
 	assert.NotNil(t, tool)
 	assert.Equal(t, "ruff", tool.Id())
 	assert.True(t, tool.IsAvailable())
@@ -34,7 +33,7 @@ func TestRuff_DetectRuff_NotFound(t *testing.T) {
 	env.OnFindExecutable("ruff").
 		Return(nil)
 
-	tool := DetectRuff(context.Background(), env)
+	tool := DetectRuff(t.Context(), env)
 	assert.NotNil(t, tool)
 	assert.Equal(t, "ruff", tool.Id())
 	assert.False(t, tool.IsAvailable())
@@ -53,7 +52,7 @@ func TestRuff_Ruff_LintAll(t *testing.T) {
 	exec.OnRun("lint", []string{"check"}).
 		Return(nil)
 
-	err := tool.LintAll(context.Background(), internal.ProjectLinterOptions{ProjectInfo: info})
+	err := tool.LintAll(t.Context(), internal.ProjectLinterOptions{ProjectInfo: info})
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -69,7 +68,7 @@ func TestRuff_Ruff_Lint(t *testing.T) {
 	exec.OnRun("lint", []string{"check", "file.py", "/path/to/file2.py"}).
 		Return(nil)
 
-	err := tool.LintFiles(context.Background(), internal.ProjectLinterOptions{ProjectInfo: info}, []string{"file.py", "/path/to/file2.py"})
+	err := tool.LintFiles(t.Context(), internal.ProjectLinterOptions{ProjectInfo: info}, []string{"file.py", "/path/to/file2.py"})
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -85,7 +84,7 @@ func TestRuff_Ruff_FormatAll(t *testing.T) {
 	exec.OnRun("format", []string{"format"}).
 		Return(nil)
 
-	err := tool.FormatAll(context.Background(), internal.ProjectFormatterOptions{ProjectInfo: info})
+	err := tool.FormatAll(t.Context(), internal.ProjectFormatterOptions{ProjectInfo: info})
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -101,7 +100,7 @@ func TestRuff_Ruff_FormatFiles(t *testing.T) {
 	exec.OnRun("format", []string{"format", "tests/*"}).
 		Return(nil)
 
-	err := tool.FormatFiles(context.Background(), internal.ProjectFormatterOptions{ProjectInfo: info}, []string{"tests/*"})
+	err := tool.FormatFiles(t.Context(), internal.ProjectFormatterOptions{ProjectInfo: info}, []string{"tests/*"})
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -117,7 +116,7 @@ func TestRuff_Ruff_FormatCheckAll(t *testing.T) {
 	exec.OnRun("format", []string{"format", "--check"}).
 		Return(nil)
 
-	err := tool.FormatCheckAll(context.Background(), internal.ProjectFormatterOptions{ProjectInfo: info})
+	err := tool.FormatCheckAll(t.Context(), internal.ProjectFormatterOptions{ProjectInfo: info})
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -133,7 +132,7 @@ func TestRuff_Ruff_FormatCheckFiles(t *testing.T) {
 	exec.OnRun("format", []string{"format", "--check", "tests/*", "/path/to/file.py"}).
 		Return(nil)
 
-	err := tool.FormatCheckFiles(context.Background(), internal.ProjectFormatterOptions{ProjectInfo: info}, []string{"tests/*", "/path/to/file.py"})
+	err := tool.FormatCheckFiles(t.Context(), internal.ProjectFormatterOptions{ProjectInfo: info}, []string{"tests/*", "/path/to/file.py"})
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)

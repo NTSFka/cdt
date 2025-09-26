@@ -2,7 +2,6 @@ package internal
 
 import (
 	"bytes"
-	"context"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -86,29 +85,29 @@ func TestEnvironment_SystemEnvironment_Id(t *testing.T) {
 }
 
 func TestEnvironment_SystemEnvironment_Start(t *testing.T) {
-	require.NoError(t, SystemEnvironment.Start(context.Background()))
+	require.NoError(t, SystemEnvironment.Start(t.Context()))
 }
 
 func TestEnvironment_SystemEnvironment_IsRunning(t *testing.T) {
-	assert.True(t, SystemEnvironment.IsRunning(context.Background()))
+	assert.True(t, SystemEnvironment.IsRunning(t.Context()))
 }
 
 func TestEnvironment_SystemEnvironment_Stop(t *testing.T) {
-	require.NoError(t, SystemEnvironment.Stop(context.Background()))
+	require.NoError(t, SystemEnvironment.Stop(t.Context()))
 }
 
 func TestEnvironment_SystemEnvironment_Cleanup(t *testing.T) {
-	require.NoError(t, SystemEnvironment.Cleanup(context.Background()))
+	require.NoError(t, SystemEnvironment.Cleanup(t.Context()))
 }
 
 func TestEnvironment_SystemEnvironment_FindExecutable_NotFound(t *testing.T) {
-	executable := SystemEnvironment.FindExecutable(context.Background(), "tool-not-found")
+	executable := SystemEnvironment.FindExecutable(t.Context(), "tool-not-found")
 
 	assert.Nil(t, executable)
 }
 
 func TestEnvironment_SystemEnvironment_FindExecutable(t *testing.T) {
-	executable := SystemEnvironment.FindExecutable(context.Background(), "echo")
+	executable := SystemEnvironment.FindExecutable(t.Context(), "echo")
 
 	require.NotNil(t, executable)
 	assert.NotNil(t, executable.Runtime)
@@ -123,7 +122,7 @@ func TestEnvironment_SystemEnvironment_RunExecutable(t *testing.T) {
 		Error:     nil,
 	}
 
-	err := SystemEnvironment.RunExecutable(context.Background(), options, "echo", []string{"test"})
+	err := SystemEnvironment.RunExecutable(t.Context(), options, "echo", []string{"test"})
 	require.NoError(t, err)
 	assert.Equal(t, "test\n", buffer.String())
 }

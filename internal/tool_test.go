@@ -19,7 +19,7 @@ func TestTool_MakeExecutableTool_NotAvailable(t *testing.T) {
 	assert.Equal(t, "Tool Info", tool.Info())
 	assert.False(t, tool.IsAvailable())
 	assert.Nil(t, tool.Executable())
-	require.EqualError(t, tool.Run(context.Background(), RunOptions{}, []string{}), tool.NotFoundError().Error())
+	require.EqualError(t, tool.Run(t.Context(), RunOptions{}, []string{}), tool.NotFoundError().Error())
 }
 
 func TestTool_MakeExecutableTool(t *testing.T) {
@@ -42,7 +42,7 @@ func TestTool_NewExecutableTool_NotAvailable(t *testing.T) {
 	assert.Equal(t, "Tool Info", tool.Info())
 	assert.False(t, tool.IsAvailable())
 	assert.Nil(t, tool.Executable())
-	require.EqualError(t, tool.Run(context.Background(), RunOptions{}, []string{}), tool.NotFoundError().Error())
+	require.EqualError(t, tool.Run(t.Context(), RunOptions{}, []string{}), tool.NotFoundError().Error())
 }
 
 func TestTool_NewExecutableTool(t *testing.T) {
@@ -69,7 +69,7 @@ func TestTool_ExecutableTool_Run(t *testing.T) {
 	runtime.On("RunExecutable", mock.Anything, RunOptions{}, "echo", []string{"arg1", "arg2"}).
 		Return(nil)
 
-	err := tool.Run(context.Background(), RunOptions{}, []string{"arg1", "arg2"})
+	err := tool.Run(t.Context(), RunOptions{}, []string{"arg1", "arg2"})
 	require.NoError(t, err)
 
 	runtime.AssertExpectations(t)
@@ -91,7 +91,7 @@ func TestTool_ExecutableTool_RunForProject(t *testing.T) {
 		Error:     os.Stderr,
 	}, "echo", []string{"arg1", "arg2"}).Return(nil)
 
-	err := tool.RunForProject(context.Background(), ProjectInfo{}, []string{"arg1", "arg2"})
+	err := tool.RunForProject(t.Context(), ProjectInfo{}, []string{"arg1", "arg2"})
 	require.NoError(t, err)
 
 	runtime.AssertExpectations(t)

@@ -31,7 +31,7 @@ func runLintTool(ctx context.Context, linter internal.Tool, args ...string) erro
 }
 
 func TestLint_Lint_CannotBeLinted(t *testing.T) {
-	err := runLint(context.Background(), nil)
+	err := runLint(t.Context(), nil)
 
 	require.Error(t, err)
 	assert.Equal(t, "project doesn't support linting", err.Error())
@@ -42,7 +42,7 @@ func TestLint_LintAll_Success(t *testing.T) {
 	linter.On("LintAll", mock.Anything, mock.Anything).
 		Return(nil)
 
-	err := runLint(context.Background(), linter)
+	err := runLint(t.Context(), linter)
 
 	require.NoError(t, err)
 	linter.AssertExpectations(t)
@@ -53,7 +53,7 @@ func TestLint_LintAll_Failure(t *testing.T) {
 	linter.On("LintAll", mock.Anything, mock.Anything).
 		Return(errors.New("failed"))
 
-	err := runLint(context.Background(), linter)
+	err := runLint(t.Context(), linter)
 
 	require.Error(t, err)
 	assert.Equal(t, "failed", err.Error())
@@ -81,7 +81,7 @@ func TestLint_Tool_Success(t *testing.T) {
 	linter.On("LintAll", mock.Anything, mock.Anything).
 		Return(nil)
 
-	err := runLintTool(context.Background(), linter, "--tool", "tool1")
+	err := runLintTool(t.Context(), linter, "--tool", "tool1")
 
 	require.NoError(t, err)
 	linter.AssertExpectations(t)
@@ -92,7 +92,7 @@ func TestLint_Tool_Failed(t *testing.T) {
 	linter.On("LintAll", mock.Anything, mock.Anything).
 		Return(errors.New("failed"))
 
-	err := runLintTool(context.Background(), linter, "--tool", "tool1")
+	err := runLintTool(t.Context(), linter, "--tool", "tool1")
 
 	require.Error(t, err)
 	assert.Equal(t, "failed", err.Error())
@@ -103,7 +103,7 @@ func TestLint_Tool_Failed(t *testing.T) {
 func TestLint_Tool_NotFound(t *testing.T) {
 	linter := newTestLinterTool(t)
 
-	err := runLintTool(context.Background(), linter, "--tool", "tool2")
+	err := runLintTool(t.Context(), linter, "--tool", "tool2")
 
 	require.Error(t, err)
 	assert.Equal(t, "tool 'tool2' not found", err.Error())
@@ -118,7 +118,7 @@ func TestLint_Tool_NotSupported(t *testing.T) {
 		internal.MakeExecutableTool("tool1", "", "", internal.Tags{}, nil),
 	}
 
-	err := runLintTool(context.Background(), &linter, "--tool", "tool1")
+	err := runLintTool(t.Context(), &linter, "--tool", "tool1")
 
 	require.Error(t, err)
 	assert.Equal(t, "tool 'tool1' doesn't support linting", err.Error())
@@ -129,7 +129,7 @@ func TestLint_LintFiles_Success(t *testing.T) {
 	linter.On("LintFiles", mock.Anything, mock.Anything, []string{"file1", "file2"}).
 		Return(nil)
 
-	err := runLint(context.Background(), linter, "file1", "file2")
+	err := runLint(t.Context(), linter, "file1", "file2")
 
 	require.NoError(t, err)
 	linter.AssertExpectations(t)
@@ -140,7 +140,7 @@ func TestLint_LintFiles_Failure(t *testing.T) {
 	linter.On("LintFiles", mock.Anything, mock.Anything, []string{"file1", "file2"}).
 		Return(errors.New("failed"))
 
-	err := runLint(context.Background(), linter, "file1", "file2")
+	err := runLint(t.Context(), linter, "file1", "file2")
 
 	require.Error(t, err)
 	assert.Equal(t, "failed", err.Error())

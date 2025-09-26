@@ -30,7 +30,7 @@ func TestExecutable_Run(t *testing.T) {
 	runtime.On("RunExecutable", mock.Anything, mock.Anything, "echo", []string{}).
 		Return(nil)
 
-	err := executable.Run(context.Background(), RunOptions{}, []string{})
+	err := executable.Run(t.Context(), RunOptions{}, []string{})
 	require.NoError(t, err)
 
 	runtime.AssertExpectations(t)
@@ -46,7 +46,7 @@ func TestExecutable_Run_Failed(t *testing.T) {
 	runtime.On("RunExecutable", mock.Anything, mock.Anything, "echo", []string{}).
 		Return(errors.New("failed"))
 
-	err := executable.Run(context.Background(), RunOptions{}, []string{})
+	err := executable.Run(t.Context(), RunOptions{}, []string{})
 	require.EqualError(t, err, "failed")
 
 	runtime.AssertExpectations(t)
@@ -62,7 +62,7 @@ func TestExecutable_Run_Args(t *testing.T) {
 	runtime.On("RunExecutable", mock.Anything, mock.Anything, "echo", []string{"arg1", "arg2"}).
 		Return(nil)
 
-	err := executable.Run(context.Background(), RunOptions{}, []string{"arg1", "arg2"})
+	err := executable.Run(t.Context(), RunOptions{}, []string{"arg1", "arg2"})
 	require.NoError(t, err)
 
 	runtime.AssertExpectations(t)
@@ -82,7 +82,7 @@ func TestExecutable_Run_ArgsExtra(t *testing.T) {
 	runtime.On("RunExecutable", mock.Anything, mock.Anything, "print", []string{"arg1", "arg2", "arg3", "arg4"}).
 		Return(nil)
 
-	err := executable.Run(context.Background(), RunOptions{}, []string{"arg3", "arg4"})
+	err := executable.Run(t.Context(), RunOptions{}, []string{"arg3", "arg4"})
 	require.NoError(t, err)
 
 	runtime.AssertExpectations(t)

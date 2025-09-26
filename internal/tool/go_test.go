@@ -3,7 +3,6 @@ package tool
 import (
 	"cdt/internal"
 	"cdt/internal/test"
-	"context"
 	"errors"
 	"testing"
 
@@ -16,7 +15,7 @@ func TestGo_DetectGo(t *testing.T) {
 	env.OnFindExecutable("go").
 		Return(env.NewExecutable("/bin/go"))
 
-	tool := DetectGo(context.Background(), env)
+	tool := DetectGo(t.Context(), env)
 	assert.NotNil(t, tool)
 	assert.Equal(t, "go", tool.Id())
 	assert.True(t, tool.IsAvailable())
@@ -33,7 +32,7 @@ func TestGo_DetectGo_NotFound(t *testing.T) {
 	env.OnFindExecutable("go").
 		Return(nil)
 
-	tool := DetectGo(context.Background(), env)
+	tool := DetectGo(t.Context(), env)
 	assert.NotNil(t, tool)
 	assert.Equal(t, "go", tool.Id())
 	assert.False(t, tool.IsAvailable())
@@ -55,7 +54,7 @@ func TestGo_Structure(t *testing.T) {
 	).
 		Return(nil)
 
-	structure, err := tool.Structure(context.Background(), info)
+	structure, err := tool.Structure(t.Context(), info)
 	require.NoError(t, err)
 	require.NotNil(t, structure)
 	assert.Equal(t,
@@ -85,7 +84,7 @@ func TestGo_Structure_Failed(t *testing.T) {
 	exec.OnRun("go", []string{"list", "-json=ImportPath,GoFiles", "./..."}).
 		Return(errors.New("failed"))
 
-	structure, err := tool.Structure(context.Background(), p)
+	structure, err := tool.Structure(t.Context(), p)
 	require.EqualError(t, err, "failed")
 	assert.Nil(t, structure)
 
@@ -102,7 +101,7 @@ func TestGo_Structure_InvalidJson(t *testing.T) {
 	exec.OnRunOutput("go", []string{"list", "-json=ImportPath,GoFiles", "./..."}, `{]}`).
 		Return(nil)
 
-	structure, err := tool.Structure(context.Background(), p)
+	structure, err := tool.Structure(t.Context(), p)
 	require.ErrorContains(t, err, "json decode failed:")
 	assert.Nil(t, structure)
 
@@ -119,7 +118,7 @@ func TestGo_BuildAll(t *testing.T) {
 	exec.OnRun("go", []string{"build"}).
 		Return(nil)
 
-	err := tool.BuildAll(context.Background(), internal.ProjectBuilderOptions{ProjectInfo: info})
+	err := tool.BuildAll(t.Context(), internal.ProjectBuilderOptions{ProjectInfo: info})
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -135,7 +134,7 @@ func TestGo_BuildAll_Failed(t *testing.T) {
 	exec.OnRun("go", []string{"build"}).
 		Return(errors.New("failed"))
 
-	err := tool.BuildAll(context.Background(), internal.ProjectBuilderOptions{ProjectInfo: info})
+	err := tool.BuildAll(t.Context(), internal.ProjectBuilderOptions{ProjectInfo: info})
 	require.EqualError(t, err, "failed")
 
 	exec.AssertExpectations(t)
@@ -151,7 +150,7 @@ func TestGo_BuildTargets(t *testing.T) {
 	exec.OnRun("go", []string{"build", "target1", "target2"}).
 		Return(nil)
 
-	err := tool.BuildTargets(context.Background(), internal.ProjectBuilderOptions{ProjectInfo: info}, []string{"target1", "target2"})
+	err := tool.BuildTargets(t.Context(), internal.ProjectBuilderOptions{ProjectInfo: info}, []string{"target1", "target2"})
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -167,7 +166,7 @@ func TestGo_BuildTargets_Failed(t *testing.T) {
 	exec.OnRun("go", []string{"build", "target1", "target2"}).
 		Return(errors.New("failed"))
 
-	err := tool.BuildTargets(context.Background(), internal.ProjectBuilderOptions{ProjectInfo: info}, []string{"target1", "target2"})
+	err := tool.BuildTargets(t.Context(), internal.ProjectBuilderOptions{ProjectInfo: info}, []string{"target1", "target2"})
 	require.EqualError(t, err, "failed")
 
 	exec.AssertExpectations(t)
@@ -183,7 +182,7 @@ func TestGo_RunTarget(t *testing.T) {
 	exec.OnRun("go", []string{"run", "target1"}).
 		Return(nil)
 
-	err := tool.RunTarget(context.Background(), internal.ProjectRunnerOptions{ProjectInfo: info}, "target1")
+	err := tool.RunTarget(t.Context(), internal.ProjectRunnerOptions{ProjectInfo: info}, "target1")
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -199,7 +198,7 @@ func TestGo_RunTarget_Failed(t *testing.T) {
 	exec.OnRun("go", []string{"run", "target1"}).
 		Return(errors.New("failed"))
 
-	err := tool.RunTarget(context.Background(), internal.ProjectRunnerOptions{ProjectInfo: info}, "target1")
+	err := tool.RunTarget(t.Context(), internal.ProjectRunnerOptions{ProjectInfo: info}, "target1")
 	require.EqualError(t, err, "failed")
 
 	exec.AssertExpectations(t)
@@ -215,7 +214,7 @@ func TestGo_TestAll(t *testing.T) {
 	exec.OnRun("go", []string{"test", "./..."}).
 		Return(nil)
 
-	err := tool.TestAll(context.Background(), internal.ProjectTesterOptions{ProjectInfo: info})
+	err := tool.TestAll(t.Context(), internal.ProjectTesterOptions{ProjectInfo: info})
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -231,7 +230,7 @@ func TestGo_TestAll_Failed(t *testing.T) {
 	exec.OnRun("go", []string{"test", "./..."}).
 		Return(errors.New("failed"))
 
-	err := tool.TestAll(context.Background(), internal.ProjectTesterOptions{ProjectInfo: info})
+	err := tool.TestAll(t.Context(), internal.ProjectTesterOptions{ProjectInfo: info})
 	require.EqualError(t, err, "failed")
 
 	exec.AssertExpectations(t)
@@ -247,7 +246,7 @@ func TestGo_Test(t *testing.T) {
 	exec.OnRun("go", []string{"test", "test1"}).
 		Return(nil)
 
-	err := tool.TestPattern(context.Background(), internal.ProjectTesterOptions{ProjectInfo: info}, "test1")
+	err := tool.TestPattern(t.Context(), internal.ProjectTesterOptions{ProjectInfo: info}, "test1")
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -263,7 +262,7 @@ func TestGo_Test_Failed(t *testing.T) {
 	exec.OnRun("go", []string{"test", "test1"}).
 		Return(errors.New("failed"))
 
-	err := tool.TestPattern(context.Background(), internal.ProjectTesterOptions{ProjectInfo: info}, "test1")
+	err := tool.TestPattern(t.Context(), internal.ProjectTesterOptions{ProjectInfo: info}, "test1")
 	require.EqualError(t, err, "failed")
 
 	exec.AssertExpectations(t)
@@ -279,7 +278,7 @@ func TestGo_FormatAll(t *testing.T) {
 	exec.OnRun("go", []string{"fmt", "./..."}).
 		Return(nil)
 
-	err := tool.FormatAll(context.Background(), internal.ProjectFormatterOptions{ProjectInfo: info})
+	err := tool.FormatAll(t.Context(), internal.ProjectFormatterOptions{ProjectInfo: info})
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -295,7 +294,7 @@ func TestGo_FormatAll_Failed(t *testing.T) {
 	exec.OnRun("go", []string{"fmt", "./..."}).
 		Return(errors.New("failed"))
 
-	err := tool.FormatAll(context.Background(), internal.ProjectFormatterOptions{ProjectInfo: info})
+	err := tool.FormatAll(t.Context(), internal.ProjectFormatterOptions{ProjectInfo: info})
 	require.EqualError(t, err, "failed")
 
 	exec.AssertExpectations(t)
@@ -311,7 +310,7 @@ func TestGo_FormatFiles(t *testing.T) {
 	exec.OnRun("go", []string{"fmt", "file1"}).
 		Return(nil)
 
-	err := tool.FormatFiles(context.Background(), internal.ProjectFormatterOptions{ProjectInfo: info}, []string{"file1"})
+	err := tool.FormatFiles(t.Context(), internal.ProjectFormatterOptions{ProjectInfo: info}, []string{"file1"})
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -327,7 +326,7 @@ func TestGo_FormatFiles_Failed(t *testing.T) {
 	exec.OnRun("go", []string{"fmt", "file1"}).
 		Return(errors.New("failed"))
 
-	err := tool.FormatFiles(context.Background(), internal.ProjectFormatterOptions{ProjectInfo: info}, []string{"file1"})
+	err := tool.FormatFiles(t.Context(), internal.ProjectFormatterOptions{ProjectInfo: info}, []string{"file1"})
 	require.EqualError(t, err, "failed")
 
 	exec.AssertExpectations(t)
@@ -340,7 +339,7 @@ func TestGo_FormatCheckAll(t *testing.T) {
 
 	info := internal.ProjectInfo{Directory: "."}
 
-	err := tool.FormatCheckAll(context.Background(), internal.ProjectFormatterOptions{ProjectInfo: info})
+	err := tool.FormatCheckAll(t.Context(), internal.ProjectFormatterOptions{ProjectInfo: info})
 	require.EqualError(t, err, "go fmt doesn't support check mode")
 
 	exec.AssertExpectations(t)
@@ -353,7 +352,7 @@ func TestGo_FormatCheckFiles(t *testing.T) {
 
 	info := internal.ProjectInfo{Directory: "."}
 
-	err := tool.FormatCheckFiles(context.Background(), internal.ProjectFormatterOptions{ProjectInfo: info}, []string{"file1"})
+	err := tool.FormatCheckFiles(t.Context(), internal.ProjectFormatterOptions{ProjectInfo: info}, []string{"file1"})
 	require.EqualError(t, err, "go fmt doesn't support check mode")
 
 	exec.AssertExpectations(t)
@@ -369,7 +368,7 @@ func TestGo_Go_LintAll(t *testing.T) {
 	exec.OnRun("lint", []string{"vet", "./..."}).
 		Return(nil)
 
-	err := tool.LintAll(context.Background(), internal.ProjectLinterOptions{ProjectInfo: info})
+	err := tool.LintAll(t.Context(), internal.ProjectLinterOptions{ProjectInfo: info})
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -385,7 +384,7 @@ func TestGo_Go_Lint(t *testing.T) {
 	exec.OnRun("lint", []string{"vet", "mod1"}).
 		Return(nil)
 
-	err := tool.LintFiles(context.Background(), internal.ProjectLinterOptions{ProjectInfo: info}, []string{"mod1"})
+	err := tool.LintFiles(t.Context(), internal.ProjectLinterOptions{ProjectInfo: info}, []string{"mod1"})
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -401,7 +400,7 @@ func TestGo_Go_AddDependencies(t *testing.T) {
 	exec.OnRun("go", []string{"get", "dep1"}).
 		Return(nil)
 
-	err := tool.AddDependencies(context.Background(), internal.ProjectDependencyManagerOptions{ProjectInfo: info}, []string{"dep1"}, false)
+	err := tool.AddDependencies(t.Context(), internal.ProjectDependencyManagerOptions{ProjectInfo: info}, []string{"dep1"}, false)
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -417,7 +416,7 @@ func TestGo_Go_RemoveDependencies(t *testing.T) {
 	exec.OnRun("go", []string{"get", "dep1@none"}).
 		Return(nil)
 
-	err := tool.RemoveDependencies(context.Background(), internal.ProjectDependencyManagerOptions{ProjectInfo: info}, []string{"dep1"}, false)
+	err := tool.RemoveDependencies(t.Context(), internal.ProjectDependencyManagerOptions{ProjectInfo: info}, []string{"dep1"}, false)
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -433,7 +432,7 @@ func TestGo_Go_UpdateDependencies(t *testing.T) {
 	exec.OnRun("go", []string{"get", "dep1"}).
 		Return(nil)
 
-	err := tool.UpdateDependencies(context.Background(), internal.ProjectDependencyManagerOptions{ProjectInfo: info}, []string{"dep1"})
+	err := tool.UpdateDependencies(t.Context(), internal.ProjectDependencyManagerOptions{ProjectInfo: info}, []string{"dep1"})
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -449,7 +448,7 @@ func TestGo_Go_FetchDependencies(t *testing.T) {
 	exec.OnRun("go", []string{"mod", "tidy"}).
 		Return(nil)
 
-	err := tool.FetchDependencies(context.Background(), internal.ProjectDependencyManagerOptions{ProjectInfo: info}, false)
+	err := tool.FetchDependencies(t.Context(), internal.ProjectDependencyManagerOptions{ProjectInfo: info}, false)
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -465,7 +464,7 @@ func TestGo_Go_ListDependencies(t *testing.T) {
 	exec.OnRun("go", []string{"list", "-m", "all"}).
 		Return(nil)
 
-	err := tool.ListDependencies(context.Background(), internal.ProjectDependencyManagerOptions{ProjectInfo: info})
+	err := tool.ListDependencies(t.Context(), internal.ProjectDependencyManagerOptions{ProjectInfo: info})
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -481,7 +480,7 @@ func TestGo_Go_AuditDependencies(t *testing.T) {
 	exec.OnRun("go", []string{"audit"}).
 		Return(nil)
 
-	err := tool.AuditDependencies(context.Background(), internal.ProjectDependencyManagerOptions{ProjectInfo: info})
+	err := tool.AuditDependencies(t.Context(), internal.ProjectDependencyManagerOptions{ProjectInfo: info})
 	require.EqualError(t, err, "not supported")
 
 	exec.AssertExpectations(t)

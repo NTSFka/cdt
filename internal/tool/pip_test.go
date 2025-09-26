@@ -3,7 +3,6 @@ package tool
 import (
 	"cdt/internal"
 	"cdt/internal/test"
-	"context"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -16,7 +15,7 @@ func TestPip_DetectPip_Pip(t *testing.T) {
 	env.OnFindExecutable("pip").
 		Return(env.NewExecutable("/bin/tool"))
 
-	tool := DetectPip(context.Background(), env)
+	tool := DetectPip(t.Context(), env)
 	assert.NotNil(t, tool)
 	assert.Equal(t, "pip", tool.Id())
 	assert.True(t, tool.IsAvailable())
@@ -37,7 +36,7 @@ func TestPip_DetectPip_System(t *testing.T) {
 	env.OnFindExecutable("pip3").
 		Return(env.NewExecutable("/bin/tool"))
 
-	tool := DetectPip(context.Background(), env)
+	tool := DetectPip(t.Context(), env)
 	assert.NotNil(t, tool)
 	assert.Equal(t, "pip", tool.Id())
 	assert.True(t, tool.IsAvailable())
@@ -57,7 +56,7 @@ func TestPip_DetectPip_NotFound(t *testing.T) {
 	env.OnFindExecutable("pip3").
 		Return(nil)
 
-	tool := DetectPip(context.Background(), env)
+	tool := DetectPip(t.Context(), env)
 	assert.NotNil(t, tool)
 	assert.Equal(t, "pip", tool.Id())
 	assert.False(t, tool.IsAvailable())
@@ -76,7 +75,7 @@ func TestPip_Pip_AddDependencies(t *testing.T) {
 	exec.OnRun("pip", []string{"install", "dep1"}).
 		Return(nil)
 
-	err := tool.AddDependencies(context.Background(), internal.ProjectDependencyManagerOptions{ProjectInfo: info}, []string{"dep1"}, false)
+	err := tool.AddDependencies(t.Context(), internal.ProjectDependencyManagerOptions{ProjectInfo: info}, []string{"dep1"}, false)
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -92,7 +91,7 @@ func TestPip_Pip_RemoveDependencies(t *testing.T) {
 	exec.OnRun("pip", []string{"uninstall", "dep1"}).
 		Return(nil)
 
-	err := tool.RemoveDependencies(context.Background(), internal.ProjectDependencyManagerOptions{ProjectInfo: info}, []string{"dep1"}, false)
+	err := tool.RemoveDependencies(t.Context(), internal.ProjectDependencyManagerOptions{ProjectInfo: info}, []string{"dep1"}, false)
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -108,7 +107,7 @@ func TestPip_Pip_UpdateDependencies(t *testing.T) {
 	exec.OnRun("pip", []string{"install", "--upgrade", "dep1"}).
 		Return(nil)
 
-	err := tool.UpdateDependencies(context.Background(), internal.ProjectDependencyManagerOptions{ProjectInfo: info}, []string{"dep1"})
+	err := tool.UpdateDependencies(t.Context(), internal.ProjectDependencyManagerOptions{ProjectInfo: info}, []string{"dep1"})
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -124,7 +123,7 @@ func TestPip_Pip_FetchDependencies(t *testing.T) {
 	exec.OnRun("pip", []string{"install", "-r", "requirements.txt"}).
 		Return(nil)
 
-	err := tool.FetchDependencies(context.Background(), internal.ProjectDependencyManagerOptions{ProjectInfo: info}, false)
+	err := tool.FetchDependencies(t.Context(), internal.ProjectDependencyManagerOptions{ProjectInfo: info}, false)
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -140,7 +139,7 @@ func TestPip_Pip_ListDependencies(t *testing.T) {
 	exec.OnRun("pip", []string{"list"}).
 		Return(nil)
 
-	err := tool.ListDependencies(context.Background(), internal.ProjectDependencyManagerOptions{ProjectInfo: info})
+	err := tool.ListDependencies(t.Context(), internal.ProjectDependencyManagerOptions{ProjectInfo: info})
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -156,7 +155,7 @@ func TestPip_Pip_AuditDependencies(t *testing.T) {
 	exec.OnRun("pip", []string{"audit"}).
 		Return(nil)
 
-	err := tool.AuditDependencies(context.Background(), internal.ProjectDependencyManagerOptions{ProjectInfo: info})
+	err := tool.AuditDependencies(t.Context(), internal.ProjectDependencyManagerOptions{ProjectInfo: info})
 	require.EqualError(t, err, "not supported")
 
 	exec.AssertExpectations(t)
