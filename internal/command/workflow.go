@@ -64,25 +64,24 @@ func workflowPrintWorkflow(writer io.Writer, workflow internal.Workflow) {
 	workflowPrintItem(writer, "Runner", workflow.Runner)
 	workflowPrintItem(writer, "Tester", workflow.Tester)
 	workflowPrintItem(writer, "Dependency", workflow.DependencyManager)
-
 }
 
 func workflowCommandShowAction(ctx context.Context, cmd *cli.Command) error {
-	c := ctx.Value("context").(internal.Context)
+	cmdContext := ctx.Value("context").(internal.Context)
 
 	if workflowId := cmd.StringArg("workflow-id"); workflowId != "" {
 		for _, workflowType := range workflow.SupportedTypes {
 			if workflowType.Id() == workflowId {
 				config := workflow.Config{
-					Directory:             c.Config.RootDirectory,
-					IntermediateDirectory: c.Config.BuildDirectory,
+					Directory:             cmdContext.Config.RootDirectory,
+					IntermediateDirectory: cmdContext.Config.BuildDirectory,
 				}
 
-				workflowPrintWorkflow(cmd.Writer, workflowType.Create(config, c.Tools).Workflow)
+				workflowPrintWorkflow(cmd.Writer, workflowType.Create(config, cmdContext.Tools).Workflow)
 			}
 		}
 	} else {
-		workflowPrintWorkflow(cmd.Writer, c.Project.Workflow)
+		workflowPrintWorkflow(cmd.Writer, cmdContext.Project.Workflow)
 	}
 
 	return nil

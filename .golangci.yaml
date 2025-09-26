@@ -1,0 +1,84 @@
+version: "2"
+
+linters:
+  enable:
+    - asasalint
+    - asciicheck
+    - bidichk
+    - containedctx
+    - contextcheck
+    - copyloopvar
+    - cyclop
+    - decorder
+    - dogsled
+    #- dupl
+    - dupword
+    #- err113
+    - errchkjson
+    - errname
+    - errorlint
+    - exhaustive
+    - fatcontext
+    #- forcetypeassert
+    - funcorder
+    #- funlen
+    - gochecknoinits
+    - gochecksumtype
+    - gocognit
+    - goconst
+    - gocritic
+    - gocyclo
+    - godot
+    #- godox
+    - goheader
+    - gomoddirectives
+    - gomodguard
+    - goprintffuncname
+    #- gosec
+    - grouper
+    - iface
+    - importas
+    - inamedparam
+    - interfacebloat
+    - intrange
+    #- lll
+    - loggercheck
+    - maintidx
+    - makezero
+    - mirror
+    - misspell
+    - musttag
+    - nakedret
+    #- nestif
+    - nilerr
+    - nilnesserr
+    - nilnil
+    - nlreturn
+    #- nolintlint
+    - predeclared
+    - reassign
+    - recvcheck
+    #- revive
+    - sloglint
+    - tagalign
+    - testifylint
+    #- testpackage
+    - tparallel
+    - unconvert
+    - unparam
+    - usestdlibvars
+    #- usetesting
+    - varnamelen
+    - wastedassign
+    - whitespace
+    #- wrapcheck
+    - wsl
+
+  settings:
+    goconst:
+      ignore-string-values:
+        - "test"
+
+    varnamelen:
+      ignore-names:
+        - "id"

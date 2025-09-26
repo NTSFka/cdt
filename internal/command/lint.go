@@ -31,12 +31,12 @@ func NewLintCommand() *cli.Command {
 }
 
 func lintCommandAction(ctx context.Context, cmd *cli.Command) error {
-	c := ctx.Value("context").(internal.Context)
-	linter := c.Project.Workflow.Linter
+	cmdContext := ctx.Value("context").(internal.Context)
+	linter := cmdContext.Project.Workflow.Linter
 
 	if cmd.IsSet("tool") {
 		toolName := cmd.String("tool")
-		tool := c.Tools.Get(toolName)
+		tool := cmdContext.Tools.Get(toolName)
 
 		if tool == nil {
 			return fmt.Errorf("tool '%s' not found", toolName)
@@ -56,7 +56,7 @@ func lintCommandAction(ctx context.Context, cmd *cli.Command) error {
 	}
 
 	options := internal.ProjectLinterOptions{
-		ProjectInfo: c.Project.Info,
+		ProjectInfo: cmdContext.Project.Info,
 		ExtraArgs:   cmd.Args().Tail(),
 	}
 

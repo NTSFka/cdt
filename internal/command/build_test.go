@@ -9,6 +9,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
+	"github.com/stretchr/testify/require"
 )
 
 func runBuild(ctx context.Context, builder internal.ProjectBuilder, args ...string) error {
@@ -32,9 +33,8 @@ func runBuildTool(ctx context.Context, builder internal.Tool, args ...string) er
 func TestBuild_NotSupported(t *testing.T) {
 	err := runBuild(context.Background(), nil)
 
-	if assert.Error(t, err) {
-		assert.Equal(t, "project doesn't support building", err.Error())
-	}
+	require.Error(t, err)
+	assert.Equal(t, "project doesn't support building", err.Error())
 }
 
 func TestBuild_BuildAll_Success(t *testing.T) {
@@ -44,7 +44,7 @@ func TestBuild_BuildAll_Success(t *testing.T) {
 
 	err := runBuild(context.Background(), builder)
 
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	builder.AssertExpectations(t)
 }
 
@@ -55,9 +55,9 @@ func TestBuild_BuildAll_Failure(t *testing.T) {
 
 	err := runBuild(context.Background(), builder)
 
-	if assert.Error(t, err) {
-		assert.Equal(t, "failed", err.Error())
-	}
+	require.Error(t, err)
+	assert.Equal(t, "failed", err.Error())
+
 	builder.AssertExpectations(t)
 }
 
@@ -72,6 +72,7 @@ func newTestBuilderTool(t *testing.T) *testBuilderTool {
 		test.ProjectBuilder{},
 	}
 	builder.Test(t)
+
 	return &builder
 }
 
@@ -82,7 +83,7 @@ func TestBuild_Tool_Success(t *testing.T) {
 
 	err := runBuildTool(context.Background(), builder, "--tool", "tool1")
 
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	builder.AssertExpectations(t)
 }
 
@@ -93,9 +94,9 @@ func TestBuild_Tool_Failed(t *testing.T) {
 
 	err := runBuildTool(context.Background(), builder, "--tool", "tool1")
 
-	if assert.Error(t, err) {
-		assert.Equal(t, "failed", err.Error())
-	}
+	require.Error(t, err)
+	assert.Equal(t, "failed", err.Error())
+
 	builder.AssertExpectations(t)
 }
 
@@ -104,9 +105,9 @@ func TestBuild_Tool_NotFound(t *testing.T) {
 
 	err := runBuildTool(context.Background(), builder, "--tool", "tool2")
 
-	if assert.Error(t, err) {
-		assert.Equal(t, "tool 'tool2' not found", err.Error())
-	}
+	require.Error(t, err)
+	assert.Equal(t, "tool 'tool2' not found", err.Error())
+
 	builder.AssertExpectations(t)
 }
 
@@ -119,9 +120,8 @@ func TestBuild_Tool_NotSupported(t *testing.T) {
 
 	err := runBuildTool(context.Background(), &linter, "--tool", "tool1")
 
-	if assert.Error(t, err) {
-		assert.Equal(t, "tool 'tool1' doesn't support building", err.Error())
-	}
+	require.Error(t, err)
+	assert.Equal(t, "tool 'tool1' doesn't support building", err.Error())
 }
 
 func TestBuild_BuildTargets_Success(t *testing.T) {
@@ -132,7 +132,7 @@ func TestBuild_BuildTargets_Success(t *testing.T) {
 
 	err := runBuild(context.Background(), builder, "target1", "target2")
 
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	builder.AssertExpectations(t)
 }
 
@@ -144,8 +144,8 @@ func TestBuild_BuildTargets_Failure(t *testing.T) {
 
 	err := runBuild(context.Background(), builder, "target1", "target2")
 
-	if assert.Error(t, err) {
-		assert.Equal(t, "failed", err.Error())
-	}
+	require.Error(t, err)
+	assert.Equal(t, "failed", err.Error())
+
 	builder.AssertExpectations(t)
 }

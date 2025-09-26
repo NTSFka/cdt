@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestParaTest_DetectParaTest_Composer(t *testing.T) {
@@ -79,7 +80,7 @@ func TestParaTest_ParaTest_TestAll(t *testing.T) {
 		Return(nil)
 
 	err := tool.TestAll(context.Background(), internal.ProjectTesterOptions{ProjectInfo: info})
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
 }
@@ -95,7 +96,7 @@ func TestParaTest_ParaTest_Test(t *testing.T) {
 		Return(nil)
 
 	err := tool.TestPattern(context.Background(), internal.ProjectTesterOptions{ProjectInfo: info}, "tests/*")
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
 }

@@ -28,7 +28,7 @@ func NewExecCommand() *cli.Command {
 }
 
 func execCommandAction(ctx context.Context, cmd *cli.Command) error {
-	c := ctx.Value("context").(internal.Context)
+	cmdContext := ctx.Value("context").(internal.Context)
 
 	command := cmd.StringArg("command")
 
@@ -37,13 +37,13 @@ func execCommandAction(ctx context.Context, cmd *cli.Command) error {
 	}
 
 	options := internal.RunOptions{
-		Directory: c.Project.Info.Directory,
+		Directory: cmdContext.Project.Info.Directory,
 		Input:     cmd.Reader,
 		Output:    cmd.Writer,
 		Error:     cmd.ErrWriter,
 	}
 
-	err := c.Environment.RunExecutable(ctx, options, command, cmd.StringArgs("args"))
+	err := cmdContext.Environment.RunExecutable(ctx, options, command, cmd.StringArgs("args"))
 
 	if err != nil {
 		return fmt.Errorf("command failed: %w", err)

@@ -63,18 +63,18 @@ type EnvironmentProvider interface {
 
 type EnvironmentProviders []EnvironmentProvider
 
-// PrintTable prints providers to the writer
+// PrintTable prints providers to the writer.
 func (p *EnvironmentProviders) PrintTable(writer io.Writer) {
 	if len(*p) == 0 {
 		return
 	}
 
-	t := table.NewWriter()
-	t.SetOutputMirror(writer)
-	t.AppendHeader(table.Row{"ID (aliases)", "Available", "Name", "Parameter", "Info"})
+	tableWriter := table.NewWriter()
+	tableWriter.SetOutputMirror(writer)
+	tableWriter.AppendHeader(table.Row{"ID (aliases)", "Available", "Name", "Parameter", "Info"})
 
 	if width := DetectTermWidth(writer); width != nil {
-		t.SetAllowedRowLength(*width)
+		tableWriter.SetAllowedRowLength(*width)
 	}
 
 	for _, tool := range *p {
@@ -86,7 +86,7 @@ func (p *EnvironmentProviders) PrintTable(writer io.Writer) {
 			id = tool.Id()
 		}
 
-		t.AppendRow(table.Row{
+		tableWriter.AppendRow(table.Row{
 			id,
 			tool.IsAvailable(),
 			tool.Name(),
@@ -95,7 +95,7 @@ func (p *EnvironmentProviders) PrintTable(writer io.Writer) {
 		})
 	}
 
-	t.Render()
+	tableWriter.Render()
 }
 
 var SystemEnvironmentProvider EnvironmentProvider = &systemEnvironmentProvider{}
@@ -136,7 +136,7 @@ func (s *systemEnvironmentProvider) CreateEnvironment(_ string, _ string) (Envir
 	return SystemEnvironment, nil
 }
 
-// SystemEnvironment is the operating system environment
+// SystemEnvironment is the operating system environment.
 var SystemEnvironment Environment = &systemEnvironment{}
 
 type systemEnvironment struct{}

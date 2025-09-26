@@ -36,12 +36,12 @@ func NewFormatCommand() *cli.Command {
 }
 
 func formatCommandAction(ctx context.Context, cmd *cli.Command) error {
-	c := ctx.Value("context").(internal.Context)
-	formatter := c.Project.Workflow.Formatter
+	cmdContext := ctx.Value("context").(internal.Context)
+	formatter := cmdContext.Project.Workflow.Formatter
 
 	if cmd.IsSet("tool") {
 		toolName := cmd.String("tool")
-		tool := c.Tools.Get(toolName)
+		tool := cmdContext.Tools.Get(toolName)
 
 		if tool == nil {
 			return fmt.Errorf("tool '%s' not found", toolName)
@@ -61,11 +61,12 @@ func formatCommandAction(ctx context.Context, cmd *cli.Command) error {
 	}
 
 	options := internal.ProjectFormatterOptions{
-		ProjectInfo: c.Project.Info,
+		ProjectInfo: cmdContext.Project.Info,
 		ExtraArgs:   cmd.Args().Tail(),
 	}
 
 	var err error
+
 	if cmd.Bool("check") {
 		if files := cmd.StringArgs("files"); len(files) > 0 {
 			err = formatter.FormatCheckFiles(ctx, options, files)

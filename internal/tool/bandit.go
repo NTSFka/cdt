@@ -10,14 +10,14 @@ type Bandit struct {
 	internal.ExecutableTool
 }
 
-// DetectBandit create a tool for bandit
+// DetectBandit create a tool for bandit.
 func DetectBandit(ctx context.Context, environment internal.Environment) *Bandit {
 	return NewBandit(func() *internal.Executable {
 		return environment.FindExecutable(ctx, "bandit")
 	})
 }
 
-// NewBandit creates a bandit tool from a custom executable
+// NewBandit creates a bandit tool from a custom executable.
 func NewBandit(detect func() *internal.Executable) *Bandit {
 	return &Bandit{
 		ExecutableTool: internal.MakeExecutableTool(
@@ -28,6 +28,16 @@ func NewBandit(detect func() *internal.Executable) *Bandit {
 			detect,
 		),
 	}
+}
+
+func (b *Bandit) LintAll(ctx context.Context, options internal.ProjectLinterOptions) error {
+	return b.RunForProject(ctx, options.ProjectInfo, append([]string{"*"}, options.ExtraArgs...))
+}
+
+func (b *Bandit) LintFiles(ctx context.Context, options internal.ProjectLinterOptions, filenames []string) error {
+	paths := b.buildPaths(options.Directory, filenames)
+
+	return b.RunForProject(ctx, options.ProjectInfo, append(options.ExtraArgs, paths...))
 }
 
 func (b *Bandit) buildPaths(directory string, filenames []string) []string {
@@ -42,14 +52,4 @@ func (b *Bandit) buildPaths(directory string, filenames []string) []string {
 	}
 
 	return paths
-}
-
-func (b *Bandit) LintAll(ctx context.Context, options internal.ProjectLinterOptions) error {
-	return b.RunForProject(ctx, options.ProjectInfo, append([]string{"*"}, options.ExtraArgs...))
-}
-
-func (b *Bandit) LintFiles(ctx context.Context, options internal.ProjectLinterOptions, filenames []string) error {
-	paths := b.buildPaths(options.Directory, filenames)
-
-	return b.RunForProject(ctx, options.ProjectInfo, append(options.ExtraArgs, paths...))
 }

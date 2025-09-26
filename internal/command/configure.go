@@ -24,12 +24,12 @@ func NewConfigureCommand() *cli.Command {
 }
 
 func configureCommandAction(ctx context.Context, cmd *cli.Command) error {
-	c := ctx.Value("context").(internal.Context)
-	configurator := c.Project.Workflow.Configurator
+	cmdContext := ctx.Value("context").(internal.Context)
+	configurator := cmdContext.Project.Workflow.Configurator
 
 	if cmd.IsSet("tool") {
 		toolName := cmd.String("tool")
-		tool := c.Tools.Get(toolName)
+		tool := cmdContext.Tools.Get(toolName)
 
 		if tool == nil {
 			return fmt.Errorf("tool '%s' not found", toolName)
@@ -49,7 +49,7 @@ func configureCommandAction(ctx context.Context, cmd *cli.Command) error {
 	}
 
 	options := internal.ProjectConfiguratorOptions{
-		ProjectInfo: c.Project.Info,
+		ProjectInfo: cmdContext.Project.Info,
 		ExtraArgs:   cmd.Args().Tail(),
 	}
 

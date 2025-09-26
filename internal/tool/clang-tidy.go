@@ -12,14 +12,14 @@ type ClangTidy struct {
 	internal.ExecutableTool
 }
 
-// DetectClangTidy create a tool for clang-tidy
+// DetectClangTidy create a tool for clang-tidy.
 func DetectClangTidy(ctx context.Context, environment internal.Environment) *ClangTidy {
 	return NewClangTidy(func() *internal.Executable {
 		return environment.FindExecutable(ctx, "clang-tidy")
 	})
 }
 
-// NewClangTidy creates a clang-tidy tool from a custom executable
+// NewClangTidy creates a clang-tidy tool from a custom executable.
 func NewClangTidy(detect func() *internal.Executable) *ClangTidy {
 	return &ClangTidy{
 		ExecutableTool: internal.MakeExecutableTool(
@@ -32,39 +32,11 @@ func NewClangTidy(detect func() *internal.Executable) *ClangTidy {
 	}
 }
 
-func (c *ClangTidy) buildPaths(directory string, filenames []string) []string {
-	var paths []string
-
-	for _, filename := range filenames {
-		if filepath.IsAbs(filename) {
-			paths = append(paths, filename)
-		} else {
-			paths = append(paths, filepath.Join(directory, filename))
-		}
-	}
-
-	return paths
-}
-
-func (c *ClangTidy) buildArgs(rootDirectory string, buildDirectory string, paths []string) []string {
-	var args []string
-
-	configFile := filepath.Join(rootDirectory, ".clang-tidy")
-
-	if _, err := os.Stat(configFile); err == nil {
-		args = append(args, fmt.Sprintf("--config-file=%v", configFile))
-	}
-
-	args = append(args, "-p", buildDirectory)
-
-	return append(args, paths...)
-}
-
 func (c *ClangTidy) LintAll(ctx context.Context, options internal.ProjectLinterOptions) error {
 	structure, err := options.Structure(ctx)
 
 	if err != nil {
-		return fmt.Errorf("failed to obtain project structure: %v", err)
+		return fmt.Errorf("failed to obtain project structure: %w", err)
 	}
 
 	if options.IntermediateDirectory == nil {
@@ -96,4 +68,32 @@ func (c *ClangTidy) RunForProject(ctx context.Context, info internal.ProjectInfo
 	}
 
 	return c.ExecutableTool.RunForProject(ctx, info, append(toolArgs, args...))
+}
+
+func (c *ClangTidy) buildPaths(directory string, filenames []string) []string {
+	var paths []string
+
+	for _, filename := range filenames {
+		if filepath.IsAbs(filename) {
+			paths = append(paths, filename)
+		} else {
+			paths = append(paths, filepath.Join(directory, filename))
+		}
+	}
+
+	return paths
+}
+
+func (c *ClangTidy) buildArgs(rootDirectory string, buildDirectory string, paths []string) []string {
+	var args []string
+
+	configFile := filepath.Join(rootDirectory, ".clang-tidy")
+
+	if _, err := os.Stat(configFile); err == nil {
+		args = append(args, fmt.Sprintf("--config-file=%v", configFile))
+	}
+
+	args = append(args, "-p", buildDirectory)
+
+	return append(args, paths...)
 }

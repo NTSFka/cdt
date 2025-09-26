@@ -9,7 +9,7 @@ type PHPUnit struct {
 	internal.ExecutableTool
 }
 
-// DetectPHPUnit create a tool for phpunit
+// DetectPHPUnit create a tool for phpunit.
 func DetectPHPUnit(ctx context.Context, environment internal.Environment) *PHPUnit {
 	return NewPHPUnit(func() *internal.Executable {
 		// Detect composer vendor
@@ -26,7 +26,7 @@ func DetectPHPUnit(ctx context.Context, environment internal.Environment) *PHPUn
 	})
 }
 
-// NewPHPUnit creates a phpunit tool from a custom executable
+// NewPHPUnit creates a phpunit tool from a custom executable.
 func NewPHPUnit(detect func() *internal.Executable) *PHPUnit {
 	return &PHPUnit{
 		ExecutableTool: internal.MakeExecutableTool(

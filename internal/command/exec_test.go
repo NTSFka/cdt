@@ -9,6 +9,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
+	"github.com/stretchr/testify/require"
 )
 
 func execRun(ctx context.Context, environment internal.Environment, args ...string) error {
@@ -23,7 +24,7 @@ func TestExec_NoCommand(t *testing.T) {
 
 	err := execRun(context.Background(), env)
 
-	assert.EqualError(t, err, "COMMAND is required")
+	require.EqualError(t, err, "COMMAND is required")
 
 	env.AssertExpectations(t)
 }
@@ -36,8 +37,7 @@ func TestExec_Target_Success(t *testing.T) {
 		Return(nil)
 
 	err := execRun(context.Background(), env, "echo", "Hello!")
-
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	env.AssertExpectations(t)
 }
@@ -51,9 +51,8 @@ func TestExec_Target_Failure(t *testing.T) {
 
 	err := execRun(context.Background(), env, "echo", "Hello!")
 
-	if assert.Error(t, err) {
-		assert.Equal(t, "command failed: failed", err.Error())
-	}
+	require.Error(t, err)
+	assert.Equal(t, "command failed: failed", err.Error())
 
 	env.AssertExpectations(t)
 }

@@ -3,36 +3,38 @@ package test
 import (
 	"cdt/internal"
 	"context"
-	"github.com/stretchr/testify/mock"
 	"testing"
+
+	"github.com/stretchr/testify/mock"
 )
 
-// Executable allow testing executable invocation
+// Executable allow testing executable invocation.
 type Executable struct {
 	mock.Mock
 	Runtime ExecutableRuntime
 }
 
-// NewExecutable create new testing executable
+// NewExecutable create new testing executable.
 func NewExecutable(t *testing.T) *Executable {
 	executable := Executable{}
 	executable.Test(t)
 	executable.Runtime.Test(t)
 	executable.Runtime.On("Id").Return("test")
+
 	return &executable
 }
 
-// OnRun set an expectation on calling executable
+// OnRun set an expectation on calling executable.
 func (m *Executable) OnRun(path string, args []string) *mock.Call {
 	return m.Runtime.On("RunExecutable", mock.Anything, mock.Anything, path, args)
 }
 
-// OnRunAnything set an expectation on calling executable without any arguments
+// OnRunAnything set an expectation on calling executable without any arguments.
 func (m *Executable) OnRunAnything(path string) *mock.Call {
 	return m.Runtime.On("RunExecutable", mock.Anything, mock.Anything, path, mock.Anything)
 }
 
-// OnRunOutput set an expectation on calling executable and printing output to stdout
+// OnRunOutput set an expectation on calling executable and printing output to stdout.
 func (m *Executable) OnRunOutput(path string, args []string, output string) *mock.Call {
 	return m.OnRun(path, args).
 		Run(func(args mock.Arguments) {
@@ -41,12 +43,12 @@ func (m *Executable) OnRunOutput(path string, args []string, output string) *moc
 		})
 }
 
-// NewExecutable creates a new executable
+// NewExecutable creates a new executable.
 func (m *Executable) NewExecutable(path string) *internal.Executable {
 	return &internal.Executable{Path: path, Runtime: &m.Runtime}
 }
 
-// LazyExecutable creates a new lazy executable via function call
+// LazyExecutable creates a new lazy executable via function call.
 func (m *Executable) LazyExecutable(path string) func() *internal.Executable {
 	return func() *internal.Executable {
 		return m.NewExecutable(path)
@@ -60,6 +62,7 @@ type ExecutableRuntime struct {
 func NewExecutableRuntime(t *testing.T) *ExecutableRuntime {
 	runtime := ExecutableRuntime{}
 	runtime.Test(t)
+
 	return &runtime
 }
 

@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestEnvironment_EnvironmentProviders_PrintTable_Empty(t *testing.T) {
@@ -49,7 +50,7 @@ func (t *testEnvironmentProvider) IsAvailable() bool {
 }
 
 func (t *testEnvironmentProvider) CreateEnvironment(_ string, _ string) (Environment, error) {
-	return nil, nil
+	return nil, nil // nolint: nilnil
 }
 
 func TestEnvironment_EnvironmentProviders_PrintTable(t *testing.T) {
@@ -72,7 +73,7 @@ func TestEnvironment_SystemEnvironmentProvider_Data(t *testing.T) {
 	assert.True(t, SystemEnvironmentProvider.IsAvailable())
 
 	env, err := SystemEnvironmentProvider.CreateEnvironment(".", "test")
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, SystemEnvironment, env)
 }
 
@@ -85,7 +86,7 @@ func TestEnvironment_SystemEnvironment_Id(t *testing.T) {
 }
 
 func TestEnvironment_SystemEnvironment_Start(t *testing.T) {
-	assert.NoError(t, SystemEnvironment.Start(context.Background()))
+	require.NoError(t, SystemEnvironment.Start(context.Background()))
 }
 
 func TestEnvironment_SystemEnvironment_IsRunning(t *testing.T) {
@@ -93,11 +94,11 @@ func TestEnvironment_SystemEnvironment_IsRunning(t *testing.T) {
 }
 
 func TestEnvironment_SystemEnvironment_Stop(t *testing.T) {
-	assert.NoError(t, SystemEnvironment.Stop(context.Background()))
+	require.NoError(t, SystemEnvironment.Stop(context.Background()))
 }
 
 func TestEnvironment_SystemEnvironment_Cleanup(t *testing.T) {
-	assert.NoError(t, SystemEnvironment.Cleanup(context.Background()))
+	require.NoError(t, SystemEnvironment.Cleanup(context.Background()))
 }
 
 func TestEnvironment_SystemEnvironment_FindExecutable_NotFound(t *testing.T) {
@@ -109,10 +110,9 @@ func TestEnvironment_SystemEnvironment_FindExecutable_NotFound(t *testing.T) {
 func TestEnvironment_SystemEnvironment_FindExecutable(t *testing.T) {
 	executable := SystemEnvironment.FindExecutable(context.Background(), "echo")
 
-	if assert.NotNil(t, executable) {
-		assert.NotNil(t, executable.Runtime)
-		assert.Contains(t, executable.Path, "echo")
-	}
+	require.NotNil(t, executable)
+	assert.NotNil(t, executable.Runtime)
+	assert.Contains(t, executable.Path, "echo")
 }
 
 func TestEnvironment_SystemEnvironment_RunExecutable(t *testing.T) {
@@ -124,6 +124,6 @@ func TestEnvironment_SystemEnvironment_RunExecutable(t *testing.T) {
 	}
 
 	err := SystemEnvironment.RunExecutable(context.Background(), options, "echo", []string{"test"})
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, "test\n", buffer.String())
 }

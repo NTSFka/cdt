@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"gotest.tools/v3/fs"
 )
 
@@ -31,37 +32,37 @@ func TestCMakeRealProjectConfigureAndBuildAndRun(t *testing.T) {
 	}
 
 	var err = cmake.Configure(context.Background(), internal.ProjectConfiguratorOptions{ProjectInfo: info})
-	assert.NoError(t, err)
+
+	require.NoError(t, err)
 
 	var structure *internal.ProjectStructure
 	structure, err = cmake.Structure(context.Background(), info)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
-	if assert.NotNil(t, structure) {
-		assert.Equal(t, map[string]internal.ProjectTarget{
-			"fmt": {
-				Dependency: true,
-				Files:      nil,
-			},
-			"main": {
-				Dependency: false,
-				Files:      []string{"main.cpp"},
-			},
-			"main_test": {
-				Dependency: false,
-				Files:      []string{"test.cpp"},
-			},
-		}, structure.Targets)
+	require.NotNil(t, structure)
+	assert.Equal(t, map[string]internal.ProjectTarget{
+		"fmt": {
+			Dependency: true,
+			Files:      nil,
+		},
+		"main": {
+			Dependency: false,
+			Files:      []string{"main.cpp"},
+		},
+		"main_test": {
+			Dependency: false,
+			Files:      []string{"test.cpp"},
+		},
+	}, structure.Targets)
 
-		assert.Equal(t, []string{"main.cpp", "test.cpp"}, structure.GetFiles())
-	}
+	assert.Equal(t, []string{"main.cpp", "test.cpp"}, structure.GetFiles())
 
 	err = cmake.BuildAll(context.Background(), internal.ProjectBuilderOptions{ProjectInfo: info})
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	err = cmake.BuildTargets(context.Background(), internal.ProjectBuilderOptions{ProjectInfo: info}, []string{"main"})
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	err = cmake.RunTarget(context.Background(), internal.ProjectRunnerOptions{ProjectInfo: info}, "main")
-	assert.NoError(t, err)
+	require.NoError(t, err)
 }

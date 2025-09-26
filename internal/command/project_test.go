@@ -6,8 +6,8 @@ import (
 	"context"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
+	"github.com/stretchr/testify/require"
 )
 
 func runProject(ctx context.Context, structureProvider internal.ProjectStructureProvider, args ...string) error {
@@ -24,7 +24,7 @@ func TestProjectTargets(t *testing.T) {
 
 	err := runProject(context.Background(), structure, "targets")
 
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	structure.AssertExpectations(t)
 }
 
@@ -34,7 +34,7 @@ func TestProjectFiles(t *testing.T) {
 
 	err := runProject(context.Background(), structure, "files")
 
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	structure.AssertExpectations(t)
 }
 

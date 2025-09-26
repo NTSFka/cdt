@@ -14,7 +14,7 @@ import (
 
 const ConfigFileName = "cdt.yml"
 
-// NewApp creates the main CLI application
+// NewApp creates the main CLI application.
 func NewApp(buildContext func(config internal.Config) (*internal.Context, error)) *cli.Command {
 	return &cli.Command{
 		Name:                  "cdt",
@@ -81,13 +81,13 @@ func NewApp(buildContext func(config internal.Config) (*internal.Context, error)
 				return nil, err
 			}
 
-			c, err := buildContext(*config)
+			cmdContext, err := buildContext(*config)
 
 			if err != nil {
 				return nil, err
 			}
 
-			return context.WithValue(ctx, "context", *c), nil //nolint:staticcheck
+			return context.WithValue(ctx, "context", *cmdContext), nil //nolint:staticcheck
 		},
 		After: func(ctx context.Context, cmd *cli.Command) error {
 			c, ok := ctx.Value("context").(internal.Context)
@@ -103,6 +103,7 @@ func NewApp(buildContext func(config internal.Config) (*internal.Context, error)
 
 func createConfig(cmd *cli.Command) (*internal.Config, error) {
 	config := internal.DefaultConfig()
+
 	var configPath string
 
 	// The root directory is not affected by the configuration file (it's used as a search path)
@@ -145,10 +146,10 @@ func createConfig(cmd *cli.Command) (*internal.Config, error) {
 }
 
 func loadConfigFile(configPath string) (*internal.FileConfig, error) {
-	file, err := os.OpenFile(configPath, os.O_RDONLY, 0644)
+	file, err := os.OpenFile(configPath, os.O_RDONLY, 0)
 	if err != nil {
 		if os.IsNotExist(err) {
-			return nil, nil
+			return nil, nil // nolint: nilnil
 		}
 
 		return nil, fmt.Errorf("failed to open configuration file: %w", err)

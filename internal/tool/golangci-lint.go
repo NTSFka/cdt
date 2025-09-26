@@ -10,7 +10,7 @@ type GolangCILint struct {
 	internal.ExecutableTool
 }
 
-// NewGolangCILint creates a go tool from a custom executable
+// NewGolangCILint creates a go tool from a custom executable.
 func NewGolangCILint(detect func() *internal.Executable) *GolangCILint {
 	return &GolangCILint{
 		internal.MakeExecutableTool(
@@ -23,7 +23,7 @@ func NewGolangCILint(detect func() *internal.Executable) *GolangCILint {
 	}
 }
 
-// DetectGolangCILint create golangci-lint tool can be used in the project
+// DetectGolangCILint create golangci-lint tool can be used in the project.
 func DetectGolangCILint(ctx context.Context, environment internal.Environment) *GolangCILint {
 	return NewGolangCILint(func() *internal.Executable {
 		return environment.FindExecutable(ctx, "golangci-lint")

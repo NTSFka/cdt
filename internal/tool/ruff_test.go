@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestRuff_DetectRuff(t *testing.T) {
@@ -53,7 +54,7 @@ func TestRuff_Ruff_LintAll(t *testing.T) {
 		Return(nil)
 
 	err := tool.LintAll(context.Background(), internal.ProjectLinterOptions{ProjectInfo: info})
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
 }
@@ -69,7 +70,7 @@ func TestRuff_Ruff_Lint(t *testing.T) {
 		Return(nil)
 
 	err := tool.LintFiles(context.Background(), internal.ProjectLinterOptions{ProjectInfo: info}, []string{"file.py", "/path/to/file2.py"})
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
 }
@@ -85,7 +86,7 @@ func TestRuff_Ruff_FormatAll(t *testing.T) {
 		Return(nil)
 
 	err := tool.FormatAll(context.Background(), internal.ProjectFormatterOptions{ProjectInfo: info})
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
 }
@@ -101,7 +102,7 @@ func TestRuff_Ruff_FormatFiles(t *testing.T) {
 		Return(nil)
 
 	err := tool.FormatFiles(context.Background(), internal.ProjectFormatterOptions{ProjectInfo: info}, []string{"tests/*"})
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
 }
@@ -117,7 +118,7 @@ func TestRuff_Ruff_FormatCheckAll(t *testing.T) {
 		Return(nil)
 
 	err := tool.FormatCheckAll(context.Background(), internal.ProjectFormatterOptions{ProjectInfo: info})
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
 }
@@ -133,7 +134,7 @@ func TestRuff_Ruff_FormatCheckFiles(t *testing.T) {
 		Return(nil)
 
 	err := tool.FormatCheckFiles(context.Background(), internal.ProjectFormatterOptions{ProjectInfo: info}, []string{"tests/*", "/path/to/file.py"})
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
 }

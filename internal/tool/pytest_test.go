@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestPyTest_DetectPyTest(t *testing.T) {
@@ -53,7 +54,7 @@ func TestPyTest_PyTest_TestAll(t *testing.T) {
 		Return(nil)
 
 	err := tool.TestAll(context.Background(), internal.ProjectTesterOptions{ProjectInfo: info})
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
 }
@@ -69,7 +70,7 @@ func TestPyTest_PyTest_Test(t *testing.T) {
 		Return(nil)
 
 	err := tool.TestPattern(context.Background(), internal.ProjectTesterOptions{ProjectInfo: info}, "tests/*")
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
 }

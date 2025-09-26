@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestNilAway_DetectNilAway(t *testing.T) {
@@ -51,7 +52,7 @@ func TestNilAway_NilAway_LintAll(t *testing.T) {
 		Return(nil)
 
 	err := tool.LintAll(context.Background(), internal.ProjectLinterOptions{ProjectInfo: info})
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
 }
@@ -67,7 +68,7 @@ func TestNilAway_NilAway_Lint(t *testing.T) {
 		Return(nil)
 
 	err := tool.LintFiles(context.Background(), internal.ProjectLinterOptions{ProjectInfo: info}, []string{"mod1"})
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
 }

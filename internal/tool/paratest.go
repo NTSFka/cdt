@@ -9,7 +9,7 @@ type ParaTest struct {
 	internal.ExecutableTool
 }
 
-// DetectParaTest create a tool for paratest
+// DetectParaTest create a tool for paratest.
 func DetectParaTest(ctx context.Context, environment internal.Environment) *ParaTest {
 	return NewParaTest(func() *internal.Executable {
 		// Detect composer vendor
@@ -26,7 +26,7 @@ func DetectParaTest(ctx context.Context, environment internal.Environment) *Para
 	})
 }
 
-// NewParaTest creates a paratest tool from a custom executable
+// NewParaTest creates a paratest tool from a custom executable.
 func NewParaTest(detect func() *internal.Executable) *ParaTest {
 	return &ParaTest{
 		ExecutableTool: internal.MakeExecutableTool(

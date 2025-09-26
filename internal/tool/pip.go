@@ -10,7 +10,7 @@ type Pip struct {
 	internal.ExecutableTool
 }
 
-// DetectPip create a tool for pip
+// DetectPip create a tool for pip.
 func DetectPip(ctx context.Context, environment internal.Environment) *Pip {
 	return NewPip(func() *internal.Executable {
 		if executable := environment.FindExecutable(ctx, "pip"); executable != nil {
@@ -25,7 +25,7 @@ func DetectPip(ctx context.Context, environment internal.Environment) *Pip {
 	})
 }
 
-// NewPip creates a pip tool from a custom executable
+// NewPip creates a pip tool from a custom executable.
 func NewPip(detect func() *internal.Executable) *Pip {
 	return &Pip{
 		ExecutableTool: internal.MakeExecutableTool(

@@ -45,14 +45,14 @@ func NewToolCommand() *cli.Command {
 }
 
 func toolCommandListAction(ctx context.Context, cmd *cli.Command) error {
-	c := ctx.Value("context").(internal.Context)
+	cmdContext := ctx.Value("context").(internal.Context)
 
 	var tools internal.Tools
 
 	if cmd.Bool("all") {
-		tools = c.Tools
+		tools = cmdContext.Tools
 	} else {
-		tools = c.Tools.OnlyAvailable()
+		tools = cmdContext.Tools.OnlyAvailable()
 	}
 
 	if cmd.IsSet("tag") {
@@ -66,7 +66,7 @@ func toolCommandListAction(ctx context.Context, cmd *cli.Command) error {
 }
 
 func toolCommandRunAction(ctx context.Context, cmd *cli.Command) error {
-	c := ctx.Value("context").(internal.Context)
+	cmdContext := ctx.Value("context").(internal.Context)
 
 	toolId := cmd.StringArg("toolId")
 
@@ -74,9 +74,9 @@ func toolCommandRunAction(ctx context.Context, cmd *cli.Command) error {
 		return fmt.Errorf("tool ID is required")
 	}
 
-	if tool := c.Tools.Get(toolId); tool != nil {
+	if tool := cmdContext.Tools.Get(toolId); tool != nil {
 		options := internal.RunOptions{
-			Directory: c.Project.Info.Directory,
+			Directory: cmdContext.Project.Info.Directory,
 			Input:     cmd.Reader,
 			Output:    cmd.Writer,
 			Error:     cmd.ErrWriter,

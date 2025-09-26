@@ -98,8 +98,8 @@ func NewDependencyCommand() *cli.Command {
 }
 
 func dependencyAddCommandAction(ctx context.Context, cmd *cli.Command) error {
-	c := ctx.Value("context").(internal.Context)
-	manager, err := getDependencyManager(c, cmd)
+	cmdContext := ctx.Value("context").(internal.Context)
+	manager, err := getDependencyManager(cmdContext, cmd)
 
 	if err != nil {
 		return err
@@ -109,7 +109,7 @@ func dependencyAddCommandAction(ctx context.Context, cmd *cli.Command) error {
 	dev := cmd.Bool("dev")
 
 	options := internal.ProjectDependencyManagerOptions{
-		ProjectInfo: c.Project.Info,
+		ProjectInfo: cmdContext.Project.Info,
 		ExtraArgs:   cmd.Args().Tail(),
 	}
 
@@ -121,8 +121,8 @@ func dependencyAddCommandAction(ctx context.Context, cmd *cli.Command) error {
 }
 
 func dependencyRemoveCommandAction(ctx context.Context, cmd *cli.Command) error {
-	c := ctx.Value("context").(internal.Context)
-	manager, err := getDependencyManager(c, cmd)
+	cmdContext := ctx.Value("context").(internal.Context)
+	manager, err := getDependencyManager(cmdContext, cmd)
 
 	if err != nil {
 		return err
@@ -132,7 +132,7 @@ func dependencyRemoveCommandAction(ctx context.Context, cmd *cli.Command) error 
 	dev := cmd.Bool("dev")
 
 	options := internal.ProjectDependencyManagerOptions{
-		ProjectInfo: c.Project.Info,
+		ProjectInfo: cmdContext.Project.Info,
 		ExtraArgs:   cmd.Args().Tail(),
 	}
 
@@ -144,8 +144,8 @@ func dependencyRemoveCommandAction(ctx context.Context, cmd *cli.Command) error 
 }
 
 func dependencyUpdateCommandAction(ctx context.Context, cmd *cli.Command) error {
-	c := ctx.Value("context").(internal.Context)
-	manager, err := getDependencyManager(c, cmd)
+	cmdContext := ctx.Value("context").(internal.Context)
+	manager, err := getDependencyManager(cmdContext, cmd)
 
 	if err != nil {
 		return err
@@ -154,7 +154,7 @@ func dependencyUpdateCommandAction(ctx context.Context, cmd *cli.Command) error 
 	dependencies := cmd.StringArgs("dependencies")
 
 	options := internal.ProjectDependencyManagerOptions{
-		ProjectInfo: c.Project.Info,
+		ProjectInfo: cmdContext.Project.Info,
 		ExtraArgs:   cmd.Args().Tail(),
 	}
 
@@ -166,8 +166,8 @@ func dependencyUpdateCommandAction(ctx context.Context, cmd *cli.Command) error 
 }
 
 func dependencyFetchCommandAction(ctx context.Context, cmd *cli.Command) error {
-	c := ctx.Value("context").(internal.Context)
-	manager, err := getDependencyManager(c, cmd)
+	cmdContext := ctx.Value("context").(internal.Context)
+	manager, err := getDependencyManager(cmdContext, cmd)
 
 	if err != nil {
 		return err
@@ -176,7 +176,7 @@ func dependencyFetchCommandAction(ctx context.Context, cmd *cli.Command) error {
 	noDev := cmd.Bool("no-dev")
 
 	options := internal.ProjectDependencyManagerOptions{
-		ProjectInfo: c.Project.Info,
+		ProjectInfo: cmdContext.Project.Info,
 		ExtraArgs:   cmd.Args().Tail(),
 	}
 
@@ -188,15 +188,15 @@ func dependencyFetchCommandAction(ctx context.Context, cmd *cli.Command) error {
 }
 
 func dependencyListCommandAction(ctx context.Context, cmd *cli.Command) error {
-	c := ctx.Value("context").(internal.Context)
-	manager, err := getDependencyManager(c, cmd)
+	cmdContext := ctx.Value("context").(internal.Context)
+	manager, err := getDependencyManager(cmdContext, cmd)
 
 	if err != nil {
 		return err
 	}
 
 	options := internal.ProjectDependencyManagerOptions{
-		ProjectInfo: c.Project.Info,
+		ProjectInfo: cmdContext.Project.Info,
 		ExtraArgs:   cmd.Args().Tail(),
 	}
 
@@ -208,15 +208,15 @@ func dependencyListCommandAction(ctx context.Context, cmd *cli.Command) error {
 }
 
 func dependencyAuditCommandAction(ctx context.Context, cmd *cli.Command) error {
-	c := ctx.Value("context").(internal.Context)
-	manager, err := getDependencyManager(c, cmd)
+	cmdContext := ctx.Value("context").(internal.Context)
+	manager, err := getDependencyManager(cmdContext, cmd)
 
 	if err != nil {
 		return err
 	}
 
 	options := internal.ProjectDependencyManagerOptions{
-		ProjectInfo: c.Project.Info,
+		ProjectInfo: cmdContext.Project.Info,
 		ExtraArgs:   cmd.Args().Tail(),
 	}
 

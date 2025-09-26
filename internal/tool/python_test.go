@@ -10,6 +10,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestPython_DetectPython(t *testing.T) {
@@ -56,7 +57,7 @@ func TestPython_Python_RunTarget(t *testing.T) {
 		Return(nil)
 
 	err := tool.RunTarget(context.Background(), internal.ProjectRunnerOptions{ProjectInfo: info}, "main.py")
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	python.AssertExpectations(t)
 }
@@ -72,7 +73,7 @@ func TestPython_Python_RunTarget_Fail(t *testing.T) {
 		Return(errors.New("failed"))
 
 	err := tool.RunTarget(context.Background(), internal.ProjectRunnerOptions{ProjectInfo: info}, "main.py")
-	assert.EqualError(t, err, "failed")
+	require.EqualError(t, err, "failed")
 
 	python.AssertExpectations(t)
 }
@@ -85,7 +86,7 @@ func TestPython_CreateEnvironment(t *testing.T) {
 	assert.Equal(t, []string{"pyenv"}, tool.Aliases())
 
 	env, err := tool.CreateEnvironment(".", ".venv")
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.NotNil(t, env)
 
 	assert.Equal(t, "pyenv", env.Id())
@@ -101,7 +102,7 @@ func TestPython_CreateEnvironment_NoPath(t *testing.T) {
 	assert.Equal(t, []string{"pyenv"}, tool.Aliases())
 
 	env, err := tool.CreateEnvironment(".", "")
-	assert.EqualError(t, err, "python virtual environment path is required")
+	require.EqualError(t, err, "python virtual environment path is required")
 	assert.Nil(t, env)
 
 	python.AssertExpectations(t)
@@ -114,12 +115,12 @@ func TestPython_Environment_Start(t *testing.T) {
 	assert.NotNil(t, tool)
 
 	env, err := tool.CreateEnvironment(".", ".venv")
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	python.OnRun("python", []string{"-m", "venv", ".venv"}).Return(nil)
 
 	err = env.Start(context.Background())
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	python.AssertExpectations(t)
 }
@@ -131,7 +132,7 @@ func TestPython_Environment_IsRunning_True(t *testing.T) {
 	assert.NotNil(t, tool)
 
 	env, err := tool.CreateEnvironment(".", ".venv")
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	result := env.IsRunning(context.Background())
 	assert.True(t, result)
@@ -146,10 +147,10 @@ func TestPython_Environment_Stop(t *testing.T) {
 	assert.NotNil(t, tool)
 
 	env, err := tool.CreateEnvironment(".", ".venv")
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	err = env.Stop(context.Background())
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	python.AssertExpectations(t)
 }
@@ -161,10 +162,10 @@ func TestPython_Environment_Cleanup(t *testing.T) {
 	assert.NotNil(t, tool)
 
 	env, err := tool.CreateEnvironment(".", ".venv")
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	err = env.Cleanup(context.Background())
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	python.AssertExpectations(t)
 }
@@ -176,17 +177,16 @@ func TestPython_Environment_FindExecutable(t *testing.T) {
 	testDir := t.TempDir()
 
 	env, err := tool.CreateEnvironment(".", testDir)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
-	err = os.MkdirAll(filepath.Join(testDir, "bin"), 0755)
-	assert.NoError(t, err)
-	_, err = os.OpenFile(filepath.Join(testDir, "bin", "tool1"), os.O_RDONLY|os.O_CREATE, 0644)
-	assert.NoError(t, err)
+	err = os.MkdirAll(filepath.Join(testDir, "bin"), 0700)
+	require.NoError(t, err)
+	_, err = os.OpenFile(filepath.Join(testDir, "bin", "tool1"), os.O_RDONLY|os.O_CREATE, 0600)
+	require.NoError(t, err)
 
 	executable := env.FindExecutable(context.Background(), "tool1")
-	if assert.NotNil(t, executable) {
-		assert.Equal(t, "tool1", executable.Path)
-	}
+	require.NotNil(t, executable)
+	assert.Equal(t, "tool1", executable.Path)
 }
 
 func TestPython_Environment_FindExecutable_Windows(t *testing.T) {
@@ -196,17 +196,16 @@ func TestPython_Environment_FindExecutable_Windows(t *testing.T) {
 	testDir := t.TempDir()
 
 	env, err := tool.CreateEnvironment(".", testDir)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
-	err = os.MkdirAll(filepath.Join(testDir, "Scripts"), 0755)
-	assert.NoError(t, err)
-	_, err = os.OpenFile(filepath.Join(testDir, "Scripts", "tool1"), os.O_RDONLY|os.O_CREATE, 0644)
-	assert.NoError(t, err)
+	err = os.MkdirAll(filepath.Join(testDir, "Scripts"), 0700)
+	require.NoError(t, err)
+	_, err = os.OpenFile(filepath.Join(testDir, "Scripts", "tool1"), os.O_RDONLY|os.O_CREATE, 0600)
+	require.NoError(t, err)
 
 	executable := env.FindExecutable(context.Background(), "tool1")
-	if assert.NotNil(t, executable) {
-		assert.Equal(t, "tool1", executable.Path)
-	}
+	require.NotNil(t, executable)
+	assert.Equal(t, "tool1", executable.Path)
 }
 
 func TestPython_Environment_FindExecutable_Failed(t *testing.T) {
@@ -216,7 +215,7 @@ func TestPython_Environment_FindExecutable_Failed(t *testing.T) {
 	testDir := t.TempDir()
 
 	env, err := tool.CreateEnvironment(".", testDir)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	executable := env.FindExecutable(context.Background(), "tool1")
 	assert.Nil(t, executable)
@@ -229,8 +228,8 @@ func TestPython_Environment_RunExecutable_NotFound(t *testing.T) {
 	testDir := t.TempDir()
 
 	env, err := tool.CreateEnvironment(".", testDir)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	err = env.RunExecutable(context.Background(), internal.RunOptions{}, "echo", []string{"arg1", "arg2"})
-	assert.EqualError(t, err, "executable not found")
+	require.EqualError(t, err, "executable not found")
 }

@@ -7,7 +7,7 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-// Config is an application configuration passed via flags or configuration file
+// Config is an application configuration passed via flags or configuration file.
 type Config struct {
 	// RootDirectory is a root directory of the project
 	RootDirectory string
@@ -32,7 +32,7 @@ func DefaultConfig() Config {
 	}
 }
 
-// ConfigWorkflow stores the project's workflow tools
+// ConfigWorkflow stores the project's workflow tools.
 type ConfigWorkflow struct {
 	Configure  *string
 	Build      *string
@@ -43,7 +43,7 @@ type ConfigWorkflow struct {
 	Dependency *string
 }
 
-// FileConfig stores configuration from file
+// FileConfig stores configuration from file.
 type FileConfig struct {
 	Project FileConfigProject `yaml:"project"`
 }
@@ -82,7 +82,7 @@ func (c *FileConfig) UpdateConfig(config *Config) {
 	}
 }
 
-// FileConfigProject stores configuration from a file: project part
+// FileConfigProject stores configuration from a file: project part.
 type FileConfigProject struct {
 	// WorkDirectory specifies a directory where tools should run. Can be relative to the root directory or absolute.
 	WorkDirectory *string `yaml:"work-directory"`
@@ -94,7 +94,7 @@ type FileConfigProject struct {
 	Workflow any `yaml:"workflow"`
 }
 
-// FileConfigProjectWorkflow stores configuration from a file: project, workflow part
+// FileConfigProjectWorkflow stores configuration from a file: project, workflow part.
 type FileConfigProjectWorkflow struct {
 	// Configure stores ID of a tool that be used as ProjectConfigurator
 	Configure *string `yaml:"configure"`
@@ -112,7 +112,7 @@ type FileConfigProjectWorkflow struct {
 	Dependency *string `yaml:"dependency"`
 }
 
-// LoadConfigFile loads configuration from a reader
+// LoadConfigFile loads configuration from a reader.
 func LoadConfigFile(reader io.Reader) (*FileConfig, error) {
 	result := FileConfig{}
 
@@ -125,6 +125,7 @@ func LoadConfigFile(reader io.Reader) (*FileConfig, error) {
 		switch value := result.Project.Workflow.(type) {
 		case map[string]any:
 			workflow := FileConfigProjectWorkflow{}
+
 			var node yaml.Node
 
 			// Can't fail

@@ -9,7 +9,7 @@ type Composer struct {
 	internal.ExecutableTool
 }
 
-// DetectComposer create a tool for composer
+// DetectComposer create a tool for composer.
 func DetectComposer(ctx context.Context, environment internal.Environment) *Composer {
 	return NewComposer(func() *internal.Executable {
 		// PHAR
@@ -26,7 +26,7 @@ func DetectComposer(ctx context.Context, environment internal.Environment) *Comp
 	})
 }
 
-// NewComposer creates a composer tool from a custom executable
+// NewComposer creates a composer tool from a custom executable.
 func NewComposer(detect func() *internal.Executable) *Composer {
 	return &Composer{
 		ExecutableTool: internal.MakeExecutableTool(

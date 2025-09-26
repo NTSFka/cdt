@@ -11,6 +11,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestClangFormat_DetectClangFormat(t *testing.T) {
@@ -72,7 +73,7 @@ func TestClangFormat_FormatAll(t *testing.T) {
 		Return(nil)
 
 	err := tool.FormatAll(context.Background(), internal.ProjectFormatterOptions{ProjectInfo: info})
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
 }
@@ -105,7 +106,7 @@ func TestClangFormat_FormatAll_Failed(t *testing.T) {
 		Return(errors.New("failed"))
 
 	err := tool.FormatAll(context.Background(), internal.ProjectFormatterOptions{ProjectInfo: info})
-	assert.EqualError(t, err, "failed")
+	require.EqualError(t, err, "failed")
 
 	exec.AssertExpectations(t)
 }
@@ -130,7 +131,7 @@ func TestClangFormat_FormatAll_CustomConfig(t *testing.T) {
 	}
 
 	_, err := os.Create(filepath.Join(info.Directory, ".clang-format"))
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	exec.OnRun("clang-format", []string{
 		fmt.Sprintf("--style=file:%v", filepath.Join(info.Directory, ".clang-format")),
@@ -142,7 +143,7 @@ func TestClangFormat_FormatAll_CustomConfig(t *testing.T) {
 		Return(nil)
 
 	err = tool.FormatAll(context.Background(), internal.ProjectFormatterOptions{ProjectInfo: info})
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
 }
@@ -163,7 +164,7 @@ func TestClangFormat_FormatFiles(t *testing.T) {
 		Return(nil)
 
 	err := tool.FormatFiles(context.Background(), internal.ProjectFormatterOptions{ProjectInfo: info}, []string{"file1.go", filepath.Join(info.Directory, "file3.go")})
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
 }
@@ -183,7 +184,7 @@ func TestClangFormat_FormatFiles_Failed(t *testing.T) {
 		Return(errors.New("failed"))
 
 	err := tool.FormatFiles(context.Background(), internal.ProjectFormatterOptions{ProjectInfo: info}, []string{"file1.go"})
-	assert.EqualError(t, err, "failed")
+	require.EqualError(t, err, "failed")
 
 	exec.AssertExpectations(t)
 }
@@ -196,7 +197,7 @@ func TestClangFormat_FormatFiles_CustomConfig(t *testing.T) {
 	info := internal.ProjectInfo{Directory: t.TempDir(), IntermediateDirectory: internal.StrPtr("build")}
 
 	_, err := os.Create(filepath.Join(info.Directory, ".clang-format"))
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	exec.OnRun("clang-format", []string{
 		fmt.Sprintf("--style=file:%v", filepath.Join(info.Directory, ".clang-format")),
@@ -207,7 +208,7 @@ func TestClangFormat_FormatFiles_CustomConfig(t *testing.T) {
 		Return(nil)
 
 	err = tool.FormatFiles(context.Background(), internal.ProjectFormatterOptions{ProjectInfo: info}, []string{"file1.go"})
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
 }
@@ -240,7 +241,7 @@ func TestClangFormat_FormatCheckAll(t *testing.T) {
 		Return(nil)
 
 	err := tool.FormatCheckAll(context.Background(), internal.ProjectFormatterOptions{ProjectInfo: info})
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
 }
@@ -273,7 +274,7 @@ func TestClangFormat_FormatCheckAll_Failed(t *testing.T) {
 		Return(errors.New("failed"))
 
 	err := tool.FormatCheckAll(context.Background(), internal.ProjectFormatterOptions{ProjectInfo: info})
-	assert.EqualError(t, err, "failed")
+	require.EqualError(t, err, "failed")
 
 	exec.AssertExpectations(t)
 }
@@ -298,7 +299,7 @@ func TestClangFormat_FormatCheckAll_CustomConfig(t *testing.T) {
 	}
 
 	_, err := os.Create(filepath.Join(info.Directory, ".clang-format"))
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	exec.OnRun("clang-format", []string{
 		fmt.Sprintf("--style=file:%v", filepath.Join(info.Directory, ".clang-format")),
@@ -310,7 +311,7 @@ func TestClangFormat_FormatCheckAll_CustomConfig(t *testing.T) {
 		Return(nil)
 
 	err = tool.FormatCheckAll(context.Background(), internal.ProjectFormatterOptions{ProjectInfo: info})
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
 }
@@ -331,7 +332,7 @@ func TestClangFormat_FormatCheckFiles(t *testing.T) {
 		Return(nil)
 
 	err := tool.FormatCheckFiles(context.Background(), internal.ProjectFormatterOptions{ProjectInfo: info}, []string{"file1.go", filepath.Join(info.Directory, "file3.go")})
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
 }
@@ -351,7 +352,7 @@ func TestClangFormat_FormatCheckFiles_Failed(t *testing.T) {
 		Return(errors.New("failed"))
 
 	err := tool.FormatCheckFiles(context.Background(), internal.ProjectFormatterOptions{ProjectInfo: info}, []string{"file1.go"})
-	assert.EqualError(t, err, "failed")
+	require.EqualError(t, err, "failed")
 
 	exec.AssertExpectations(t)
 }
@@ -364,7 +365,7 @@ func TestClangFormat_FormatCheckFiles_CustomConfig(t *testing.T) {
 	info := internal.ProjectInfo{Directory: t.TempDir(), IntermediateDirectory: internal.StrPtr("build")}
 
 	_, err := os.Create(filepath.Join(info.Directory, ".clang-format"))
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	exec.OnRun("clang-format", []string{
 		fmt.Sprintf("--style=file:%v", filepath.Join(info.Directory, ".clang-format")),
@@ -375,7 +376,7 @@ func TestClangFormat_FormatCheckFiles_CustomConfig(t *testing.T) {
 		Return(nil)
 
 	err = tool.FormatCheckFiles(context.Background(), internal.ProjectFormatterOptions{ProjectInfo: info}, []string{"file1.go"})
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
 }
@@ -391,7 +392,7 @@ func TestClangFormat_Run(t *testing.T) {
 		Return(nil)
 
 	err := tool.RunForProject(context.Background(), desc, []string{})
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
 }
@@ -407,7 +408,7 @@ func TestClangFormat_Run_Failed(t *testing.T) {
 		Return(errors.New("failed"))
 
 	err := tool.RunForProject(context.Background(), desc, []string{})
-	assert.EqualError(t, err, "failed")
+	require.EqualError(t, err, "failed")
 
 	exec.AssertExpectations(t)
 }

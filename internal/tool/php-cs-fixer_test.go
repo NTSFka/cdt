@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestPHPCSFixer_DetectPHPCSFixer_Composer(t *testing.T) {
@@ -79,7 +80,7 @@ func TestPHPCSFixer_PHPCSFixer_FormatAll(t *testing.T) {
 		Return(nil)
 
 	err := tool.FormatAll(context.Background(), internal.ProjectFormatterOptions{ProjectInfo: info})
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
 }
@@ -95,7 +96,7 @@ func TestPHPCSFixer_PHPCSFixer_FormatFiles(t *testing.T) {
 		Return(nil)
 
 	err := tool.FormatFiles(context.Background(), internal.ProjectFormatterOptions{ProjectInfo: info}, []string{"tests/*"})
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
 }
@@ -111,7 +112,7 @@ func TestPHPCSFixer_PHPCSFixer_FormatCheckAll(t *testing.T) {
 		Return(nil)
 
 	err := tool.FormatCheckAll(context.Background(), internal.ProjectFormatterOptions{ProjectInfo: info})
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
 }
@@ -127,7 +128,7 @@ func TestPHPCSFixer_PHPCSFixer_FormatCheckFiles(t *testing.T) {
 		Return(nil)
 
 	err := tool.FormatCheckFiles(context.Background(), internal.ProjectFormatterOptions{ProjectInfo: info}, []string{"tests/*", "/path/to/file.php"})
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
 }

@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestPythonType_Detect_NoModFile(t *testing.T) {
@@ -24,7 +25,7 @@ func TestPythonType_Detect_ModFile(t *testing.T) {
 	dir := t.TempDir()
 
 	_, err := os.Create(filepath.Join(dir, "pyproject.toml"))
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	res := workflowType.Detect(dir)
 
@@ -46,14 +47,13 @@ func TestPythonType_Create(t *testing.T) {
 		tool.NewBlack(func() *internal.Executable { return &internal.Executable{Path: "black-test"} }),
 	}
 
-	p := workflowType.Create(Config{Directory: "dir1"}, tools)
+	project := workflowType.Create(Config{Directory: "dir1"}, tools)
 
-	if assert.NotNil(t, p) {
-		assert.Nil(t, p.Workflow.Configurator)
-		assert.Nil(t, p.Workflow.Builder)
-		assert.NotNil(t, p.Workflow.Tester)
-		assert.NotNil(t, p.Workflow.Linter)
-		assert.NotNil(t, p.Workflow.Formatter)
-		assert.NotNil(t, p.Workflow.Runner)
-	}
+	require.NotNil(t, project)
+	assert.Nil(t, project.Workflow.Configurator)
+	assert.Nil(t, project.Workflow.Builder)
+	assert.NotNil(t, project.Workflow.Tester)
+	assert.NotNil(t, project.Workflow.Linter)
+	assert.NotNil(t, project.Workflow.Formatter)
+	assert.NotNil(t, project.Workflow.Runner)
 }

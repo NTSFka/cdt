@@ -10,7 +10,7 @@ type PHPCSFixer struct {
 	internal.ExecutableTool
 }
 
-// DetectPHPCSFixer create a tool for php-cs-fixer
+// DetectPHPCSFixer create a tool for php-cs-fixer.
 func DetectPHPCSFixer(ctx context.Context, environment internal.Environment) *PHPCSFixer {
 	return NewPHPCSFixer(func() *internal.Executable {
 		// Detect composer vendor
@@ -27,7 +27,7 @@ func DetectPHPCSFixer(ctx context.Context, environment internal.Environment) *PH
 	})
 }
 
-// NewPHPCSFixer creates a php-cs-fixer tool from a custom executable
+// NewPHPCSFixer creates a php-cs-fixer tool from a custom executable.
 func NewPHPCSFixer(detect func() *internal.Executable) *PHPCSFixer {
 	return &PHPCSFixer{
 		ExecutableTool: internal.MakeExecutableTool(
@@ -38,20 +38,6 @@ func NewPHPCSFixer(detect func() *internal.Executable) *PHPCSFixer {
 			detect,
 		),
 	}
-}
-
-func (p *PHPCSFixer) buildPaths(directory string, filenames []string) []string {
-	var paths []string
-
-	for _, filename := range filenames {
-		if filepath.IsAbs(filename) {
-			paths = append(paths, filename)
-		} else {
-			paths = append(paths, filepath.Join(directory, filename))
-		}
-	}
-
-	return paths
 }
 
 func (p *PHPCSFixer) FormatAll(ctx context.Context, options internal.ProjectFormatterOptions) error {
@@ -72,4 +58,18 @@ func (p *PHPCSFixer) FormatCheckFiles(ctx context.Context, options internal.Proj
 	paths := p.buildPaths(options.Directory, filenames)
 
 	return p.RunForProject(ctx, options.ProjectInfo, append(append([]string{"fix", "--dry-run"}, options.ExtraArgs...), paths...))
+}
+
+func (p *PHPCSFixer) buildPaths(directory string, filenames []string) []string {
+	var paths []string
+
+	for _, filename := range filenames {
+		if filepath.IsAbs(filename) {
+			paths = append(paths, filename)
+		} else {
+			paths = append(paths, filepath.Join(directory, filename))
+		}
+	}
+
+	return paths
 }

@@ -5,7 +5,7 @@ import (
 	"context"
 )
 
-// InitTools initializes all supported tools for a given environment
+// InitTools initializes all supported tools for a given environment.
 func InitTools(ctx context.Context, environment internal.Environment) internal.Tools {
 	return internal.Tools{
 		// C/C++
@@ -44,7 +44,7 @@ func InitTools(ctx context.Context, environment internal.Environment) internal.T
 	}
 }
 
-// InitEnvironmentProviders initializes environment providers
+// InitEnvironmentProviders initializes environment providers.
 func InitEnvironmentProviders(ctx context.Context, environment internal.Environment) internal.EnvironmentProviders {
 	return internal.EnvironmentProviders{
 		internal.SystemEnvironmentProvider,

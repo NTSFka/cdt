@@ -29,12 +29,12 @@ func NewRunCommand() *cli.Command {
 }
 
 func runCommandAction(ctx context.Context, cmd *cli.Command) error {
-	c := ctx.Value("context").(internal.Context)
-	runner := c.Project.Workflow.Runner
+	cmdContext := ctx.Value("context").(internal.Context)
+	runner := cmdContext.Project.Workflow.Runner
 
 	if cmd.IsSet("tool") {
 		toolName := cmd.String("tool")
-		tool := c.Tools.Get(toolName)
+		tool := cmdContext.Tools.Get(toolName)
 
 		if tool == nil {
 			return fmt.Errorf("tool '%s' not found", toolName)
@@ -60,7 +60,7 @@ func runCommandAction(ctx context.Context, cmd *cli.Command) error {
 	}
 
 	options := internal.ProjectRunnerOptions{
-		ProjectInfo: c.Project.Info,
+		ProjectInfo: cmdContext.Project.Info,
 		ExtraArgs:   cmd.Args().Tail(),
 	}
 

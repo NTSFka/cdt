@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestProject_ProjectStructure_GetFiles(t *testing.T) {
@@ -26,7 +27,7 @@ func TestProject_EmptyStructureProvider(t *testing.T) {
 	provider := EmptyProjectStructureProvider{}
 	structure, err := provider.Structure(context.Background(), ProjectInfo{})
 
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.NotNil(t, structure)
 	assert.Empty(t, structure.Targets)
 }
@@ -43,14 +44,13 @@ func TestProject_FixedStructureProvider(t *testing.T) {
 	}
 	structure, err := provider.Structure(context.Background(), ProjectInfo{})
 
-	assert.NoError(t, err)
-	if assert.NotNil(t, structure) {
-		assert.Equal(t, ProjectStructure{
-			Targets: map[string]ProjectTarget{
-				"target1": {
-					Files: []string{"file1.go"},
-				},
+	require.NoError(t, err)
+	require.NotNil(t, structure)
+	assert.Equal(t, ProjectStructure{
+		Targets: map[string]ProjectTarget{
+			"target1": {
+				Files: []string{"file1.go"},
 			},
-		}, *structure)
-	}
+		},
+	}, *structure)
 }

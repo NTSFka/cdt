@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestUtils_PathExists_NotFound(t *testing.T) {
@@ -17,7 +18,7 @@ func TestUtils_PathExists_Found(t *testing.T) {
 	path := filepath.Join(t.TempDir(), "file")
 
 	_, err := os.Create(path)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	assert.True(t, PathExists(path))
 }

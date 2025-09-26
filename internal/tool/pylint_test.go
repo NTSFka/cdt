@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestPylint_DetectPylint(t *testing.T) {
@@ -53,7 +54,7 @@ func TestPylint_Pylint_LintAll(t *testing.T) {
 		Return(nil)
 
 	err := tool.LintAll(context.Background(), internal.ProjectLinterOptions{ProjectInfo: info})
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
 }
@@ -69,7 +70,7 @@ func TestPylint_Pylint_Lint(t *testing.T) {
 		Return(nil)
 
 	err := tool.LintFiles(context.Background(), internal.ProjectLinterOptions{ProjectInfo: info}, []string{"file.py", "/path/to/file2.py"})
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
 }

@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestGo_DetectGo(t *testing.T) {
@@ -46,7 +47,7 @@ func TestGo_Structure(t *testing.T) {
 
 	tool := NewGo(exec.LazyExecutable("go"))
 
-	p := internal.ProjectInfo{Directory: "."}
+	info := internal.ProjectInfo{Directory: "."}
 
 	exec.OnRunOutput(
 		"go", []string{"list", "-json=ImportPath,GoFiles", "./..."},
@@ -54,23 +55,22 @@ func TestGo_Structure(t *testing.T) {
 	).
 		Return(nil)
 
-	structure, err := tool.Structure(context.Background(), p)
-	assert.NoError(t, err)
-	if assert.NotNil(t, structure) {
-		assert.Equal(t,
-			internal.ProjectStructure{
-				Targets: map[string]internal.ProjectTarget{
-					"target1": {
-						Files: []string{"file1.go"},
-					},
-					"target2": {
-						Files: []string{"file2.go", "file3.go"},
-					},
+	structure, err := tool.Structure(context.Background(), info)
+	require.NoError(t, err)
+	require.NotNil(t, structure)
+	assert.Equal(t,
+		internal.ProjectStructure{
+			Targets: map[string]internal.ProjectTarget{
+				"target1": {
+					Files: []string{"file1.go"},
+				},
+				"target2": {
+					Files: []string{"file2.go", "file3.go"},
 				},
 			},
-			*structure,
-		)
-	}
+		},
+		*structure,
+	)
 
 	exec.AssertExpectations(t)
 }
@@ -86,7 +86,7 @@ func TestGo_Structure_Failed(t *testing.T) {
 		Return(errors.New("failed"))
 
 	structure, err := tool.Structure(context.Background(), p)
-	assert.EqualError(t, err, "failed")
+	require.EqualError(t, err, "failed")
 	assert.Nil(t, structure)
 
 	exec.AssertExpectations(t)
@@ -103,7 +103,7 @@ func TestGo_Structure_InvalidJson(t *testing.T) {
 		Return(nil)
 
 	structure, err := tool.Structure(context.Background(), p)
-	assert.ErrorContains(t, err, "json decode failed:")
+	require.ErrorContains(t, err, "json decode failed:")
 	assert.Nil(t, structure)
 
 	exec.AssertExpectations(t)
@@ -120,7 +120,7 @@ func TestGo_BuildAll(t *testing.T) {
 		Return(nil)
 
 	err := tool.BuildAll(context.Background(), internal.ProjectBuilderOptions{ProjectInfo: info})
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
 }
@@ -136,7 +136,7 @@ func TestGo_BuildAll_Failed(t *testing.T) {
 		Return(errors.New("failed"))
 
 	err := tool.BuildAll(context.Background(), internal.ProjectBuilderOptions{ProjectInfo: info})
-	assert.EqualError(t, err, "failed")
+	require.EqualError(t, err, "failed")
 
 	exec.AssertExpectations(t)
 }
@@ -152,7 +152,7 @@ func TestGo_BuildTargets(t *testing.T) {
 		Return(nil)
 
 	err := tool.BuildTargets(context.Background(), internal.ProjectBuilderOptions{ProjectInfo: info}, []string{"target1", "target2"})
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
 }
@@ -168,7 +168,7 @@ func TestGo_BuildTargets_Failed(t *testing.T) {
 		Return(errors.New("failed"))
 
 	err := tool.BuildTargets(context.Background(), internal.ProjectBuilderOptions{ProjectInfo: info}, []string{"target1", "target2"})
-	assert.EqualError(t, err, "failed")
+	require.EqualError(t, err, "failed")
 
 	exec.AssertExpectations(t)
 }
@@ -184,7 +184,7 @@ func TestGo_RunTarget(t *testing.T) {
 		Return(nil)
 
 	err := tool.RunTarget(context.Background(), internal.ProjectRunnerOptions{ProjectInfo: info}, "target1")
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
 }
@@ -200,7 +200,7 @@ func TestGo_RunTarget_Failed(t *testing.T) {
 		Return(errors.New("failed"))
 
 	err := tool.RunTarget(context.Background(), internal.ProjectRunnerOptions{ProjectInfo: info}, "target1")
-	assert.EqualError(t, err, "failed")
+	require.EqualError(t, err, "failed")
 
 	exec.AssertExpectations(t)
 }
@@ -216,7 +216,7 @@ func TestGo_TestAll(t *testing.T) {
 		Return(nil)
 
 	err := tool.TestAll(context.Background(), internal.ProjectTesterOptions{ProjectInfo: info})
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
 }
@@ -232,7 +232,7 @@ func TestGo_TestAll_Failed(t *testing.T) {
 		Return(errors.New("failed"))
 
 	err := tool.TestAll(context.Background(), internal.ProjectTesterOptions{ProjectInfo: info})
-	assert.EqualError(t, err, "failed")
+	require.EqualError(t, err, "failed")
 
 	exec.AssertExpectations(t)
 }
@@ -248,7 +248,7 @@ func TestGo_Test(t *testing.T) {
 		Return(nil)
 
 	err := tool.TestPattern(context.Background(), internal.ProjectTesterOptions{ProjectInfo: info}, "test1")
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
 }
@@ -264,7 +264,7 @@ func TestGo_Test_Failed(t *testing.T) {
 		Return(errors.New("failed"))
 
 	err := tool.TestPattern(context.Background(), internal.ProjectTesterOptions{ProjectInfo: info}, "test1")
-	assert.EqualError(t, err, "failed")
+	require.EqualError(t, err, "failed")
 
 	exec.AssertExpectations(t)
 }
@@ -280,7 +280,7 @@ func TestGo_FormatAll(t *testing.T) {
 		Return(nil)
 
 	err := tool.FormatAll(context.Background(), internal.ProjectFormatterOptions{ProjectInfo: info})
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
 }
@@ -296,7 +296,7 @@ func TestGo_FormatAll_Failed(t *testing.T) {
 		Return(errors.New("failed"))
 
 	err := tool.FormatAll(context.Background(), internal.ProjectFormatterOptions{ProjectInfo: info})
-	assert.EqualError(t, err, "failed")
+	require.EqualError(t, err, "failed")
 
 	exec.AssertExpectations(t)
 }
@@ -312,7 +312,7 @@ func TestGo_FormatFiles(t *testing.T) {
 		Return(nil)
 
 	err := tool.FormatFiles(context.Background(), internal.ProjectFormatterOptions{ProjectInfo: info}, []string{"file1"})
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
 }
@@ -328,7 +328,7 @@ func TestGo_FormatFiles_Failed(t *testing.T) {
 		Return(errors.New("failed"))
 
 	err := tool.FormatFiles(context.Background(), internal.ProjectFormatterOptions{ProjectInfo: info}, []string{"file1"})
-	assert.EqualError(t, err, "failed")
+	require.EqualError(t, err, "failed")
 
 	exec.AssertExpectations(t)
 }
@@ -341,7 +341,7 @@ func TestGo_FormatCheckAll(t *testing.T) {
 	info := internal.ProjectInfo{Directory: "."}
 
 	err := tool.FormatCheckAll(context.Background(), internal.ProjectFormatterOptions{ProjectInfo: info})
-	assert.EqualError(t, err, "go fmt doesn't support check mode")
+	require.EqualError(t, err, "go fmt doesn't support check mode")
 
 	exec.AssertExpectations(t)
 }
@@ -354,7 +354,7 @@ func TestGo_FormatCheckFiles(t *testing.T) {
 	info := internal.ProjectInfo{Directory: "."}
 
 	err := tool.FormatCheckFiles(context.Background(), internal.ProjectFormatterOptions{ProjectInfo: info}, []string{"file1"})
-	assert.EqualError(t, err, "go fmt doesn't support check mode")
+	require.EqualError(t, err, "go fmt doesn't support check mode")
 
 	exec.AssertExpectations(t)
 }
@@ -370,7 +370,7 @@ func TestGo_Go_LintAll(t *testing.T) {
 		Return(nil)
 
 	err := tool.LintAll(context.Background(), internal.ProjectLinterOptions{ProjectInfo: info})
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
 }
@@ -386,7 +386,7 @@ func TestGo_Go_Lint(t *testing.T) {
 		Return(nil)
 
 	err := tool.LintFiles(context.Background(), internal.ProjectLinterOptions{ProjectInfo: info}, []string{"mod1"})
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
 }
@@ -402,7 +402,7 @@ func TestGo_Go_AddDependencies(t *testing.T) {
 		Return(nil)
 
 	err := tool.AddDependencies(context.Background(), internal.ProjectDependencyManagerOptions{ProjectInfo: info}, []string{"dep1"}, false)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
 }
@@ -418,7 +418,7 @@ func TestGo_Go_RemoveDependencies(t *testing.T) {
 		Return(nil)
 
 	err := tool.RemoveDependencies(context.Background(), internal.ProjectDependencyManagerOptions{ProjectInfo: info}, []string{"dep1"}, false)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
 }
@@ -434,7 +434,7 @@ func TestGo_Go_UpdateDependencies(t *testing.T) {
 		Return(nil)
 
 	err := tool.UpdateDependencies(context.Background(), internal.ProjectDependencyManagerOptions{ProjectInfo: info}, []string{"dep1"})
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
 }
@@ -450,7 +450,7 @@ func TestGo_Go_FetchDependencies(t *testing.T) {
 		Return(nil)
 
 	err := tool.FetchDependencies(context.Background(), internal.ProjectDependencyManagerOptions{ProjectInfo: info}, false)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
 }
@@ -466,7 +466,7 @@ func TestGo_Go_ListDependencies(t *testing.T) {
 		Return(nil)
 
 	err := tool.ListDependencies(context.Background(), internal.ProjectDependencyManagerOptions{ProjectInfo: info})
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
 }
@@ -482,7 +482,7 @@ func TestGo_Go_AuditDependencies(t *testing.T) {
 		Return(nil)
 
 	err := tool.AuditDependencies(context.Background(), internal.ProjectDependencyManagerOptions{ProjectInfo: info})
-	assert.EqualError(t, err, "not supported")
+	require.EqualError(t, err, "not supported")
 
 	exec.AssertExpectations(t)
 }

@@ -5,12 +5,12 @@ import (
 	"context"
 )
 
-// CTest is a test runner from CMake
+// CTest is a test runner from CMake.
 type CTest struct {
 	internal.ExecutableTool
 }
 
-// NewCTest creates a ctest tool from a custom executable
+// NewCTest creates a ctest tool from a custom executable.
 func NewCTest(detect func() *internal.Executable) *CTest {
 	return &CTest{
 		internal.MakeExecutableTool(
@@ -23,7 +23,7 @@ func NewCTest(detect func() *internal.Executable) *CTest {
 	}
 }
 
-// DetectCTest create ctest tool can be used in the project
+// DetectCTest create ctest tool can be used in the project.
 func DetectCTest(ctx context.Context, environment internal.Environment) *CTest {
 	return NewCTest(func() *internal.Executable {
 		return environment.FindExecutable(ctx, "ctest")

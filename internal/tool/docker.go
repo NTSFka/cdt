@@ -16,7 +16,7 @@ type Docker struct {
 	internal.ExecutableTool
 }
 
-// NewDocker creates a docker tool from a custom executable
+// NewDocker creates a docker tool from a custom executable.
 func NewDocker(detect func() *internal.Executable) *Docker {
 	return &Docker{internal.MakeExecutableTool(
 		"docker",
@@ -47,7 +47,7 @@ func (d *Docker) Detect(_ string) *internal.Environment {
 	return nil
 }
 
-// CreateEnvironment create docker environment where the service is used for running tools
+// CreateEnvironment create docker environment where the service is used for running tools.
 func (d *Docker) CreateEnvironment(directory, image string) (internal.Environment, error) {
 	internal.Debug("docker.create_environment", "directory", directory, "image", image)
 
@@ -74,33 +74,6 @@ type dockerEnvironment struct {
 
 func (d *dockerEnvironment) Id() string {
 	return "docker"
-}
-
-func (d *dockerEnvironment) runOutput(ctx context.Context, args []string) (string, error) {
-	output := bytes.Buffer{}
-	err := d.docker.Run(
-		ctx,
-		internal.RunOptions{Directory: d.directory, Output: &output, Silent: true},
-		args,
-	)
-
-	if err != nil {
-		return "", fmt.Errorf("docker run failed: %w", err)
-	}
-
-	return strings.TrimSpace(output.String()), nil
-}
-
-func (d *dockerEnvironment) autoStart(ctx context.Context) error {
-	if !d.IsRunning(ctx) {
-		d.autoStop = true
-
-		if err := d.Start(ctx); err != nil {
-			return err
-		}
-	}
-
-	return nil
 }
 
 func (d *dockerEnvironment) Start(ctx context.Context) error {
@@ -149,6 +122,7 @@ func (d *dockerEnvironment) IsRunning(ctx context.Context) bool {
 				Running bool `json:"Running"`
 			} `json:"State"`
 		}
+
 		if err := json.Unmarshal([]byte(output), &data); err != nil {
 			return false
 		}
@@ -168,6 +142,7 @@ func (d *dockerEnvironment) Stop(ctx context.Context) error {
 
 	return internal.Trace(ctx, "docker.stop", func() error {
 		_, err := d.runOutput(ctx, []string{"stop", d.containerId})
+
 		return err
 	}, "container", d.containerId)
 }
@@ -220,4 +195,31 @@ func (d *dockerEnvironment) RunExecutable(ctx context.Context, options internal.
 			append([]string{"exec", d.containerId, path}, args...),
 		)
 	}, "container", d.containerId, "path", path, "args", args)
+}
+
+func (d *dockerEnvironment) runOutput(ctx context.Context, args []string) (string, error) {
+	output := bytes.Buffer{}
+	err := d.docker.Run(
+		ctx,
+		internal.RunOptions{Directory: d.directory, Output: &output, Silent: true},
+		args,
+	)
+
+	if err != nil {
+		return "", fmt.Errorf("docker run failed: %w", err)
+	}
+
+	return strings.TrimSpace(output.String()), nil
+}
+
+func (d *dockerEnvironment) autoStart(ctx context.Context) error {
+	if !d.IsRunning(ctx) {
+		d.autoStop = true
+
+		if err := d.Start(ctx); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }

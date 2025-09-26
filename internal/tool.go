@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	// Commands
+	// Commands.
 	ToolTagConfigure   Tag = "configure"
 	ToolTagBuild       Tag = "build"
 	ToolTagTest        Tag = "test"
@@ -21,7 +21,7 @@ const (
 	ToolTagRun         Tag = "run"
 	ToolTagDependency  Tag = "dependency"
 	ToolTagEnvironment Tag = "environment"
-	// Languages
+	// Languages.
 	ToolTagGo     Tag = "go"
 	ToolTagC      Tag = "c"
 	ToolTagCpp    Tag = "c++"
@@ -32,7 +32,7 @@ const (
 type Tag string
 type Tags []Tag
 
-// A Tool is an interface for Tools
+// A Tool is an interface for Tools.
 type Tool interface {
 	// The Id returns tool unique identifier
 	Id() string
@@ -67,7 +67,7 @@ type ExecutableTool struct {
 	executable *Executable
 }
 
-// MakeExecutableTool creates an executable tool
+// MakeExecutableTool creates an executable tool.
 func MakeExecutableTool(id string, name string, info string, tags Tags, detect func() *Executable) ExecutableTool {
 	return ExecutableTool{
 		id:         id,
@@ -80,7 +80,7 @@ func MakeExecutableTool(id string, name string, info string, tags Tags, detect f
 	}
 }
 
-// NewExecutableTool creates an executable tool
+// NewExecutableTool creates an executable tool.
 func NewExecutableTool(id string, name string, info string, tags Tags, detect func() *Executable) *ExecutableTool {
 	executable := MakeExecutableTool(id, name, info, tags, detect)
 
@@ -141,10 +141,10 @@ func (t *ExecutableTool) RunForProject(ctx context.Context, info ProjectInfo, ar
 	return t.Run(ctx, options, args)
 }
 
-// Tools is a container for available tools
+// Tools is a container for available tools.
 type Tools []Tool
 
-// OnlyAvailable returns only tools that are available
+// OnlyAvailable returns only tools that are available.
 func (t *Tools) OnlyAvailable() (result Tools) {
 	if t == nil {
 		return
@@ -181,7 +181,7 @@ func (t *Tools) FilterByTags(tags []string) (result Tools) {
 	return
 }
 
-// Get returns a tool by ID
+// Get returns a tool by ID.
 func (t *Tools) Get(id string) Tool {
 	for _, tool := range *t {
 		if tool.Id() == id {
@@ -192,18 +192,18 @@ func (t *Tools) Get(id string) Tool {
 	return nil
 }
 
-// PrintTable prints tools list to the writer
+// PrintTable prints tools list to the writer.
 func (t *Tools) PrintTable(writer io.Writer) {
 	if t == nil || len(*t) == 0 {
 		return
 	}
 
-	w := table.NewWriter()
-	w.SetOutputMirror(writer)
-	w.AppendHeader(table.Row{"ID", "Name", "Available", "Tags", "Executable", "Info"})
+	tableWriter := table.NewWriter()
+	tableWriter.SetOutputMirror(writer)
+	tableWriter.AppendHeader(table.Row{"ID", "Name", "Available", "Tags", "Executable", "Info"})
 
 	if width := DetectTermWidth(writer); width != nil {
-		w.SetAllowedRowLength(*width)
+		tableWriter.SetAllowedRowLength(*width)
 	}
 
 	for _, tool := range *t {
@@ -221,7 +221,7 @@ func (t *Tools) PrintTable(writer io.Writer) {
 			tags = append(tags, string(tag))
 		}
 
-		w.AppendRow(table.Row{
+		tableWriter.AppendRow(table.Row{
 			tool.Id(),
 			tool.Name(),
 			tool.IsAvailable(),
@@ -231,10 +231,10 @@ func (t *Tools) PrintTable(writer io.Writer) {
 		})
 	}
 
-	w.Render()
+	tableWriter.Render()
 }
 
-// GetTool return a tool with the required type
+// GetTool return a tool with the required type.
 func GetTool[T Tool](tools Tools) T {
 	for _, tool := range tools {
 		if t, ok := tool.(T); ok {

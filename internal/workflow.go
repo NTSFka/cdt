@@ -2,7 +2,7 @@ package internal
 
 import "context"
 
-// ProjectConfiguratorOptions are options for configuring a project
+// ProjectConfiguratorOptions are options for configuring a project.
 type ProjectConfiguratorOptions struct {
 	ProjectInfo
 
@@ -10,13 +10,13 @@ type ProjectConfiguratorOptions struct {
 	ExtraArgs []string
 }
 
-// A ProjectConfigurator allow configuring a project
+// A ProjectConfigurator allow configuring a project.
 type ProjectConfigurator interface {
 	// Configure the project
 	Configure(ctx context.Context, options ProjectConfiguratorOptions) error
 }
 
-// ProjectBuilderOptions are options for building a project
+// ProjectBuilderOptions are options for building a project.
 type ProjectBuilderOptions struct {
 	ProjectInfo
 
@@ -24,7 +24,7 @@ type ProjectBuilderOptions struct {
 	ExtraArgs []string
 }
 
-// A ProjectBuilder allow building a project
+// A ProjectBuilder allow building a project.
 type ProjectBuilder interface {
 	// BuildAll builds all targets in the project
 	BuildAll(ctx context.Context, options ProjectBuilderOptions) error
@@ -33,7 +33,7 @@ type ProjectBuilder interface {
 	BuildTargets(ctx context.Context, options ProjectBuilderOptions, targets []string) error
 }
 
-// ProjectTesterOptions are options for testing a project
+// ProjectTesterOptions are options for testing a project.
 type ProjectTesterOptions struct {
 	ProjectInfo
 
@@ -41,7 +41,7 @@ type ProjectTesterOptions struct {
 	ExtraArgs []string
 }
 
-// A ProjectTester allow testing a project
+// A ProjectTester allow testing a project.
 type ProjectTester interface {
 	// TestAll runs all tests in the project
 	TestAll(ctx context.Context, options ProjectTesterOptions) error
@@ -50,7 +50,7 @@ type ProjectTester interface {
 	TestPattern(ctx context.Context, options ProjectTesterOptions, pattern string) error
 }
 
-// ProjectFormatterOptions are options for formatting a project
+// ProjectFormatterOptions are options for formatting a project.
 type ProjectFormatterOptions struct {
 	ProjectInfo
 
@@ -58,7 +58,7 @@ type ProjectFormatterOptions struct {
 	ExtraArgs []string
 }
 
-// A ProjectFormatter allow formatting files of a project
+// A ProjectFormatter allow formatting files of a project.
 type ProjectFormatter interface {
 	// FormatAll formates all files in the project
 	FormatAll(ctx context.Context, options ProjectFormatterOptions) error
@@ -73,7 +73,7 @@ type ProjectFormatter interface {
 	FormatCheckFiles(ctx context.Context, options ProjectFormatterOptions, filenames []string) error
 }
 
-// ProjectLinterOptions are options for linting a project
+// ProjectLinterOptions are options for linting a project.
 type ProjectLinterOptions struct {
 	ProjectInfo
 
@@ -81,7 +81,7 @@ type ProjectLinterOptions struct {
 	ExtraArgs []string
 }
 
-// A ProjectLinter allow linting files of a project
+// A ProjectLinter allow linting files of a project.
 type ProjectLinter interface {
 	// LintAll lints all project files
 	LintAll(ctx context.Context, options ProjectLinterOptions) error
@@ -90,7 +90,7 @@ type ProjectLinter interface {
 	LintFiles(ctx context.Context, options ProjectLinterOptions, filenames []string) error
 }
 
-// ProjectRunnerOptions are options for running a target in the project
+// ProjectRunnerOptions are options for running a target in the project.
 type ProjectRunnerOptions struct {
 	ProjectInfo
 
@@ -98,13 +98,13 @@ type ProjectRunnerOptions struct {
 	ExtraArgs []string
 }
 
-// A ProjectRunner allow running executables of a project
+// A ProjectRunner allow running executables of a project.
 type ProjectRunner interface {
 	// RunTarget run a target
 	RunTarget(ctx context.Context, options ProjectRunnerOptions, target string) error
 }
 
-// ProjectDependencyManagerOptions are options for managing of project dependencies
+// ProjectDependencyManagerOptions are options for managing of project dependencies.
 type ProjectDependencyManagerOptions struct {
 	ProjectInfo
 
@@ -133,7 +133,7 @@ type ProjectDependencyManager interface {
 	AuditDependencies(ctx context.Context, options ProjectDependencyManagerOptions) error
 }
 
-// A Workflow describes how to work on a project
+// A Workflow describes how to work on a project.
 type Workflow struct {
 	// Name is the name of the workflow
 	Name string

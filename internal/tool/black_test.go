@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestBlack_DetectBlack(t *testing.T) {
@@ -53,7 +54,7 @@ func TestBlack_Black_FormatAll(t *testing.T) {
 		Return(nil)
 
 	err := tool.FormatAll(context.Background(), internal.ProjectFormatterOptions{ProjectInfo: info})
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
 }
@@ -69,7 +70,7 @@ func TestBlack_Black_FormatFiles(t *testing.T) {
 		Return(nil)
 
 	err := tool.FormatFiles(context.Background(), internal.ProjectFormatterOptions{ProjectInfo: info}, []string{"tests/*"})
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
 }
@@ -85,7 +86,7 @@ func TestBlack_Black_FormatCheckAll(t *testing.T) {
 		Return(nil)
 
 	err := tool.FormatCheckAll(context.Background(), internal.ProjectFormatterOptions{ProjectInfo: info})
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
 }
@@ -101,7 +102,7 @@ func TestBlack_Black_FormatCheckFiles(t *testing.T) {
 		Return(nil)
 
 	err := tool.FormatCheckFiles(context.Background(), internal.ProjectFormatterOptions{ProjectInfo: info}, []string{"tests/*", "/path/to/file.py"})
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
 }

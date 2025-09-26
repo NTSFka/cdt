@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestPHP_DetectPHP(t *testing.T) {
@@ -54,7 +55,7 @@ func TestPHP_PHP_RunTarget(t *testing.T) {
 		Return(nil)
 
 	err := tool.RunTarget(context.Background(), internal.ProjectRunnerOptions{ProjectInfo: info}, "index.php")
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
 }
@@ -70,7 +71,7 @@ func TestPHP_PHP_RunTarget_Fail(t *testing.T) {
 		Return(errors.New("failed"))
 
 	err := tool.RunTarget(context.Background(), internal.ProjectRunnerOptions{ProjectInfo: info}, "index.php")
-	assert.EqualError(t, err, "failed")
+	require.EqualError(t, err, "failed")
 
 	exec.AssertExpectations(t)
 }

@@ -10,7 +10,7 @@ type PHPStan struct {
 	internal.ExecutableTool
 }
 
-// DetectPHPStan create a tool for phpstan
+// DetectPHPStan create a tool for phpstan.
 func DetectPHPStan(ctx context.Context, environment internal.Environment) *PHPStan {
 	return NewPHPStan(func() *internal.Executable {
 		// Detect composer vendor
@@ -27,7 +27,7 @@ func DetectPHPStan(ctx context.Context, environment internal.Environment) *PHPSt
 	})
 }
 
-// NewPHPStan creates a phpstan tool from a custom executable
+// NewPHPStan creates a phpstan tool from a custom executable.
 func NewPHPStan(detect func() *internal.Executable) *PHPStan {
 	return &PHPStan{
 		ExecutableTool: internal.MakeExecutableTool(
@@ -38,6 +38,16 @@ func NewPHPStan(detect func() *internal.Executable) *PHPStan {
 			detect,
 		),
 	}
+}
+
+func (p *PHPStan) LintAll(ctx context.Context, options internal.ProjectLinterOptions) error {
+	return p.RunForProject(ctx, options.ProjectInfo, append([]string{"analyse"}, options.ExtraArgs...))
+}
+
+func (p *PHPStan) LintFiles(ctx context.Context, options internal.ProjectLinterOptions, filenames []string) error {
+	paths := p.buildPaths(options.Directory, filenames)
+
+	return p.RunForProject(ctx, options.ProjectInfo, append(append([]string{"analyse"}, options.ExtraArgs...), paths...))
 }
 
 func (p *PHPStan) buildPaths(directory string, filenames []string) []string {
@@ -52,14 +62,4 @@ func (p *PHPStan) buildPaths(directory string, filenames []string) []string {
 	}
 
 	return paths
-}
-
-func (p *PHPStan) LintAll(ctx context.Context, options internal.ProjectLinterOptions) error {
-	return p.RunForProject(ctx, options.ProjectInfo, append([]string{"analyse"}, options.ExtraArgs...))
-}
-
-func (p *PHPStan) LintFiles(ctx context.Context, options internal.ProjectLinterOptions, filenames []string) error {
-	paths := p.buildPaths(options.Directory, filenames)
-
-	return p.RunForProject(ctx, options.ProjectInfo, append(append([]string{"analyse"}, options.ExtraArgs...), paths...))
 }

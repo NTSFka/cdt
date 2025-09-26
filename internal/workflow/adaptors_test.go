@@ -8,6 +8,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
+	"github.com/stretchr/testify/require"
 )
 
 func createConfiguratorTool(id string, executable *internal.Executable) *struct {
@@ -45,7 +46,7 @@ func TestConfiguratorFallback_Configure_Empty(t *testing.T) {
 
 	err := fallback.Configure(context.Background(), internal.ProjectConfiguratorOptions{})
 
-	assert.EqualError(t, err, "no configurator tool available: none")
+	require.EqualError(t, err, "no configurator tool available: none")
 }
 
 func TestConfiguratorFallback_Configure_NoAvailable(t *testing.T) {
@@ -56,7 +57,7 @@ func TestConfiguratorFallback_Configure_NoAvailable(t *testing.T) {
 
 	err := fallback.Configure(context.Background(), internal.ProjectConfiguratorOptions{})
 
-	assert.EqualError(t, err, "no configurator tool available: test1, test2")
+	require.EqualError(t, err, "no configurator tool available: test1, test2")
 
 	tool1.AssertExpectations(t)
 	tool2.AssertExpectations(t)
@@ -74,7 +75,7 @@ func TestConfiguratorFallback_Configure_Available1(t *testing.T) {
 
 	err := fallback.Configure(context.Background(), internal.ProjectConfiguratorOptions{})
 
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	tool1.AssertExpectations(t)
 	tool2.AssertExpectations(t)
@@ -92,7 +93,7 @@ func TestConfiguratorFallback_Configure_Available2(t *testing.T) {
 
 	err := fallback.Configure(context.Background(), internal.ProjectConfiguratorOptions{})
 
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	tool1.AssertExpectations(t)
 	tool2.AssertExpectations(t)
@@ -133,7 +134,7 @@ func TestBuilderFallback_BuildAll_Empty(t *testing.T) {
 
 	err := fallback.BuildAll(context.Background(), internal.ProjectBuilderOptions{})
 
-	assert.EqualError(t, err, "no builder tool available: none")
+	require.EqualError(t, err, "no builder tool available: none")
 }
 
 func TestBuilderFallback_BuildAll_NoAvailable(t *testing.T) {
@@ -144,7 +145,7 @@ func TestBuilderFallback_BuildAll_NoAvailable(t *testing.T) {
 
 	err := fallback.BuildAll(context.Background(), internal.ProjectBuilderOptions{})
 
-	assert.EqualError(t, err, "no builder tool available: test1, test2")
+	require.EqualError(t, err, "no builder tool available: test1, test2")
 
 	tool1.AssertExpectations(t)
 	tool2.AssertExpectations(t)
@@ -162,7 +163,7 @@ func TestBuilderFallback_BuildAll_Available1(t *testing.T) {
 
 	err := fallback.BuildAll(context.Background(), internal.ProjectBuilderOptions{})
 
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	tool1.AssertExpectations(t)
 	tool2.AssertExpectations(t)
@@ -180,7 +181,7 @@ func TestBuilderFallback_BuildAll_Available2(t *testing.T) {
 
 	err := fallback.BuildAll(context.Background(), internal.ProjectBuilderOptions{})
 
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	tool1.AssertExpectations(t)
 	tool2.AssertExpectations(t)
@@ -191,7 +192,7 @@ func TestBuilderFallback_BuildTargets_Empty(t *testing.T) {
 
 	err := fallback.BuildTargets(context.Background(), internal.ProjectBuilderOptions{}, []string{"target1"})
 
-	assert.EqualError(t, err, "no builder tool available: none")
+	require.EqualError(t, err, "no builder tool available: none")
 }
 
 func TestBuilderFallback_BuildTargets_NoAvailable(t *testing.T) {
@@ -202,7 +203,7 @@ func TestBuilderFallback_BuildTargets_NoAvailable(t *testing.T) {
 
 	err := fallback.BuildTargets(context.Background(), internal.ProjectBuilderOptions{}, []string{"target1"})
 
-	assert.EqualError(t, err, "no builder tool available: test1, test2")
+	require.EqualError(t, err, "no builder tool available: test1, test2")
 
 	tool1.AssertExpectations(t)
 	tool2.AssertExpectations(t)
@@ -220,7 +221,7 @@ func TestBuilderFallback_BuildTargets_Available1(t *testing.T) {
 
 	err := fallback.BuildTargets(context.Background(), internal.ProjectBuilderOptions{}, []string{"target1"})
 
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	tool1.AssertExpectations(t)
 	tool2.AssertExpectations(t)
@@ -238,7 +239,7 @@ func TestBuilderFallback_BuildTargets_Available2(t *testing.T) {
 
 	err := fallback.BuildTargets(context.Background(), internal.ProjectBuilderOptions{}, []string{"target1"})
 
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	tool1.AssertExpectations(t)
 	tool2.AssertExpectations(t)
@@ -279,7 +280,7 @@ func TestTesterFallback_TestAll_Empty(t *testing.T) {
 
 	err := fallback.TestAll(context.Background(), internal.ProjectTesterOptions{})
 
-	assert.EqualError(t, err, "no tester tool available: none")
+	require.EqualError(t, err, "no tester tool available: none")
 }
 
 func TestTesterFallback_TestAll_NoAvailable(t *testing.T) {
@@ -290,7 +291,7 @@ func TestTesterFallback_TestAll_NoAvailable(t *testing.T) {
 
 	err := fallback.TestAll(context.Background(), internal.ProjectTesterOptions{})
 
-	assert.EqualError(t, err, "no tester tool available: test1, test2")
+	require.EqualError(t, err, "no tester tool available: test1, test2")
 
 	tool1.AssertExpectations(t)
 	tool2.AssertExpectations(t)
@@ -308,7 +309,7 @@ func TestTesterFallback_TestAll_Available1(t *testing.T) {
 
 	err := fallback.TestAll(context.Background(), internal.ProjectTesterOptions{})
 
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	tool1.AssertExpectations(t)
 	tool2.AssertExpectations(t)
@@ -326,7 +327,7 @@ func TestTesterFallback_TestAll_Available2(t *testing.T) {
 
 	err := fallback.TestAll(context.Background(), internal.ProjectTesterOptions{})
 
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	tool1.AssertExpectations(t)
 	tool2.AssertExpectations(t)
@@ -337,7 +338,7 @@ func TestTesterFallback_Test_Empty(t *testing.T) {
 
 	err := fallback.TestPattern(context.Background(), internal.ProjectTesterOptions{}, "target1")
 
-	assert.EqualError(t, err, "no tester tool available: none")
+	require.EqualError(t, err, "no tester tool available: none")
 }
 
 func TestTesterFallback_Test_NoAvailable(t *testing.T) {
@@ -348,7 +349,7 @@ func TestTesterFallback_Test_NoAvailable(t *testing.T) {
 
 	err := fallback.TestPattern(context.Background(), internal.ProjectTesterOptions{}, "target1")
 
-	assert.EqualError(t, err, "no tester tool available: test1, test2")
+	require.EqualError(t, err, "no tester tool available: test1, test2")
 
 	tool1.AssertExpectations(t)
 	tool2.AssertExpectations(t)
@@ -366,7 +367,7 @@ func TestTesterFallback_Test_Available1(t *testing.T) {
 
 	err := fallback.TestPattern(context.Background(), internal.ProjectTesterOptions{}, "target1")
 
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	tool1.AssertExpectations(t)
 	tool2.AssertExpectations(t)
@@ -384,7 +385,7 @@ func TestTesterFallback_Test_Available2(t *testing.T) {
 
 	err := fallback.TestPattern(context.Background(), internal.ProjectTesterOptions{}, "target1")
 
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	tool1.AssertExpectations(t)
 	tool2.AssertExpectations(t)
@@ -425,7 +426,7 @@ func TestFormatterFallback_FormatAll_Empty(t *testing.T) {
 
 	err := fallback.FormatAll(context.Background(), internal.ProjectFormatterOptions{})
 
-	assert.EqualError(t, err, "no formatter tool available: none")
+	require.EqualError(t, err, "no formatter tool available: none")
 }
 
 func TestFormatterFallback_FormatAll_NoAvailable(t *testing.T) {
@@ -436,7 +437,7 @@ func TestFormatterFallback_FormatAll_NoAvailable(t *testing.T) {
 
 	err := fallback.FormatAll(context.Background(), internal.ProjectFormatterOptions{})
 
-	assert.EqualError(t, err, "no formatter tool available: test1, test2")
+	require.EqualError(t, err, "no formatter tool available: test1, test2")
 
 	tool1.AssertExpectations(t)
 	tool2.AssertExpectations(t)
@@ -454,7 +455,7 @@ func TestFormatterFallback_FormatAll_Available1(t *testing.T) {
 
 	err := fallback.FormatAll(context.Background(), internal.ProjectFormatterOptions{})
 
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	tool1.AssertExpectations(t)
 	tool2.AssertExpectations(t)
@@ -472,7 +473,7 @@ func TestFormatterFallback_FormatAll_Available2(t *testing.T) {
 
 	err := fallback.FormatAll(context.Background(), internal.ProjectFormatterOptions{})
 
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	tool1.AssertExpectations(t)
 	tool2.AssertExpectations(t)
@@ -483,7 +484,7 @@ func TestFormatterFallback_FormatFiles_Empty(t *testing.T) {
 
 	err := fallback.FormatFiles(context.Background(), internal.ProjectFormatterOptions{}, []string{"file1"})
 
-	assert.EqualError(t, err, "no formatter tool available: none")
+	require.EqualError(t, err, "no formatter tool available: none")
 }
 
 func TestFormatterFallback_FormatFiles_NoAvailable(t *testing.T) {
@@ -494,7 +495,7 @@ func TestFormatterFallback_FormatFiles_NoAvailable(t *testing.T) {
 
 	err := fallback.FormatFiles(context.Background(), internal.ProjectFormatterOptions{}, []string{"file1"})
 
-	assert.EqualError(t, err, "no formatter tool available: test1, test2")
+	require.EqualError(t, err, "no formatter tool available: test1, test2")
 
 	tool1.AssertExpectations(t)
 	tool2.AssertExpectations(t)
@@ -512,7 +513,7 @@ func TestFormatterFallback_FormatFiles_Available1(t *testing.T) {
 
 	err := fallback.FormatFiles(context.Background(), internal.ProjectFormatterOptions{}, []string{"file1"})
 
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	tool1.AssertExpectations(t)
 	tool2.AssertExpectations(t)
@@ -530,7 +531,7 @@ func TestFormatterFallback_FormatFiles_Available2(t *testing.T) {
 
 	err := fallback.FormatFiles(context.Background(), internal.ProjectFormatterOptions{}, []string{"file1"})
 
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	tool1.AssertExpectations(t)
 	tool2.AssertExpectations(t)
@@ -541,7 +542,7 @@ func TestFormatterFallback_FormatCheckAll_Empty(t *testing.T) {
 
 	err := fallback.FormatCheckAll(context.Background(), internal.ProjectFormatterOptions{})
 
-	assert.EqualError(t, err, "no formatter tool available: none")
+	require.EqualError(t, err, "no formatter tool available: none")
 }
 
 func TestFormatterFallback_FormatCheckAll_NoAvailable(t *testing.T) {
@@ -552,7 +553,7 @@ func TestFormatterFallback_FormatCheckAll_NoAvailable(t *testing.T) {
 
 	err := fallback.FormatCheckAll(context.Background(), internal.ProjectFormatterOptions{})
 
-	assert.EqualError(t, err, "no formatter tool available: test1, test2")
+	require.EqualError(t, err, "no formatter tool available: test1, test2")
 
 	tool1.AssertExpectations(t)
 	tool2.AssertExpectations(t)
@@ -570,7 +571,7 @@ func TestFormatterFallback_FormatCheckAll_Available1(t *testing.T) {
 
 	err := fallback.FormatCheckAll(context.Background(), internal.ProjectFormatterOptions{})
 
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	tool1.AssertExpectations(t)
 	tool2.AssertExpectations(t)
@@ -588,7 +589,7 @@ func TestFormatterFallback_FormatCheckAll_Available2(t *testing.T) {
 
 	err := fallback.FormatCheckAll(context.Background(), internal.ProjectFormatterOptions{})
 
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	tool1.AssertExpectations(t)
 	tool2.AssertExpectations(t)
@@ -599,7 +600,7 @@ func TestFormatterFallback_FormatCheckFiles_Empty(t *testing.T) {
 
 	err := fallback.FormatCheckFiles(context.Background(), internal.ProjectFormatterOptions{}, []string{"file1"})
 
-	assert.EqualError(t, err, "no formatter tool available: none")
+	require.EqualError(t, err, "no formatter tool available: none")
 }
 
 func TestFormatterFallback_FormatCheckFiles_NoAvailable(t *testing.T) {
@@ -610,7 +611,7 @@ func TestFormatterFallback_FormatCheckFiles_NoAvailable(t *testing.T) {
 
 	err := fallback.FormatCheckFiles(context.Background(), internal.ProjectFormatterOptions{}, []string{"file1"})
 
-	assert.EqualError(t, err, "no formatter tool available: test1, test2")
+	require.EqualError(t, err, "no formatter tool available: test1, test2")
 
 	tool1.AssertExpectations(t)
 	tool2.AssertExpectations(t)
@@ -628,7 +629,7 @@ func TestFormatterFallback_FormatCheckFiles_Available1(t *testing.T) {
 
 	err := fallback.FormatCheckFiles(context.Background(), internal.ProjectFormatterOptions{}, []string{"file1"})
 
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	tool1.AssertExpectations(t)
 	tool2.AssertExpectations(t)
@@ -646,7 +647,7 @@ func TestFormatterFallback_FormatCheckFiles_Available2(t *testing.T) {
 
 	err := fallback.FormatCheckFiles(context.Background(), internal.ProjectFormatterOptions{}, []string{"file1"})
 
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	tool1.AssertExpectations(t)
 	tool2.AssertExpectations(t)
@@ -687,7 +688,7 @@ func TestLinterFallback_LintAll_Empty(t *testing.T) {
 
 	err := fallback.LintAll(context.Background(), internal.ProjectLinterOptions{})
 
-	assert.EqualError(t, err, "no linter tool available: none")
+	require.EqualError(t, err, "no linter tool available: none")
 }
 
 func TestLinterFallback_LintAll_NoAvailable(t *testing.T) {
@@ -698,7 +699,7 @@ func TestLinterFallback_LintAll_NoAvailable(t *testing.T) {
 
 	err := fallback.LintAll(context.Background(), internal.ProjectLinterOptions{})
 
-	assert.EqualError(t, err, "no linter tool available: test1, test2")
+	require.EqualError(t, err, "no linter tool available: test1, test2")
 
 	tool1.AssertExpectations(t)
 	tool2.AssertExpectations(t)
@@ -716,7 +717,7 @@ func TestLinterFallback_LintAll_Available1(t *testing.T) {
 
 	err := fallback.LintAll(context.Background(), internal.ProjectLinterOptions{})
 
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	tool1.AssertExpectations(t)
 	tool2.AssertExpectations(t)
@@ -734,7 +735,7 @@ func TestLinterFallback_LintAll_Available2(t *testing.T) {
 
 	err := fallback.LintAll(context.Background(), internal.ProjectLinterOptions{})
 
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	tool1.AssertExpectations(t)
 	tool2.AssertExpectations(t)
@@ -745,7 +746,7 @@ func TestLinterFallback_LintFiles_Empty(t *testing.T) {
 
 	err := fallback.LintFiles(context.Background(), internal.ProjectLinterOptions{}, []string{"file1"})
 
-	assert.EqualError(t, err, "no linter tool available: none")
+	require.EqualError(t, err, "no linter tool available: none")
 }
 
 func TestLinterFallback_LintFiles_NoAvailable(t *testing.T) {
@@ -756,7 +757,7 @@ func TestLinterFallback_LintFiles_NoAvailable(t *testing.T) {
 
 	err := fallback.LintFiles(context.Background(), internal.ProjectLinterOptions{}, []string{"file1"})
 
-	assert.EqualError(t, err, "no linter tool available: test1, test2")
+	require.EqualError(t, err, "no linter tool available: test1, test2")
 
 	tool1.AssertExpectations(t)
 	tool2.AssertExpectations(t)
@@ -774,7 +775,7 @@ func TestLinterFallback_LintFiles_Available1(t *testing.T) {
 
 	err := fallback.LintFiles(context.Background(), internal.ProjectLinterOptions{}, []string{"file1"})
 
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	tool1.AssertExpectations(t)
 	tool2.AssertExpectations(t)
@@ -792,7 +793,7 @@ func TestLinterFallback_LintFiles_Available2(t *testing.T) {
 
 	err := fallback.LintFiles(context.Background(), internal.ProjectLinterOptions{}, []string{"file1"})
 
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	tool1.AssertExpectations(t)
 	tool2.AssertExpectations(t)
@@ -818,7 +819,7 @@ func TestLinterList_LintAll_Empty(t *testing.T) {
 
 	err := list.LintAll(context.Background(), internal.ProjectLinterOptions{})
 
-	assert.EqualError(t, err, "no linter tool available: none")
+	require.EqualError(t, err, "no linter tool available: none")
 }
 
 func TestLinterList_LintAll_NoAvailable(t *testing.T) {
@@ -829,7 +830,7 @@ func TestLinterList_LintAll_NoAvailable(t *testing.T) {
 
 	err := list.LintAll(context.Background(), internal.ProjectLinterOptions{})
 
-	assert.EqualError(t, err, "no linter tool available: test1, test2")
+	require.EqualError(t, err, "no linter tool available: test1, test2")
 
 	tool1.AssertExpectations(t)
 	tool2.AssertExpectations(t)
@@ -847,7 +848,7 @@ func TestLinterList_LintAll_Available1(t *testing.T) {
 
 	err := list.LintAll(context.Background(), internal.ProjectLinterOptions{})
 
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	tool1.AssertExpectations(t)
 	tool2.AssertExpectations(t)
@@ -866,7 +867,7 @@ func TestLinterList_LintAll_Available2(t *testing.T) {
 
 	err := list.LintAll(context.Background(), internal.ProjectLinterOptions{})
 
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	tool1.AssertExpectations(t)
 	tool2.AssertExpectations(t)
@@ -877,7 +878,7 @@ func TestLinterList_LintFiles_Empty(t *testing.T) {
 
 	err := list.LintFiles(context.Background(), internal.ProjectLinterOptions{}, []string{"file1"})
 
-	assert.EqualError(t, err, "no linter tool available: none")
+	require.EqualError(t, err, "no linter tool available: none")
 }
 
 func TestLinterList_LintFiles_NoAvailable(t *testing.T) {
@@ -888,7 +889,7 @@ func TestLinterList_LintFiles_NoAvailable(t *testing.T) {
 
 	err := list.LintFiles(context.Background(), internal.ProjectLinterOptions{}, []string{"file1"})
 
-	assert.EqualError(t, err, "no linter tool available: test1, test2")
+	require.EqualError(t, err, "no linter tool available: test1, test2")
 
 	tool1.AssertExpectations(t)
 	tool2.AssertExpectations(t)
@@ -906,7 +907,7 @@ func TestLinterList_LintFiles_Available1(t *testing.T) {
 
 	err := list.LintFiles(context.Background(), internal.ProjectLinterOptions{}, []string{"file1"})
 
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	tool1.AssertExpectations(t)
 	tool2.AssertExpectations(t)
@@ -925,7 +926,7 @@ func TestLinterList_LintFiles_Available2(t *testing.T) {
 
 	err := list.LintFiles(context.Background(), internal.ProjectLinterOptions{}, []string{"file1"})
 
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	tool1.AssertExpectations(t)
 	tool2.AssertExpectations(t)
@@ -966,7 +967,7 @@ func TestRunnerFallback_RunTarget_Empty(t *testing.T) {
 
 	err := fallback.RunTarget(context.Background(), internal.ProjectRunnerOptions{}, "target1")
 
-	assert.EqualError(t, err, "no runner tool available: none")
+	require.EqualError(t, err, "no runner tool available: none")
 }
 
 func TestRunnerFallback_RunTarget_NoAvailable(t *testing.T) {
@@ -977,7 +978,7 @@ func TestRunnerFallback_RunTarget_NoAvailable(t *testing.T) {
 
 	err := fallback.RunTarget(context.Background(), internal.ProjectRunnerOptions{}, "target1")
 
-	assert.EqualError(t, err, "no runner tool available: test1, test2")
+	require.EqualError(t, err, "no runner tool available: test1, test2")
 
 	tool1.AssertExpectations(t)
 	tool2.AssertExpectations(t)
@@ -995,7 +996,7 @@ func TestRunnerFallback_RunTarget_Available1(t *testing.T) {
 
 	err := fallback.RunTarget(context.Background(), internal.ProjectRunnerOptions{}, "target1")
 
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	tool1.AssertExpectations(t)
 	tool2.AssertExpectations(t)
@@ -1013,7 +1014,7 @@ func TestRunnerFallback_RunTarget_Available2(t *testing.T) {
 
 	err := fallback.RunTarget(context.Background(), internal.ProjectRunnerOptions{}, "target1")
 
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	tool1.AssertExpectations(t)
 	tool2.AssertExpectations(t)
@@ -1054,7 +1055,7 @@ func TestDependencyManagerFallback_AddDependencies_Empty(t *testing.T) {
 
 	err := fallback.AddDependencies(context.Background(), internal.ProjectDependencyManagerOptions{}, []string{"dep1"}, false)
 
-	assert.EqualError(t, err, "no dependency management tool available: none")
+	require.EqualError(t, err, "no dependency management tool available: none")
 }
 
 func TestDependencyManagerFallback_AddDependencies_NoAvailable(t *testing.T) {
@@ -1065,7 +1066,7 @@ func TestDependencyManagerFallback_AddDependencies_NoAvailable(t *testing.T) {
 
 	err := fallback.AddDependencies(context.Background(), internal.ProjectDependencyManagerOptions{}, []string{"dep1"}, false)
 
-	assert.EqualError(t, err, "no dependency management tool available: test1, test2")
+	require.EqualError(t, err, "no dependency management tool available: test1, test2")
 
 	tool1.AssertExpectations(t)
 	tool2.AssertExpectations(t)
@@ -1083,7 +1084,7 @@ func TestDependencyManagerFallback_AddDependencies_Available1(t *testing.T) {
 
 	err := fallback.AddDependencies(context.Background(), internal.ProjectDependencyManagerOptions{}, []string{"dep1"}, false)
 
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	tool1.AssertExpectations(t)
 	tool2.AssertExpectations(t)
@@ -1101,7 +1102,7 @@ func TestDependencyManagerFallback_AddDependencies_Available2(t *testing.T) {
 
 	err := fallback.AddDependencies(context.Background(), internal.ProjectDependencyManagerOptions{}, []string{"dep1"}, false)
 
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	tool1.AssertExpectations(t)
 	tool2.AssertExpectations(t)
@@ -1112,7 +1113,7 @@ func TestDependencyManagerFallback_RemoveDependencies_Empty(t *testing.T) {
 
 	err := fallback.RemoveDependencies(context.Background(), internal.ProjectDependencyManagerOptions{}, []string{"dep1"}, false)
 
-	assert.EqualError(t, err, "no dependency management tool available: none")
+	require.EqualError(t, err, "no dependency management tool available: none")
 }
 
 func TestDependencyManagerFallback_RemoveDependencies_NoAvailable(t *testing.T) {
@@ -1123,7 +1124,7 @@ func TestDependencyManagerFallback_RemoveDependencies_NoAvailable(t *testing.T) 
 
 	err := fallback.RemoveDependencies(context.Background(), internal.ProjectDependencyManagerOptions{}, []string{"dep1"}, false)
 
-	assert.EqualError(t, err, "no dependency management tool available: test1, test2")
+	require.EqualError(t, err, "no dependency management tool available: test1, test2")
 
 	tool1.AssertExpectations(t)
 	tool2.AssertExpectations(t)
@@ -1141,7 +1142,7 @@ func TestDependencyManagerFallback_RemoveDependencies_Available1(t *testing.T) {
 
 	err := fallback.RemoveDependencies(context.Background(), internal.ProjectDependencyManagerOptions{}, []string{"dep1"}, false)
 
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	tool1.AssertExpectations(t)
 	tool2.AssertExpectations(t)
@@ -1159,7 +1160,7 @@ func TestDependencyManagerFallback_RemoveDependencies_Available2(t *testing.T) {
 
 	err := fallback.RemoveDependencies(context.Background(), internal.ProjectDependencyManagerOptions{}, []string{"dep1"}, false)
 
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	tool1.AssertExpectations(t)
 	tool2.AssertExpectations(t)
@@ -1170,7 +1171,7 @@ func TestDependencyManagerFallback_UpdateDependencies_Empty(t *testing.T) {
 
 	err := fallback.UpdateDependencies(context.Background(), internal.ProjectDependencyManagerOptions{}, []string{"dep1"})
 
-	assert.EqualError(t, err, "no dependency management tool available: none")
+	require.EqualError(t, err, "no dependency management tool available: none")
 }
 
 func TestDependencyManagerFallback_UpdateDependencies_NoAvailable(t *testing.T) {
@@ -1181,7 +1182,7 @@ func TestDependencyManagerFallback_UpdateDependencies_NoAvailable(t *testing.T) 
 
 	err := fallback.UpdateDependencies(context.Background(), internal.ProjectDependencyManagerOptions{}, []string{"dep1"})
 
-	assert.EqualError(t, err, "no dependency management tool available: test1, test2")
+	require.EqualError(t, err, "no dependency management tool available: test1, test2")
 
 	tool1.AssertExpectations(t)
 	tool2.AssertExpectations(t)
@@ -1199,7 +1200,7 @@ func TestDependencyManagerFallback_UpdateDependencies_Available1(t *testing.T) {
 
 	err := fallback.UpdateDependencies(context.Background(), internal.ProjectDependencyManagerOptions{}, []string{"dep1"})
 
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	tool1.AssertExpectations(t)
 	tool2.AssertExpectations(t)
@@ -1217,7 +1218,7 @@ func TestDependencyManagerFallback_UpdateDependencies_Available2(t *testing.T) {
 
 	err := fallback.UpdateDependencies(context.Background(), internal.ProjectDependencyManagerOptions{}, []string{"dep1"})
 
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	tool1.AssertExpectations(t)
 	tool2.AssertExpectations(t)
@@ -1228,7 +1229,7 @@ func TestDependencyManagerFallback_FetchDependencies_Empty(t *testing.T) {
 
 	err := fallback.FetchDependencies(context.Background(), internal.ProjectDependencyManagerOptions{}, false)
 
-	assert.EqualError(t, err, "no dependency management tool available: none")
+	require.EqualError(t, err, "no dependency management tool available: none")
 }
 
 func TestDependencyManagerFallback_FetchDependencies_NoAvailable(t *testing.T) {
@@ -1239,7 +1240,7 @@ func TestDependencyManagerFallback_FetchDependencies_NoAvailable(t *testing.T) {
 
 	err := fallback.FetchDependencies(context.Background(), internal.ProjectDependencyManagerOptions{}, false)
 
-	assert.EqualError(t, err, "no dependency management tool available: test1, test2")
+	require.EqualError(t, err, "no dependency management tool available: test1, test2")
 
 	tool1.AssertExpectations(t)
 	tool2.AssertExpectations(t)
@@ -1257,7 +1258,7 @@ func TestDependencyManagerFallback_FetchDependencies_Available1(t *testing.T) {
 
 	err := fallback.FetchDependencies(context.Background(), internal.ProjectDependencyManagerOptions{}, false)
 
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	tool1.AssertExpectations(t)
 	tool2.AssertExpectations(t)
@@ -1275,7 +1276,7 @@ func TestDependencyManagerFallback_FetchDependencies_Available2(t *testing.T) {
 
 	err := fallback.FetchDependencies(context.Background(), internal.ProjectDependencyManagerOptions{}, false)
 
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	tool1.AssertExpectations(t)
 	tool2.AssertExpectations(t)
@@ -1286,7 +1287,7 @@ func TestDependencyManagerFallback_ListDependencies_Empty(t *testing.T) {
 
 	err := fallback.ListDependencies(context.Background(), internal.ProjectDependencyManagerOptions{})
 
-	assert.EqualError(t, err, "no dependency management tool available: none")
+	require.EqualError(t, err, "no dependency management tool available: none")
 }
 
 func TestDependencyManagerFallback_ListDependencies_NoAvailable(t *testing.T) {
@@ -1297,7 +1298,7 @@ func TestDependencyManagerFallback_ListDependencies_NoAvailable(t *testing.T) {
 
 	err := fallback.ListDependencies(context.Background(), internal.ProjectDependencyManagerOptions{})
 
-	assert.EqualError(t, err, "no dependency management tool available: test1, test2")
+	require.EqualError(t, err, "no dependency management tool available: test1, test2")
 
 	tool1.AssertExpectations(t)
 	tool2.AssertExpectations(t)
@@ -1315,7 +1316,7 @@ func TestDependencyManagerFallback_ListDependencies_Available1(t *testing.T) {
 
 	err := fallback.ListDependencies(context.Background(), internal.ProjectDependencyManagerOptions{})
 
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	tool1.AssertExpectations(t)
 	tool2.AssertExpectations(t)
@@ -1333,7 +1334,7 @@ func TestDependencyManagerFallback_ListDependencies_Available2(t *testing.T) {
 
 	err := fallback.ListDependencies(context.Background(), internal.ProjectDependencyManagerOptions{})
 
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	tool1.AssertExpectations(t)
 	tool2.AssertExpectations(t)
@@ -1344,7 +1345,7 @@ func TestDependencyManagerFallback_AuditDependencies_Empty(t *testing.T) {
 
 	err := fallback.AuditDependencies(context.Background(), internal.ProjectDependencyManagerOptions{})
 
-	assert.EqualError(t, err, "no dependency management tool available: none")
+	require.EqualError(t, err, "no dependency management tool available: none")
 }
 
 func TestDependencyManagerFallback_AuditDependencies_NoAvailable(t *testing.T) {
@@ -1355,7 +1356,7 @@ func TestDependencyManagerFallback_AuditDependencies_NoAvailable(t *testing.T) {
 
 	err := fallback.AuditDependencies(context.Background(), internal.ProjectDependencyManagerOptions{})
 
-	assert.EqualError(t, err, "no dependency management tool available: test1, test2")
+	require.EqualError(t, err, "no dependency management tool available: test1, test2")
 
 	tool1.AssertExpectations(t)
 	tool2.AssertExpectations(t)
@@ -1373,7 +1374,7 @@ func TestDependencyManagerFallback_AuditDependencies_Available1(t *testing.T) {
 
 	err := fallback.AuditDependencies(context.Background(), internal.ProjectDependencyManagerOptions{})
 
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	tool1.AssertExpectations(t)
 	tool2.AssertExpectations(t)
@@ -1391,7 +1392,7 @@ func TestDependencyManagerFallback_AuditDependencies_Available2(t *testing.T) {
 
 	err := fallback.AuditDependencies(context.Background(), internal.ProjectDependencyManagerOptions{})
 
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	tool1.AssertExpectations(t)
 	tool2.AssertExpectations(t)

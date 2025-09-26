@@ -31,12 +31,12 @@ func NewBuildCommand() *cli.Command {
 }
 
 func buildCommandAction(ctx context.Context, cmd *cli.Command) error {
-	c := ctx.Value("context").(internal.Context)
-	builder := c.Project.Workflow.Builder
+	cmdContext := ctx.Value("context").(internal.Context)
+	builder := cmdContext.Project.Workflow.Builder
 
 	if cmd.IsSet("tool") {
 		toolName := cmd.String("tool")
-		tool := c.Tools.Get(toolName)
+		tool := cmdContext.Tools.Get(toolName)
 
 		if tool == nil {
 			return fmt.Errorf("tool '%s' not found", toolName)
@@ -56,7 +56,7 @@ func buildCommandAction(ctx context.Context, cmd *cli.Command) error {
 	}
 
 	options := internal.ProjectBuilderOptions{
-		ProjectInfo: c.Project.Info,
+		ProjectInfo: cmdContext.Project.Info,
 		ExtraArgs:   cmd.Args().Tail(),
 	}
 

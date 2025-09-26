@@ -12,10 +12,11 @@ type Environment struct {
 	mock.Mock
 }
 
-// NewEnvironment create new testing environment
+// NewEnvironment create new testing environment.
 func NewEnvironment(t *testing.T) *Environment {
 	env := Environment{}
 	env.Test(t)
+
 	return &env
 }
 

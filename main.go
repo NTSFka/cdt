@@ -22,7 +22,7 @@ func parseEnvironment(environment string) (string, string) {
 		return "", ""
 	case 1:
 		return parts[0], ""
-	default:
+	default: // nolint: gocritic
 		fallthrough
 	case 2:
 		return parts[0], parts[1]
@@ -63,7 +63,7 @@ func buildContext(ctx context.Context, config internal.Config) (*internal.Contex
 
 	tools := tool.InitTools(ctx, env)
 
-	p, err := workflow.CreateProject(config, tools)
+	project, err := workflow.CreateProject(config, tools)
 
 	if err != nil {
 		return nil, err
@@ -71,7 +71,7 @@ func buildContext(ctx context.Context, config internal.Config) (*internal.Contex
 
 	return &internal.Context{
 		Config:               config,
-		Project:              *p,
+		Project:              *project,
 		Tools:                tools,
 		EnvironmentProviders: environmentProviders,
 		Environment:          env,

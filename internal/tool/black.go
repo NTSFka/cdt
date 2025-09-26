@@ -10,14 +10,14 @@ type Black struct {
 	internal.ExecutableTool
 }
 
-// DetectBlack create a tool for black
+// DetectBlack create a tool for black.
 func DetectBlack(ctx context.Context, environment internal.Environment) *Black {
 	return NewBlack(func() *internal.Executable {
 		return environment.FindExecutable(ctx, "black")
 	})
 }
 
-// NewBlack creates a black tool from a custom executable
+// NewBlack creates a black tool from a custom executable.
 func NewBlack(detect func() *internal.Executable) *Black {
 	return &Black{
 		ExecutableTool: internal.MakeExecutableTool(
@@ -28,20 +28,6 @@ func NewBlack(detect func() *internal.Executable) *Black {
 			detect,
 		),
 	}
-}
-
-func (b *Black) buildPaths(directory string, filenames []string) []string {
-	var paths []string
-
-	for _, filename := range filenames {
-		if filepath.IsAbs(filename) {
-			paths = append(paths, filename)
-		} else {
-			paths = append(paths, filepath.Join(directory, filename))
-		}
-	}
-
-	return paths
 }
 
 func (b *Black) FormatAll(ctx context.Context, options internal.ProjectFormatterOptions) error {
@@ -62,4 +48,18 @@ func (b *Black) FormatCheckFiles(ctx context.Context, options internal.ProjectFo
 	paths := b.buildPaths(options.Directory, filenames)
 
 	return b.RunForProject(ctx, options.ProjectInfo, append(append([]string{"--check"}, options.ExtraArgs...), paths...))
+}
+
+func (b *Black) buildPaths(directory string, filenames []string) []string {
+	var paths []string
+
+	for _, filename := range filenames {
+		if filepath.IsAbs(filename) {
+			paths = append(paths, filename)
+		} else {
+			paths = append(paths, filepath.Join(directory, filename))
+		}
+	}
+
+	return paths
 }

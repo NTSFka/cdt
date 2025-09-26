@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestComposer_DetectComposer_Phar(t *testing.T) {
@@ -79,7 +80,7 @@ func TestComposer_Composer_AddDependencies(t *testing.T) {
 		Return(nil)
 
 	err := tool.AddDependencies(context.Background(), internal.ProjectDependencyManagerOptions{ProjectInfo: info}, []string{"dep1"}, false)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
 }
@@ -95,7 +96,7 @@ func TestComposer_Composer_AddDependencies_Dev(t *testing.T) {
 		Return(nil)
 
 	err := tool.AddDependencies(context.Background(), internal.ProjectDependencyManagerOptions{ProjectInfo: info}, []string{"dep1"}, true)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
 }
@@ -111,7 +112,7 @@ func TestComposer_Composer_RemoveDependencies(t *testing.T) {
 		Return(nil)
 
 	err := tool.RemoveDependencies(context.Background(), internal.ProjectDependencyManagerOptions{ProjectInfo: info}, []string{"dep1"}, false)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
 }
@@ -127,7 +128,7 @@ func TestComposer_Composer_RemoveDependencies_Dev(t *testing.T) {
 		Return(nil)
 
 	err := tool.RemoveDependencies(context.Background(), internal.ProjectDependencyManagerOptions{ProjectInfo: info}, []string{"dep1"}, true)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
 }
@@ -143,7 +144,7 @@ func TestComposer_Composer_UpdateDependencies(t *testing.T) {
 		Return(nil)
 
 	err := tool.UpdateDependencies(context.Background(), internal.ProjectDependencyManagerOptions{ProjectInfo: info}, []string{"dep1"})
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
 }
@@ -159,7 +160,7 @@ func TestComposer_Composer_FetchDependencies(t *testing.T) {
 		Return(nil)
 
 	err := tool.FetchDependencies(context.Background(), internal.ProjectDependencyManagerOptions{ProjectInfo: info}, false)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
 }
@@ -175,7 +176,7 @@ func TestComposer_Composer_FetchDependencies_NoDev(t *testing.T) {
 		Return(nil)
 
 	err := tool.FetchDependencies(context.Background(), internal.ProjectDependencyManagerOptions{ProjectInfo: info}, true)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
 }
@@ -191,7 +192,7 @@ func TestComposer_Composer_ListDependencies(t *testing.T) {
 		Return(nil)
 
 	err := tool.ListDependencies(context.Background(), internal.ProjectDependencyManagerOptions{ProjectInfo: info})
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
 }
@@ -207,7 +208,7 @@ func TestComposer_Composer_AuditDependencies(t *testing.T) {
 		Return(nil)
 
 	err := tool.AuditDependencies(context.Background(), internal.ProjectDependencyManagerOptions{ProjectInfo: info})
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
 }

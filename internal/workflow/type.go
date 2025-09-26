@@ -4,7 +4,7 @@ import (
 	"cdt/internal"
 )
 
-// SupportedTypes stores supported workflow types
+// SupportedTypes stores supported workflow types.
 var SupportedTypes = []Type{
 	&Go{},
 	&CMake{},
@@ -12,7 +12,7 @@ var SupportedTypes = []Type{
 	&Python{},
 }
 
-// Config specifies a workflow configuration
+// Config specifies a workflow configuration.
 type Config struct {
 	// Directory is the root directory of the project
 	Directory string
@@ -21,7 +21,7 @@ type Config struct {
 	IntermediateDirectory *string
 }
 
-// Type specifies a predefined workflow type
+// Type specifies a predefined workflow type.
 type Type interface {
 	// Id returns workflow type unique identifier.
 	Id() string

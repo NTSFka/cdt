@@ -31,12 +31,12 @@ func NewTestCommand() *cli.Command {
 }
 
 func testCommandAction(ctx context.Context, cmd *cli.Command) error {
-	c := ctx.Value("context").(internal.Context)
-	tester := c.Project.Workflow.Tester
+	cmdContext := ctx.Value("context").(internal.Context)
+	tester := cmdContext.Project.Workflow.Tester
 
 	if cmd.IsSet("tool") {
 		toolName := cmd.String("tool")
-		tool := c.Tools.Get(toolName)
+		tool := cmdContext.Tools.Get(toolName)
 
 		if tool == nil {
 			return fmt.Errorf("tool '%s' not found", toolName)
@@ -56,7 +56,7 @@ func testCommandAction(ctx context.Context, cmd *cli.Command) error {
 	}
 
 	options := internal.ProjectTesterOptions{
-		ProjectInfo: c.Project.Info,
+		ProjectInfo: cmdContext.Project.Info,
 		ExtraArgs:   cmd.Args().Tail(),
 	}
 

@@ -11,6 +11,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestCMakeType_Detect_NoCMakeLists(t *testing.T) {
@@ -26,8 +27,8 @@ func TestCMakeType_Detect_CMakeLists(t *testing.T) {
 
 	dir := t.TempDir()
 
-	_, err := os.OpenFile(filepath.Join(dir, "CMakeLists.txt"), os.O_RDONLY|os.O_CREATE, 0644)
-	assert.NoError(t, err)
+	_, err := os.OpenFile(filepath.Join(dir, "CMakeLists.txt"), os.O_RDONLY|os.O_CREATE, 0600)
+	require.NoError(t, err)
 
 	res := workflowType.Detect(dir)
 
@@ -46,14 +47,13 @@ func TestCMakeType_Create_CustomBuildDirectory(t *testing.T) {
 
 	buildDirectory := "my-build-directory"
 
-	p := workflowType.Create(Config{Directory: "dir1", IntermediateDirectory: &buildDirectory}, tools)
+	project := workflowType.Create(Config{Directory: "dir1", IntermediateDirectory: &buildDirectory}, tools)
 
-	assert.Equal(t, "dir1", p.Info.Directory)
-	if assert.NotNil(t, p.Info.IntermediateDirectory) {
-		assert.Equal(t, buildDirectory, *p.Info.IntermediateDirectory)
-	}
-	assert.NotNil(t, p.Workflow.Linter)
-	assert.NotNil(t, p.Workflow.Formatter)
+	assert.Equal(t, "dir1", project.Info.Directory)
+	require.NotNil(t, project.Info.IntermediateDirectory)
+	assert.Equal(t, buildDirectory, *project.Info.IntermediateDirectory)
+	assert.NotNil(t, project.Workflow.Linter)
+	assert.NotNil(t, project.Workflow.Formatter)
 }
 
 func TestCMakeType_Project_TestAll(t *testing.T) {
@@ -70,23 +70,22 @@ func TestCMakeType_Project_TestAll(t *testing.T) {
 
 	dir := t.TempDir()
 
-	_, err := os.OpenFile(filepath.Join(dir, "CMakeLists.txt"), os.O_RDONLY|os.O_CREATE, 0644)
-	assert.NoError(t, err)
+	_, err := os.OpenFile(filepath.Join(dir, "CMakeLists.txt"), os.O_RDONLY|os.O_CREATE, 0600)
+	require.NoError(t, err)
 
 	buildDir := filepath.Join(dir, "build")
 
-	p := workflowType.Create(Config{Directory: dir, IntermediateDirectory: &buildDir}, tools)
+	project := workflowType.Create(Config{Directory: dir, IntermediateDirectory: &buildDir}, tools)
 
-	if assert.NotNil(t, p.Workflow.Tester) {
-		cmakeMock.OnRunAnything("cmake-test").Return(nil)
-		ctestMock.OnRun("ctest-test", []string{"--test-dir", buildDir}).Return(nil)
+	require.NotNil(t, project.Workflow.Tester)
+	cmakeMock.OnRunAnything("cmake-test").Return(nil)
+	ctestMock.OnRun("ctest-test", []string{"--test-dir", buildDir}).Return(nil)
 
-		err = p.Workflow.Tester.TestAll(context.Background(), internal.ProjectTesterOptions{ProjectInfo: p.Info})
-		assert.NoError(t, err)
+	err = project.Workflow.Tester.TestAll(context.Background(), internal.ProjectTesterOptions{ProjectInfo: project.Info})
+	require.NoError(t, err)
 
-		cmakeMock.AssertExpectations(t)
-		ctestMock.AssertExpectations(t)
-	}
+	cmakeMock.AssertExpectations(t)
+	ctestMock.AssertExpectations(t)
 }
 
 func TestCMakeType_Project_TestAll_BuildFailed(t *testing.T) {
@@ -103,22 +102,21 @@ func TestCMakeType_Project_TestAll_BuildFailed(t *testing.T) {
 
 	dir := t.TempDir()
 
-	_, err := os.OpenFile(filepath.Join(dir, "CMakeLists.txt"), os.O_RDONLY|os.O_CREATE, 0644)
-	assert.NoError(t, err)
+	_, err := os.OpenFile(filepath.Join(dir, "CMakeLists.txt"), os.O_RDONLY|os.O_CREATE, 0600)
+	require.NoError(t, err)
 
 	buildDir := filepath.Join(dir, "build")
 
 	p := workflowType.Create(Config{Directory: dir, IntermediateDirectory: &buildDir}, tools)
 
-	if assert.NotNil(t, p.Workflow.Tester) {
-		cmakeMock.OnRunAnything("cmake-test").Return(errors.New("failed"))
+	require.NotNil(t, p.Workflow.Tester)
+	cmakeMock.OnRunAnything("cmake-test").Return(errors.New("failed"))
 
-		err = p.Workflow.Tester.TestAll(context.Background(), internal.ProjectTesterOptions{ProjectInfo: p.Info})
-		assert.EqualError(t, err, "build failed: failed")
+	err = p.Workflow.Tester.TestAll(context.Background(), internal.ProjectTesterOptions{ProjectInfo: p.Info})
+	require.EqualError(t, err, "build failed: failed")
 
-		cmakeMock.AssertExpectations(t)
-		ctestMock.AssertExpectations(t)
-	}
+	cmakeMock.AssertExpectations(t)
+	ctestMock.AssertExpectations(t)
 }
 
 func TestCMakeProject_Project_Test(t *testing.T) {
@@ -135,23 +133,22 @@ func TestCMakeProject_Project_Test(t *testing.T) {
 
 	dir := t.TempDir()
 
-	_, err := os.OpenFile(filepath.Join(dir, "CMakeLists.txt"), os.O_RDONLY|os.O_CREATE, 0644)
-	assert.NoError(t, err)
+	_, err := os.OpenFile(filepath.Join(dir, "CMakeLists.txt"), os.O_RDONLY|os.O_CREATE, 0600)
+	require.NoError(t, err)
 
 	buildDir := filepath.Join(dir, "build")
 
-	p := workflowType.Create(Config{Directory: dir, IntermediateDirectory: &buildDir}, tools)
+	project := workflowType.Create(Config{Directory: dir, IntermediateDirectory: &buildDir}, tools)
 
-	if assert.NotNil(t, p.Workflow.Tester) {
-		cmakeMock.OnRunAnything("cmake-test").Return(nil)
-		ctestMock.OnRun("ctest-test", []string{"-R", "my-test", "--test-dir", buildDir}).Return(nil)
+	require.NotNil(t, project.Workflow.Tester)
+	cmakeMock.OnRunAnything("cmake-test").Return(nil)
+	ctestMock.OnRun("ctest-test", []string{"-R", "my-test", "--test-dir", buildDir}).Return(nil)
 
-		err = p.Workflow.Tester.TestPattern(context.Background(), internal.ProjectTesterOptions{ProjectInfo: p.Info}, "my-test")
-		assert.NoError(t, err)
+	err = project.Workflow.Tester.TestPattern(context.Background(), internal.ProjectTesterOptions{ProjectInfo: project.Info}, "my-test")
+	require.NoError(t, err)
 
-		cmakeMock.AssertExpectations(t)
-		ctestMock.AssertExpectations(t)
-	}
+	cmakeMock.AssertExpectations(t)
+	ctestMock.AssertExpectations(t)
 }
 
 func TestCMakeProject_Project_TestBuild_Failed(t *testing.T) {
@@ -168,20 +165,19 @@ func TestCMakeProject_Project_TestBuild_Failed(t *testing.T) {
 
 	dir := t.TempDir()
 
-	_, err := os.OpenFile(filepath.Join(dir, "CMakeLists.txt"), os.O_RDONLY|os.O_CREATE, 0644)
-	assert.NoError(t, err)
+	_, err := os.OpenFile(filepath.Join(dir, "CMakeLists.txt"), os.O_RDONLY|os.O_CREATE, 0600)
+	require.NoError(t, err)
 
 	buildDir := filepath.Join(dir, "build")
 
 	p := workflowType.Create(Config{Directory: dir, IntermediateDirectory: &buildDir}, tools)
 
-	if assert.NotNil(t, p.Workflow.Tester) {
-		cmakeMock.OnRunAnything("cmake-test").Return(errors.New("failed"))
+	require.NotNil(t, p.Workflow.Tester)
+	cmakeMock.OnRunAnything("cmake-test").Return(errors.New("failed"))
 
-		err = p.Workflow.Tester.TestPattern(context.Background(), internal.ProjectTesterOptions{ProjectInfo: p.Info}, "my-test")
-		assert.EqualError(t, err, "build failed: failed")
+	err = p.Workflow.Tester.TestPattern(context.Background(), internal.ProjectTesterOptions{ProjectInfo: p.Info}, "my-test")
+	require.EqualError(t, err, "build failed: failed")
 
-		cmakeMock.AssertExpectations(t)
-		ctestMock.AssertExpectations(t)
-	}
+	cmakeMock.AssertExpectations(t)
+	ctestMock.AssertExpectations(t)
 }

@@ -11,6 +11,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestClangTidy_DetectClangTidy(t *testing.T) {
@@ -71,7 +72,7 @@ func TestClangTidy_LintAll(t *testing.T) {
 		Return(nil)
 
 	err := tool.LintAll(context.Background(), internal.ProjectLinterOptions{ProjectInfo: info})
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
 }
@@ -103,7 +104,7 @@ func TestClangTidy_LintAll_Failed(t *testing.T) {
 		Return(errors.New("failed"))
 
 	err := tool.LintAll(context.Background(), internal.ProjectLinterOptions{ProjectInfo: info})
-	assert.EqualError(t, err, "failed")
+	require.EqualError(t, err, "failed")
 
 	exec.AssertExpectations(t)
 }
@@ -128,7 +129,7 @@ func TestClangTidy_LintAll_CustomConfig(t *testing.T) {
 	}
 
 	_, err := os.Create(filepath.Join(info.Directory, ".clang-tidy"))
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	exec.OnRun("clang-tidy", []string{
 		fmt.Sprintf("--config-file=%v", filepath.Join(info.Directory, ".clang-tidy")),
@@ -139,7 +140,7 @@ func TestClangTidy_LintAll_CustomConfig(t *testing.T) {
 		Return(nil)
 
 	err = tool.LintAll(context.Background(), internal.ProjectLinterOptions{ProjectInfo: info})
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
 }
@@ -159,7 +160,7 @@ func TestClangTidy_LintFiles(t *testing.T) {
 		Return(nil)
 
 	err := tool.LintFiles(context.Background(), internal.ProjectLinterOptions{ProjectInfo: info}, []string{"file1.go", filepath.Join(info.Directory, "file3.go")})
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
 }
@@ -178,7 +179,7 @@ func TestClangTidy_LintFiles_Failed(t *testing.T) {
 		Return(errors.New("failed"))
 
 	err := tool.LintFiles(context.Background(), internal.ProjectLinterOptions{ProjectInfo: info}, []string{"file1.go"})
-	assert.EqualError(t, err, "failed")
+	require.EqualError(t, err, "failed")
 
 	exec.AssertExpectations(t)
 }
@@ -191,7 +192,7 @@ func TestClangTidy_LintFiles_CustomConfig(t *testing.T) {
 	info := internal.ProjectInfo{Directory: t.TempDir(), IntermediateDirectory: internal.StrPtr("build")}
 
 	_, err := os.Create(filepath.Join(info.Directory, ".clang-tidy"))
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	exec.OnRun("clang-tidy", []string{
 		fmt.Sprintf("--config-file=%v", filepath.Join(info.Directory, ".clang-tidy")),
@@ -201,7 +202,7 @@ func TestClangTidy_LintFiles_CustomConfig(t *testing.T) {
 		Return(nil)
 
 	err = tool.LintFiles(context.Background(), internal.ProjectLinterOptions{ProjectInfo: info}, []string{"file1.go"})
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
 }
@@ -217,7 +218,7 @@ func TestClangTidy_Run(t *testing.T) {
 		Return(nil)
 
 	err := tool.RunForProject(context.Background(), desc, []string{})
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
 }
@@ -233,7 +234,7 @@ func TestClangTidy_Run_Failed(t *testing.T) {
 		Return(errors.New("failed"))
 
 	err := tool.RunForProject(context.Background(), desc, []string{})
-	assert.EqualError(t, err, "failed")
+	require.EqualError(t, err, "failed")
 
 	exec.AssertExpectations(t)
 }

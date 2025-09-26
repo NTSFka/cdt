@@ -6,13 +6,14 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestLoadConfigFile_Empty(t *testing.T) {
 	reader := strings.NewReader("")
 
 	config, err := LoadConfigFile(reader)
-	assert.ErrorIs(t, err, io.EOF)
+	require.ErrorIs(t, err, io.EOF)
 	assert.Nil(t, config)
 }
 
@@ -20,22 +21,20 @@ func TestLoadConfigFile_EmptyProject(t *testing.T) {
 	reader := strings.NewReader("project:\n")
 
 	config, err := LoadConfigFile(reader)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
-	if assert.NotNil(t, config) {
-		if assert.NotNil(t, config.Project) {
-			assert.Nil(t, config.Project.WorkDirectory)
-			assert.Nil(t, config.Project.BuildDirectory)
-			assert.Nil(t, config.Project.Environment)
-		}
-	}
+	require.NotNil(t, config)
+	require.NotNil(t, config.Project)
+	assert.Nil(t, config.Project.WorkDirectory)
+	assert.Nil(t, config.Project.BuildDirectory)
+	assert.Nil(t, config.Project.Environment)
 }
 
 func TestLoadConfigFile_Workflow_InvalidType(t *testing.T) {
 	reader := strings.NewReader("project:\n  workflow: 3.15\n")
 
 	config, err := LoadConfigFile(reader)
-	assert.ErrorContains(t, err, "invalid workflow type: ")
+	require.ErrorContains(t, err, "invalid workflow type: ")
 	assert.Nil(t, config)
 }
 
@@ -43,11 +42,10 @@ func TestLoadConfigFile_Workflow_InvalidStructure(t *testing.T) {
 	reader := strings.NewReader("project:\n  workflow:\n    test: [1, 2]\n")
 
 	config, err := LoadConfigFile(reader)
-	assert.Error(t, err)
-	assert.Nil(t, config)
+	require.Error(t, err)
+	require.Nil(t, config)
 }
 
-//nolint:cyclop
 func TestLoadConfigFile_Whole(t *testing.T) {
 	reader := strings.NewReader(`
 project:
@@ -66,60 +64,45 @@ project:
 	)
 
 	config, err := LoadConfigFile(reader)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
-	if assert.NotNil(t, config) {
-		if assert.NotNil(t, config.Project) {
-			if assert.NotNil(t, config.Project.WorkDirectory) {
-				assert.Equal(t, "/path/to/project", *config.Project.WorkDirectory)
-			}
+	require.NotNil(t, config)
+	require.NotNil(t, config.Project)
+	require.NotNil(t, config.Project.WorkDirectory)
+	assert.Equal(t, "/path/to/project", *config.Project.WorkDirectory)
 
-			if assert.NotNil(t, config.Project.BuildDirectory) {
-				assert.Equal(t, "/path/to/build", *config.Project.BuildDirectory)
-			}
+	require.NotNil(t, config.Project.BuildDirectory)
+	assert.Equal(t, "/path/to/build", *config.Project.BuildDirectory)
 
-			if assert.NotNil(t, config.Project.Environment) {
-				assert.Equal(t, "docker:golang", *config.Project.Environment)
-			}
+	require.NotNil(t, config.Project.Environment)
+	assert.Equal(t, "docker:golang", *config.Project.Environment)
 
-			if assert.NotNil(t, config.Project.Workflow) {
-				workflow, ok := config.Project.Workflow.(*FileConfigProjectWorkflow)
-				if assert.True(t, ok, "workflow should be of type FileConfigProjectWorkflow") {
+	require.NotNil(t, config.Project.Workflow)
+	workflow, ok := config.Project.Workflow.(*FileConfigProjectWorkflow)
+	require.True(t, ok, "workflow should be of type FileConfigProjectWorkflow")
 
-					if assert.NotNil(t, workflow.Configure) {
-						assert.Equal(t, "tool2", *workflow.Configure)
-					}
+	require.NotNil(t, workflow.Configure)
+	assert.Equal(t, "tool2", *workflow.Configure)
 
-					if assert.NotNil(t, workflow.Build) {
-						assert.Equal(t, "tool1", *workflow.Build)
-					}
+	require.NotNil(t, workflow.Build)
+	assert.Equal(t, "tool1", *workflow.Build)
 
-					if assert.NotNil(t, workflow.Test) {
-						assert.Equal(t, "tool3", *workflow.Test)
-					}
+	require.NotNil(t, workflow.Test)
+	assert.Equal(t, "tool3", *workflow.Test)
 
-					if assert.NotNil(t, workflow.Format) {
-						assert.Equal(t, "tool4", *workflow.Format)
-					}
+	require.NotNil(t, workflow.Format)
+	assert.Equal(t, "tool4", *workflow.Format)
 
-					if assert.NotNil(t, workflow.Lint) {
-						assert.Equal(t, "tool5", *workflow.Lint)
-					}
+	require.NotNil(t, workflow.Lint)
+	assert.Equal(t, "tool5", *workflow.Lint)
 
-					if assert.NotNil(t, workflow.Run) {
-						assert.Equal(t, "tool6", *workflow.Run)
-					}
+	require.NotNil(t, workflow.Run)
+	assert.Equal(t, "tool6", *workflow.Run)
 
-					if assert.NotNil(t, workflow.Dependency) {
-						assert.Equal(t, "tool7", *workflow.Dependency)
-					}
-				}
-			}
-		}
-	}
+	require.NotNil(t, workflow.Dependency)
+	assert.Equal(t, "tool7", *workflow.Dependency)
 }
 
-//nolint:cyclop
 func TestLoadConfigFile_Whole_WorkflowString(t *testing.T) {
 	reader := strings.NewReader(`
 project:
@@ -131,30 +114,23 @@ project:
 	)
 
 	config, err := LoadConfigFile(reader)
-	assert.NoError(t, err)
+	require.NoError(t, err)
+	require.NotNil(t, config)
+	require.NotNil(t, config.Project)
 
-	if assert.NotNil(t, config) {
-		if assert.NotNil(t, config.Project) {
-			if assert.NotNil(t, config.Project.WorkDirectory) {
-				assert.Equal(t, "/path/to/project", *config.Project.WorkDirectory)
-			}
+	require.NotNil(t, config.Project.WorkDirectory)
+	assert.Equal(t, "/path/to/project", *config.Project.WorkDirectory)
 
-			if assert.NotNil(t, config.Project.BuildDirectory) {
-				assert.Equal(t, "/path/to/build", *config.Project.BuildDirectory)
-			}
+	require.NotNil(t, config.Project.BuildDirectory)
+	assert.Equal(t, "/path/to/build", *config.Project.BuildDirectory)
 
-			if assert.NotNil(t, config.Project.Environment) {
-				assert.Equal(t, "docker:golang", *config.Project.Environment)
-			}
+	require.NotNil(t, config.Project.Environment)
+	assert.Equal(t, "docker:golang", *config.Project.Environment)
 
-			if assert.NotNil(t, config.Project.Workflow) {
-				workflow, ok := config.Project.Workflow.(string)
-				if assert.True(t, ok, "workflow should be of type string") {
-					assert.Equal(t, "go", workflow)
-				}
-			}
-		}
-	}
+	require.NotNil(t, config.Project.Workflow)
+	workflow, ok := config.Project.Workflow.(string)
+	require.True(t, ok, "workflow should be of type string")
+	assert.Equal(t, "go", workflow)
 }
 
 func TestFileConfig_UpdateConfig_Empty(t *testing.T) {
@@ -169,7 +145,6 @@ func TestFileConfig_UpdateConfig_Empty(t *testing.T) {
 	assert.Equal(t, DefaultConfig(), config)
 }
 
-//nolint:cyclop
 func TestFileConfig_UpdateConfig(t *testing.T) {
 	config := DefaultConfig()
 
@@ -194,50 +169,38 @@ func TestFileConfig_UpdateConfig(t *testing.T) {
 
 	assert.Equal(t, ".", config.RootDirectory)
 
-	if assert.NotNil(t, config.WorkDirectory) {
-		assert.Equal(t, "/project/work", *config.WorkDirectory)
-	}
+	require.NotNil(t, config.WorkDirectory)
+	assert.Equal(t, "/project/work", *config.WorkDirectory)
 
-	if assert.NotNil(t, config.BuildDirectory) {
-		assert.Equal(t, "/project/build", *config.BuildDirectory)
-	}
+	require.NotNil(t, config.BuildDirectory)
+	assert.Equal(t, "/project/build", *config.BuildDirectory)
 
-	if assert.NotNil(t, config.Environment) {
-		assert.Equal(t, "env:arg", *config.Environment)
-	}
+	require.NotNil(t, config.Environment)
+	assert.Equal(t, "env:arg", *config.Environment)
 
-	if assert.NotNil(t, config.Workflow) {
-		workflow, ok := config.Workflow.(*ConfigWorkflow)
-		if assert.True(t, ok, "workflow should be of type ConfigWorkflow") {
-			if assert.NotNil(t, workflow.Configure) {
-				assert.Equal(t, "tool1", *workflow.Configure)
-			}
+	require.NotNil(t, config.Workflow)
+	workflow, ok := config.Workflow.(*ConfigWorkflow)
+	require.True(t, ok, "workflow should be of type ConfigWorkflow")
+	require.NotNil(t, workflow.Configure)
+	assert.Equal(t, "tool1", *workflow.Configure)
 
-			if assert.NotNil(t, workflow.Build) {
-				assert.Equal(t, "tool2", *workflow.Build)
-			}
+	require.NotNil(t, workflow.Build)
+	assert.Equal(t, "tool2", *workflow.Build)
 
-			if assert.NotNil(t, workflow.Test) {
-				assert.Equal(t, "tool3", *workflow.Test)
-			}
+	require.NotNil(t, workflow.Test)
+	assert.Equal(t, "tool3", *workflow.Test)
 
-			if assert.NotNil(t, workflow.Format) {
-				assert.Equal(t, "tool4", *workflow.Format)
-			}
+	require.NotNil(t, workflow.Format)
+	assert.Equal(t, "tool4", *workflow.Format)
 
-			if assert.NotNil(t, workflow.Lint) {
-				assert.Equal(t, "tool5", *workflow.Lint)
-			}
+	require.NotNil(t, workflow.Lint)
+	assert.Equal(t, "tool5", *workflow.Lint)
 
-			if assert.NotNil(t, workflow.Run) {
-				assert.Equal(t, "tool6", *workflow.Run)
-			}
+	require.NotNil(t, workflow.Run)
+	assert.Equal(t, "tool6", *workflow.Run)
 
-			if assert.NotNil(t, workflow.Dependency) {
-				assert.Equal(t, "tool7", *workflow.Dependency)
-			}
-		}
-	}
+	require.NotNil(t, workflow.Dependency)
+	assert.Equal(t, "tool7", *workflow.Dependency)
 }
 
 func TestFileConfig_UpdateConfig_WorkflowString(t *testing.T) {
@@ -256,24 +219,19 @@ func TestFileConfig_UpdateConfig_WorkflowString(t *testing.T) {
 
 	assert.Equal(t, ".", config.RootDirectory)
 
-	if assert.NotNil(t, config.WorkDirectory) {
-		assert.Equal(t, "/project/work", *config.WorkDirectory)
-	}
+	require.NotNil(t, config.WorkDirectory)
+	assert.Equal(t, "/project/work", *config.WorkDirectory)
 
-	if assert.NotNil(t, config.BuildDirectory) {
-		assert.Equal(t, "/project/build", *config.BuildDirectory)
-	}
+	require.NotNil(t, config.BuildDirectory)
+	assert.Equal(t, "/project/build", *config.BuildDirectory)
 
-	if assert.NotNil(t, config.Environment) {
-		assert.Equal(t, "env:arg", *config.Environment)
-	}
+	require.NotNil(t, config.Environment)
+	assert.Equal(t, "env:arg", *config.Environment)
 
-	if assert.NotNil(t, config.Workflow) {
-		workflow, ok := config.Workflow.(string)
-		if assert.True(t, ok, "workflow should be of type string") {
-			assert.Equal(t, "my-workflow", workflow)
-		}
-	}
+	require.NotNil(t, config.Workflow)
+	workflow, ok := config.Workflow.(string)
+	require.True(t, ok, "workflow should be of type string")
+	assert.Equal(t, "my-workflow", workflow)
 }
 
 func TestFileConfig_UpdateConfig_WorkflowInvalid(t *testing.T) {

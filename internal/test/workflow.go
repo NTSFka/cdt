@@ -15,6 +15,7 @@ type ProjectConfigurator struct {
 func NewProjectConfigurator(t *testing.T) *ProjectConfigurator {
 	configurator := ProjectConfigurator{}
 	configurator.Test(t)
+
 	return &configurator
 }
 
@@ -29,6 +30,7 @@ type ProjectBuilder struct {
 func NewProjectBuilder(t *testing.T) *ProjectBuilder {
 	builder := ProjectBuilder{}
 	builder.Test(t)
+
 	return &builder
 }
 
@@ -47,6 +49,7 @@ type ProjectFormatter struct {
 func NewProjectFormatter(t *testing.T) *ProjectFormatter {
 	formatter := ProjectFormatter{}
 	formatter.Test(t)
+
 	return &formatter
 }
 
@@ -73,6 +76,7 @@ type ProjectLinter struct {
 func NewProjectLinter(t *testing.T) *ProjectLinter {
 	linter := ProjectLinter{}
 	linter.Test(t)
+
 	return &linter
 }
 
@@ -110,6 +114,7 @@ type ProjectRunner struct {
 func NewProjectRunner(t *testing.T) *ProjectRunner {
 	runner := ProjectRunner{}
 	runner.Test(t)
+
 	return &runner
 }
 
@@ -124,11 +129,13 @@ type StructureProvider struct {
 func NewStructureProvider(t *testing.T) *StructureProvider {
 	provider := StructureProvider{}
 	provider.Test(t)
+
 	return &provider
 }
 
 func (t *StructureProvider) Structure(ctx context.Context, info internal.ProjectInfo) (*internal.ProjectStructure, error) {
 	called := t.Called(ctx, info)
+
 	return called.Get(0).(*internal.ProjectStructure), called.Error(1)
 }
 
@@ -139,6 +146,7 @@ type DependencyManager struct {
 func NewDependencyManager(t *testing.T) *DependencyManager {
 	manager := DependencyManager{}
 	manager.Test(t)
+
 	return &manager
 }
 

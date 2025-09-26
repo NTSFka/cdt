@@ -5,8 +5,8 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
+	"github.com/stretchr/testify/require"
 )
 
 type testExecutableRuntime struct {
@@ -31,7 +31,7 @@ func TestExecutable_Run(t *testing.T) {
 		Return(nil)
 
 	err := executable.Run(context.Background(), RunOptions{}, []string{})
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	runtime.AssertExpectations(t)
 }
@@ -47,7 +47,7 @@ func TestExecutable_Run_Failed(t *testing.T) {
 		Return(errors.New("failed"))
 
 	err := executable.Run(context.Background(), RunOptions{}, []string{})
-	assert.EqualError(t, err, "failed")
+	require.EqualError(t, err, "failed")
 
 	runtime.AssertExpectations(t)
 }
@@ -63,7 +63,7 @@ func TestExecutable_Run_Args(t *testing.T) {
 		Return(nil)
 
 	err := executable.Run(context.Background(), RunOptions{}, []string{"arg1", "arg2"})
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	runtime.AssertExpectations(t)
 }
@@ -83,7 +83,7 @@ func TestExecutable_Run_ArgsExtra(t *testing.T) {
 		Return(nil)
 
 	err := executable.Run(context.Background(), RunOptions{}, []string{"arg3", "arg4"})
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	runtime.AssertExpectations(t)
 }

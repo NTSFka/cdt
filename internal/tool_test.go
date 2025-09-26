@@ -8,6 +8,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
+	"github.com/stretchr/testify/require"
 )
 
 func TestTool_MakeExecutableTool_NotAvailable(t *testing.T) {
@@ -18,7 +19,7 @@ func TestTool_MakeExecutableTool_NotAvailable(t *testing.T) {
 	assert.Equal(t, "Tool Info", tool.Info())
 	assert.False(t, tool.IsAvailable())
 	assert.Nil(t, tool.Executable())
-	assert.EqualError(t, tool.Run(context.Background(), RunOptions{}, []string{}), tool.NotFoundError().Error())
+	require.EqualError(t, tool.Run(context.Background(), RunOptions{}, []string{}), tool.NotFoundError().Error())
 }
 
 func TestTool_MakeExecutableTool(t *testing.T) {
@@ -41,7 +42,7 @@ func TestTool_NewExecutableTool_NotAvailable(t *testing.T) {
 	assert.Equal(t, "Tool Info", tool.Info())
 	assert.False(t, tool.IsAvailable())
 	assert.Nil(t, tool.Executable())
-	assert.EqualError(t, tool.Run(context.Background(), RunOptions{}, []string{}), tool.NotFoundError().Error())
+	require.EqualError(t, tool.Run(context.Background(), RunOptions{}, []string{}), tool.NotFoundError().Error())
 }
 
 func TestTool_NewExecutableTool(t *testing.T) {
@@ -69,7 +70,7 @@ func TestTool_ExecutableTool_Run(t *testing.T) {
 		Return(nil)
 
 	err := tool.Run(context.Background(), RunOptions{}, []string{"arg1", "arg2"})
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	runtime.AssertExpectations(t)
 }
@@ -91,7 +92,7 @@ func TestTool_ExecutableTool_RunForProject(t *testing.T) {
 	}, "echo", []string{"arg1", "arg2"}).Return(nil)
 
 	err := tool.RunForProject(context.Background(), ProjectInfo{}, []string{"arg1", "arg2"})
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	runtime.AssertExpectations(t)
 }
@@ -122,9 +123,8 @@ func TestTool_Tools_OnlyAvailable(t *testing.T) {
 
 	active := tools.OnlyAvailable()
 	assert.NotEmpty(t, active)
-	if assert.Len(t, active, 1) {
-		assert.Equal(t, "id2", active[0].Id())
-	}
+	require.Len(t, active, 1)
+	assert.Equal(t, "id2", active[0].Id())
 }
 
 func TestTool_Tools_FilterByTags_NotFound(t *testing.T) {
@@ -161,9 +161,8 @@ func TestTool_Tools_FilterByTags_Found(t *testing.T) {
 		t.Run(d.id, func(t *testing.T) {
 			active := tools.FilterByTags(d.tags)
 			assert.NotEmpty(t, active)
-			if assert.Len(t, active, 1) {
-				assert.Equal(t, d.id, active[0].Id())
-			}
+			require.Len(t, active, 1)
+			assert.Equal(t, d.id, active[0].Id())
 		})
 	}
 }
@@ -192,9 +191,8 @@ func TestTool_Tools_FilterByTags_Found_MultipleTags(t *testing.T) {
 		t.Run(d.id, func(t *testing.T) {
 			active := tools.FilterByTags(d.tags)
 			assert.NotEmpty(t, active)
-			if assert.Len(t, active, 1) {
-				assert.Equal(t, d.id, active[0].Id())
-			}
+			require.Len(t, active, 1)
+			assert.Equal(t, d.id, active[0].Id())
 		})
 	}
 }
@@ -241,6 +239,7 @@ func TestTool_PrintTable_Empty(t *testing.T) {
 	tools := Tools{}
 
 	var output bytes.Buffer
+
 	tools.PrintTable(&output)
 
 	assert.Empty(t, output.String())
@@ -266,6 +265,7 @@ func TestTool_PrintTable(t *testing.T) {
 	}
 
 	var output bytes.Buffer
+
 	tools.PrintTable(&output)
 
 	assert.NotEmpty(t, output.String())

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// RunOptions are options for executing tool
+// RunOptions are options for executing tool.
 type RunOptions struct {
 	// Directory in which executable should be run
 	Directory string
@@ -20,7 +20,7 @@ type RunOptions struct {
 	Silent bool
 }
 
-// ExecutableRuntime represents the runtime in which the executable runs
+// ExecutableRuntime represents the runtime in which the executable runs.
 type ExecutableRuntime interface {
 	// The Id returns the runtime unique identifier
 	Id() string
@@ -29,7 +29,7 @@ type ExecutableRuntime interface {
 	RunExecutable(ctx context.Context, options RunOptions, path string, args []string) error
 }
 
-// Executable represent an executable
+// Executable represent an executable.
 type Executable struct {
 	// Path to executable
 	Path string
@@ -41,17 +41,7 @@ type Executable struct {
 	Runtime ExecutableRuntime
 }
 
-func (e *Executable) buildArgs(args []string) []string {
-	eArgs := e.Args
-
-	if eArgs == nil {
-		eArgs = []string{}
-	}
-
-	return append(eArgs, args...)
-}
-
-// Run starts the executable with the given arguments
+// Run starts the executable with the given arguments.
 func (e *Executable) Run(ctx context.Context, options RunOptions, args []string) error {
 	runArgs := e.buildArgs(args)
 
@@ -69,4 +59,14 @@ func (e *Executable) Run(ctx context.Context, options RunOptions, args []string)
 		"args", args,
 		"directory", options.Directory,
 	)
+}
+
+func (e *Executable) buildArgs(args []string) []string {
+	eArgs := e.Args
+
+	if eArgs == nil {
+		eArgs = []string{}
+	}
+
+	return append(eArgs, args...)
 }

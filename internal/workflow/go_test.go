@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func createGoModFile(dir string) error {
@@ -30,7 +31,7 @@ func TestGoType_Detect_ModFile(t *testing.T) {
 	dir := t.TempDir()
 
 	err := createGoModFile(dir)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	res := workflowType.Detect(dir)
 
@@ -45,15 +46,14 @@ func TestGoType_Create(t *testing.T) {
 		tool.NewGolangCILint(func() *internal.Executable { return nil }),
 	}
 
-	p := workflowType.Create(Config{Directory: "dir1"}, tools)
+	project := workflowType.Create(Config{Directory: "dir1"}, tools)
 
-	if assert.NotNil(t, p) {
-		assert.Nil(t, p.Workflow.Configurator)
-		assert.NotNil(t, p.Workflow.Builder)
-		assert.NotNil(t, p.Workflow.Tester)
-		assert.NotNil(t, p.Workflow.Linter)
-		assert.NotNil(t, p.Workflow.Formatter)
-		assert.NotNil(t, p.Workflow.Runner)
-		assert.NotNil(t, p.Workflow.DependencyManager)
-	}
+	require.NotNil(t, project)
+	assert.Nil(t, project.Workflow.Configurator)
+	assert.NotNil(t, project.Workflow.Builder)
+	assert.NotNil(t, project.Workflow.Tester)
+	assert.NotNil(t, project.Workflow.Linter)
+	assert.NotNil(t, project.Workflow.Formatter)
+	assert.NotNil(t, project.Workflow.Runner)
+	assert.NotNil(t, project.Workflow.DependencyManager)
 }

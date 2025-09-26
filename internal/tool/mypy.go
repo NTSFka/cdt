@@ -10,14 +10,14 @@ type MyPy struct {
 	internal.ExecutableTool
 }
 
-// DetectMyPy create a tool for mypy
+// DetectMyPy create a tool for mypy.
 func DetectMyPy(ctx context.Context, environment internal.Environment) *MyPy {
 	return NewMyPy(func() *internal.Executable {
 		return environment.FindExecutable(ctx, "mypy")
 	})
 }
 
-// NewMyPy creates a mypy tool from a custom executable
+// NewMyPy creates a mypy tool from a custom executable.
 func NewMyPy(detect func() *internal.Executable) *MyPy {
 	return &MyPy{
 		ExecutableTool: internal.MakeExecutableTool(
@@ -28,6 +28,16 @@ func NewMyPy(detect func() *internal.Executable) *MyPy {
 			detect,
 		),
 	}
+}
+
+func (m *MyPy) LintAll(ctx context.Context, options internal.ProjectLinterOptions) error {
+	return m.RunForProject(ctx, options.ProjectInfo, append([]string{"*.py"}, options.ExtraArgs...))
+}
+
+func (m *MyPy) LintFiles(ctx context.Context, options internal.ProjectLinterOptions, filenames []string) error {
+	paths := m.buildPaths(options.Directory, filenames)
+
+	return m.RunForProject(ctx, options.ProjectInfo, append(options.ExtraArgs, paths...))
 }
 
 func (m *MyPy) buildPaths(directory string, filenames []string) []string {
@@ -42,14 +52,4 @@ func (m *MyPy) buildPaths(directory string, filenames []string) []string {
 	}
 
 	return paths
-}
-
-func (m *MyPy) LintAll(ctx context.Context, options internal.ProjectLinterOptions) error {
-	return m.RunForProject(ctx, options.ProjectInfo, append([]string{"*.py"}, options.ExtraArgs...))
-}
-
-func (m *MyPy) LintFiles(ctx context.Context, options internal.ProjectLinterOptions, filenames []string) error {
-	paths := m.buildPaths(options.Directory, filenames)
-
-	return m.RunForProject(ctx, options.ProjectInfo, append(options.ExtraArgs, paths...))
 }

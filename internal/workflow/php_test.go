@@ -10,6 +10,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestPHPType_Detect_NoModFile(t *testing.T) {
@@ -26,7 +27,7 @@ func TestPHPType_Detect_ModFile(t *testing.T) {
 	dir := t.TempDir()
 
 	_, err := os.Create(filepath.Join(dir, "composer.json"))
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	res := workflowType.Detect(dir)
 
@@ -45,16 +46,15 @@ func TestPHPType_Create(t *testing.T) {
 		tool.NewComposer(func() *internal.Executable { return &internal.Executable{Path: "composer-test"} }),
 	}
 
-	p := workflowType.Create(Config{Directory: "dir1"}, tools)
+	project := workflowType.Create(Config{Directory: "dir1"}, tools)
 
-	if assert.NotNil(t, p) {
-		assert.Nil(t, p.Workflow.Configurator)
-		assert.Nil(t, p.Workflow.Builder)
-		assert.NotNil(t, p.Workflow.Tester)
-		assert.NotNil(t, p.Workflow.Linter)
-		assert.NotNil(t, p.Workflow.Formatter)
-		assert.NotNil(t, p.Workflow.Runner)
-	}
+	require.NotNil(t, project)
+	assert.Nil(t, project.Workflow.Configurator)
+	assert.Nil(t, project.Workflow.Builder)
+	assert.NotNil(t, project.Workflow.Tester)
+	assert.NotNil(t, project.Workflow.Linter)
+	assert.NotNil(t, project.Workflow.Formatter)
+	assert.NotNil(t, project.Workflow.Runner)
 }
 
 func TestPHPType_Project_TestAll_Paratest(t *testing.T) {
@@ -75,15 +75,14 @@ func TestPHPType_Project_TestAll_Paratest(t *testing.T) {
 
 	p := workflowType.Create(Config{Directory: dir}, tools)
 
-	if assert.NotNil(t, p.Workflow.Tester) {
-		paratestMock.OnRunAnything("paratest-test").Return(nil)
+	require.NotNil(t, p.Workflow.Tester)
+	paratestMock.OnRunAnything("paratest-test").Return(nil)
 
-		err := p.Workflow.Tester.TestAll(context.Background(), internal.ProjectTesterOptions{ProjectInfo: p.Info})
-		assert.NoError(t, err)
+	err := p.Workflow.Tester.TestAll(context.Background(), internal.ProjectTesterOptions{ProjectInfo: p.Info})
+	require.NoError(t, err)
 
-		paratestMock.AssertExpectations(t)
-		phpunitMock.AssertExpectations(t)
-	}
+	paratestMock.AssertExpectations(t)
+	phpunitMock.AssertExpectations(t)
 }
 
 func TestPHPType_Project_TestAll_PHPUnit(t *testing.T) {
@@ -104,15 +103,14 @@ func TestPHPType_Project_TestAll_PHPUnit(t *testing.T) {
 
 	p := workflowType.Create(Config{Directory: dir}, tools)
 
-	if assert.NotNil(t, p.Workflow.Tester) {
-		phpunitMock.OnRunAnything("phpunit-test").Return(nil)
+	require.NotNil(t, p.Workflow.Tester)
+	phpunitMock.OnRunAnything("phpunit-test").Return(nil)
 
-		err := p.Workflow.Tester.TestAll(context.Background(), internal.ProjectTesterOptions{ProjectInfo: p.Info})
-		assert.NoError(t, err)
+	err := p.Workflow.Tester.TestAll(context.Background(), internal.ProjectTesterOptions{ProjectInfo: p.Info})
+	require.NoError(t, err)
 
-		paratestMock.AssertExpectations(t)
-		phpunitMock.AssertExpectations(t)
-	}
+	paratestMock.AssertExpectations(t)
+	phpunitMock.AssertExpectations(t)
 }
 
 func TestPHPType_Project_Test_Paratest(t *testing.T) {
@@ -133,15 +131,14 @@ func TestPHPType_Project_Test_Paratest(t *testing.T) {
 
 	p := workflowType.Create(Config{Directory: dir}, tools)
 
-	if assert.NotNil(t, p.Workflow.Tester) {
-		paratestMock.OnRunAnything("paratest-test").Return(nil)
+	require.NotNil(t, p.Workflow.Tester)
+	paratestMock.OnRunAnything("paratest-test").Return(nil)
 
-		err := p.Workflow.Tester.TestPattern(context.Background(), internal.ProjectTesterOptions{ProjectInfo: p.Info}, "my-test")
-		assert.NoError(t, err)
+	err := p.Workflow.Tester.TestPattern(context.Background(), internal.ProjectTesterOptions{ProjectInfo: p.Info}, "my-test")
+	require.NoError(t, err)
 
-		paratestMock.AssertExpectations(t)
-		phpunitMock.AssertExpectations(t)
-	}
+	paratestMock.AssertExpectations(t)
+	phpunitMock.AssertExpectations(t)
 }
 
 func TestPHPType_Project_Test_PHPUnit(t *testing.T) {
@@ -162,13 +159,12 @@ func TestPHPType_Project_Test_PHPUnit(t *testing.T) {
 
 	p := workflowType.Create(Config{Directory: dir}, tools)
 
-	if assert.NotNil(t, p.Workflow.Tester) {
-		phpunitMock.OnRunAnything("phpunit-test").Return(nil)
+	require.NotNil(t, p.Workflow.Tester)
+	phpunitMock.OnRunAnything("phpunit-test").Return(nil)
 
-		err := p.Workflow.Tester.TestPattern(context.Background(), internal.ProjectTesterOptions{ProjectInfo: p.Info}, "my-test")
-		assert.NoError(t, err)
+	err := p.Workflow.Tester.TestPattern(context.Background(), internal.ProjectTesterOptions{ProjectInfo: p.Info}, "my-test")
+	require.NoError(t, err)
 
-		paratestMock.AssertExpectations(t)
-		phpunitMock.AssertExpectations(t)
-	}
+	paratestMock.AssertExpectations(t)
+	phpunitMock.AssertExpectations(t)
 }

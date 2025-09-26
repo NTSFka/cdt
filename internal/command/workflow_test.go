@@ -8,7 +8,7 @@ import (
 	"context"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func runWorkflow(ctx context.Context, context internal.Context, args ...string) error {
@@ -18,13 +18,13 @@ func runWorkflow(ctx context.Context, context internal.Context, args ...string) 
 func TestWorkflowList(t *testing.T) {
 	err := runWorkflow(context.Background(), internal.Context{}, "list")
 
-	assert.NoError(t, err)
+	require.NoError(t, err)
 }
 
 func TestWorkflowShow_Empty(t *testing.T) {
 	err := runWorkflow(context.Background(), internal.Context{}, "show")
 
-	assert.NoError(t, err)
+	require.NoError(t, err)
 }
 
 func TestWorkflowShow_Custom(t *testing.T) {
@@ -69,7 +69,7 @@ func TestWorkflowShow_Custom(t *testing.T) {
 		},
 	}, "show")
 
-	assert.NoError(t, err)
+	require.NoError(t, err)
 }
 
 func TestWorkflowShow_Named(t *testing.T) {
@@ -82,5 +82,5 @@ func TestWorkflowShow_Named(t *testing.T) {
 		Tools: tools,
 	}, "show", "go")
 
-	assert.NoError(t, err)
+	require.NoError(t, err)
 }

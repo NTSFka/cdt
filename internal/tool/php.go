@@ -9,14 +9,14 @@ type PHP struct {
 	internal.ExecutableTool
 }
 
-// DetectPHP create a tool for php
+// DetectPHP create a tool for php.
 func DetectPHP(ctx context.Context, environment internal.Environment) *PHP {
 	return NewPHP(func() *internal.Executable {
 		return environment.FindExecutable(ctx, "php")
 	})
 }
 
-// NewPHP creates a php tool from a custom executable
+// NewPHP creates a php tool from a custom executable.
 func NewPHP(detect func() *internal.Executable) *PHP {
 	return &PHP{
 		ExecutableTool: internal.MakeExecutableTool(

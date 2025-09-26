@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestCTest_DetectCTest(t *testing.T) {
@@ -49,7 +50,7 @@ func TestCTest_RunForProject_NoIntermediateDirectory(t *testing.T) {
 	desc := internal.ProjectInfo{Directory: "project", IntermediateDirectory: nil}
 
 	err := tool.RunForProject(context.Background(), desc, []string{})
-	assert.ErrorIs(t, err, internal.ErrNoIntermediateDirectory)
+	require.ErrorIs(t, err, internal.ErrNoIntermediateDirectory)
 
 	exec.AssertExpectations(t)
 }
@@ -65,7 +66,7 @@ func TestCTest_RunForProject(t *testing.T) {
 		Return(nil)
 
 	err := tool.RunForProject(context.Background(), desc, []string{})
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
 }
@@ -81,7 +82,7 @@ func TestCTest_RunForProject_Failed(t *testing.T) {
 		Return(errors.New("failed"))
 
 	err := tool.RunForProject(context.Background(), desc, []string{})
-	assert.EqualError(t, err, "failed")
+	require.EqualError(t, err, "failed")
 
 	exec.AssertExpectations(t)
 }

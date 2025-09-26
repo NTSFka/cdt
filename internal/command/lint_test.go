@@ -9,6 +9,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
+	"github.com/stretchr/testify/require"
 )
 
 func runLint(ctx context.Context, linter internal.ProjectLinter, args ...string) error {
@@ -32,9 +33,8 @@ func runLintTool(ctx context.Context, linter internal.Tool, args ...string) erro
 func TestLint_Lint_CannotBeLinted(t *testing.T) {
 	err := runLint(context.Background(), nil)
 
-	if assert.Error(t, err) {
-		assert.Equal(t, "project doesn't support linting", err.Error())
-	}
+	require.Error(t, err)
+	assert.Equal(t, "project doesn't support linting", err.Error())
 }
 
 func TestLint_LintAll_Success(t *testing.T) {
@@ -44,7 +44,7 @@ func TestLint_LintAll_Success(t *testing.T) {
 
 	err := runLint(context.Background(), linter)
 
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	linter.AssertExpectations(t)
 }
 
@@ -55,9 +55,9 @@ func TestLint_LintAll_Failure(t *testing.T) {
 
 	err := runLint(context.Background(), linter)
 
-	if assert.Error(t, err) {
-		assert.Equal(t, "failed", err.Error())
-	}
+	require.Error(t, err)
+	assert.Equal(t, "failed", err.Error())
+
 	linter.AssertExpectations(t)
 }
 
@@ -72,6 +72,7 @@ func newTestLinterTool(t *testing.T) *testLinterTool {
 		test.ProjectLinter{},
 	}
 	linter.Test(t)
+
 	return linter
 }
 
@@ -82,7 +83,7 @@ func TestLint_Tool_Success(t *testing.T) {
 
 	err := runLintTool(context.Background(), linter, "--tool", "tool1")
 
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	linter.AssertExpectations(t)
 }
 
@@ -93,9 +94,9 @@ func TestLint_Tool_Failed(t *testing.T) {
 
 	err := runLintTool(context.Background(), linter, "--tool", "tool1")
 
-	if assert.Error(t, err) {
-		assert.Equal(t, "failed", err.Error())
-	}
+	require.Error(t, err)
+	assert.Equal(t, "failed", err.Error())
+
 	linter.AssertExpectations(t)
 }
 
@@ -104,9 +105,9 @@ func TestLint_Tool_NotFound(t *testing.T) {
 
 	err := runLintTool(context.Background(), linter, "--tool", "tool2")
 
-	if assert.Error(t, err) {
-		assert.Equal(t, "tool 'tool2' not found", err.Error())
-	}
+	require.Error(t, err)
+	assert.Equal(t, "tool 'tool2' not found", err.Error())
+
 	linter.AssertExpectations(t)
 }
 
@@ -119,9 +120,8 @@ func TestLint_Tool_NotSupported(t *testing.T) {
 
 	err := runLintTool(context.Background(), &linter, "--tool", "tool1")
 
-	if assert.Error(t, err) {
-		assert.Equal(t, "tool 'tool1' doesn't support linting", err.Error())
-	}
+	require.Error(t, err)
+	assert.Equal(t, "tool 'tool1' doesn't support linting", err.Error())
 }
 
 func TestLint_LintFiles_Success(t *testing.T) {
@@ -131,7 +131,7 @@ func TestLint_LintFiles_Success(t *testing.T) {
 
 	err := runLint(context.Background(), linter, "file1", "file2")
 
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	linter.AssertExpectations(t)
 }
 
@@ -142,8 +142,8 @@ func TestLint_LintFiles_Failure(t *testing.T) {
 
 	err := runLint(context.Background(), linter, "file1", "file2")
 
-	if assert.Error(t, err) {
-		assert.Equal(t, "failed", err.Error())
-	}
+	require.Error(t, err)
+	assert.Equal(t, "failed", err.Error())
+
 	linter.AssertExpectations(t)
 }

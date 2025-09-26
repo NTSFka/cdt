@@ -7,13 +7,13 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestTool_List_Empty(t *testing.T) {
 	err := test.RunCommand(context.Background(), NewToolCommand(), internal.Context{}, "list")
 
-	assert.NoError(t, err)
+	require.NoError(t, err)
 }
 
 func TestTool_List_Tags(t *testing.T) {
@@ -25,13 +25,13 @@ func TestTool_List_Tags(t *testing.T) {
 
 	err := test.RunCommand(context.Background(), NewToolCommand(), internal.Context{Tools: tools}, "list", "--tag", "tag1")
 
-	assert.NoError(t, err)
+	require.NoError(t, err)
 }
 
 func TestTool_ListAll_Empty(t *testing.T) {
 	err := test.RunCommand(context.Background(), NewToolCommand(), internal.Context{}, "list", "--all")
 
-	assert.NoError(t, err)
+	require.NoError(t, err)
 }
 
 func TestTool_ListAll(t *testing.T) {
@@ -43,13 +43,13 @@ func TestTool_ListAll(t *testing.T) {
 
 	err := test.RunCommand(context.Background(), NewToolCommand(), internal.Context{Tools: tools}, "list", "--all")
 
-	assert.NoError(t, err)
+	require.NoError(t, err)
 }
 
 func TestTool_Run_Unknown(t *testing.T) {
 	err := test.RunCommand(context.Background(), NewToolCommand(), internal.Context{}, "run", "tool")
 
-	assert.EqualError(t, err, "tool 'tool' not found")
+	require.EqualError(t, err, "tool 'tool' not found")
 }
 
 func TestTool_Run_Unavailable(t *testing.T) {
@@ -61,7 +61,7 @@ func TestTool_Run_Unavailable(t *testing.T) {
 
 	err := test.RunCommand(context.Background(), NewToolCommand(), internal.Context{Tools: tools}, "run", "tool")
 
-	assert.EqualError(t, err, "tool 'tool' failed: Tool is not installed on the system")
+	require.EqualError(t, err, "tool 'tool' failed: Tool is not installed on the system")
 }
 
 func TestTool_Run_Success(t *testing.T) {
@@ -76,7 +76,7 @@ func TestTool_Run_Success(t *testing.T) {
 
 	err := test.RunCommand(context.Background(), NewToolCommand(), internal.Context{Tools: tools}, "run", "tool")
 
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
 }
@@ -93,7 +93,7 @@ func TestTool_Run_Failed(t *testing.T) {
 
 	err := test.RunCommand(context.Background(), NewToolCommand(), internal.Context{Tools: tools}, "run", "tool")
 
-	assert.EqualError(t, err, "tool 'tool' failed: failed")
+	require.EqualError(t, err, "tool 'tool' failed: failed")
 
 	exec.AssertExpectations(t)
 }

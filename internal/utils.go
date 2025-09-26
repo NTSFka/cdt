@@ -8,7 +8,7 @@ import (
 	"golang.org/x/term"
 )
 
-// PathExists checks if a path exists
+// PathExists checks if a path exists.
 func PathExists(path string) bool {
 	if _, err := os.Stat(path); errors.Is(err, os.ErrNotExist) {
 		return false
@@ -17,19 +17,19 @@ func PathExists(path string) bool {
 	return true
 }
 
-// Assert panics when the condition is not true
+// Assert panics when the condition is not true.
 func Assert(condition bool, message string) {
 	if !condition {
 		panic(message)
 	}
 }
 
-// StrPtr returns a pointer to a given string
+// StrPtr returns a pointer to a given string.
 func StrPtr(s string) *string {
 	return &s
 }
 
-// DetectTermWidth detects the terminal width from a writer if possible
+// DetectTermWidth detects the terminal width from a writer if possible.
 func DetectTermWidth(writer io.Writer) *int {
 	if f, ok := writer.(interface{ Fd() uintptr }); ok && term.IsTerminal(int(f.Fd())) {
 		if w, _, err := term.GetSize(int(f.Fd())); err == nil && w > 0 {

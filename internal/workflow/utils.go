@@ -7,7 +7,7 @@ import (
 
 func getTool[T any](name *string, tools internal.Tools, what string) (*T, error) {
 	if name == nil {
-		return nil, nil
+		return nil, nil // nolint: nilnil
 	}
 
 	tool := tools.Get(*name)
@@ -27,47 +27,47 @@ func getTool[T any](name *string, tools internal.Tools, what string) (*T, error)
 //
 //nolint:cyclop
 func FromConfig(config internal.ConfigWorkflow, tools internal.Tools) (*internal.Workflow, error) {
-	wf := internal.Workflow{
+	workflow := internal.Workflow{
 		Name: "custom",
 	}
 
 	if t, err := getTool[internal.ProjectConfigurator](config.Configure, tools, "configuration"); t != nil {
-		wf.Configurator = *t
+		workflow.Configurator = *t
 	} else if err != nil {
 		return nil, err
 	}
 
 	if t, err := getTool[internal.ProjectBuilder](config.Build, tools, "building"); t != nil {
-		wf.Builder = *t
+		workflow.Builder = *t
 	} else if err != nil {
 		return nil, err
 	}
 
 	if t, err := getTool[internal.ProjectTester](config.Test, tools, "testing"); t != nil {
-		wf.Tester = *t
+		workflow.Tester = *t
 	} else if err != nil {
 		return nil, err
 	}
 
 	if t, err := getTool[internal.ProjectFormatter](config.Format, tools, "formatting"); t != nil {
-		wf.Formatter = *t
+		workflow.Formatter = *t
 	} else if err != nil {
 		return nil, err
 	}
 
 	if t, err := getTool[internal.ProjectLinter](config.Lint, tools, "linting"); t != nil {
-		wf.Linter = *t
+		workflow.Linter = *t
 	} else if err != nil {
 		return nil, err
 	}
 
 	if t, err := getTool[internal.ProjectRunner](config.Run, tools, "run"); t != nil {
-		wf.Runner = *t
+		workflow.Runner = *t
 	} else if err != nil {
 		return nil, err
 	}
 
-	return &wf, nil
+	return &workflow, nil
 }
 
 func createProjectConfigCustom(config internal.Config, configWorkflow internal.ConfigWorkflow, tools internal.Tools) (*internal.Project, error) {
@@ -102,14 +102,14 @@ func createProjectConfigName(config internal.Config, workflowName string, tools 
 }
 
 func createProjectDetect(config internal.Config, tools internal.Tools) (*internal.Project, error) {
-	for _, pt := range SupportedTypes {
-		if pt.Detect(config.RootDirectory) {
+	for _, workflowType := range SupportedTypes {
+		if workflowType.Detect(config.RootDirectory) {
 			cfg := Config{
 				Directory:             config.RootDirectory,
 				IntermediateDirectory: config.BuildDirectory,
 			}
 
-			workflow := pt.Create(cfg, tools)
+			workflow := workflowType.Create(cfg, tools)
 
 			return &workflow, nil
 		}
@@ -123,7 +123,7 @@ func createProjectDetect(config internal.Config, tools internal.Tools) (*interna
 	}, nil
 }
 
-// CreateProject creates a project from configuration and supported tools
+// CreateProject creates a project from configuration and supported tools.
 func CreateProject(config internal.Config, tools internal.Tools) (*internal.Project, error) {
 	// User-defined workflow
 	if config.Workflow != nil {

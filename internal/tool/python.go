@@ -12,14 +12,14 @@ type Python struct {
 	internal.ExecutableTool
 }
 
-// DetectPython create a tool for python
+// DetectPython create a tool for python.
 func DetectPython(ctx context.Context, environment internal.Environment) *Python {
 	return NewPython(func() *internal.Executable {
 		return environment.FindExecutable(ctx, "python3")
 	})
 }
 
-// NewPython creates a python tool from a custom executable
+// NewPython creates a python tool from a custom executable.
 func NewPython(detect func() *internal.Executable) *Python {
 	return &Python{
 		ExecutableTool: internal.MakeExecutableTool(
@@ -49,6 +49,7 @@ func (p *Python) Detect(directory string) *internal.Environment {
 	for _, dir := range []string{"venv", ".venv"} {
 		if internal.PathExists(filepath.Join(directory, dir)) {
 			env, _ := p.CreateEnvironment(directory, dir)
+
 			return &env
 		}
 	}
@@ -56,7 +57,7 @@ func (p *Python) Detect(directory string) *internal.Environment {
 	return nil
 }
 
-// CreateEnvironment create python virtual environment where the service is used for running tools
+// CreateEnvironment create python virtual environment where the service is used for running tools.
 func (p *Python) CreateEnvironment(directory, path string) (internal.Environment, error) {
 	internal.Debug("pyenv.create_environment", "directory", directory, "path", path)
 
@@ -117,19 +118,6 @@ func (e *pythonVirtualEnvironment) Cleanup(_ context.Context) error {
 	return nil
 }
 
-func (e *pythonVirtualEnvironment) findPath(name string) *string {
-	if path := filepath.Join(e.venvDirectory, "bin", name); internal.PathExists(path) {
-		return &path
-	}
-
-	// Windows
-	if path := filepath.Join(e.venvDirectory, "Scripts", name); internal.PathExists(path) {
-		return &path
-	}
-
-	return nil
-}
-
 func (e *pythonVirtualEnvironment) FindExecutable(ctx context.Context, name string) *internal.Executable {
 	return internal.Trace(ctx, "pyenv.find_executable", func() *internal.Executable {
 		if path := e.findPath(name); path != nil {
@@ -159,4 +147,17 @@ func (e *pythonVirtualEnvironment) RunExecutable(ctx context.Context, options in
 	return internal.Trace(ctx, "pyenv.run", func() error {
 		return command.Run()
 	}, "venv", e.venvDirectory, "path", *path, "args", args)
+}
+
+func (e *pythonVirtualEnvironment) findPath(name string) *string {
+	if path := filepath.Join(e.venvDirectory, "bin", name); internal.PathExists(path) {
+		return &path
+	}
+
+	// Windows
+	if path := filepath.Join(e.venvDirectory, "Scripts", name); internal.PathExists(path) {
+		return &path
+	}
+
+	return nil
 }

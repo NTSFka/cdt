@@ -9,6 +9,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
+	"github.com/stretchr/testify/require"
 )
 
 func runTest(ctx context.Context, tester internal.ProjectTester, args ...string) error {
@@ -32,9 +33,8 @@ func runTestTool(ctx context.Context, tester internal.Tool, args ...string) erro
 func TestTest_CannotBeTested(t *testing.T) {
 	err := runTest(context.Background(), nil)
 
-	if assert.Error(t, err) {
-		assert.Equal(t, "project doesn't support testing", err.Error())
-	}
+	require.Error(t, err)
+	assert.Equal(t, "project doesn't support testing", err.Error())
 }
 
 func TestTest_TestAll_Success(t *testing.T) {
@@ -44,7 +44,7 @@ func TestTest_TestAll_Success(t *testing.T) {
 
 	err := runTest(context.Background(), tester)
 
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	tester.AssertExpectations(t)
 }
 
@@ -55,9 +55,8 @@ func TestTest_TestAll_Failure(t *testing.T) {
 
 	err := runTest(context.Background(), tester)
 
-	if assert.Error(t, err) {
-		assert.Equal(t, "failed", err.Error())
-	}
+	require.Error(t, err)
+	assert.Equal(t, "failed", err.Error())
 	tester.AssertExpectations(t)
 }
 
@@ -73,6 +72,7 @@ func newTestTesterTool(t *testing.T) *testTesterTool {
 	}
 
 	tester.Test(t)
+
 	return tester
 }
 
@@ -83,7 +83,7 @@ func TestTest_Tool_Success(t *testing.T) {
 
 	err := runTestTool(context.Background(), tester, "--tool", "tool1")
 
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	tester.AssertExpectations(t)
 }
 
@@ -94,9 +94,9 @@ func TestTest_Tool_Failed(t *testing.T) {
 
 	err := runTestTool(context.Background(), tester, "--tool", "tool1")
 
-	if assert.Error(t, err) {
-		assert.Equal(t, "failed", err.Error())
-	}
+	require.Error(t, err)
+	assert.Equal(t, "failed", err.Error())
+
 	tester.AssertExpectations(t)
 }
 
@@ -105,9 +105,9 @@ func TestTest_Tool_NotFound(t *testing.T) {
 
 	err := runTestTool(context.Background(), tester, "--tool", "tool2")
 
-	if assert.Error(t, err) {
-		assert.Equal(t, "tool 'tool2' not found", err.Error())
-	}
+	require.Error(t, err)
+	assert.Equal(t, "tool 'tool2' not found", err.Error())
+
 	tester.AssertExpectations(t)
 }
 
@@ -120,9 +120,8 @@ func TestTest_Tool_NotSupported(t *testing.T) {
 
 	err := runTestTool(context.Background(), &linter, "--tool", "tool1")
 
-	if assert.Error(t, err) {
-		assert.Equal(t, "tool 'tool1' doesn't support testing", err.Error())
-	}
+	require.Error(t, err)
+	assert.Equal(t, "tool 'tool1' doesn't support testing", err.Error())
 }
 
 func TestTest_TestTargets_Success(t *testing.T) {
@@ -132,7 +131,7 @@ func TestTest_TestTargets_Success(t *testing.T) {
 
 	err := runTest(context.Background(), tester, "pattern")
 
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	tester.AssertExpectations(t)
 }
 
@@ -143,8 +142,8 @@ func TestTest_TestTargets_Failure(t *testing.T) {
 
 	err := runTest(context.Background(), tester, "pattern")
 
-	if assert.Error(t, err) {
-		assert.Equal(t, "failed", err.Error())
-	}
+	require.Error(t, err)
+	assert.Equal(t, "failed", err.Error())
+
 	tester.AssertExpectations(t)
 }

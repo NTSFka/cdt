@@ -14,7 +14,7 @@ type Go struct {
 	internal.ExecutableTool
 }
 
-// NewGo creates a go tool from a custom executable
+// NewGo creates a go tool from a custom executable.
 func NewGo(detect func() *internal.Executable) *Go {
 	return &Go{
 		internal.MakeExecutableTool(
@@ -34,7 +34,7 @@ func NewGo(detect func() *internal.Executable) *Go {
 	}
 }
 
-// DetectGo create go tool can be used in the project
+// DetectGo create go tool can be used in the project.
 func DetectGo(ctx context.Context, environment internal.Environment) *Go {
 	return NewGo(func() *internal.Executable {
 		return environment.FindExecutable(ctx, "go")
@@ -48,6 +48,7 @@ func (g *Go) Structure(ctx context.Context, info internal.ProjectInfo) (*interna
 
 	builder := bytes.Buffer{}
 	options := internal.RunOptions{Directory: info.Directory, Output: &builder, Error: nil}
+
 	if err := g.Run(ctx, options, []string{"list", "-json=ImportPath,GoFiles", "./..."}); err != nil {
 		return nil, err
 	}
@@ -55,9 +56,10 @@ func (g *Go) Structure(ctx context.Context, info internal.ProjectInfo) (*interna
 	decoder := json.NewDecoder(&builder)
 	for decoder.More() {
 		var jsonData struct {
-			ImportPath string
-			GoFiles    []string
+			ImportPath string   `json:"ImportPath"`
+			GoFiles    []string `json:"GoFiles"`
 		}
+
 		if err := decoder.Decode(&jsonData); err != nil {
 			return nil, fmt.Errorf("json decode failed: %w", err)
 		}
@@ -140,6 +142,6 @@ func (g *Go) ListDependencies(ctx context.Context, options internal.ProjectDepen
 	return g.RunForProject(ctx, options.ProjectInfo, append(options.ExtraArgs, "list", "-m", "all"))
 }
 
-func (g *Go) AuditDependencies(ctx context.Context, _ internal.ProjectDependencyManagerOptions) error {
+func (g *Go) AuditDependencies(_ context.Context, _ internal.ProjectDependencyManagerOptions) error {
 	return errors.New("not supported")
 }

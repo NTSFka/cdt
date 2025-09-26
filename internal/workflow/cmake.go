@@ -57,7 +57,7 @@ func (c *CMake) Create(config Config, tools internal.Tools) internal.Project {
 	}
 }
 
-// A cmakeTester is a special project tester that will invoke cmake before ctest
+// A cmakeTester is a special project tester that will invoke cmake before ctest.
 type cmakeTester struct {
 	cmakeTool *tool.CMake
 	ctestTool *tool.CTest

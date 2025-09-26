@@ -27,9 +27,11 @@ func runFirstAvailable[T internal.Tool](tools []T, name string, run func(T) erro
 }
 
 func runAllAvailable[T internal.Tool](tools []T, name string, run func(T) error) error {
-	var names []string
-	var err error
-	var available = 0
+	var (
+		names     []string
+		err       error
+		available = 0
+	)
 
 	for _, tool := range tools {
 		if tool.IsAvailable() {
@@ -71,7 +73,7 @@ type configuratorTool interface {
 	internal.Tool
 }
 
-// ConfiguratorFallback run the first available configurator
+// ConfiguratorFallback run the first available configurator.
 type ConfiguratorFallback []configuratorTool
 
 func (f *ConfiguratorFallback) Details() string {
@@ -89,7 +91,7 @@ type builderTool interface {
 	internal.Tool
 }
 
-// BuilderFallback run the first available builder
+// BuilderFallback run the first available builder.
 type BuilderFallback []builderTool
 
 func (f *BuilderFallback) Details() string {
@@ -113,7 +115,7 @@ type testerTool interface {
 	internal.Tool
 }
 
-// TesterFallback run the first available tester
+// TesterFallback run the first available tester.
 type TesterFallback []testerTool
 
 func (f *TesterFallback) Details() string {
@@ -137,7 +139,7 @@ type formatterTool interface {
 	internal.Tool
 }
 
-// FormatterFallback run the first available formatter
+// FormatterFallback run the first available formatter.
 type FormatterFallback []formatterTool
 
 func (f *FormatterFallback) Details() string {
@@ -173,7 +175,7 @@ type linterTool interface {
 	internal.Tool
 }
 
-// LinterList run all available linters
+// LinterList run all available linters.
 type LinterList []linterTool
 
 func (f *LinterList) Details() string {
@@ -192,7 +194,7 @@ func (f *LinterList) LintFiles(ctx context.Context, options internal.ProjectLint
 	})
 }
 
-// LinterFallback run the first available linter
+// LinterFallback run the first available linter.
 type LinterFallback []linterTool
 
 func (f *LinterFallback) Details() string {
@@ -216,7 +218,7 @@ type runnerTool interface {
 	internal.Tool
 }
 
-// RunnerFallback run the first available runner
+// RunnerFallback run the first available runner.
 type RunnerFallback []runnerTool
 
 func (f *RunnerFallback) Details() string {
@@ -234,7 +236,7 @@ type dependencyManagerTool interface {
 	internal.Tool
 }
 
-// DependencyManagerFallback run the first available dependency manager
+// DependencyManagerFallback run the first available dependency manager.
 type DependencyManagerFallback []dependencyManagerTool
 
 func (f *DependencyManagerFallback) Details() string {

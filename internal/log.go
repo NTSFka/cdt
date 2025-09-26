@@ -3,18 +3,19 @@ package internal
 import (
 	"context"
 	"fmt"
-	"github.com/fatih/color"
 	"log/slog"
 	"strings"
 	"time"
+
+	"github.com/fatih/color"
 )
 
-// Info prints CDT action
+// Info prints CDT action.
 func Info(format string, a ...any) {
 	_, _ = color.New(color.FgCyan).Printf("[cdt] %v\n", fmt.Sprintf(format, a...))
 }
 
-// Debug logs debug message
+// Debug logs debug message.
 func Debug(msg string, args ...any) {
 	slog.Debug(msg, args...)
 }
@@ -25,7 +26,7 @@ func indent() string {
 	return strings.Repeat(" ", traceIndent)
 }
 
-// Trace captures a function call by storing start and end
+// Trace captures a function call by storing start and end.
 func Trace[R any](ctx context.Context, name string, function func() R, args ...any) R {
 	logger := slog.With(args...)
 

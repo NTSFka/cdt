@@ -13,7 +13,7 @@ type CmakeFileApi struct {
 	BuildDirectory string
 }
 
-// NewCmakeFileApi create a struct for working with CMake File API
+// NewCmakeFileApi create a struct for working with CMake File API.
 func NewCmakeFileApi(directory string) CmakeFileApi {
 	return CmakeFileApi{BuildDirectory: directory}
 }
@@ -30,11 +30,11 @@ func (c *CmakeFileApi) GetReplyDirectory() string {
 	return filepath.Join(c.GetApiDirectory(), "reply")
 }
 
-// The Query creates a query to CMake
+// The Query creates a query to CMake.
 func (c *CmakeFileApi) Query(kind string, version int) error {
 	path := filepath.Join(c.GetQueryDirectory(), fmt.Sprintf("%s-v%d", kind, version))
 
-	if err := os.MkdirAll(filepath.Dir(path), 0755); err != nil {
+	if err := os.MkdirAll(filepath.Dir(path), 0750); err != nil {
 		return err
 	}
 
@@ -88,7 +88,7 @@ func convertTargetType(targetType string) string {
 	return TargetUnsupported
 }
 
-// The Reply returns query reply after cmake run
+// The Reply returns query reply after cmake run.
 func (c *CmakeFileApi) Reply() (*Reply, error) {
 	indices, err := filepath.Glob(filepath.Join(c.GetReplyDirectory(), "index-*.json"))
 

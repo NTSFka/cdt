@@ -10,14 +10,14 @@ type Ruff struct {
 	internal.ExecutableTool
 }
 
-// DetectRuff create a tool for ruff
+// DetectRuff create a tool for ruff.
 func DetectRuff(ctx context.Context, environment internal.Environment) *Ruff {
 	return NewRuff(func() *internal.Executable {
 		return environment.FindExecutable(ctx, "ruff")
 	})
 }
 
-// NewRuff creates a ruff tool from a custom executable
+// NewRuff creates a ruff tool from a custom executable.
 func NewRuff(detect func() *internal.Executable) *Ruff {
 	return &Ruff{
 		ExecutableTool: internal.MakeExecutableTool(
@@ -28,20 +28,6 @@ func NewRuff(detect func() *internal.Executable) *Ruff {
 			detect,
 		),
 	}
-}
-
-func (r *Ruff) buildPaths(directory string, filenames []string) []string {
-	var paths []string
-
-	for _, filename := range filenames {
-		if filepath.IsAbs(filename) {
-			paths = append(paths, filename)
-		} else {
-			paths = append(paths, filepath.Join(directory, filename))
-		}
-	}
-
-	return paths
 }
 
 func (r *Ruff) LintAll(ctx context.Context, options internal.ProjectLinterOptions) error {
@@ -72,4 +58,18 @@ func (r *Ruff) FormatCheckFiles(ctx context.Context, options internal.ProjectFor
 	paths := r.buildPaths(options.Directory, filenames)
 
 	return r.RunForProject(ctx, options.ProjectInfo, append(append([]string{"format", "--check"}, options.ExtraArgs...), paths...))
+}
+
+func (r *Ruff) buildPaths(directory string, filenames []string) []string {
+	var paths []string
+
+	for _, filename := range filenames {
+		if filepath.IsAbs(filename) {
+			paths = append(paths, filename)
+		} else {
+			paths = append(paths, filepath.Join(directory, filename))
+		}
+	}
+
+	return paths
 }
