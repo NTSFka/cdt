@@ -146,6 +146,10 @@ type Tools []Tool
 
 // OnlyAvailable returns only tools that are available
 func (t *Tools) OnlyAvailable() (result Tools) {
+	if t == nil {
+		return
+	}
+
 	for _, tool := range *t {
 		if tool.IsAvailable() {
 			result = append(result, tool)
@@ -157,6 +161,10 @@ func (t *Tools) OnlyAvailable() (result Tools) {
 
 func (t *Tools) FilterByTags(tags []string) (result Tools) {
 	Assert(len(tags) > 0, "tags is empty")
+
+	if t == nil {
+		return
+	}
 
 	for _, tool := range *t {
 		contains := true
@@ -186,7 +194,7 @@ func (t *Tools) Get(id string) Tool {
 
 // PrintTable prints tools list to the writer
 func (t *Tools) PrintTable(writer io.Writer) {
-	if len(*t) == 0 {
+	if t == nil || len(*t) == 0 {
 		return
 	}
 

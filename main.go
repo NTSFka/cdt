@@ -17,11 +17,16 @@ var version = "dev"
 func parseEnvironment(environment string) (string, string) {
 	parts := strings.SplitN(environment, ":", 2)
 
-	if len(parts) == 1 {
+	switch len(parts) {
+	case 0:
+		return "", ""
+	case 1:
 		return parts[0], ""
+	default:
+		fallthrough
+	case 2:
+		return parts[0], parts[1]
 	}
-
-	return parts[0], parts[1]
 }
 
 func initEnvironment(directory string, environment *string, envProviders internal.EnvironmentProviders) (internal.Environment, error) {
