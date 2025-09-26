@@ -11,28 +11,28 @@ import (
 func NewToolCommand() *cli.Command {
 	return &cli.Command{
 		Name:  "tool",
-		Usage: "work with supported tools",
+		Usage: "Work with supported tools",
 		Commands: []*cli.Command{
 			{
 				Name:   "list",
-				Usage:  "list available tools",
+				Usage:  "List available tools",
 				Action: toolCommandListAction,
 				Flags: []cli.Flag{
 					&cli.StringSliceFlag{
 						Name:    "tag",
-						Usage:   "list tools with specific tag",
+						Usage:   "List tools with specific tag",
 						Aliases: []string{"t"},
 					},
 					&cli.BoolFlag{
 						Name:    "all",
 						Aliases: []string{"a"},
-						Usage:   "list all supported tools",
+						Usage:   "List all supported tools",
 					},
 				},
 			},
 			{
 				Name:   "run",
-				Usage:  "run a tool",
+				Usage:  "Run a tool",
 				Action: toolCommandRunAction,
 				Arguments: []cli.Argument{
 					&cli.StringArg{
@@ -69,6 +69,10 @@ func toolCommandRunAction(ctx context.Context, cmd *cli.Command) error {
 	c := ctx.Value("context").(internal.Context)
 
 	toolId := cmd.StringArg("toolId")
+
+	if toolId == "" {
+		return fmt.Errorf("tool ID is required")
+	}
 
 	if tool := c.Tools.Get(toolId); tool != nil {
 		options := internal.RunOptions{
