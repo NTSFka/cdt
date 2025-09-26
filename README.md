@@ -123,30 +123,21 @@ cdt project targets
 cdt project files
 ```
 
+## Installation
+
+The cdt can be installed using go tool:
+
+```shell
+go install github.com/NTSFka/cdt
+```
+
+### Auto-completion
+
+The tool supports auto-completion for bash and zsh via [cli.urfave.org/v3](https://cli.urfave.org/v3/examples/completions/shell-completions/#default-auto-completion).
+
 ## Supported tools
 
-- [Bandit](https://github.com/PyCQA/bandit)
-- [Black](https://github.com/psf/black)
-- [Clang Format](https://clang.llvm.org/docs/ClangFormat.html)
-- [Clang Tidy](https://clang.llvm.org/extra/clang-tidy/)
-- [CMake](https://cmake.org/)
-- [Composer](https://getcomposer.org/)
-- [CTest](https://cmake.org/)
-- [Docker](https://www.docker.com/)
-- [Flake8](https://github.com/PyCQA/flake8)
-- [Go](https://go.dev/)
-- [Golangci-lint](https://golangci-lint.run/)
-- [Mypy](https://www.mypy-lang.org/)
-- [Paratest](https://github.com/paratestphp/paratest)
-- [PHP](https://www.php.net/)
-- [PHP CS Fixer](https://github.com/PHP-CS-Fixer/PHP-CS-Fixer)
-- [PHPStan](https://phpstan.org/)
-- [PHPUnit](https://phpunit.de/)
-- [PIP](https://pip.pypa.io)
-- [Pylint](https://www.pylint.org/)
-- [Pytest](https://docs.pytest.org)
-- [Python](https://www.python.org/)
-- [Ruff](https://docs.astral.sh/ruff/)
+The list of supported tools types is available in the [documentation](doc/tool.md).
 
 ## Supported workflow types
 
