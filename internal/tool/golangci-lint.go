@@ -31,18 +31,64 @@ func DetectGolangCILint(ctx context.Context, environment internal.Environment) *
 	})
 }
 
-func (c *GolangCILint) LintAll(ctx context.Context, options internal.ProjectLinterOptions) error {
-	return c.RunForProject(ctx, options.ProjectInfo, append(options.ExtraArgs, "run"))
+func (l *GolangCILint) LintAll(ctx context.Context, options internal.ProjectLinterOptions) error {
+	return l.RunForProject(ctx, options.ProjectInfo, append(options.ExtraArgs, "run"))
 }
 
-func (c *GolangCILint) LintFiles(
+func (l *GolangCILint) LintFiles(
 	ctx context.Context,
 	options internal.ProjectLinterOptions,
 	filenames []string,
 ) error {
-	return c.RunForProject(
+	return l.RunForProject(
 		ctx,
 		options.ProjectInfo,
 		append(append(options.ExtraArgs, "run"), filenames...),
+	)
+}
+
+func (l *GolangCILint) FormatAll(
+	ctx context.Context,
+	options internal.ProjectFormatterOptions,
+) error {
+	return l.RunForProject(
+		ctx,
+		options.ProjectInfo,
+		append(options.ExtraArgs, "fmt"),
+	)
+}
+
+func (l *GolangCILint) FormatFiles(
+	ctx context.Context,
+	options internal.ProjectFormatterOptions,
+	filenames []string,
+) error {
+	return l.RunForProject(
+		ctx,
+		options.ProjectInfo,
+		append(append(options.ExtraArgs, "fmt"), filenames...),
+	)
+}
+
+func (l *GolangCILint) FormatCheckAll(
+	ctx context.Context,
+	options internal.ProjectFormatterOptions,
+) error {
+	return l.RunForProject(
+		ctx,
+		options.ProjectInfo,
+		append(options.ExtraArgs, "fmt", "--diff"),
+	)
+}
+
+func (l *GolangCILint) FormatCheckFiles(
+	ctx context.Context,
+	options internal.ProjectFormatterOptions,
+	filenames []string,
+) error {
+	return l.RunForProject(
+		ctx,
+		options.ProjectInfo,
+		append(append(options.ExtraArgs, "fmt", "--diff"), filenames...),
 	)
 }

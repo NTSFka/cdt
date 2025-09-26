@@ -28,7 +28,7 @@ func (g *Go) Create(config Config, tools internal.Tools) internal.Project {
 		Builder:           goTool,
 		Runner:            goTool,
 		Tester:            goTool,
-		Formatter:         goTool,
+		Formatter:         &FormatterFallback{goLint, goTool},
 		Linter:            &LinterList{goTool, goLint},
 		DependencyManager: goTool,
 	}
