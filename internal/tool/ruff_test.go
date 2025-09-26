@@ -1,8 +1,9 @@
-package tool
+package tool_test
 
 import (
 	"cdt/internal"
 	"cdt/internal/test"
+	"cdt/internal/tool"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -13,15 +14,15 @@ func TestRuff_DetectRuff(t *testing.T) {
 	env := test.NewEnvironment(t)
 
 	env.OnFindExecutable("ruff").
-		Return(env.NewExecutable("/bin/tool"))
+		Return(env.NewExecutable("/bin/ruff"))
 
-	tool := DetectRuff(t.Context(), env)
-	assert.NotNil(t, tool)
-	assert.Equal(t, "ruff", tool.Id())
-	assert.True(t, tool.IsAvailable())
+	ruff := tool.DetectRuff(t.Context(), env)
+	assert.NotNil(t, ruff)
+	assert.Equal(t, "ruff", ruff.Id())
+	assert.True(t, ruff.IsAvailable())
 
-	if executable := tool.Executable(); assert.NotNil(t, executable) {
-		assert.Equal(t, "/bin/tool", executable.Path)
+	if executable := ruff.Executable(); assert.NotNil(t, executable) {
+		assert.Equal(t, "/bin/ruff", executable.Path)
 	}
 
 	env.AssertExpectations(t)
@@ -33,11 +34,11 @@ func TestRuff_DetectRuff_NotFound(t *testing.T) {
 	env.OnFindExecutable("ruff").
 		Return(nil)
 
-	tool := DetectRuff(t.Context(), env)
-	assert.NotNil(t, tool)
-	assert.Equal(t, "ruff", tool.Id())
-	assert.False(t, tool.IsAvailable())
-	assert.Nil(t, tool.Executable())
+	ruff := tool.DetectRuff(t.Context(), env)
+	assert.NotNil(t, ruff)
+	assert.Equal(t, "ruff", ruff.Id())
+	assert.False(t, ruff.IsAvailable())
+	assert.Nil(t, ruff.Executable())
 
 	env.AssertExpectations(t)
 }
@@ -45,14 +46,14 @@ func TestRuff_DetectRuff_NotFound(t *testing.T) {
 func TestRuff_Ruff_LintAll(t *testing.T) {
 	exec := test.NewExecutable(t)
 
-	tool := NewRuff(exec.LazyExecutable("lint"))
+	ruff := tool.NewRuff(exec.LazyExecutable("lint"))
 
 	info := internal.ProjectInfo{Directory: "."}
 
 	exec.OnRun("lint", []string{"check"}).
 		Return(nil)
 
-	err := tool.LintAll(t.Context(), internal.ProjectLinterOptions{ProjectInfo: info})
+	err := ruff.LintAll(t.Context(), internal.ProjectLinterOptions{ProjectInfo: info})
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -61,14 +62,14 @@ func TestRuff_Ruff_LintAll(t *testing.T) {
 func TestRuff_Ruff_Lint(t *testing.T) {
 	exec := test.NewExecutable(t)
 
-	tool := NewRuff(exec.LazyExecutable("lint"))
+	ruff := tool.NewRuff(exec.LazyExecutable("lint"))
 
 	info := internal.ProjectInfo{Directory: "."}
 
 	exec.OnRun("lint", []string{"check", "file.py", "/path/to/file2.py"}).
 		Return(nil)
 
-	err := tool.LintFiles(t.Context(), internal.ProjectLinterOptions{ProjectInfo: info}, []string{"file.py", "/path/to/file2.py"})
+	err := ruff.LintFiles(t.Context(), internal.ProjectLinterOptions{ProjectInfo: info}, []string{"file.py", "/path/to/file2.py"})
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -77,14 +78,14 @@ func TestRuff_Ruff_Lint(t *testing.T) {
 func TestRuff_Ruff_FormatAll(t *testing.T) {
 	exec := test.NewExecutable(t)
 
-	tool := NewRuff(exec.LazyExecutable("format"))
+	ruff := tool.NewRuff(exec.LazyExecutable("format"))
 
 	info := internal.ProjectInfo{Directory: "."}
 
 	exec.OnRun("format", []string{"format"}).
 		Return(nil)
 
-	err := tool.FormatAll(t.Context(), internal.ProjectFormatterOptions{ProjectInfo: info})
+	err := ruff.FormatAll(t.Context(), internal.ProjectFormatterOptions{ProjectInfo: info})
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -93,14 +94,14 @@ func TestRuff_Ruff_FormatAll(t *testing.T) {
 func TestRuff_Ruff_FormatFiles(t *testing.T) {
 	exec := test.NewExecutable(t)
 
-	tool := NewRuff(exec.LazyExecutable("format"))
+	ruff := tool.NewRuff(exec.LazyExecutable("format"))
 
 	info := internal.ProjectInfo{Directory: "."}
 
 	exec.OnRun("format", []string{"format", "tests/*"}).
 		Return(nil)
 
-	err := tool.FormatFiles(t.Context(), internal.ProjectFormatterOptions{ProjectInfo: info}, []string{"tests/*"})
+	err := ruff.FormatFiles(t.Context(), internal.ProjectFormatterOptions{ProjectInfo: info}, []string{"tests/*"})
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -109,14 +110,14 @@ func TestRuff_Ruff_FormatFiles(t *testing.T) {
 func TestRuff_Ruff_FormatCheckAll(t *testing.T) {
 	exec := test.NewExecutable(t)
 
-	tool := NewRuff(exec.LazyExecutable("format"))
+	ruff := tool.NewRuff(exec.LazyExecutable("format"))
 
 	info := internal.ProjectInfo{Directory: "."}
 
 	exec.OnRun("format", []string{"format", "--check"}).
 		Return(nil)
 
-	err := tool.FormatCheckAll(t.Context(), internal.ProjectFormatterOptions{ProjectInfo: info})
+	err := ruff.FormatCheckAll(t.Context(), internal.ProjectFormatterOptions{ProjectInfo: info})
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -125,14 +126,14 @@ func TestRuff_Ruff_FormatCheckAll(t *testing.T) {
 func TestRuff_Ruff_FormatCheckFiles(t *testing.T) {
 	exec := test.NewExecutable(t)
 
-	tool := NewRuff(exec.LazyExecutable("format"))
+	ruff := tool.NewRuff(exec.LazyExecutable("format"))
 
 	info := internal.ProjectInfo{Directory: "."}
 
 	exec.OnRun("format", []string{"format", "--check", "tests/*", "/path/to/file.py"}).
 		Return(nil)
 
-	err := tool.FormatCheckFiles(t.Context(), internal.ProjectFormatterOptions{ProjectInfo: info}, []string{"tests/*", "/path/to/file.py"})
+	err := ruff.FormatCheckFiles(t.Context(), internal.ProjectFormatterOptions{ProjectInfo: info}, []string{"tests/*", "/path/to/file.py"})
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)

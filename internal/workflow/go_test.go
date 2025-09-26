@@ -1,8 +1,9 @@
-package workflow
+package workflow_test
 
 import (
 	"cdt/internal"
 	"cdt/internal/tool"
+	"cdt/internal/workflow"
 	"os"
 	"path/filepath"
 	"testing"
@@ -18,7 +19,7 @@ func createGoModFile(dir string) error {
 }
 
 func TestGoType_Detect_NoModFile(t *testing.T) {
-	workflowType := Go{}
+	workflowType := workflow.Go{}
 
 	res := workflowType.Detect("dir1")
 
@@ -26,7 +27,7 @@ func TestGoType_Detect_NoModFile(t *testing.T) {
 }
 
 func TestGoType_Detect_ModFile(t *testing.T) {
-	workflowType := Go{}
+	workflowType := workflow.Go{}
 
 	dir := t.TempDir()
 
@@ -39,14 +40,14 @@ func TestGoType_Detect_ModFile(t *testing.T) {
 }
 
 func TestGoType_Create(t *testing.T) {
-	workflowType := Go{}
+	workflowType := workflow.Go{}
 
 	tools := internal.Tools{
 		tool.NewGo(func() *internal.Executable { return &internal.Executable{Path: "go-test"} }),
 		tool.NewGolangCILint(func() *internal.Executable { return nil }),
 	}
 
-	project := workflowType.Create(Config{Directory: "dir1"}, tools)
+	project := workflowType.Create(workflow.Config{Directory: "dir1"}, tools)
 
 	require.NotNil(t, project)
 	assert.Nil(t, project.Workflow.Configurator)

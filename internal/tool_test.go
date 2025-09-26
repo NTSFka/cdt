@@ -1,7 +1,8 @@
-package internal
+package internal_test
 
 import (
 	"bytes"
+	"cdt/internal"
 	"context"
 	"os"
 	"testing"
@@ -12,18 +13,18 @@ import (
 )
 
 func TestTool_MakeExecutableTool_NotAvailable(t *testing.T) {
-	tool := MakeExecutableTool("toolId", "Tool Name", "Tool Info", Tags{}, func() *Executable { return nil })
+	tool := internal.MakeExecutableTool("toolId", "Tool Name", "Tool Info", internal.Tags{}, func() *internal.Executable { return nil })
 
 	assert.Equal(t, "toolId", tool.Id())
 	assert.Equal(t, "Tool Name", tool.Name())
 	assert.Equal(t, "Tool Info", tool.Info())
 	assert.False(t, tool.IsAvailable())
 	assert.Nil(t, tool.Executable())
-	require.EqualError(t, tool.Run(t.Context(), RunOptions{}, []string{}), tool.NotFoundError().Error())
+	require.EqualError(t, tool.Run(t.Context(), internal.RunOptions{}, []string{}), tool.NotFoundError().Error())
 }
 
 func TestTool_MakeExecutableTool(t *testing.T) {
-	tool := MakeExecutableTool("toolId", "Tool Name", "Tool Info", Tags{}, func() *Executable { return &Executable{Path: "/bin/tool"} })
+	tool := internal.MakeExecutableTool("toolId", "Tool Name", "Tool Info", internal.Tags{}, func() *internal.Executable { return &internal.Executable{Path: "/bin/tool"} })
 
 	assert.Equal(t, "toolId", tool.Id())
 	assert.Equal(t, "Tool Name", tool.Name())
@@ -35,18 +36,18 @@ func TestTool_MakeExecutableTool(t *testing.T) {
 }
 
 func TestTool_NewExecutableTool_NotAvailable(t *testing.T) {
-	tool := NewExecutableTool("toolId", "Tool Name", "Tool Info", Tags{}, func() *Executable { return nil })
+	tool := internal.NewExecutableTool("toolId", "Tool Name", "Tool Info", internal.Tags{}, func() *internal.Executable { return nil })
 
 	assert.Equal(t, "toolId", tool.Id())
 	assert.Equal(t, "Tool Name", tool.Name())
 	assert.Equal(t, "Tool Info", tool.Info())
 	assert.False(t, tool.IsAvailable())
 	assert.Nil(t, tool.Executable())
-	require.EqualError(t, tool.Run(t.Context(), RunOptions{}, []string{}), tool.NotFoundError().Error())
+	require.EqualError(t, tool.Run(t.Context(), internal.RunOptions{}, []string{}), tool.NotFoundError().Error())
 }
 
 func TestTool_NewExecutableTool(t *testing.T) {
-	tool := NewExecutableTool("toolId", "Tool Name", "Tool Info", Tags{}, func() *Executable { return &Executable{Path: "/bin/tool"} })
+	tool := internal.NewExecutableTool("toolId", "Tool Name", "Tool Info", internal.Tags{}, func() *internal.Executable { return &internal.Executable{Path: "/bin/tool"} })
 
 	assert.Equal(t, "toolId", tool.Id())
 	assert.Equal(t, "Tool Name", tool.Name())
@@ -62,14 +63,14 @@ func TestTool_ExecutableTool_Run(t *testing.T) {
 	runtime.Test(t)
 	runtime.On("Id").Return("test")
 
-	tool := MakeExecutableTool("id", "", "", Tags{}, func() *Executable {
-		return &Executable{Path: "echo", Runtime: runtime}
+	tool := internal.MakeExecutableTool("id", "", "", internal.Tags{}, func() *internal.Executable {
+		return &internal.Executable{Path: "echo", Runtime: runtime}
 	})
 
-	runtime.On("RunExecutable", mock.Anything, RunOptions{}, "echo", []string{"arg1", "arg2"}).
+	runtime.On("RunExecutable", mock.Anything, internal.RunOptions{}, "echo", []string{"arg1", "arg2"}).
 		Return(nil)
 
-	err := tool.Run(t.Context(), RunOptions{}, []string{"arg1", "arg2"})
+	err := tool.Run(t.Context(), internal.RunOptions{}, []string{"arg1", "arg2"})
 	require.NoError(t, err)
 
 	runtime.AssertExpectations(t)
@@ -80,45 +81,45 @@ func TestTool_ExecutableTool_RunForProject(t *testing.T) {
 	runtime.Test(t)
 	runtime.On("Id").Return("test")
 
-	tool := MakeExecutableTool("id", "", "", Tags{}, func() *Executable {
-		return &Executable{Path: "echo", Runtime: runtime}
+	tool := internal.MakeExecutableTool("id", "", "", internal.Tags{}, func() *internal.Executable {
+		return &internal.Executable{Path: "echo", Runtime: runtime}
 	})
 
-	runtime.On("RunExecutable", mock.Anything, RunOptions{
+	runtime.On("RunExecutable", mock.Anything, internal.RunOptions{
 		Directory: "",
 		Input:     os.Stdin,
 		Output:    os.Stdout,
 		Error:     os.Stderr,
 	}, "echo", []string{"arg1", "arg2"}).Return(nil)
 
-	err := tool.RunForProject(t.Context(), ProjectInfo{}, []string{"arg1", "arg2"})
+	err := tool.RunForProject(t.Context(), internal.ProjectInfo{}, []string{"arg1", "arg2"})
 	require.NoError(t, err)
 
 	runtime.AssertExpectations(t)
 }
 
 type testTool struct {
-	ExecutableTool
+	internal.ExecutableTool
 }
 
 func TestTool_Tools_OnlyAvailable_Empty(t *testing.T) {
-	tools := Tools{}
+	tools := internal.Tools{}
 
 	assert.Empty(t, tools.OnlyAvailable())
 }
 
 func TestTool_Tools_OnlyAvailable_NotAvailable(t *testing.T) {
-	tools := Tools{
-		NewExecutableTool("toolId", "", "", Tags{}, func() *Executable { return nil }),
+	tools := internal.Tools{
+		internal.NewExecutableTool("toolId", "", "", internal.Tags{}, func() *internal.Executable { return nil }),
 	}
 
 	assert.Empty(t, tools.OnlyAvailable())
 }
 
 func TestTool_Tools_OnlyAvailable(t *testing.T) {
-	tools := Tools{
-		NewExecutableTool("id1", "", "", Tags{}, func() *Executable { return nil }),
-		NewExecutableTool("id2", "", "", Tags{}, func() *Executable { return &Executable{Path: "/bin/tool"} }),
+	tools := internal.Tools{
+		internal.NewExecutableTool("id1", "", "", internal.Tags{}, func() *internal.Executable { return nil }),
+		internal.NewExecutableTool("id2", "", "", internal.Tags{}, func() *internal.Executable { return &internal.Executable{Path: "/bin/tool"} }),
 	}
 
 	active := tools.OnlyAvailable()
@@ -128,9 +129,9 @@ func TestTool_Tools_OnlyAvailable(t *testing.T) {
 }
 
 func TestTool_Tools_FilterByTags_NotFound(t *testing.T) {
-	tools := Tools{
-		NewExecutableTool("id1", "", "", Tags{"tag1"}, func() *Executable { return nil }),
-		NewExecutableTool("id2", "", "", Tags{"tag2"}, func() *Executable { return &Executable{Path: "/bin/tool"} }),
+	tools := internal.Tools{
+		internal.NewExecutableTool("id1", "", "", internal.Tags{"tag1"}, func() *internal.Executable { return nil }),
+		internal.NewExecutableTool("id2", "", "", internal.Tags{"tag2"}, func() *internal.Executable { return &internal.Executable{Path: "/bin/tool"} }),
 	}
 
 	active := tools.FilterByTags([]string{"tag0"})
@@ -138,9 +139,9 @@ func TestTool_Tools_FilterByTags_NotFound(t *testing.T) {
 }
 
 func TestTool_Tools_FilterByTags_Found(t *testing.T) {
-	tools := Tools{
-		NewExecutableTool("id1", "", "", Tags{"tag1", "tag11"}, func() *Executable { return nil }),
-		NewExecutableTool("id2", "", "", Tags{"tag2", "tag21"}, func() *Executable { return &Executable{Path: "/bin/tool"} }),
+	tools := internal.Tools{
+		internal.NewExecutableTool("id1", "", "", internal.Tags{"tag1", "tag11"}, func() *internal.Executable { return nil }),
+		internal.NewExecutableTool("id2", "", "", internal.Tags{"tag2", "tag21"}, func() *internal.Executable { return &internal.Executable{Path: "/bin/tool"} }),
 	}
 
 	data := []struct {
@@ -168,9 +169,9 @@ func TestTool_Tools_FilterByTags_Found(t *testing.T) {
 }
 
 func TestTool_Tools_FilterByTags_Found_MultipleTags(t *testing.T) {
-	tools := Tools{
-		NewExecutableTool("id1", "", "", Tags{"tag1", "tag2"}, func() *Executable { return nil }),
-		NewExecutableTool("id2", "", "", Tags{"tag3", "tag4"}, func() *Executable { return &Executable{Path: "/bin/tool"} }),
+	tools := internal.Tools{
+		internal.NewExecutableTool("id1", "", "", internal.Tags{"tag1", "tag2"}, func() *internal.Executable { return nil }),
+		internal.NewExecutableTool("id2", "", "", internal.Tags{"tag3", "tag4"}, func() *internal.Executable { return &internal.Executable{Path: "/bin/tool"} }),
 	}
 
 	data := []struct {
@@ -198,7 +199,7 @@ func TestTool_Tools_FilterByTags_Found_MultipleTags(t *testing.T) {
 }
 
 func TestTool_Tools_Get_NotFound(t *testing.T) {
-	tools := Tools{}
+	tools := internal.Tools{}
 
 	tool := tools.Get("toolId")
 
@@ -206,8 +207,8 @@ func TestTool_Tools_Get_NotFound(t *testing.T) {
 }
 
 func TestTool_Tools_Get(t *testing.T) {
-	tools := Tools{
-		NewExecutableTool("toolId", "", "", Tags{}, nil),
+	tools := internal.Tools{
+		internal.NewExecutableTool("toolId", "", "", internal.Tags{}, nil),
 	}
 
 	tool := tools.Get("toolId")
@@ -217,26 +218,26 @@ func TestTool_Tools_Get(t *testing.T) {
 }
 
 func TestTool_Tools_GetTool_NotFound(t *testing.T) {
-	tools := Tools{}
+	tools := internal.Tools{}
 
 	assert.PanicsWithValue(t, "Tool not found", func() {
-		GetTool[*testTool](tools)
+		internal.GetTool[*testTool](tools)
 	})
 }
 
 func TestTool_Tools_GetTool(t *testing.T) {
-	tools := Tools{
-		&testTool{MakeExecutableTool("toolId", "", "", Tags{}, nil)},
+	tools := internal.Tools{
+		&testTool{internal.MakeExecutableTool("toolId", "", "", internal.Tags{}, nil)},
 	}
 
-	tool := GetTool[*testTool](tools)
+	tool := internal.GetTool[*testTool](tools)
 
 	assert.NotNil(t, tool)
 	assert.Equal(t, "toolId", tool.Id())
 }
 
 func TestTool_PrintTable_Empty(t *testing.T) {
-	tools := Tools{}
+	tools := internal.Tools{}
 
 	var output bytes.Buffer
 
@@ -252,16 +253,16 @@ func (t *testRuntime) Id() string {
 	return "test"
 }
 
-func (t *testRuntime) RunExecutable(_ context.Context, _ RunOptions, _ string, _ []string) error {
+func (t *testRuntime) RunExecutable(_ context.Context, _ internal.RunOptions, _ string, _ []string) error {
 	return nil
 }
 
 func TestTool_PrintTable(t *testing.T) {
 	runtime := testRuntime{}
 
-	tools := Tools{
-		NewExecutableTool("id1", "Tool 1", "", Tags{}, func() *Executable { return nil }),
-		NewExecutableTool("id2", "Tool 2", "", Tags{}, func() *Executable { return &Executable{Path: "/bin/tool", Runtime: &runtime} }),
+	tools := internal.Tools{
+		internal.NewExecutableTool("id1", "Tool 1", "", internal.Tags{}, func() *internal.Executable { return nil }),
+		internal.NewExecutableTool("id2", "Tool 2", "", internal.Tags{}, func() *internal.Executable { return &internal.Executable{Path: "/bin/tool", Runtime: &runtime} }),
 	}
 
 	var output bytes.Buffer

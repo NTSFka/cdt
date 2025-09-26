@@ -1,7 +1,8 @@
-package command
+package command_test
 
 import (
 	"cdt/internal"
+	"cdt/internal/command"
 	"cdt/internal/test"
 	"context"
 	"errors"
@@ -13,7 +14,7 @@ import (
 )
 
 func execRun(ctx context.Context, environment internal.Environment, args ...string) error {
-	return test.RunCommand(ctx, NewExecCommand(), internal.Context{
+	return test.RunCommand(ctx, command.NewExecCommand(), internal.Context{
 		Environment: environment,
 	}, args...)
 }

@@ -1,7 +1,8 @@
-package command
+package command_test
 
 import (
 	"cdt/internal"
+	"cdt/internal/command"
 	"cdt/internal/test"
 	"cdt/internal/tool"
 	"cdt/internal/workflow"
@@ -12,7 +13,7 @@ import (
 )
 
 func runWorkflow(ctx context.Context, context internal.Context, args ...string) error {
-	return test.RunCommand(ctx, NewWorkflowCommand(), context, args...)
+	return test.RunCommand(ctx, command.NewWorkflowCommand(), context, args...)
 }
 
 func TestWorkflowList(t *testing.T) {

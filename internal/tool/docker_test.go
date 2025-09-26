@@ -1,8 +1,9 @@
-package tool
+package tool_test
 
 import (
 	"cdt/internal"
 	"cdt/internal/test"
+	"cdt/internal/tool"
 	"errors"
 	"fmt"
 	"path/filepath"
@@ -14,22 +15,22 @@ import (
 )
 
 func TestDocker_NewDocker_NoExecutable(t *testing.T) {
-	tool := NewDocker(func() *internal.Executable { return nil })
+	docker := tool.NewDocker(func() *internal.Executable { return nil })
 
-	assert.NotNil(t, tool)
-	assert.Equal(t, "docker", tool.Id())
-	assert.NotEmpty(t, tool.Name())
-	assert.NotEmpty(t, tool.Info())
-	assert.Equal(t, []string{"d"}, tool.Aliases())
-	assert.False(t, tool.IsAvailable())
+	assert.NotNil(t, docker)
+	assert.Equal(t, "docker", docker.Id())
+	assert.NotEmpty(t, docker.Name())
+	assert.NotEmpty(t, docker.Info())
+	assert.Equal(t, []string{"d"}, docker.Aliases())
+	assert.False(t, docker.IsAvailable())
 }
 
 func TestDocker_NewDocker_WithExecutable(t *testing.T) {
-	tool := NewDocker(func() *internal.Executable { return &internal.Executable{Path: "/bin/docker"} })
+	docker := tool.NewDocker(func() *internal.Executable { return &internal.Executable{Path: "/bin/docker"} })
 
-	assert.NotNil(t, tool)
-	assert.Equal(t, "docker", tool.Id())
-	assert.True(t, tool.IsAvailable())
+	assert.NotNil(t, docker)
+	assert.Equal(t, "docker", docker.Id())
+	assert.True(t, docker.IsAvailable())
 }
 
 func TestDocker_DetectDocker_NotFound(t *testing.T) {
@@ -37,10 +38,10 @@ func TestDocker_DetectDocker_NotFound(t *testing.T) {
 	env.OnFindExecutable("docker").
 		Return(nil)
 
-	tool := DetectDocker(t.Context(), env)
-	assert.NotNil(t, tool)
-	assert.Equal(t, "docker", tool.Id())
-	assert.False(t, tool.IsAvailable())
+	docker := tool.DetectDocker(t.Context(), env)
+	assert.NotNil(t, docker)
+	assert.Equal(t, "docker", docker.Id())
+	assert.False(t, docker.IsAvailable())
 
 	env.AssertExpectations(t)
 }
@@ -50,27 +51,27 @@ func TestDocker_DetectDocker_Found(t *testing.T) {
 	env.OnFindExecutable("docker").
 		Return(env.NewExecutable("docker"))
 
-	tool := DetectDocker(t.Context(), env)
-	assert.NotNil(t, tool)
-	assert.Equal(t, "docker", tool.Id())
-	assert.True(t, tool.IsAvailable())
+	docker := tool.DetectDocker(t.Context(), env)
+	assert.NotNil(t, docker)
+	assert.Equal(t, "docker", docker.Id())
+	assert.True(t, docker.IsAvailable())
 
 	env.AssertExpectations(t)
 }
 
 func TestDocker_Detect(t *testing.T) {
-	tool := NewDocker(func() *internal.Executable { return &internal.Executable{Path: "docker"} })
-	assert.NotNil(t, tool)
+	docker := tool.NewDocker(func() *internal.Executable { return &internal.Executable{Path: "docker"} })
+	assert.NotNil(t, docker)
 
-	env := tool.Detect(".")
+	env := docker.Detect(".")
 	assert.Nil(t, env)
 }
 
 func TestDocker_CreateEnvironment(t *testing.T) {
-	tool := NewDocker(func() *internal.Executable { return &internal.Executable{Path: "docker"} })
-	assert.NotNil(t, tool)
+	docker := tool.NewDocker(func() *internal.Executable { return &internal.Executable{Path: "docker"} })
+	assert.NotNil(t, docker)
 
-	env, err := tool.CreateEnvironment(".", "image1")
+	env, err := docker.CreateEnvironment(".", "image1")
 	require.NoError(t, err)
 	assert.NotNil(t, env)
 
@@ -78,10 +79,10 @@ func TestDocker_CreateEnvironment(t *testing.T) {
 }
 
 func TestDocker_CreateEnvironment_NoImage(t *testing.T) {
-	tool := NewDocker(func() *internal.Executable { return &internal.Executable{Path: "docker"} })
-	assert.NotNil(t, tool)
+	docker := tool.NewDocker(func() *internal.Executable { return &internal.Executable{Path: "docker"} })
+	assert.NotNil(t, docker)
 
-	env, err := tool.CreateEnvironment(".", "")
+	env, err := docker.CreateEnvironment(".", "")
 	require.EqualError(t, err, "docker image name is required")
 	assert.Nil(t, env)
 }
@@ -124,11 +125,12 @@ func (m *dockerRunMock) OnInspectResult(containerId string, result bool) *mock.C
 
 func dockerPrepare(t *testing.T, image string) (*dockerRunMock, internal.Environment) {
 	runMock := dockerRunMock{}
+	runMock.Test(t)
 
-	tool := NewDocker(runMock.LazyExecutable("docker"))
-	assert.NotNil(t, tool)
+	docker := tool.NewDocker(runMock.LazyExecutable("docker"))
+	assert.NotNil(t, docker)
 
-	env, err := tool.CreateEnvironment(".", image)
+	env, err := docker.CreateEnvironment(".", image)
 	require.NoError(t, err)
 	assert.NotNil(t, env)
 
@@ -161,12 +163,17 @@ func TestDocker_Environment_Start_Failed(t *testing.T) {
 
 func TestDocker_Environment_Start_AlreadyRunning(t *testing.T) {
 	runMock, env := dockerPrepare(t, "image3")
-	env.(*dockerEnvironment).containerId = "89054a3c5ff8"
+
+	runMock.OnStart("image3", "89054a3c5ff8").
+		Return(nil)
+
+	err := env.Start(t.Context())
+	require.NoError(t, err)
 
 	runMock.OnInspectResult("89054a3c5ff8", true).
 		Return(nil)
 
-	err := env.Start(t.Context())
+	err = env.Start(t.Context())
 	require.NoError(t, err)
 
 	runMock.AssertExpectations(t)
@@ -174,7 +181,12 @@ func TestDocker_Environment_Start_AlreadyRunning(t *testing.T) {
 
 func TestDocker_Environment_IsRunning_True(t *testing.T) {
 	runMock, env := dockerPrepare(t, "image4")
-	env.(*dockerEnvironment).containerId = "3d2219139f14"
+
+	runMock.OnStart("image4", "3d2219139f14").
+		Return(nil)
+
+	err := env.Start(t.Context())
+	require.NoError(t, err)
 
 	runMock.OnInspectResult("3d2219139f14", true).
 		Return(nil)
@@ -187,7 +199,7 @@ func TestDocker_Environment_IsRunning_True(t *testing.T) {
 
 func TestDocker_Environment_IsRunning_False(t *testing.T) {
 	runMock, env := dockerPrepare(t, "image5")
-	env.(*dockerEnvironment).containerId = "e24aa1130c46"
+	// env.(*tool.DockerEnvironment).containerId = "e24aa1130c46"
 
 	runMock.OnInspectResult("e24aa1130c46", false).
 		Return(nil)
@@ -200,7 +212,7 @@ func TestDocker_Environment_IsRunning_False(t *testing.T) {
 
 func TestDocker_Environment_IsRunning_InvalidJson(t *testing.T) {
 	runMock, env := dockerPrepare(t, "image6")
-	env.(*dockerEnvironment).containerId = "8ae4358f08b6"
+	// env.(*tool.DockerEnvironment).containerId = "8ae4358f08b6"
 
 	runMock.OnInspect("8ae4358f08b6", `{"invalid": "json"`).
 		Return(nil)
@@ -213,7 +225,7 @@ func TestDocker_Environment_IsRunning_InvalidJson(t *testing.T) {
 
 func TestDocker_Environment_IsRunning_EmptyJsonArray(t *testing.T) {
 	runMock, env := dockerPrepare(t, "image7")
-	env.(*dockerEnvironment).containerId = "827e5611389a"
+	// env.(*tool.DockerEnvironment).containerId = "827e5611389a"
 
 	runMock.OnInspect("827e5611389a", `[]`).
 		Return(nil)
@@ -226,7 +238,7 @@ func TestDocker_Environment_IsRunning_EmptyJsonArray(t *testing.T) {
 
 func TestDocker_Environment_IsRunning_Failed(t *testing.T) {
 	runMock, env := dockerPrepare(t, "image8")
-	env.(*dockerEnvironment).containerId = "bd49ab6a6a00"
+	// env.(*tool.DockerEnvironment).containerId = "bd49ab6a6a00"
 
 	runMock.OnInspect("bd49ab6a6a00", "").
 		Return(errors.New("failed"))
@@ -239,12 +251,17 @@ func TestDocker_Environment_IsRunning_Failed(t *testing.T) {
 
 func TestDocker_Environment_Stop(t *testing.T) {
 	runMock, env := dockerPrepare(t, "image9")
-	env.(*dockerEnvironment).containerId = "93cff8e00c49"
+
+	runMock.OnStart("image9", "93cff8e00c49").
+		Return(nil)
+
+	err := env.Start(t.Context())
+	require.NoError(t, err)
 
 	runMock.OnCall([]string{"stop", "93cff8e00c49"}).
 		Return(nil)
 
-	err := env.Stop(t.Context())
+	err = env.Stop(t.Context())
 	require.NoError(t, err)
 
 	runMock.AssertExpectations(t)
@@ -252,12 +269,17 @@ func TestDocker_Environment_Stop(t *testing.T) {
 
 func TestDocker_Environment_Stop_Failed(t *testing.T) {
 	runMock, env := dockerPrepare(t, "image10")
-	env.(*dockerEnvironment).containerId = "62473370e7ee"
+
+	runMock.OnStart("image10", "62473370e7ee").
+		Return(nil)
+
+	err := env.Start(t.Context())
+	require.NoError(t, err)
 
 	runMock.OnCall([]string{"stop", "62473370e7ee"}).
 		Return(errors.New("failed"))
 
-	err := env.Stop(t.Context())
+	err = env.Stop(t.Context())
 	require.EqualError(t, err, "docker run failed: failed")
 
 	runMock.AssertExpectations(t)
@@ -274,8 +296,15 @@ func TestDocker_Environment_Cleanup(t *testing.T) {
 
 func TestDocker_Environment_Cleanup_Running(t *testing.T) {
 	runMock, env := dockerPrepare(t, "image12")
-	env.(*dockerEnvironment).autoStop = true
-	env.(*dockerEnvironment).containerId = "c31b2ec8b325"
+
+	runMock.OnStart("image12", "c31b2ec8b325").
+		Return(nil)
+
+	runMock.OnCall([]string{"exec", "c31b2ec8b325", "which", "echo"}).
+		Return(nil)
+
+	executable := env.FindExecutable(t.Context(), "echo")
+	require.NotNil(t, executable)
 
 	runMock.OnCall([]string{"stop", "c31b2ec8b325"}).
 		Return(nil)
@@ -288,8 +317,15 @@ func TestDocker_Environment_Cleanup_Running(t *testing.T) {
 
 func TestDocker_Environment_Cleanup_Running_Failed(t *testing.T) {
 	runMock, env := dockerPrepare(t, "image13")
-	env.(*dockerEnvironment).autoStop = true
-	env.(*dockerEnvironment).containerId = "e01c76bb1351"
+
+	runMock.OnStart("image13", "e01c76bb1351").
+		Return(nil)
+
+	runMock.OnCall([]string{"exec", "e01c76bb1351", "which", "echo"}).
+		Return(nil)
+
+	executable := env.FindExecutable(t.Context(), "echo")
+	require.NotNil(t, executable)
 
 	runMock.OnCall([]string{"stop", "e01c76bb1351"}).
 		Return(errors.New("failed"))
@@ -302,7 +338,12 @@ func TestDocker_Environment_Cleanup_Running_Failed(t *testing.T) {
 
 func TestDocker_Environment_FindExecutable(t *testing.T) {
 	runMock, env := dockerPrepare(t, "image14")
-	env.(*dockerEnvironment).containerId = "15dc587d6d92"
+
+	runMock.OnStart("image14", "15dc587d6d92").
+		Return(nil)
+
+	err := env.Start(t.Context())
+	require.NoError(t, err)
 
 	// Is running
 	runMock.OnInspectResult("15dc587d6d92", true).
@@ -321,7 +362,12 @@ func TestDocker_Environment_FindExecutable(t *testing.T) {
 
 func TestDocker_Environment_FindExecutable_Failed(t *testing.T) {
 	runMock, env := dockerPrepare(t, "image15")
-	env.(*dockerEnvironment).containerId = "15dc587d6d92"
+
+	runMock.OnStart("image15", "15dc587d6d92").
+		Return(nil)
+
+	err := env.Start(t.Context())
+	require.NoError(t, err)
 
 	// Is running
 	runMock.OnInspectResult("15dc587d6d92", true).
@@ -369,7 +415,12 @@ func TestDocker_Environment_FindExecutable_AutoStart_Failed(t *testing.T) {
 
 func TestDocker_Environment_RunExecutable(t *testing.T) {
 	runMock, env := dockerPrepare(t, "image18")
-	env.(*dockerEnvironment).containerId = "33910ef9319e"
+
+	runMock.OnStart("image18", "33910ef9319e").
+		Return(nil)
+
+	err := env.Start(t.Context())
+	require.NoError(t, err)
 
 	// Is running
 	runMock.OnInspectResult("33910ef9319e", true).
@@ -380,7 +431,7 @@ func TestDocker_Environment_RunExecutable(t *testing.T) {
 		Return(nil).
 		Once()
 
-	err := env.RunExecutable(t.Context(), internal.RunOptions{}, "tool1", []string{"arg1", "arg2"})
+	err = env.RunExecutable(t.Context(), internal.RunOptions{}, "tool1", []string{"arg1", "arg2"})
 	require.NoError(t, err)
 
 	runMock.AssertExpectations(t)
@@ -388,7 +439,12 @@ func TestDocker_Environment_RunExecutable(t *testing.T) {
 
 func TestDocker_Environment_RunExecutable_Failed(t *testing.T) {
 	runMock, env := dockerPrepare(t, "image19")
-	env.(*dockerEnvironment).containerId = "db0ac83ce405"
+
+	runMock.OnStart("image19", "db0ac83ce405").
+		Return(nil)
+
+	err := env.Start(t.Context())
+	require.NoError(t, err)
 
 	// Is running
 	runMock.OnInspectResult("db0ac83ce405", true).
@@ -399,7 +455,7 @@ func TestDocker_Environment_RunExecutable_Failed(t *testing.T) {
 		Return(errors.New("failed")).
 		Once()
 
-	err := env.RunExecutable(t.Context(), internal.RunOptions{}, "tool1", []string{"arg1", "arg2"})
+	err = env.RunExecutable(t.Context(), internal.RunOptions{}, "tool1", []string{"arg1", "arg2"})
 	require.EqualError(t, err, "failed")
 
 	runMock.AssertExpectations(t)

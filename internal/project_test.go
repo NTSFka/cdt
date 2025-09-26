@@ -1,6 +1,7 @@
-package internal
+package internal_test
 
 import (
+	"cdt/internal"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -8,8 +9,8 @@ import (
 )
 
 func TestProject_ProjectStructure_GetFiles(t *testing.T) {
-	structure := ProjectStructure{
-		Targets: map[string]ProjectTarget{
+	structure := internal.ProjectStructure{
+		Targets: map[string]internal.ProjectTarget{
 			"target1": {
 				Files: []string{"file1.go"},
 			},
@@ -23,8 +24,8 @@ func TestProject_ProjectStructure_GetFiles(t *testing.T) {
 }
 
 func TestProject_EmptyStructureProvider(t *testing.T) {
-	provider := EmptyProjectStructureProvider{}
-	structure, err := provider.Structure(t.Context(), ProjectInfo{})
+	provider := internal.EmptyProjectStructureProvider{}
+	structure, err := provider.Structure(t.Context(), internal.ProjectInfo{})
 
 	require.NoError(t, err)
 	assert.NotNil(t, structure)
@@ -32,21 +33,21 @@ func TestProject_EmptyStructureProvider(t *testing.T) {
 }
 
 func TestProject_FixedStructureProvider(t *testing.T) {
-	provider := FixedProjectStructureProvider{
-		ProjectStructure: ProjectStructure{
-			Targets: map[string]ProjectTarget{
+	provider := internal.FixedProjectStructureProvider{
+		ProjectStructure: internal.ProjectStructure{
+			Targets: map[string]internal.ProjectTarget{
 				"target1": {
 					Files: []string{"file1.go"},
 				},
 			},
 		},
 	}
-	structure, err := provider.Structure(t.Context(), ProjectInfo{})
+	structure, err := provider.Structure(t.Context(), internal.ProjectInfo{})
 
 	require.NoError(t, err)
 	require.NotNil(t, structure)
-	assert.Equal(t, ProjectStructure{
-		Targets: map[string]ProjectTarget{
+	assert.Equal(t, internal.ProjectStructure{
+		Targets: map[string]internal.ProjectTarget{
 			"target1": {
 				Files: []string{"file1.go"},
 			},

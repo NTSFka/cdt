@@ -1,9 +1,10 @@
-package workflow
+package workflow_test
 
 import (
 	"cdt/internal"
 	"cdt/internal/test"
 	"cdt/internal/tool"
+	"cdt/internal/workflow"
 	"os"
 	"path/filepath"
 	"testing"
@@ -13,7 +14,7 @@ import (
 )
 
 func TestPHPType_Detect_NoModFile(t *testing.T) {
-	workflowType := PHP{}
+	workflowType := workflow.PHP{}
 
 	res := workflowType.Detect("dir1")
 
@@ -21,7 +22,7 @@ func TestPHPType_Detect_NoModFile(t *testing.T) {
 }
 
 func TestPHPType_Detect_ModFile(t *testing.T) {
-	workflowType := PHP{}
+	workflowType := workflow.PHP{}
 
 	dir := t.TempDir()
 
@@ -34,7 +35,7 @@ func TestPHPType_Detect_ModFile(t *testing.T) {
 }
 
 func TestPHPType_Create(t *testing.T) {
-	workflowType := PHP{}
+	workflowType := workflow.PHP{}
 
 	tools := internal.Tools{
 		tool.NewPHP(func() *internal.Executable { return &internal.Executable{Path: "php-test"} }),
@@ -45,7 +46,7 @@ func TestPHPType_Create(t *testing.T) {
 		tool.NewComposer(func() *internal.Executable { return &internal.Executable{Path: "composer-test"} }),
 	}
 
-	project := workflowType.Create(Config{Directory: "dir1"}, tools)
+	project := workflowType.Create(workflow.Config{Directory: "dir1"}, tools)
 
 	require.NotNil(t, project)
 	assert.Nil(t, project.Workflow.Configurator)
@@ -57,7 +58,7 @@ func TestPHPType_Create(t *testing.T) {
 }
 
 func TestPHPType_Project_TestAll_Paratest(t *testing.T) {
-	workflowType := PHP{}
+	workflowType := workflow.PHP{}
 	paratestMock := test.NewExecutable(t)
 	phpunitMock := test.NewExecutable(t)
 
@@ -72,7 +73,7 @@ func TestPHPType_Project_TestAll_Paratest(t *testing.T) {
 
 	dir := t.TempDir()
 
-	p := workflowType.Create(Config{Directory: dir}, tools)
+	p := workflowType.Create(workflow.Config{Directory: dir}, tools)
 
 	require.NotNil(t, p.Workflow.Tester)
 	paratestMock.OnRunAnything("paratest-test").Return(nil)
@@ -85,7 +86,7 @@ func TestPHPType_Project_TestAll_Paratest(t *testing.T) {
 }
 
 func TestPHPType_Project_TestAll_PHPUnit(t *testing.T) {
-	workflowType := PHP{}
+	workflowType := workflow.PHP{}
 	paratestMock := test.NewExecutable(t)
 	phpunitMock := test.NewExecutable(t)
 
@@ -100,7 +101,7 @@ func TestPHPType_Project_TestAll_PHPUnit(t *testing.T) {
 
 	dir := t.TempDir()
 
-	p := workflowType.Create(Config{Directory: dir}, tools)
+	p := workflowType.Create(workflow.Config{Directory: dir}, tools)
 
 	require.NotNil(t, p.Workflow.Tester)
 	phpunitMock.OnRunAnything("phpunit-test").Return(nil)
@@ -113,7 +114,7 @@ func TestPHPType_Project_TestAll_PHPUnit(t *testing.T) {
 }
 
 func TestPHPType_Project_Test_Paratest(t *testing.T) {
-	workflowType := PHP{}
+	workflowType := workflow.PHP{}
 	paratestMock := test.NewExecutable(t)
 	phpunitMock := test.NewExecutable(t)
 
@@ -128,7 +129,7 @@ func TestPHPType_Project_Test_Paratest(t *testing.T) {
 
 	dir := t.TempDir()
 
-	p := workflowType.Create(Config{Directory: dir}, tools)
+	p := workflowType.Create(workflow.Config{Directory: dir}, tools)
 
 	require.NotNil(t, p.Workflow.Tester)
 	paratestMock.OnRunAnything("paratest-test").Return(nil)
@@ -141,7 +142,7 @@ func TestPHPType_Project_Test_Paratest(t *testing.T) {
 }
 
 func TestPHPType_Project_Test_PHPUnit(t *testing.T) {
-	workflowType := PHP{}
+	workflowType := workflow.PHP{}
 	paratestMock := test.NewExecutable(t)
 	phpunitMock := test.NewExecutable(t)
 
@@ -156,7 +157,7 @@ func TestPHPType_Project_Test_PHPUnit(t *testing.T) {
 
 	dir := t.TempDir()
 
-	p := workflowType.Create(Config{Directory: dir}, tools)
+	p := workflowType.Create(workflow.Config{Directory: dir}, tools)
 
 	require.NotNil(t, p.Workflow.Tester)
 	phpunitMock.OnRunAnything("phpunit-test").Return(nil)

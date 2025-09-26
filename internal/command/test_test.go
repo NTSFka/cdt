@@ -1,7 +1,8 @@
-package command
+package command_test
 
 import (
 	"cdt/internal"
+	"cdt/internal/command"
 	"cdt/internal/test"
 	"context"
 	"errors"
@@ -13,7 +14,7 @@ import (
 )
 
 func runTest(ctx context.Context, tester internal.ProjectTester, args ...string) error {
-	return test.RunCommand(ctx, NewTestCommand(), internal.Context{
+	return test.RunCommand(ctx, command.NewTestCommand(), internal.Context{
 		Project: internal.Project{
 			Workflow: internal.Workflow{
 				Tester: tester,
@@ -23,7 +24,7 @@ func runTest(ctx context.Context, tester internal.ProjectTester, args ...string)
 }
 
 func runTestTool(ctx context.Context, tester internal.Tool, args ...string) error {
-	return test.RunCommand(ctx, NewTestCommand(), internal.Context{
+	return test.RunCommand(ctx, command.NewTestCommand(), internal.Context{
 		Tools: []internal.Tool{
 			tester,
 		},

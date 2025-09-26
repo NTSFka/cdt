@@ -1,7 +1,8 @@
-package command
+package command_test
 
 import (
 	"cdt/internal"
+	"cdt/internal/command"
 	"cdt/internal/test"
 	"context"
 	"errors"
@@ -13,7 +14,7 @@ import (
 )
 
 func runFormat(ctx context.Context, formatter internal.ProjectFormatter, args ...string) error {
-	return test.RunCommand(ctx, NewFormatCommand(), internal.Context{
+	return test.RunCommand(ctx, command.NewFormatCommand(), internal.Context{
 		Project: internal.Project{
 			Workflow: internal.Workflow{
 				Formatter: formatter,
@@ -23,7 +24,7 @@ func runFormat(ctx context.Context, formatter internal.ProjectFormatter, args ..
 }
 
 func runFormatTool(ctx context.Context, formatter internal.Tool, args ...string) error {
-	return test.RunCommand(ctx, NewFormatCommand(), internal.Context{
+	return test.RunCommand(ctx, command.NewFormatCommand(), internal.Context{
 		Tools: []internal.Tool{
 			formatter,
 		},

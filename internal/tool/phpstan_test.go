@@ -1,8 +1,9 @@
-package tool
+package tool_test
 
 import (
 	"cdt/internal"
 	"cdt/internal/test"
+	"cdt/internal/tool"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -14,15 +15,15 @@ func TestPHPStan_DetectPHPStan_Composer(t *testing.T) {
 
 	// Composer installation
 	env.OnFindExecutable("vendor/bin/phpstan").
-		Return(env.NewExecutable("/bin/tool"))
+		Return(env.NewExecutable("/bin/phpstan"))
 
-	tool := DetectPHPStan(t.Context(), env)
-	assert.NotNil(t, tool)
-	assert.Equal(t, "phpstan", tool.Id())
-	assert.True(t, tool.IsAvailable())
+	phpStan := tool.DetectPHPStan(t.Context(), env)
+	assert.NotNil(t, phpStan)
+	assert.Equal(t, "phpstan", phpStan.Id())
+	assert.True(t, phpStan.IsAvailable())
 
-	if executable := tool.Executable(); assert.NotNil(t, executable) {
-		assert.Equal(t, "/bin/tool", executable.Path)
+	if executable := phpStan.Executable(); assert.NotNil(t, executable) {
+		assert.Equal(t, "/bin/phpstan", executable.Path)
 	}
 
 	env.AssertExpectations(t)
@@ -37,15 +38,15 @@ func TestPHPStan_DetectPHPStan_System(t *testing.T) {
 
 	// System installation
 	env.OnFindExecutable("phpstan").
-		Return(env.NewExecutable("/bin/tool"))
+		Return(env.NewExecutable("/bin/phpstan"))
 
-	tool := DetectPHPStan(t.Context(), env)
-	assert.NotNil(t, tool)
-	assert.Equal(t, "phpstan", tool.Id())
-	assert.True(t, tool.IsAvailable())
+	phpStan := tool.DetectPHPStan(t.Context(), env)
+	assert.NotNil(t, phpStan)
+	assert.Equal(t, "phpstan", phpStan.Id())
+	assert.True(t, phpStan.IsAvailable())
 
-	if executable := tool.Executable(); assert.NotNil(t, executable) {
-		assert.Equal(t, "/bin/tool", executable.Path)
+	if executable := phpStan.Executable(); assert.NotNil(t, executable) {
+		assert.Equal(t, "/bin/phpstan", executable.Path)
 	}
 
 	env.AssertExpectations(t)
@@ -59,11 +60,11 @@ func TestPHPStan_DetectPHPStan_NotFound(t *testing.T) {
 	env.OnFindExecutable("phpstan").
 		Return(nil)
 
-	tool := DetectPHPStan(t.Context(), env)
-	assert.NotNil(t, tool)
-	assert.Equal(t, "phpstan", tool.Id())
-	assert.False(t, tool.IsAvailable())
-	assert.Nil(t, tool.Executable())
+	phpStan := tool.DetectPHPStan(t.Context(), env)
+	assert.NotNil(t, phpStan)
+	assert.Equal(t, "phpstan", phpStan.Id())
+	assert.False(t, phpStan.IsAvailable())
+	assert.Nil(t, phpStan.Executable())
 
 	env.AssertExpectations(t)
 }
@@ -71,14 +72,14 @@ func TestPHPStan_DetectPHPStan_NotFound(t *testing.T) {
 func TestPHPStan_PHPStan_LintAll(t *testing.T) {
 	exec := test.NewExecutable(t)
 
-	tool := NewPHPStan(exec.LazyExecutable("lint"))
+	phpStan := tool.NewPHPStan(exec.LazyExecutable("lint"))
 
 	info := internal.ProjectInfo{Directory: "."}
 
 	exec.OnRun("lint", []string{"analyse"}).
 		Return(nil)
 
-	err := tool.LintAll(t.Context(), internal.ProjectLinterOptions{ProjectInfo: info})
+	err := phpStan.LintAll(t.Context(), internal.ProjectLinterOptions{ProjectInfo: info})
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -87,14 +88,14 @@ func TestPHPStan_PHPStan_LintAll(t *testing.T) {
 func TestPHPStan_PHPStan_Lint(t *testing.T) {
 	exec := test.NewExecutable(t)
 
-	tool := NewPHPStan(exec.LazyExecutable("lint"))
+	phpStan := tool.NewPHPStan(exec.LazyExecutable("lint"))
 
 	info := internal.ProjectInfo{Directory: "."}
 
 	exec.OnRun("lint", []string{"analyse", "file.php", "/path/to/file2.php"}).
 		Return(nil)
 
-	err := tool.LintFiles(t.Context(), internal.ProjectLinterOptions{ProjectInfo: info}, []string{"file.php", "/path/to/file2.php"})
+	err := phpStan.LintFiles(t.Context(), internal.ProjectLinterOptions{ProjectInfo: info}, []string{"file.php", "/path/to/file2.php"})
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)

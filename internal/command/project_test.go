@@ -1,7 +1,8 @@
-package command
+package command_test
 
 import (
 	"cdt/internal"
+	"cdt/internal/command"
 	"cdt/internal/test"
 	"context"
 	"testing"
@@ -11,7 +12,7 @@ import (
 )
 
 func runProject(ctx context.Context, structureProvider internal.ProjectStructureProvider, args ...string) error {
-	return test.RunCommand(ctx, NewProjectCommand(), internal.Context{
+	return test.RunCommand(ctx, command.NewProjectCommand(), internal.Context{
 		Project: internal.Project{
 			Info: internal.ProjectInfo{Directory: "", StructureProvider: structureProvider},
 		},

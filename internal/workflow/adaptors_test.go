@@ -1,8 +1,9 @@
-package workflow
+package workflow_test
 
 import (
 	"cdt/internal"
 	"cdt/internal/test"
+	"cdt/internal/workflow"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -26,7 +27,7 @@ func createConfiguratorTool(id string, executable *internal.Executable) *struct 
 }
 
 func TestConfiguratorFallback_Details_Empty(t *testing.T) {
-	fallback := &ConfiguratorFallback{}
+	fallback := &workflow.ConfiguratorFallback{}
 
 	assert.Equal(t, "fallback ()", fallback.Details())
 }
@@ -35,13 +36,13 @@ func TestConfiguratorFallback_Details(t *testing.T) {
 	tool1 := createConfiguratorTool("test1", nil)
 	tool2 := createConfiguratorTool("test2", nil)
 
-	fallback := &ConfiguratorFallback{tool1, tool2}
+	fallback := &workflow.ConfiguratorFallback{tool1, tool2}
 
 	assert.Equal(t, "fallback (test1, test2)", fallback.Details())
 }
 
 func TestConfiguratorFallback_Configure_Empty(t *testing.T) {
-	fallback := &ConfiguratorFallback{}
+	fallback := &workflow.ConfiguratorFallback{}
 
 	err := fallback.Configure(t.Context(), internal.ProjectConfiguratorOptions{})
 
@@ -52,7 +53,7 @@ func TestConfiguratorFallback_Configure_NoAvailable(t *testing.T) {
 	tool1 := createConfiguratorTool("test1", nil)
 	tool2 := createConfiguratorTool("test2", nil)
 
-	fallback := &ConfiguratorFallback{tool1, tool2}
+	fallback := &workflow.ConfiguratorFallback{tool1, tool2}
 
 	err := fallback.Configure(t.Context(), internal.ProjectConfiguratorOptions{})
 
@@ -66,7 +67,7 @@ func TestConfiguratorFallback_Configure_Available1(t *testing.T) {
 	tool1 := createConfiguratorTool("test1", &internal.Executable{Path: "test1"})
 	tool2 := createConfiguratorTool("test2", nil)
 
-	fallback := &ConfiguratorFallback{tool1, tool2}
+	fallback := &workflow.ConfiguratorFallback{tool1, tool2}
 
 	tool1.Test(t)
 	tool2.Test(t)
@@ -84,7 +85,7 @@ func TestConfiguratorFallback_Configure_Available2(t *testing.T) {
 	tool1 := createConfiguratorTool("test1", nil)
 	tool2 := createConfiguratorTool("test2", &internal.Executable{Path: "test1"})
 
-	fallback := &ConfiguratorFallback{tool1, tool2}
+	fallback := &workflow.ConfiguratorFallback{tool1, tool2}
 
 	tool1.Test(t)
 	tool2.Test(t)
@@ -114,7 +115,7 @@ func createBuilderTool(id string, executable *internal.Executable) *struct {
 }
 
 func TestBuilderFallback_Details_Empty(t *testing.T) {
-	fallback := &BuilderFallback{}
+	fallback := &workflow.BuilderFallback{}
 
 	assert.Equal(t, "fallback ()", fallback.Details())
 }
@@ -123,13 +124,13 @@ func TestBuilderFallback_Details(t *testing.T) {
 	tool1 := createBuilderTool("test1", nil)
 	tool2 := createBuilderTool("test2", nil)
 
-	fallback := &BuilderFallback{tool1, tool2}
+	fallback := &workflow.BuilderFallback{tool1, tool2}
 
 	assert.Equal(t, "fallback (test1, test2)", fallback.Details())
 }
 
 func TestBuilderFallback_BuildAll_Empty(t *testing.T) {
-	fallback := &BuilderFallback{}
+	fallback := &workflow.BuilderFallback{}
 
 	err := fallback.BuildAll(t.Context(), internal.ProjectBuilderOptions{})
 
@@ -140,7 +141,7 @@ func TestBuilderFallback_BuildAll_NoAvailable(t *testing.T) {
 	tool1 := createBuilderTool("test1", nil)
 	tool2 := createBuilderTool("test2", nil)
 
-	fallback := &BuilderFallback{tool1, tool2}
+	fallback := &workflow.BuilderFallback{tool1, tool2}
 
 	err := fallback.BuildAll(t.Context(), internal.ProjectBuilderOptions{})
 
@@ -154,7 +155,7 @@ func TestBuilderFallback_BuildAll_Available1(t *testing.T) {
 	tool1 := createBuilderTool("test1", &internal.Executable{Path: "test1"})
 	tool2 := createBuilderTool("test2", nil)
 
-	fallback := &BuilderFallback{tool1, tool2}
+	fallback := &workflow.BuilderFallback{tool1, tool2}
 
 	tool1.Test(t)
 	tool2.Test(t)
@@ -172,7 +173,7 @@ func TestBuilderFallback_BuildAll_Available2(t *testing.T) {
 	tool1 := createBuilderTool("test1", nil)
 	tool2 := createBuilderTool("test2", &internal.Executable{Path: "test1"})
 
-	fallback := &BuilderFallback{tool1, tool2}
+	fallback := &workflow.BuilderFallback{tool1, tool2}
 
 	tool1.Test(t)
 	tool2.Test(t)
@@ -187,7 +188,7 @@ func TestBuilderFallback_BuildAll_Available2(t *testing.T) {
 }
 
 func TestBuilderFallback_BuildTargets_Empty(t *testing.T) {
-	fallback := &BuilderFallback{}
+	fallback := &workflow.BuilderFallback{}
 
 	err := fallback.BuildTargets(t.Context(), internal.ProjectBuilderOptions{}, []string{"target1"})
 
@@ -198,7 +199,7 @@ func TestBuilderFallback_BuildTargets_NoAvailable(t *testing.T) {
 	tool1 := createBuilderTool("test1", nil)
 	tool2 := createBuilderTool("test2", nil)
 
-	fallback := &BuilderFallback{tool1, tool2}
+	fallback := &workflow.BuilderFallback{tool1, tool2}
 
 	err := fallback.BuildTargets(t.Context(), internal.ProjectBuilderOptions{}, []string{"target1"})
 
@@ -212,7 +213,7 @@ func TestBuilderFallback_BuildTargets_Available1(t *testing.T) {
 	tool1 := createBuilderTool("test1", &internal.Executable{Path: "test1"})
 	tool2 := createBuilderTool("test2", nil)
 
-	fallback := &BuilderFallback{tool1, tool2}
+	fallback := &workflow.BuilderFallback{tool1, tool2}
 
 	tool1.Test(t)
 	tool2.Test(t)
@@ -230,7 +231,7 @@ func TestBuilderFallback_BuildTargets_Available2(t *testing.T) {
 	tool1 := createBuilderTool("test1", nil)
 	tool2 := createBuilderTool("test2", &internal.Executable{Path: "test1"})
 
-	fallback := &BuilderFallback{tool1, tool2}
+	fallback := &workflow.BuilderFallback{tool1, tool2}
 
 	tool1.Test(t)
 	tool2.Test(t)
@@ -260,7 +261,7 @@ func createTesterTool(id string, executable *internal.Executable) *struct {
 }
 
 func TestTesterFallback_Details_Empty(t *testing.T) {
-	fallback := &TesterFallback{}
+	fallback := &workflow.TesterFallback{}
 
 	assert.Equal(t, "fallback ()", fallback.Details())
 }
@@ -269,13 +270,13 @@ func TestTesterFallback_Details(t *testing.T) {
 	tool1 := createTesterTool("test1", nil)
 	tool2 := createTesterTool("test2", nil)
 
-	fallback := &TesterFallback{tool1, tool2}
+	fallback := &workflow.TesterFallback{tool1, tool2}
 
 	assert.Equal(t, "fallback (test1, test2)", fallback.Details())
 }
 
 func TestTesterFallback_TestAll_Empty(t *testing.T) {
-	fallback := &TesterFallback{}
+	fallback := &workflow.TesterFallback{}
 
 	err := fallback.TestAll(t.Context(), internal.ProjectTesterOptions{})
 
@@ -286,7 +287,7 @@ func TestTesterFallback_TestAll_NoAvailable(t *testing.T) {
 	tool1 := createTesterTool("test1", nil)
 	tool2 := createTesterTool("test2", nil)
 
-	fallback := &TesterFallback{tool1, tool2}
+	fallback := &workflow.TesterFallback{tool1, tool2}
 
 	err := fallback.TestAll(t.Context(), internal.ProjectTesterOptions{})
 
@@ -300,7 +301,7 @@ func TestTesterFallback_TestAll_Available1(t *testing.T) {
 	tool1 := createTesterTool("test1", &internal.Executable{Path: "test1"})
 	tool2 := createTesterTool("test2", nil)
 
-	fallback := &TesterFallback{tool1, tool2}
+	fallback := &workflow.TesterFallback{tool1, tool2}
 
 	tool1.Test(t)
 	tool2.Test(t)
@@ -318,7 +319,7 @@ func TestTesterFallback_TestAll_Available2(t *testing.T) {
 	tool1 := createTesterTool("test1", nil)
 	tool2 := createTesterTool("test2", &internal.Executable{Path: "test1"})
 
-	fallback := &TesterFallback{tool1, tool2}
+	fallback := &workflow.TesterFallback{tool1, tool2}
 
 	tool1.Test(t)
 	tool2.Test(t)
@@ -333,7 +334,7 @@ func TestTesterFallback_TestAll_Available2(t *testing.T) {
 }
 
 func TestTesterFallback_Test_Empty(t *testing.T) {
-	fallback := &TesterFallback{}
+	fallback := &workflow.TesterFallback{}
 
 	err := fallback.TestPattern(t.Context(), internal.ProjectTesterOptions{}, "target1")
 
@@ -344,7 +345,7 @@ func TestTesterFallback_Test_NoAvailable(t *testing.T) {
 	tool1 := createTesterTool("test1", nil)
 	tool2 := createTesterTool("test2", nil)
 
-	fallback := &TesterFallback{tool1, tool2}
+	fallback := &workflow.TesterFallback{tool1, tool2}
 
 	err := fallback.TestPattern(t.Context(), internal.ProjectTesterOptions{}, "target1")
 
@@ -358,7 +359,7 @@ func TestTesterFallback_Test_Available1(t *testing.T) {
 	tool1 := createTesterTool("test1", &internal.Executable{Path: "test1"})
 	tool2 := createTesterTool("test2", nil)
 
-	fallback := &TesterFallback{tool1, tool2}
+	fallback := &workflow.TesterFallback{tool1, tool2}
 
 	tool1.Test(t)
 	tool2.Test(t)
@@ -376,7 +377,7 @@ func TestTesterFallback_Test_Available2(t *testing.T) {
 	tool1 := createTesterTool("test1", nil)
 	tool2 := createTesterTool("test2", &internal.Executable{Path: "test1"})
 
-	fallback := &TesterFallback{tool1, tool2}
+	fallback := &workflow.TesterFallback{tool1, tool2}
 
 	tool1.Test(t)
 	tool2.Test(t)
@@ -406,7 +407,7 @@ func createFormatterTool(id string, executable *internal.Executable) *struct {
 }
 
 func TestFormatterFallback_Details_Empty(t *testing.T) {
-	fallback := &FormatterFallback{}
+	fallback := &workflow.FormatterFallback{}
 
 	assert.Equal(t, "fallback ()", fallback.Details())
 }
@@ -415,13 +416,13 @@ func TestFormatterFallback_Details(t *testing.T) {
 	tool1 := createFormatterTool("test1", nil)
 	tool2 := createFormatterTool("test2", nil)
 
-	fallback := &FormatterFallback{tool1, tool2}
+	fallback := &workflow.FormatterFallback{tool1, tool2}
 
 	assert.Equal(t, "fallback (test1, test2)", fallback.Details())
 }
 
 func TestFormatterFallback_FormatAll_Empty(t *testing.T) {
-	fallback := &FormatterFallback{}
+	fallback := &workflow.FormatterFallback{}
 
 	err := fallback.FormatAll(t.Context(), internal.ProjectFormatterOptions{})
 
@@ -432,7 +433,7 @@ func TestFormatterFallback_FormatAll_NoAvailable(t *testing.T) {
 	tool1 := createFormatterTool("test1", nil)
 	tool2 := createFormatterTool("test2", nil)
 
-	fallback := &FormatterFallback{tool1, tool2}
+	fallback := &workflow.FormatterFallback{tool1, tool2}
 
 	err := fallback.FormatAll(t.Context(), internal.ProjectFormatterOptions{})
 
@@ -446,7 +447,7 @@ func TestFormatterFallback_FormatAll_Available1(t *testing.T) {
 	tool1 := createFormatterTool("test1", &internal.Executable{Path: "test1"})
 	tool2 := createFormatterTool("test2", nil)
 
-	fallback := &FormatterFallback{tool1, tool2}
+	fallback := &workflow.FormatterFallback{tool1, tool2}
 
 	tool1.Test(t)
 	tool2.Test(t)
@@ -464,7 +465,7 @@ func TestFormatterFallback_FormatAll_Available2(t *testing.T) {
 	tool1 := createFormatterTool("test1", nil)
 	tool2 := createFormatterTool("test2", &internal.Executable{Path: "test1"})
 
-	fallback := &FormatterFallback{tool1, tool2}
+	fallback := &workflow.FormatterFallback{tool1, tool2}
 
 	tool1.Test(t)
 	tool2.Test(t)
@@ -479,7 +480,7 @@ func TestFormatterFallback_FormatAll_Available2(t *testing.T) {
 }
 
 func TestFormatterFallback_FormatFiles_Empty(t *testing.T) {
-	fallback := &FormatterFallback{}
+	fallback := &workflow.FormatterFallback{}
 
 	err := fallback.FormatFiles(t.Context(), internal.ProjectFormatterOptions{}, []string{"file1"})
 
@@ -490,7 +491,7 @@ func TestFormatterFallback_FormatFiles_NoAvailable(t *testing.T) {
 	tool1 := createFormatterTool("test1", nil)
 	tool2 := createFormatterTool("test2", nil)
 
-	fallback := &FormatterFallback{tool1, tool2}
+	fallback := &workflow.FormatterFallback{tool1, tool2}
 
 	err := fallback.FormatFiles(t.Context(), internal.ProjectFormatterOptions{}, []string{"file1"})
 
@@ -504,7 +505,7 @@ func TestFormatterFallback_FormatFiles_Available1(t *testing.T) {
 	tool1 := createFormatterTool("test1", &internal.Executable{Path: "test1"})
 	tool2 := createFormatterTool("test2", nil)
 
-	fallback := &FormatterFallback{tool1, tool2}
+	fallback := &workflow.FormatterFallback{tool1, tool2}
 
 	tool1.Test(t)
 	tool2.Test(t)
@@ -522,7 +523,7 @@ func TestFormatterFallback_FormatFiles_Available2(t *testing.T) {
 	tool1 := createFormatterTool("test1", nil)
 	tool2 := createFormatterTool("test2", &internal.Executable{Path: "test1"})
 
-	fallback := &FormatterFallback{tool1, tool2}
+	fallback := &workflow.FormatterFallback{tool1, tool2}
 
 	tool1.Test(t)
 	tool2.Test(t)
@@ -537,7 +538,7 @@ func TestFormatterFallback_FormatFiles_Available2(t *testing.T) {
 }
 
 func TestFormatterFallback_FormatCheckAll_Empty(t *testing.T) {
-	fallback := &FormatterFallback{}
+	fallback := &workflow.FormatterFallback{}
 
 	err := fallback.FormatCheckAll(t.Context(), internal.ProjectFormatterOptions{})
 
@@ -548,7 +549,7 @@ func TestFormatterFallback_FormatCheckAll_NoAvailable(t *testing.T) {
 	tool1 := createFormatterTool("test1", nil)
 	tool2 := createFormatterTool("test2", nil)
 
-	fallback := &FormatterFallback{tool1, tool2}
+	fallback := &workflow.FormatterFallback{tool1, tool2}
 
 	err := fallback.FormatCheckAll(t.Context(), internal.ProjectFormatterOptions{})
 
@@ -562,7 +563,7 @@ func TestFormatterFallback_FormatCheckAll_Available1(t *testing.T) {
 	tool1 := createFormatterTool("test1", &internal.Executable{Path: "test1"})
 	tool2 := createFormatterTool("test2", nil)
 
-	fallback := &FormatterFallback{tool1, tool2}
+	fallback := &workflow.FormatterFallback{tool1, tool2}
 
 	tool1.Test(t)
 	tool2.Test(t)
@@ -580,7 +581,7 @@ func TestFormatterFallback_FormatCheckAll_Available2(t *testing.T) {
 	tool1 := createFormatterTool("test1", nil)
 	tool2 := createFormatterTool("test2", &internal.Executable{Path: "test1"})
 
-	fallback := &FormatterFallback{tool1, tool2}
+	fallback := &workflow.FormatterFallback{tool1, tool2}
 
 	tool1.Test(t)
 	tool2.Test(t)
@@ -595,7 +596,7 @@ func TestFormatterFallback_FormatCheckAll_Available2(t *testing.T) {
 }
 
 func TestFormatterFallback_FormatCheckFiles_Empty(t *testing.T) {
-	fallback := &FormatterFallback{}
+	fallback := &workflow.FormatterFallback{}
 
 	err := fallback.FormatCheckFiles(t.Context(), internal.ProjectFormatterOptions{}, []string{"file1"})
 
@@ -606,7 +607,7 @@ func TestFormatterFallback_FormatCheckFiles_NoAvailable(t *testing.T) {
 	tool1 := createFormatterTool("test1", nil)
 	tool2 := createFormatterTool("test2", nil)
 
-	fallback := &FormatterFallback{tool1, tool2}
+	fallback := &workflow.FormatterFallback{tool1, tool2}
 
 	err := fallback.FormatCheckFiles(t.Context(), internal.ProjectFormatterOptions{}, []string{"file1"})
 
@@ -620,7 +621,7 @@ func TestFormatterFallback_FormatCheckFiles_Available1(t *testing.T) {
 	tool1 := createFormatterTool("test1", &internal.Executable{Path: "test1"})
 	tool2 := createFormatterTool("test2", nil)
 
-	fallback := &FormatterFallback{tool1, tool2}
+	fallback := &workflow.FormatterFallback{tool1, tool2}
 
 	tool1.Test(t)
 	tool2.Test(t)
@@ -638,7 +639,7 @@ func TestFormatterFallback_FormatCheckFiles_Available2(t *testing.T) {
 	tool1 := createFormatterTool("test1", nil)
 	tool2 := createFormatterTool("test2", &internal.Executable{Path: "test1"})
 
-	fallback := &FormatterFallback{tool1, tool2}
+	fallback := &workflow.FormatterFallback{tool1, tool2}
 
 	tool1.Test(t)
 	tool2.Test(t)
@@ -668,7 +669,7 @@ func createLinterTool(id string, executable *internal.Executable) *struct {
 }
 
 func TestLinterFallback_Details_Empty(t *testing.T) {
-	fallback := &LinterFallback{}
+	fallback := &workflow.LinterFallback{}
 
 	assert.Equal(t, "fallback ()", fallback.Details())
 }
@@ -677,13 +678,13 @@ func TestLinterFallback_Details(t *testing.T) {
 	tool1 := createLinterTool("test1", nil)
 	tool2 := createLinterTool("test2", nil)
 
-	fallback := &LinterFallback{tool1, tool2}
+	fallback := &workflow.LinterFallback{tool1, tool2}
 
 	assert.Equal(t, "fallback (test1, test2)", fallback.Details())
 }
 
 func TestLinterFallback_LintAll_Empty(t *testing.T) {
-	fallback := &LinterFallback{}
+	fallback := &workflow.LinterFallback{}
 
 	err := fallback.LintAll(t.Context(), internal.ProjectLinterOptions{})
 
@@ -694,7 +695,7 @@ func TestLinterFallback_LintAll_NoAvailable(t *testing.T) {
 	tool1 := createLinterTool("test1", nil)
 	tool2 := createLinterTool("test2", nil)
 
-	fallback := &LinterFallback{tool1, tool2}
+	fallback := &workflow.LinterFallback{tool1, tool2}
 
 	err := fallback.LintAll(t.Context(), internal.ProjectLinterOptions{})
 
@@ -708,7 +709,7 @@ func TestLinterFallback_LintAll_Available1(t *testing.T) {
 	tool1 := createLinterTool("test1", &internal.Executable{Path: "test1"})
 	tool2 := createLinterTool("test2", nil)
 
-	fallback := &LinterFallback{tool1, tool2}
+	fallback := &workflow.LinterFallback{tool1, tool2}
 
 	tool1.Test(t)
 	tool2.Test(t)
@@ -726,7 +727,7 @@ func TestLinterFallback_LintAll_Available2(t *testing.T) {
 	tool1 := createLinterTool("test1", nil)
 	tool2 := createLinterTool("test2", &internal.Executable{Path: "test1"})
 
-	fallback := &LinterFallback{tool1, tool2}
+	fallback := &workflow.LinterFallback{tool1, tool2}
 
 	tool1.Test(t)
 	tool2.Test(t)
@@ -741,7 +742,7 @@ func TestLinterFallback_LintAll_Available2(t *testing.T) {
 }
 
 func TestLinterFallback_LintFiles_Empty(t *testing.T) {
-	fallback := &LinterFallback{}
+	fallback := &workflow.LinterFallback{}
 
 	err := fallback.LintFiles(t.Context(), internal.ProjectLinterOptions{}, []string{"file1"})
 
@@ -752,7 +753,7 @@ func TestLinterFallback_LintFiles_NoAvailable(t *testing.T) {
 	tool1 := createLinterTool("test1", nil)
 	tool2 := createLinterTool("test2", nil)
 
-	fallback := &LinterFallback{tool1, tool2}
+	fallback := &workflow.LinterFallback{tool1, tool2}
 
 	err := fallback.LintFiles(t.Context(), internal.ProjectLinterOptions{}, []string{"file1"})
 
@@ -766,7 +767,7 @@ func TestLinterFallback_LintFiles_Available1(t *testing.T) {
 	tool1 := createLinterTool("test1", &internal.Executable{Path: "test1"})
 	tool2 := createLinterTool("test2", nil)
 
-	fallback := &LinterFallback{tool1, tool2}
+	fallback := &workflow.LinterFallback{tool1, tool2}
 
 	tool1.Test(t)
 	tool2.Test(t)
@@ -784,7 +785,7 @@ func TestLinterFallback_LintFiles_Available2(t *testing.T) {
 	tool1 := createLinterTool("test1", nil)
 	tool2 := createLinterTool("test2", &internal.Executable{Path: "test1"})
 
-	fallback := &LinterFallback{tool1, tool2}
+	fallback := &workflow.LinterFallback{tool1, tool2}
 
 	tool1.Test(t)
 	tool2.Test(t)
@@ -799,7 +800,7 @@ func TestLinterFallback_LintFiles_Available2(t *testing.T) {
 }
 
 func TestLinterList_Details_Empty(t *testing.T) {
-	list := &LinterList{}
+	list := &workflow.LinterList{}
 
 	assert.Equal(t, "list ()", list.Details())
 }
@@ -808,13 +809,13 @@ func TestLinterList_Details(t *testing.T) {
 	tool1 := createLinterTool("test1", nil)
 	tool2 := createLinterTool("test2", nil)
 
-	list := &LinterList{tool1, tool2}
+	list := &workflow.LinterList{tool1, tool2}
 
 	assert.Equal(t, "list (test1, test2)", list.Details())
 }
 
 func TestLinterList_LintAll_Empty(t *testing.T) {
-	list := &LinterList{}
+	list := &workflow.LinterList{}
 
 	err := list.LintAll(t.Context(), internal.ProjectLinterOptions{})
 
@@ -825,7 +826,7 @@ func TestLinterList_LintAll_NoAvailable(t *testing.T) {
 	tool1 := createLinterTool("test1", nil)
 	tool2 := createLinterTool("test2", nil)
 
-	list := &LinterList{tool1, tool2}
+	list := &workflow.LinterList{tool1, tool2}
 
 	err := list.LintAll(t.Context(), internal.ProjectLinterOptions{})
 
@@ -839,7 +840,7 @@ func TestLinterList_LintAll_Available1(t *testing.T) {
 	tool1 := createLinterTool("test1", &internal.Executable{Path: "test1"})
 	tool2 := createLinterTool("test2", nil)
 
-	list := &LinterList{tool1, tool2}
+	list := &workflow.LinterList{tool1, tool2}
 
 	tool1.Test(t)
 	tool2.Test(t)
@@ -857,7 +858,7 @@ func TestLinterList_LintAll_Available2(t *testing.T) {
 	tool1 := createLinterTool("test1", &internal.Executable{Path: "test1"})
 	tool2 := createLinterTool("test2", &internal.Executable{Path: "test1"})
 
-	list := &LinterList{tool1, tool2}
+	list := &workflow.LinterList{tool1, tool2}
 
 	tool1.Test(t)
 	tool2.Test(t)
@@ -873,7 +874,7 @@ func TestLinterList_LintAll_Available2(t *testing.T) {
 }
 
 func TestLinterList_LintFiles_Empty(t *testing.T) {
-	list := &LinterList{}
+	list := &workflow.LinterList{}
 
 	err := list.LintFiles(t.Context(), internal.ProjectLinterOptions{}, []string{"file1"})
 
@@ -884,7 +885,7 @@ func TestLinterList_LintFiles_NoAvailable(t *testing.T) {
 	tool1 := createLinterTool("test1", nil)
 	tool2 := createLinterTool("test2", nil)
 
-	list := &LinterList{tool1, tool2}
+	list := &workflow.LinterList{tool1, tool2}
 
 	err := list.LintFiles(t.Context(), internal.ProjectLinterOptions{}, []string{"file1"})
 
@@ -898,7 +899,7 @@ func TestLinterList_LintFiles_Available1(t *testing.T) {
 	tool1 := createLinterTool("test1", &internal.Executable{Path: "test1"})
 	tool2 := createLinterTool("test2", nil)
 
-	list := &LinterList{tool1, tool2}
+	list := &workflow.LinterList{tool1, tool2}
 
 	tool1.Test(t)
 	tool2.Test(t)
@@ -916,7 +917,7 @@ func TestLinterList_LintFiles_Available2(t *testing.T) {
 	tool1 := createLinterTool("test1", &internal.Executable{Path: "test1"})
 	tool2 := createLinterTool("test2", &internal.Executable{Path: "test1"})
 
-	list := &LinterList{tool1, tool2}
+	list := &workflow.LinterList{tool1, tool2}
 
 	tool1.Test(t)
 	tool2.Test(t)
@@ -947,7 +948,7 @@ func createRunnerTool(id string, executable *internal.Executable) *struct {
 }
 
 func TestRunnerFallback_Details_Empty(t *testing.T) {
-	fallback := &RunnerFallback{}
+	fallback := &workflow.RunnerFallback{}
 
 	assert.Equal(t, "fallback ()", fallback.Details())
 }
@@ -956,13 +957,13 @@ func TestRunnerFallback_Details(t *testing.T) {
 	tool1 := createRunnerTool("test1", nil)
 	tool2 := createRunnerTool("test2", nil)
 
-	fallback := &RunnerFallback{tool1, tool2}
+	fallback := &workflow.RunnerFallback{tool1, tool2}
 
 	assert.Equal(t, "fallback (test1, test2)", fallback.Details())
 }
 
 func TestRunnerFallback_RunTarget_Empty(t *testing.T) {
-	fallback := &RunnerFallback{}
+	fallback := &workflow.RunnerFallback{}
 
 	err := fallback.RunTarget(t.Context(), internal.ProjectRunnerOptions{}, "target1")
 
@@ -973,7 +974,7 @@ func TestRunnerFallback_RunTarget_NoAvailable(t *testing.T) {
 	tool1 := createRunnerTool("test1", nil)
 	tool2 := createRunnerTool("test2", nil)
 
-	fallback := &RunnerFallback{tool1, tool2}
+	fallback := &workflow.RunnerFallback{tool1, tool2}
 
 	err := fallback.RunTarget(t.Context(), internal.ProjectRunnerOptions{}, "target1")
 
@@ -987,7 +988,7 @@ func TestRunnerFallback_RunTarget_Available1(t *testing.T) {
 	tool1 := createRunnerTool("test1", &internal.Executable{Path: "test1"})
 	tool2 := createRunnerTool("test2", nil)
 
-	fallback := &RunnerFallback{tool1, tool2}
+	fallback := &workflow.RunnerFallback{tool1, tool2}
 
 	tool1.Test(t)
 	tool2.Test(t)
@@ -1005,7 +1006,7 @@ func TestRunnerFallback_RunTarget_Available2(t *testing.T) {
 	tool1 := createRunnerTool("test1", nil)
 	tool2 := createRunnerTool("test2", &internal.Executable{Path: "test1"})
 
-	fallback := &RunnerFallback{tool1, tool2}
+	fallback := &workflow.RunnerFallback{tool1, tool2}
 
 	tool1.Test(t)
 	tool2.Test(t)
@@ -1035,7 +1036,7 @@ func createDependencyManagerTool(id string, executable *internal.Executable) *st
 }
 
 func TestDependencyManagerFallback_Details_Empty(t *testing.T) {
-	fallback := &DependencyManagerFallback{}
+	fallback := &workflow.DependencyManagerFallback{}
 
 	assert.Equal(t, "fallback ()", fallback.Details())
 }
@@ -1044,13 +1045,13 @@ func TestDependencyManagerFallback_Details(t *testing.T) {
 	tool1 := createDependencyManagerTool("test1", nil)
 	tool2 := createDependencyManagerTool("test2", nil)
 
-	fallback := &DependencyManagerFallback{tool1, tool2}
+	fallback := &workflow.DependencyManagerFallback{tool1, tool2}
 
 	assert.Equal(t, "fallback (test1, test2)", fallback.Details())
 }
 
 func TestDependencyManagerFallback_AddDependencies_Empty(t *testing.T) {
-	fallback := &DependencyManagerFallback{}
+	fallback := &workflow.DependencyManagerFallback{}
 
 	err := fallback.AddDependencies(t.Context(), internal.ProjectDependencyManagerOptions{}, []string{"dep1"}, false)
 
@@ -1061,7 +1062,7 @@ func TestDependencyManagerFallback_AddDependencies_NoAvailable(t *testing.T) {
 	tool1 := createDependencyManagerTool("test1", nil)
 	tool2 := createDependencyManagerTool("test2", nil)
 
-	fallback := &DependencyManagerFallback{tool1, tool2}
+	fallback := &workflow.DependencyManagerFallback{tool1, tool2}
 
 	err := fallback.AddDependencies(t.Context(), internal.ProjectDependencyManagerOptions{}, []string{"dep1"}, false)
 
@@ -1075,7 +1076,7 @@ func TestDependencyManagerFallback_AddDependencies_Available1(t *testing.T) {
 	tool1 := createDependencyManagerTool("test1", &internal.Executable{Path: "test1"})
 	tool2 := createDependencyManagerTool("test2", nil)
 
-	fallback := &DependencyManagerFallback{tool1, tool2}
+	fallback := &workflow.DependencyManagerFallback{tool1, tool2}
 
 	tool1.Test(t)
 	tool2.Test(t)
@@ -1093,7 +1094,7 @@ func TestDependencyManagerFallback_AddDependencies_Available2(t *testing.T) {
 	tool1 := createDependencyManagerTool("test1", nil)
 	tool2 := createDependencyManagerTool("test2", &internal.Executable{Path: "test1"})
 
-	fallback := &DependencyManagerFallback{tool1, tool2}
+	fallback := &workflow.DependencyManagerFallback{tool1, tool2}
 
 	tool1.Test(t)
 	tool2.Test(t)
@@ -1108,7 +1109,7 @@ func TestDependencyManagerFallback_AddDependencies_Available2(t *testing.T) {
 }
 
 func TestDependencyManagerFallback_RemoveDependencies_Empty(t *testing.T) {
-	fallback := &DependencyManagerFallback{}
+	fallback := &workflow.DependencyManagerFallback{}
 
 	err := fallback.RemoveDependencies(t.Context(), internal.ProjectDependencyManagerOptions{}, []string{"dep1"}, false)
 
@@ -1119,7 +1120,7 @@ func TestDependencyManagerFallback_RemoveDependencies_NoAvailable(t *testing.T) 
 	tool1 := createDependencyManagerTool("test1", nil)
 	tool2 := createDependencyManagerTool("test2", nil)
 
-	fallback := &DependencyManagerFallback{tool1, tool2}
+	fallback := &workflow.DependencyManagerFallback{tool1, tool2}
 
 	err := fallback.RemoveDependencies(t.Context(), internal.ProjectDependencyManagerOptions{}, []string{"dep1"}, false)
 
@@ -1133,7 +1134,7 @@ func TestDependencyManagerFallback_RemoveDependencies_Available1(t *testing.T) {
 	tool1 := createDependencyManagerTool("test1", &internal.Executable{Path: "test1"})
 	tool2 := createDependencyManagerTool("test2", nil)
 
-	fallback := &DependencyManagerFallback{tool1, tool2}
+	fallback := &workflow.DependencyManagerFallback{tool1, tool2}
 
 	tool1.Test(t)
 	tool2.Test(t)
@@ -1151,7 +1152,7 @@ func TestDependencyManagerFallback_RemoveDependencies_Available2(t *testing.T) {
 	tool1 := createDependencyManagerTool("test1", nil)
 	tool2 := createDependencyManagerTool("test2", &internal.Executable{Path: "test1"})
 
-	fallback := &DependencyManagerFallback{tool1, tool2}
+	fallback := &workflow.DependencyManagerFallback{tool1, tool2}
 
 	tool1.Test(t)
 	tool2.Test(t)
@@ -1166,7 +1167,7 @@ func TestDependencyManagerFallback_RemoveDependencies_Available2(t *testing.T) {
 }
 
 func TestDependencyManagerFallback_UpdateDependencies_Empty(t *testing.T) {
-	fallback := &DependencyManagerFallback{}
+	fallback := &workflow.DependencyManagerFallback{}
 
 	err := fallback.UpdateDependencies(t.Context(), internal.ProjectDependencyManagerOptions{}, []string{"dep1"})
 
@@ -1177,7 +1178,7 @@ func TestDependencyManagerFallback_UpdateDependencies_NoAvailable(t *testing.T) 
 	tool1 := createDependencyManagerTool("test1", nil)
 	tool2 := createDependencyManagerTool("test2", nil)
 
-	fallback := &DependencyManagerFallback{tool1, tool2}
+	fallback := &workflow.DependencyManagerFallback{tool1, tool2}
 
 	err := fallback.UpdateDependencies(t.Context(), internal.ProjectDependencyManagerOptions{}, []string{"dep1"})
 
@@ -1191,7 +1192,7 @@ func TestDependencyManagerFallback_UpdateDependencies_Available1(t *testing.T) {
 	tool1 := createDependencyManagerTool("test1", &internal.Executable{Path: "test1"})
 	tool2 := createDependencyManagerTool("test2", nil)
 
-	fallback := &DependencyManagerFallback{tool1, tool2}
+	fallback := &workflow.DependencyManagerFallback{tool1, tool2}
 
 	tool1.Test(t)
 	tool2.Test(t)
@@ -1209,7 +1210,7 @@ func TestDependencyManagerFallback_UpdateDependencies_Available2(t *testing.T) {
 	tool1 := createDependencyManagerTool("test1", nil)
 	tool2 := createDependencyManagerTool("test2", &internal.Executable{Path: "test1"})
 
-	fallback := &DependencyManagerFallback{tool1, tool2}
+	fallback := &workflow.DependencyManagerFallback{tool1, tool2}
 
 	tool1.Test(t)
 	tool2.Test(t)
@@ -1224,7 +1225,7 @@ func TestDependencyManagerFallback_UpdateDependencies_Available2(t *testing.T) {
 }
 
 func TestDependencyManagerFallback_FetchDependencies_Empty(t *testing.T) {
-	fallback := &DependencyManagerFallback{}
+	fallback := &workflow.DependencyManagerFallback{}
 
 	err := fallback.FetchDependencies(t.Context(), internal.ProjectDependencyManagerOptions{}, false)
 
@@ -1235,7 +1236,7 @@ func TestDependencyManagerFallback_FetchDependencies_NoAvailable(t *testing.T) {
 	tool1 := createDependencyManagerTool("test1", nil)
 	tool2 := createDependencyManagerTool("test2", nil)
 
-	fallback := &DependencyManagerFallback{tool1, tool2}
+	fallback := &workflow.DependencyManagerFallback{tool1, tool2}
 
 	err := fallback.FetchDependencies(t.Context(), internal.ProjectDependencyManagerOptions{}, false)
 
@@ -1249,7 +1250,7 @@ func TestDependencyManagerFallback_FetchDependencies_Available1(t *testing.T) {
 	tool1 := createDependencyManagerTool("test1", &internal.Executable{Path: "test1"})
 	tool2 := createDependencyManagerTool("test2", nil)
 
-	fallback := &DependencyManagerFallback{tool1, tool2}
+	fallback := &workflow.DependencyManagerFallback{tool1, tool2}
 
 	tool1.Test(t)
 	tool2.Test(t)
@@ -1267,7 +1268,7 @@ func TestDependencyManagerFallback_FetchDependencies_Available2(t *testing.T) {
 	tool1 := createDependencyManagerTool("test1", nil)
 	tool2 := createDependencyManagerTool("test2", &internal.Executable{Path: "test1"})
 
-	fallback := &DependencyManagerFallback{tool1, tool2}
+	fallback := &workflow.DependencyManagerFallback{tool1, tool2}
 
 	tool1.Test(t)
 	tool2.Test(t)
@@ -1282,7 +1283,7 @@ func TestDependencyManagerFallback_FetchDependencies_Available2(t *testing.T) {
 }
 
 func TestDependencyManagerFallback_ListDependencies_Empty(t *testing.T) {
-	fallback := &DependencyManagerFallback{}
+	fallback := &workflow.DependencyManagerFallback{}
 
 	err := fallback.ListDependencies(t.Context(), internal.ProjectDependencyManagerOptions{})
 
@@ -1293,7 +1294,7 @@ func TestDependencyManagerFallback_ListDependencies_NoAvailable(t *testing.T) {
 	tool1 := createDependencyManagerTool("test1", nil)
 	tool2 := createDependencyManagerTool("test2", nil)
 
-	fallback := &DependencyManagerFallback{tool1, tool2}
+	fallback := &workflow.DependencyManagerFallback{tool1, tool2}
 
 	err := fallback.ListDependencies(t.Context(), internal.ProjectDependencyManagerOptions{})
 
@@ -1307,7 +1308,7 @@ func TestDependencyManagerFallback_ListDependencies_Available1(t *testing.T) {
 	tool1 := createDependencyManagerTool("test1", &internal.Executable{Path: "test1"})
 	tool2 := createDependencyManagerTool("test2", nil)
 
-	fallback := &DependencyManagerFallback{tool1, tool2}
+	fallback := &workflow.DependencyManagerFallback{tool1, tool2}
 
 	tool1.Test(t)
 	tool2.Test(t)
@@ -1325,7 +1326,7 @@ func TestDependencyManagerFallback_ListDependencies_Available2(t *testing.T) {
 	tool1 := createDependencyManagerTool("test1", nil)
 	tool2 := createDependencyManagerTool("test2", &internal.Executable{Path: "test1"})
 
-	fallback := &DependencyManagerFallback{tool1, tool2}
+	fallback := &workflow.DependencyManagerFallback{tool1, tool2}
 
 	tool1.Test(t)
 	tool2.Test(t)
@@ -1340,7 +1341,7 @@ func TestDependencyManagerFallback_ListDependencies_Available2(t *testing.T) {
 }
 
 func TestDependencyManagerFallback_AuditDependencies_Empty(t *testing.T) {
-	fallback := &DependencyManagerFallback{}
+	fallback := &workflow.DependencyManagerFallback{}
 
 	err := fallback.AuditDependencies(t.Context(), internal.ProjectDependencyManagerOptions{})
 
@@ -1351,7 +1352,7 @@ func TestDependencyManagerFallback_AuditDependencies_NoAvailable(t *testing.T) {
 	tool1 := createDependencyManagerTool("test1", nil)
 	tool2 := createDependencyManagerTool("test2", nil)
 
-	fallback := &DependencyManagerFallback{tool1, tool2}
+	fallback := &workflow.DependencyManagerFallback{tool1, tool2}
 
 	err := fallback.AuditDependencies(t.Context(), internal.ProjectDependencyManagerOptions{})
 
@@ -1365,7 +1366,7 @@ func TestDependencyManagerFallback_AuditDependencies_Available1(t *testing.T) {
 	tool1 := createDependencyManagerTool("test1", &internal.Executable{Path: "test1"})
 	tool2 := createDependencyManagerTool("test2", nil)
 
-	fallback := &DependencyManagerFallback{tool1, tool2}
+	fallback := &workflow.DependencyManagerFallback{tool1, tool2}
 
 	tool1.Test(t)
 	tool2.Test(t)
@@ -1383,7 +1384,7 @@ func TestDependencyManagerFallback_AuditDependencies_Available2(t *testing.T) {
 	tool1 := createDependencyManagerTool("test1", nil)
 	tool2 := createDependencyManagerTool("test2", &internal.Executable{Path: "test1"})
 
-	fallback := &DependencyManagerFallback{tool1, tool2}
+	fallback := &workflow.DependencyManagerFallback{tool1, tool2}
 
 	tool1.Test(t)
 	tool2.Test(t)

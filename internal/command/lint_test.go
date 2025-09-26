@@ -1,7 +1,8 @@
-package command
+package command_test
 
 import (
 	"cdt/internal"
+	"cdt/internal/command"
 	"cdt/internal/test"
 	"context"
 	"errors"
@@ -13,7 +14,7 @@ import (
 )
 
 func runLint(ctx context.Context, linter internal.ProjectLinter, args ...string) error {
-	return test.RunCommand(ctx, NewLintCommand(), internal.Context{
+	return test.RunCommand(ctx, command.NewLintCommand(), internal.Context{
 		Project: internal.Project{
 			Workflow: internal.Workflow{
 				Linter: linter,
@@ -23,7 +24,7 @@ func runLint(ctx context.Context, linter internal.ProjectLinter, args ...string)
 }
 
 func runLintTool(ctx context.Context, linter internal.Tool, args ...string) error {
-	return test.RunCommand(ctx, NewLintCommand(), internal.Context{
+	return test.RunCommand(ctx, command.NewLintCommand(), internal.Context{
 		Tools: []internal.Tool{
 			linter,
 		},

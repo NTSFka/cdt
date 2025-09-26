@@ -1,6 +1,7 @@
-package internal
+package internal_test
 
 import (
+	"cdt/internal"
 	"io"
 	"strings"
 	"testing"
@@ -12,7 +13,7 @@ import (
 func TestLoadConfigFile_Empty(t *testing.T) {
 	reader := strings.NewReader("")
 
-	config, err := LoadConfigFile(reader)
+	config, err := internal.LoadConfigFile(reader)
 	require.ErrorIs(t, err, io.EOF)
 	assert.Nil(t, config)
 }
@@ -20,7 +21,7 @@ func TestLoadConfigFile_Empty(t *testing.T) {
 func TestLoadConfigFile_EmptyProject(t *testing.T) {
 	reader := strings.NewReader("project:\n")
 
-	config, err := LoadConfigFile(reader)
+	config, err := internal.LoadConfigFile(reader)
 	require.NoError(t, err)
 
 	require.NotNil(t, config)
@@ -33,7 +34,7 @@ func TestLoadConfigFile_EmptyProject(t *testing.T) {
 func TestLoadConfigFile_Workflow_InvalidType(t *testing.T) {
 	reader := strings.NewReader("project:\n  workflow: 3.15\n")
 
-	config, err := LoadConfigFile(reader)
+	config, err := internal.LoadConfigFile(reader)
 	require.ErrorContains(t, err, "invalid workflow type: ")
 	assert.Nil(t, config)
 }
@@ -41,7 +42,7 @@ func TestLoadConfigFile_Workflow_InvalidType(t *testing.T) {
 func TestLoadConfigFile_Workflow_InvalidStructure(t *testing.T) {
 	reader := strings.NewReader("project:\n  workflow:\n    test: [1, 2]\n")
 
-	config, err := LoadConfigFile(reader)
+	config, err := internal.LoadConfigFile(reader)
 	require.Error(t, err)
 	require.Nil(t, config)
 }
@@ -63,7 +64,7 @@ project:
 `,
 	)
 
-	config, err := LoadConfigFile(reader)
+	config, err := internal.LoadConfigFile(reader)
 	require.NoError(t, err)
 
 	require.NotNil(t, config)
@@ -78,7 +79,7 @@ project:
 	assert.Equal(t, "docker:golang", *config.Project.Environment)
 
 	require.NotNil(t, config.Project.Workflow)
-	workflow, ok := config.Project.Workflow.(*FileConfigProjectWorkflow)
+	workflow, ok := config.Project.Workflow.(*internal.FileConfigProjectWorkflow)
 	require.True(t, ok, "workflow should be of type FileConfigProjectWorkflow")
 
 	require.NotNil(t, workflow.Configure)
@@ -113,7 +114,7 @@ project:
 `,
 	)
 
-	config, err := LoadConfigFile(reader)
+	config, err := internal.LoadConfigFile(reader)
 	require.NoError(t, err)
 	require.NotNil(t, config)
 	require.NotNil(t, config.Project)
@@ -134,33 +135,33 @@ project:
 }
 
 func TestFileConfig_UpdateConfig_Empty(t *testing.T) {
-	config := DefaultConfig()
+	config := internal.DefaultConfig()
 
-	fileConfig := FileConfig{
-		Project: FileConfigProject{},
+	fileConfig := internal.FileConfig{
+		Project: internal.FileConfigProject{},
 	}
 
 	fileConfig.UpdateConfig(&config)
 
-	assert.Equal(t, DefaultConfig(), config)
+	assert.Equal(t, internal.DefaultConfig(), config)
 }
 
 func TestFileConfig_UpdateConfig(t *testing.T) {
-	config := DefaultConfig()
+	config := internal.DefaultConfig()
 
-	fileConfig := FileConfig{
-		Project: FileConfigProject{
-			WorkDirectory:  StrPtr("/project/work"),
-			BuildDirectory: StrPtr("/project/build"),
-			Environment:    StrPtr("env:arg"),
-			Workflow: &FileConfigProjectWorkflow{
-				Configure:  StrPtr("tool1"),
-				Build:      StrPtr("tool2"),
-				Test:       StrPtr("tool3"),
-				Format:     StrPtr("tool4"),
-				Lint:       StrPtr("tool5"),
-				Run:        StrPtr("tool6"),
-				Dependency: StrPtr("tool7"),
+	fileConfig := internal.FileConfig{
+		Project: internal.FileConfigProject{
+			WorkDirectory:  internal.StrPtr("/project/work"),
+			BuildDirectory: internal.StrPtr("/project/build"),
+			Environment:    internal.StrPtr("env:arg"),
+			Workflow: &internal.FileConfigProjectWorkflow{
+				Configure:  internal.StrPtr("tool1"),
+				Build:      internal.StrPtr("tool2"),
+				Test:       internal.StrPtr("tool3"),
+				Format:     internal.StrPtr("tool4"),
+				Lint:       internal.StrPtr("tool5"),
+				Run:        internal.StrPtr("tool6"),
+				Dependency: internal.StrPtr("tool7"),
 			},
 		},
 	}
@@ -179,7 +180,7 @@ func TestFileConfig_UpdateConfig(t *testing.T) {
 	assert.Equal(t, "env:arg", *config.Environment)
 
 	require.NotNil(t, config.Workflow)
-	workflow, ok := config.Workflow.(*ConfigWorkflow)
+	workflow, ok := config.Workflow.(*internal.ConfigWorkflow)
 	require.True(t, ok, "workflow should be of type ConfigWorkflow")
 	require.NotNil(t, workflow.Configure)
 	assert.Equal(t, "tool1", *workflow.Configure)
@@ -204,13 +205,13 @@ func TestFileConfig_UpdateConfig(t *testing.T) {
 }
 
 func TestFileConfig_UpdateConfig_WorkflowString(t *testing.T) {
-	config := DefaultConfig()
+	config := internal.DefaultConfig()
 
-	fileConfig := FileConfig{
-		Project: FileConfigProject{
-			WorkDirectory:  StrPtr("/project/work"),
-			BuildDirectory: StrPtr("/project/build"),
-			Environment:    StrPtr("env:arg"),
+	fileConfig := internal.FileConfig{
+		Project: internal.FileConfigProject{
+			WorkDirectory:  internal.StrPtr("/project/work"),
+			BuildDirectory: internal.StrPtr("/project/build"),
+			Environment:    internal.StrPtr("env:arg"),
 			Workflow:       "my-workflow",
 		},
 	}
@@ -235,13 +236,13 @@ func TestFileConfig_UpdateConfig_WorkflowString(t *testing.T) {
 }
 
 func TestFileConfig_UpdateConfig_WorkflowInvalid(t *testing.T) {
-	config := DefaultConfig()
+	config := internal.DefaultConfig()
 
-	fileConfig := FileConfig{
-		Project: FileConfigProject{
-			WorkDirectory:  StrPtr("/project/work"),
-			BuildDirectory: StrPtr("/project/build"),
-			Environment:    StrPtr("env:arg"),
+	fileConfig := internal.FileConfig{
+		Project: internal.FileConfigProject{
+			WorkDirectory:  internal.StrPtr("/project/work"),
+			BuildDirectory: internal.StrPtr("/project/build"),
+			Environment:    internal.StrPtr("env:arg"),
 			Workflow:       42,
 		},
 	}

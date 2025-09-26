@@ -1,8 +1,9 @@
-package tool
+package tool_test
 
 import (
 	"cdt/internal"
 	"cdt/internal/test"
+	"cdt/internal/tool"
 	"errors"
 	"testing"
 
@@ -14,15 +15,15 @@ func TestPHP_DetectPHP(t *testing.T) {
 	env := test.NewEnvironment(t)
 
 	env.OnFindExecutable("php").
-		Return(env.NewExecutable("/bin/tool"))
+		Return(env.NewExecutable("/bin/php"))
 
-	tool := DetectPHP(t.Context(), env)
-	assert.NotNil(t, tool)
-	assert.Equal(t, "php", tool.Id())
-	assert.True(t, tool.IsAvailable())
+	php := tool.DetectPHP(t.Context(), env)
+	assert.NotNil(t, php)
+	assert.Equal(t, "php", php.Id())
+	assert.True(t, php.IsAvailable())
 
-	if executable := tool.Executable(); assert.NotNil(t, executable) {
-		assert.Equal(t, "/bin/tool", executable.Path)
+	if executable := php.Executable(); assert.NotNil(t, executable) {
+		assert.Equal(t, "/bin/php", executable.Path)
 	}
 
 	env.AssertExpectations(t)
@@ -34,11 +35,11 @@ func TestPHP_DetectPHP_NotFound(t *testing.T) {
 	env.OnFindExecutable("php").
 		Return(nil)
 
-	tool := DetectPHP(t.Context(), env)
-	assert.NotNil(t, tool)
-	assert.Equal(t, "php", tool.Id())
-	assert.False(t, tool.IsAvailable())
-	assert.Nil(t, tool.Executable())
+	php := tool.DetectPHP(t.Context(), env)
+	assert.NotNil(t, php)
+	assert.Equal(t, "php", php.Id())
+	assert.False(t, php.IsAvailable())
+	assert.Nil(t, php.Executable())
 
 	env.AssertExpectations(t)
 }
@@ -46,14 +47,14 @@ func TestPHP_DetectPHP_NotFound(t *testing.T) {
 func TestPHP_PHP_RunTarget(t *testing.T) {
 	exec := test.NewExecutable(t)
 
-	tool := NewPHP(exec.LazyExecutable("php"))
+	php := tool.NewPHP(exec.LazyExecutable("php"))
 
 	info := internal.ProjectInfo{Directory: "."}
 
 	exec.OnRun("php", []string{"-f", "index.php"}).
 		Return(nil)
 
-	err := tool.RunTarget(t.Context(), internal.ProjectRunnerOptions{ProjectInfo: info}, "index.php")
+	err := php.RunTarget(t.Context(), internal.ProjectRunnerOptions{ProjectInfo: info}, "index.php")
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -62,14 +63,14 @@ func TestPHP_PHP_RunTarget(t *testing.T) {
 func TestPHP_PHP_RunTarget_Fail(t *testing.T) {
 	exec := test.NewExecutable(t)
 
-	tool := NewPHP(exec.LazyExecutable("php"))
+	php := tool.NewPHP(exec.LazyExecutable("php"))
 
 	info := internal.ProjectInfo{Directory: "."}
 
 	exec.OnRun("php", []string{"-f", "index.php"}).
 		Return(errors.New("failed"))
 
-	err := tool.RunTarget(t.Context(), internal.ProjectRunnerOptions{ProjectInfo: info}, "index.php")
+	err := php.RunTarget(t.Context(), internal.ProjectRunnerOptions{ProjectInfo: info}, "index.php")
 	require.EqualError(t, err, "failed")
 
 	exec.AssertExpectations(t)

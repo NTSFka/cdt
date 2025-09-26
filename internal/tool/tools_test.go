@@ -1,7 +1,8 @@
-package tool
+package tool_test
 
 import (
 	"cdt/internal/test"
+	"cdt/internal/tool"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -10,7 +11,7 @@ import (
 func TestInitTools(t *testing.T) {
 	env := test.NewEnvironment(t)
 
-	tools := InitTools(t.Context(), env)
+	tools := tool.InitTools(t.Context(), env)
 
 	assert.NotEmpty(t, tools)
 }
@@ -18,7 +19,7 @@ func TestInitTools(t *testing.T) {
 func TestInitEnvironmentProviders(t *testing.T) {
 	env := test.NewEnvironment(t)
 
-	providers := InitEnvironmentProviders(t.Context(), env)
+	providers := tool.InitEnvironmentProviders(t.Context(), env)
 
 	assert.NotEmpty(t, providers)
 }

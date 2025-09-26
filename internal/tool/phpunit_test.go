@@ -1,8 +1,9 @@
-package tool
+package tool_test
 
 import (
 	"cdt/internal"
 	"cdt/internal/test"
+	"cdt/internal/tool"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -14,15 +15,15 @@ func TestPHPUnit_DetectPHPUnit_Composer(t *testing.T) {
 
 	// Composer installation
 	env.OnFindExecutable("vendor/bin/phpunit").
-		Return(env.NewExecutable("/bin/tool"))
+		Return(env.NewExecutable("/bin/phpunit"))
 
-	tool := DetectPHPUnit(t.Context(), env)
-	assert.NotNil(t, tool)
-	assert.Equal(t, "phpunit", tool.Id())
-	assert.True(t, tool.IsAvailable())
+	phpUnit := tool.DetectPHPUnit(t.Context(), env)
+	assert.NotNil(t, phpUnit)
+	assert.Equal(t, "phpunit", phpUnit.Id())
+	assert.True(t, phpUnit.IsAvailable())
 
-	if executable := tool.Executable(); assert.NotNil(t, executable) {
-		assert.Equal(t, "/bin/tool", executable.Path)
+	if executable := phpUnit.Executable(); assert.NotNil(t, executable) {
+		assert.Equal(t, "/bin/phpunit", executable.Path)
 	}
 
 	env.AssertExpectations(t)
@@ -37,15 +38,15 @@ func TestPHPUnit_DetectPHPUnit_System(t *testing.T) {
 
 	// System installation
 	env.OnFindExecutable("phpunit").
-		Return(env.NewExecutable("/bin/tool"))
+		Return(env.NewExecutable("/bin/phpunit"))
 
-	tool := DetectPHPUnit(t.Context(), env)
-	assert.NotNil(t, tool)
-	assert.Equal(t, "phpunit", tool.Id())
-	assert.True(t, tool.IsAvailable())
+	phpUnit := tool.DetectPHPUnit(t.Context(), env)
+	assert.NotNil(t, phpUnit)
+	assert.Equal(t, "phpunit", phpUnit.Id())
+	assert.True(t, phpUnit.IsAvailable())
 
-	if executable := tool.Executable(); assert.NotNil(t, executable) {
-		assert.Equal(t, "/bin/tool", executable.Path)
+	if executable := phpUnit.Executable(); assert.NotNil(t, executable) {
+		assert.Equal(t, "/bin/phpunit", executable.Path)
 	}
 
 	env.AssertExpectations(t)
@@ -59,11 +60,11 @@ func TestPHPUnit_DetectPHPUnit_NotFound(t *testing.T) {
 	env.OnFindExecutable("phpunit").
 		Return(nil)
 
-	tool := DetectPHPUnit(t.Context(), env)
-	assert.NotNil(t, tool)
-	assert.Equal(t, "phpunit", tool.Id())
-	assert.False(t, tool.IsAvailable())
-	assert.Nil(t, tool.Executable())
+	phpUnit := tool.DetectPHPUnit(t.Context(), env)
+	assert.NotNil(t, phpUnit)
+	assert.Equal(t, "phpunit", phpUnit.Id())
+	assert.False(t, phpUnit.IsAvailable())
+	assert.Nil(t, phpUnit.Executable())
 
 	env.AssertExpectations(t)
 }
@@ -71,14 +72,14 @@ func TestPHPUnit_DetectPHPUnit_NotFound(t *testing.T) {
 func TestPHPUnit_PHPUnit_TestAll(t *testing.T) {
 	exec := test.NewExecutable(t)
 
-	tool := NewPHPUnit(exec.LazyExecutable("test"))
+	phpUnit := tool.NewPHPUnit(exec.LazyExecutable("test"))
 
 	info := internal.ProjectInfo{Directory: "."}
 
 	exec.OnRun("test", []string{}).
 		Return(nil)
 
-	err := tool.TestAll(t.Context(), internal.ProjectTesterOptions{ProjectInfo: info})
+	err := phpUnit.TestAll(t.Context(), internal.ProjectTesterOptions{ProjectInfo: info})
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -87,14 +88,14 @@ func TestPHPUnit_PHPUnit_TestAll(t *testing.T) {
 func TestPHPUnit_PHPUnit_Test(t *testing.T) {
 	exec := test.NewExecutable(t)
 
-	tool := NewPHPUnit(exec.LazyExecutable("test"))
+	phpUnit := tool.NewPHPUnit(exec.LazyExecutable("test"))
 
 	info := internal.ProjectInfo{Directory: "."}
 
 	exec.OnRun("test", []string{"tests/*"}).
 		Return(nil)
 
-	err := tool.TestPattern(t.Context(), internal.ProjectTesterOptions{ProjectInfo: info}, "tests/*")
+	err := phpUnit.TestPattern(t.Context(), internal.ProjectTesterOptions{ProjectInfo: info}, "tests/*")
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)

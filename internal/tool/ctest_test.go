@@ -1,8 +1,9 @@
-package tool
+package tool_test
 
 import (
 	"cdt/internal"
 	"cdt/internal/test"
+	"cdt/internal/tool"
 	"errors"
 	"testing"
 
@@ -15,12 +16,12 @@ func TestCTest_DetectCTest(t *testing.T) {
 	env.OnFindExecutable("ctest").
 		Return(env.NewExecutable("/bin/ctest"))
 
-	tool := DetectCTest(t.Context(), env)
-	assert.NotNil(t, tool)
-	assert.Equal(t, "ctest", tool.Id())
-	assert.True(t, tool.IsAvailable())
+	ctest := tool.DetectCTest(t.Context(), env)
+	assert.NotNil(t, ctest)
+	assert.Equal(t, "ctest", ctest.Id())
+	assert.True(t, ctest.IsAvailable())
 
-	if executable := tool.Executable(); assert.NotNil(t, executable) {
+	if executable := ctest.Executable(); assert.NotNil(t, executable) {
 		assert.Equal(t, "/bin/ctest", executable.Path)
 	}
 
@@ -32,11 +33,11 @@ func TestCTest_DetectCTest_NotFound(t *testing.T) {
 	env.OnFindExecutable("ctest").
 		Return(nil)
 
-	tool := DetectCTest(t.Context(), env)
-	assert.NotNil(t, tool)
-	assert.Equal(t, "ctest", tool.Id())
-	assert.False(t, tool.IsAvailable())
-	assert.Nil(t, tool.Executable())
+	ctest := tool.DetectCTest(t.Context(), env)
+	assert.NotNil(t, ctest)
+	assert.Equal(t, "ctest", ctest.Id())
+	assert.False(t, ctest.IsAvailable())
+	assert.Nil(t, ctest.Executable())
 
 	env.AssertExpectations(t)
 }
@@ -44,11 +45,11 @@ func TestCTest_DetectCTest_NotFound(t *testing.T) {
 func TestCTest_RunForProject_NoIntermediateDirectory(t *testing.T) {
 	exec := test.NewExecutable(t)
 
-	tool := NewCTest(exec.LazyExecutable("ctest"))
+	ctest := tool.NewCTest(exec.LazyExecutable("ctest"))
 
 	desc := internal.ProjectInfo{Directory: "project", IntermediateDirectory: nil}
 
-	err := tool.RunForProject(t.Context(), desc, []string{})
+	err := ctest.RunForProject(t.Context(), desc, []string{})
 	require.ErrorIs(t, err, internal.ErrNoIntermediateDirectory)
 
 	exec.AssertExpectations(t)
@@ -57,14 +58,14 @@ func TestCTest_RunForProject_NoIntermediateDirectory(t *testing.T) {
 func TestCTest_RunForProject(t *testing.T) {
 	exec := test.NewExecutable(t)
 
-	tool := NewCTest(exec.LazyExecutable("ctest"))
+	ctest := tool.NewCTest(exec.LazyExecutable("ctest"))
 
 	desc := internal.ProjectInfo{Directory: "project", IntermediateDirectory: internal.StrPtr("build")}
 
 	exec.OnRun("ctest", []string{"--test-dir", "build"}).
 		Return(nil)
 
-	err := tool.RunForProject(t.Context(), desc, []string{})
+	err := ctest.RunForProject(t.Context(), desc, []string{})
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -73,14 +74,14 @@ func TestCTest_RunForProject(t *testing.T) {
 func TestCTest_RunForProject_Failed(t *testing.T) {
 	exec := test.NewExecutable(t)
 
-	tool := NewCTest(exec.LazyExecutable("ctest"))
+	ctest := tool.NewCTest(exec.LazyExecutable("ctest"))
 
 	desc := internal.ProjectInfo{Directory: "project", IntermediateDirectory: internal.StrPtr("build")}
 
 	exec.OnRun("ctest", []string{"--test-dir", "build"}).
 		Return(errors.New("failed"))
 
-	err := tool.RunForProject(t.Context(), desc, []string{})
+	err := ctest.RunForProject(t.Context(), desc, []string{})
 	require.EqualError(t, err, "failed")
 
 	exec.AssertExpectations(t)

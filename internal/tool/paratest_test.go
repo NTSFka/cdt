@@ -1,8 +1,9 @@
-package tool
+package tool_test
 
 import (
 	"cdt/internal"
 	"cdt/internal/test"
+	"cdt/internal/tool"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -14,15 +15,15 @@ func TestParaTest_DetectParaTest_Composer(t *testing.T) {
 
 	// Composer installation
 	env.OnFindExecutable("vendor/bin/paratest").
-		Return(env.NewExecutable("/bin/tool"))
+		Return(env.NewExecutable("/bin/paratest"))
 
-	tool := DetectParaTest(t.Context(), env)
-	assert.NotNil(t, tool)
-	assert.Equal(t, "paratest", tool.Id())
-	assert.True(t, tool.IsAvailable())
+	paraTest := tool.DetectParaTest(t.Context(), env)
+	assert.NotNil(t, paraTest)
+	assert.Equal(t, "paratest", paraTest.Id())
+	assert.True(t, paraTest.IsAvailable())
 
-	if executable := tool.Executable(); assert.NotNil(t, executable) {
-		assert.Equal(t, "/bin/tool", executable.Path)
+	if executable := paraTest.Executable(); assert.NotNil(t, executable) {
+		assert.Equal(t, "/bin/paratest", executable.Path)
 	}
 
 	env.AssertExpectations(t)
@@ -37,15 +38,15 @@ func TestParaTest_DetectParaTest_System(t *testing.T) {
 
 	// System installation
 	env.OnFindExecutable("paratest").
-		Return(env.NewExecutable("/bin/tool"))
+		Return(env.NewExecutable("/bin/paratest"))
 
-	tool := DetectParaTest(t.Context(), env)
-	assert.NotNil(t, tool)
-	assert.Equal(t, "paratest", tool.Id())
-	assert.True(t, tool.IsAvailable())
+	paraTest := tool.DetectParaTest(t.Context(), env)
+	assert.NotNil(t, paraTest)
+	assert.Equal(t, "paratest", paraTest.Id())
+	assert.True(t, paraTest.IsAvailable())
 
-	if executable := tool.Executable(); assert.NotNil(t, executable) {
-		assert.Equal(t, "/bin/tool", executable.Path)
+	if executable := paraTest.Executable(); assert.NotNil(t, executable) {
+		assert.Equal(t, "/bin/paratest", executable.Path)
 	}
 
 	env.AssertExpectations(t)
@@ -59,11 +60,11 @@ func TestParaTest_DetectParaTest_NotFound(t *testing.T) {
 	env.OnFindExecutable("paratest").
 		Return(nil)
 
-	tool := DetectParaTest(t.Context(), env)
-	assert.NotNil(t, tool)
-	assert.Equal(t, "paratest", tool.Id())
-	assert.False(t, tool.IsAvailable())
-	assert.Nil(t, tool.Executable())
+	paraTest := tool.DetectParaTest(t.Context(), env)
+	assert.NotNil(t, paraTest)
+	assert.Equal(t, "paratest", paraTest.Id())
+	assert.False(t, paraTest.IsAvailable())
+	assert.Nil(t, paraTest.Executable())
 
 	env.AssertExpectations(t)
 }
@@ -71,14 +72,14 @@ func TestParaTest_DetectParaTest_NotFound(t *testing.T) {
 func TestParaTest_ParaTest_TestAll(t *testing.T) {
 	exec := test.NewExecutable(t)
 
-	tool := NewParaTest(exec.LazyExecutable("test"))
+	paraTest := tool.NewParaTest(exec.LazyExecutable("test"))
 
 	info := internal.ProjectInfo{Directory: "."}
 
 	exec.OnRun("test", []string{}).
 		Return(nil)
 
-	err := tool.TestAll(t.Context(), internal.ProjectTesterOptions{ProjectInfo: info})
+	err := paraTest.TestAll(t.Context(), internal.ProjectTesterOptions{ProjectInfo: info})
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -87,14 +88,14 @@ func TestParaTest_ParaTest_TestAll(t *testing.T) {
 func TestParaTest_ParaTest_Test(t *testing.T) {
 	exec := test.NewExecutable(t)
 
-	tool := NewParaTest(exec.LazyExecutable("test"))
+	paraTest := tool.NewParaTest(exec.LazyExecutable("test"))
 
 	info := internal.ProjectInfo{Directory: "."}
 
 	exec.OnRun("test", []string{"tests/*"}).
 		Return(nil)
 
-	err := tool.TestPattern(t.Context(), internal.ProjectTesterOptions{ProjectInfo: info}, "tests/*")
+	err := paraTest.TestPattern(t.Context(), internal.ProjectTesterOptions{ProjectInfo: info}, "tests/*")
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)

@@ -1,8 +1,9 @@
-package tool
+package tool_test
 
 import (
 	"cdt/internal"
 	"cdt/internal/test"
+	"cdt/internal/tool"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -13,15 +14,15 @@ func TestPylint_DetectPylint(t *testing.T) {
 	env := test.NewEnvironment(t)
 
 	env.OnFindExecutable("pylint").
-		Return(env.NewExecutable("/bin/tool"))
+		Return(env.NewExecutable("/bin/pylint"))
 
-	tool := DetectPylint(t.Context(), env)
-	assert.NotNil(t, tool)
-	assert.Equal(t, "pylint", tool.Id())
-	assert.True(t, tool.IsAvailable())
+	pylint := tool.DetectPylint(t.Context(), env)
+	assert.NotNil(t, pylint)
+	assert.Equal(t, "pylint", pylint.Id())
+	assert.True(t, pylint.IsAvailable())
 
-	if executable := tool.Executable(); assert.NotNil(t, executable) {
-		assert.Equal(t, "/bin/tool", executable.Path)
+	if executable := pylint.Executable(); assert.NotNil(t, executable) {
+		assert.Equal(t, "/bin/pylint", executable.Path)
 	}
 
 	env.AssertExpectations(t)
@@ -33,11 +34,11 @@ func TestPylint_DetectPylint_NotFound(t *testing.T) {
 	env.OnFindExecutable("pylint").
 		Return(nil)
 
-	tool := DetectPylint(t.Context(), env)
-	assert.NotNil(t, tool)
-	assert.Equal(t, "pylint", tool.Id())
-	assert.False(t, tool.IsAvailable())
-	assert.Nil(t, tool.Executable())
+	pylint := tool.DetectPylint(t.Context(), env)
+	assert.NotNil(t, pylint)
+	assert.Equal(t, "pylint", pylint.Id())
+	assert.False(t, pylint.IsAvailable())
+	assert.Nil(t, pylint.Executable())
 
 	env.AssertExpectations(t)
 }
@@ -45,14 +46,14 @@ func TestPylint_DetectPylint_NotFound(t *testing.T) {
 func TestPylint_Pylint_LintAll(t *testing.T) {
 	exec := test.NewExecutable(t)
 
-	tool := NewPylint(exec.LazyExecutable("lint"))
+	pylint := tool.NewPylint(exec.LazyExecutable("lint"))
 
 	info := internal.ProjectInfo{Directory: "."}
 
 	exec.OnRun("lint", []string{"*"}).
 		Return(nil)
 
-	err := tool.LintAll(t.Context(), internal.ProjectLinterOptions{ProjectInfo: info})
+	err := pylint.LintAll(t.Context(), internal.ProjectLinterOptions{ProjectInfo: info})
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -61,14 +62,14 @@ func TestPylint_Pylint_LintAll(t *testing.T) {
 func TestPylint_Pylint_Lint(t *testing.T) {
 	exec := test.NewExecutable(t)
 
-	tool := NewPylint(exec.LazyExecutable("lint"))
+	pylint := tool.NewPylint(exec.LazyExecutable("lint"))
 
 	info := internal.ProjectInfo{Directory: "."}
 
 	exec.OnRun("lint", []string{"file.py", "/path/to/file2.py"}).
 		Return(nil)
 
-	err := tool.LintFiles(t.Context(), internal.ProjectLinterOptions{ProjectInfo: info}, []string{"file.py", "/path/to/file2.py"})
+	err := pylint.LintFiles(t.Context(), internal.ProjectLinterOptions{ProjectInfo: info}, []string{"file.py", "/path/to/file2.py"})
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)

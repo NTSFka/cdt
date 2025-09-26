@@ -1,8 +1,9 @@
-package tool
+package tool_test
 
 import (
 	"cdt/internal"
 	"cdt/internal/test"
+	"cdt/internal/tool"
 	"errors"
 	"testing"
 
@@ -15,7 +16,7 @@ func TestCMake_CMakeDetect(t *testing.T) {
 	env.OnFindExecutable("cmake").
 		Return(env.NewExecutable("/bin/cmake"))
 
-	cmake := DetectCMake(t.Context(), env)
+	cmake := tool.DetectCMake(t.Context(), env)
 	assert.NotNil(t, cmake)
 	assert.Equal(t, "cmake", cmake.Id())
 	assert.True(t, cmake.IsAvailable())
@@ -32,7 +33,7 @@ func TestCMake_CMakeDetect_NotFound(t *testing.T) {
 	env.OnFindExecutable("cmake").
 		Return(nil)
 
-	cmake := DetectCMake(t.Context(), env)
+	cmake := tool.DetectCMake(t.Context(), env)
 	assert.NotNil(t, cmake)
 	assert.Equal(t, "cmake", cmake.Id())
 	assert.False(t, cmake.IsAvailable())
@@ -44,7 +45,7 @@ func TestCMake_CMakeDetect_NotFound(t *testing.T) {
 func TestCMake_Configure(t *testing.T) {
 	exec := test.NewExecutable(t)
 
-	cmake := NewCMake(exec.LazyExecutable("cmake"))
+	cmake := tool.NewCMake(exec.LazyExecutable("cmake"))
 
 	buildDir := t.TempDir()
 
@@ -69,7 +70,7 @@ func TestCMake_Configure(t *testing.T) {
 func TestCMake_Configure_Failed(t *testing.T) {
 	exec := test.NewExecutable(t)
 
-	cmake := NewCMake(exec.LazyExecutable("cmake"))
+	cmake := tool.NewCMake(exec.LazyExecutable("cmake"))
 
 	buildDir := t.TempDir()
 
@@ -94,7 +95,7 @@ func TestCMake_Configure_Failed(t *testing.T) {
 func TestCMake_Structure_ConfigureFailed(t *testing.T) {
 	exec := test.NewExecutable(t)
 
-	cmake := NewCMake(exec.LazyExecutable("cmake"))
+	cmake := tool.NewCMake(exec.LazyExecutable("cmake"))
 
 	buildDir := t.TempDir()
 
@@ -122,7 +123,7 @@ func TestCMake_Structure_ConfigureFailed(t *testing.T) {
 func TestCMake_BuildAll(t *testing.T) {
 	exec := test.NewExecutable(t)
 
-	cmake := NewCMake(exec.LazyExecutable("cmake"))
+	cmake := tool.NewCMake(exec.LazyExecutable("cmake"))
 
 	buildDir := t.TempDir()
 
@@ -153,7 +154,7 @@ func TestCMake_BuildAll(t *testing.T) {
 func TestCMake_BuildAll_Failed(t *testing.T) {
 	exec := test.NewExecutable(t)
 
-	cmake := NewCMake(exec.LazyExecutable("cmake"))
+	cmake := tool.NewCMake(exec.LazyExecutable("cmake"))
 
 	buildDir := t.TempDir()
 
@@ -184,7 +185,7 @@ func TestCMake_BuildAll_Failed(t *testing.T) {
 func TestCMake_BuildAll_ConfigureFailed(t *testing.T) {
 	exec := test.NewExecutable(t)
 
-	cmake := NewCMake(exec.LazyExecutable("cmake"))
+	cmake := tool.NewCMake(exec.LazyExecutable("cmake"))
 
 	buildDir := t.TempDir()
 
@@ -211,7 +212,7 @@ func TestCMake_BuildAll_ConfigureFailed(t *testing.T) {
 func TestCMake_BuildTargets(t *testing.T) {
 	exec := test.NewExecutable(t)
 
-	cmake := NewCMake(exec.LazyExecutable("cmake"))
+	cmake := tool.NewCMake(exec.LazyExecutable("cmake"))
 
 	buildDir := t.TempDir()
 
@@ -245,7 +246,7 @@ func TestCMake_BuildTargets(t *testing.T) {
 func TestCMake_BuildTargets_Failed(t *testing.T) {
 	exec := test.NewExecutable(t)
 
-	cmake := NewCMake(exec.LazyExecutable("cmake"))
+	cmake := tool.NewCMake(exec.LazyExecutable("cmake"))
 
 	buildDir := t.TempDir()
 
@@ -279,7 +280,7 @@ func TestCMake_BuildTargets_Failed(t *testing.T) {
 func TestCMake_BuildTargets_ConfigureFailed(t *testing.T) {
 	exec := test.NewExecutable(t)
 
-	cmake := NewCMake(exec.LazyExecutable("cmake"))
+	cmake := tool.NewCMake(exec.LazyExecutable("cmake"))
 
 	buildDir := t.TempDir()
 
@@ -306,7 +307,7 @@ func TestCMake_BuildTargets_ConfigureFailed(t *testing.T) {
 func TestCMake_RunTarget_Failed(t *testing.T) {
 	exec := test.NewExecutable(t)
 
-	cmake := NewCMake(exec.LazyExecutable("cmake"))
+	cmake := tool.NewCMake(exec.LazyExecutable("cmake"))
 
 	buildDir := t.TempDir()
 

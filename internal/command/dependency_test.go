@@ -1,7 +1,8 @@
-package command
+package command_test
 
 import (
 	"cdt/internal"
+	"cdt/internal/command"
 	"cdt/internal/test"
 	"context"
 	"errors"
@@ -13,7 +14,7 @@ import (
 )
 
 func runDependency(ctx context.Context, manager internal.ProjectDependencyManager, args ...string) error {
-	return test.RunCommand(ctx, NewDependencyCommand(), internal.Context{
+	return test.RunCommand(ctx, command.NewDependencyCommand(), internal.Context{
 		Project: internal.Project{
 			Workflow: internal.Workflow{
 				DependencyManager: manager,
@@ -23,7 +24,7 @@ func runDependency(ctx context.Context, manager internal.ProjectDependencyManage
 }
 
 func runDependencyTool(ctx context.Context, tool internal.Tool, args ...string) error {
-	return test.RunCommand(ctx, NewDependencyCommand(), internal.Context{
+	return test.RunCommand(ctx, command.NewDependencyCommand(), internal.Context{
 		Tools: []internal.Tool{
 			tool,
 		},

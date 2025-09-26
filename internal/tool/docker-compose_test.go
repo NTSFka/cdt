@@ -1,8 +1,9 @@
-package tool
+package tool_test
 
 import (
 	"cdt/internal"
 	"cdt/internal/test"
+	"cdt/internal/tool"
 	"errors"
 	"testing"
 
@@ -12,22 +13,22 @@ import (
 )
 
 func TestDockerCompose_NewDockerCompose_NoExecutable(t *testing.T) {
-	tool := NewDockerCompose(func() *internal.Executable { return nil })
+	dockerCompose := tool.NewDockerCompose(func() *internal.Executable { return nil })
 
-	assert.NotNil(t, tool)
-	assert.Equal(t, "docker-compose", tool.Id())
-	assert.NotEmpty(t, tool.Name())
-	assert.NotEmpty(t, tool.Info())
-	assert.Equal(t, []string{"dc"}, tool.Aliases())
-	assert.False(t, tool.IsAvailable())
+	assert.NotNil(t, dockerCompose)
+	assert.Equal(t, "docker-compose", dockerCompose.Id())
+	assert.NotEmpty(t, dockerCompose.Name())
+	assert.NotEmpty(t, dockerCompose.Info())
+	assert.Equal(t, []string{"dc"}, dockerCompose.Aliases())
+	assert.False(t, dockerCompose.IsAvailable())
 }
 
 func TestDockerCompose_NewDockerCompose_WithExecutable(t *testing.T) {
-	tool := NewDockerCompose(func() *internal.Executable { return &internal.Executable{Path: "/bin/docker"} })
+	dockerCompose := tool.NewDockerCompose(func() *internal.Executable { return &internal.Executable{Path: "/bin/docker"} })
 
-	assert.NotNil(t, tool)
-	assert.Equal(t, "docker-compose", tool.Id())
-	assert.True(t, tool.IsAvailable())
+	assert.NotNil(t, dockerCompose)
+	assert.Equal(t, "docker-compose", dockerCompose.Id())
+	assert.True(t, dockerCompose.IsAvailable())
 }
 
 func TestDockerCompose_DetectDockerCompose_NotFound(t *testing.T) {
@@ -35,10 +36,10 @@ func TestDockerCompose_DetectDockerCompose_NotFound(t *testing.T) {
 	env.OnFindExecutable("docker").
 		Return(nil)
 
-	tool := DetectDockerCompose(t.Context(), env)
-	assert.NotNil(t, tool)
-	assert.Equal(t, "docker-compose", tool.Id())
-	assert.False(t, tool.IsAvailable())
+	dockerCompose := tool.DetectDockerCompose(t.Context(), env)
+	assert.NotNil(t, dockerCompose)
+	assert.Equal(t, "docker-compose", dockerCompose.Id())
+	assert.False(t, dockerCompose.IsAvailable())
 
 	env.AssertExpectations(t)
 }
@@ -48,27 +49,27 @@ func TestDockerCompose_DetectDockerCompose_Found(t *testing.T) {
 	env.OnFindExecutable("docker").
 		Return(env.NewExecutable("docker"))
 
-	tool := DetectDockerCompose(t.Context(), env)
-	assert.NotNil(t, tool)
-	assert.Equal(t, "docker-compose", tool.Id())
-	assert.True(t, tool.IsAvailable())
+	dockerCompose := tool.DetectDockerCompose(t.Context(), env)
+	assert.NotNil(t, dockerCompose)
+	assert.Equal(t, "docker-compose", dockerCompose.Id())
+	assert.True(t, dockerCompose.IsAvailable())
 
 	env.AssertExpectations(t)
 }
 
 func TestDockerCompose_Detect(t *testing.T) {
-	tool := NewDockerCompose(func() *internal.Executable { return &internal.Executable{Path: "docker"} })
-	assert.NotNil(t, tool)
+	dockerCompose := tool.NewDockerCompose(func() *internal.Executable { return &internal.Executable{Path: "docker"} })
+	assert.NotNil(t, dockerCompose)
 
-	env := tool.Detect(".")
+	env := dockerCompose.Detect(".")
 	assert.Nil(t, env)
 }
 
 func TestDockerCompose_CreateEnvironment(t *testing.T) {
-	tool := NewDockerCompose(func() *internal.Executable { return &internal.Executable{Path: "docker"} })
-	assert.NotNil(t, tool)
+	dockerCompose := tool.NewDockerCompose(func() *internal.Executable { return &internal.Executable{Path: "docker"} })
+	assert.NotNil(t, dockerCompose)
 
-	env, err := tool.CreateEnvironment(".", "service1")
+	env, err := dockerCompose.CreateEnvironment(".", "service1")
 	require.NoError(t, err)
 	assert.NotNil(t, env)
 
@@ -76,10 +77,10 @@ func TestDockerCompose_CreateEnvironment(t *testing.T) {
 }
 
 func TestDockerCompose_CreateEnvironment_NoService(t *testing.T) {
-	tool := NewDockerCompose(func() *internal.Executable { return &internal.Executable{Path: "docker"} })
-	assert.NotNil(t, tool)
+	dockerCompose := tool.NewDockerCompose(func() *internal.Executable { return &internal.Executable{Path: "docker"} })
+	assert.NotNil(t, dockerCompose)
 
-	env, err := tool.CreateEnvironment(".", "")
+	env, err := dockerCompose.CreateEnvironment(".", "")
 	require.EqualError(t, err, "service name is required")
 	assert.Nil(t, env)
 }
@@ -115,10 +116,10 @@ func (m *dockerComposeRunMock) OnState(service string, result bool) *mock.Call {
 func dockerComposePrepare(t *testing.T, service string) (*dockerComposeRunMock, internal.Environment) {
 	runMock := dockerComposeRunMock{}
 
-	tool := NewDockerCompose(runMock.LazyExecutable("docker"))
-	assert.NotNil(t, tool)
+	dockerCompose := tool.NewDockerCompose(runMock.LazyExecutable("docker"))
+	assert.NotNil(t, dockerCompose)
 
-	env, err := tool.CreateEnvironment(".", service)
+	env, err := dockerCompose.CreateEnvironment(".", service)
 	require.NoError(t, err)
 	assert.NotNil(t, env)
 
@@ -232,12 +233,19 @@ func TestDockerCompose_Environment_Cleanup(t *testing.T) {
 
 func TestDockerCompose_Environment_Cleanup_Running(t *testing.T) {
 	runMock, env := dockerComposePrepare(t, "service10")
-	env.(*dockerComposeEnvironment).autoStop = true
+
+	// Force autoStart
+	runMock.OnState("service10", false).Return(nil)
+	runMock.OnCall([]string{"compose", "up", "-d"}).Return(nil)
+	runMock.OnCall([]string{"compose", "exec", "service10", "test"}).Return(nil)
+
+	err := env.RunExecutable(t.Context(), internal.RunOptions{}, "test", nil)
+	require.NoError(t, err)
 
 	runMock.OnCall([]string{"compose", "stop"}).
 		Return(nil)
 
-	err := env.Cleanup(t.Context())
+	err = env.Cleanup(t.Context())
 	require.NoError(t, err)
 
 	runMock.AssertExpectations(t)
@@ -245,12 +253,19 @@ func TestDockerCompose_Environment_Cleanup_Running(t *testing.T) {
 
 func TestDockerCompose_Environment_Cleanup_Running_Failed(t *testing.T) {
 	runMock, env := dockerComposePrepare(t, "service11")
-	env.(*dockerComposeEnvironment).autoStop = true
+
+	// Force autoStart
+	runMock.OnState("service11", false).Return(nil)
+	runMock.OnCall([]string{"compose", "up", "-d"}).Return(nil)
+	runMock.OnCall([]string{"compose", "exec", "service11", "test"}).Return(nil)
+
+	err := env.RunExecutable(t.Context(), internal.RunOptions{}, "test", nil)
+	require.NoError(t, err)
 
 	runMock.OnCall([]string{"compose", "stop"}).
 		Return(errors.New("failed"))
 
-	err := env.Cleanup(t.Context())
+	err = env.Cleanup(t.Context())
 	require.EqualError(t, err, "failed")
 
 	runMock.AssertExpectations(t)

@@ -1,8 +1,9 @@
-package workflow
+package workflow_test
 
 import (
 	"cdt/internal"
 	"cdt/internal/tool"
+	"cdt/internal/workflow"
 	"os"
 	"path/filepath"
 	"testing"
@@ -12,7 +13,7 @@ import (
 )
 
 func TestPythonType_Detect_NoModFile(t *testing.T) {
-	workflowType := Python{}
+	workflowType := workflow.Python{}
 
 	res := workflowType.Detect("dir1")
 
@@ -20,7 +21,7 @@ func TestPythonType_Detect_NoModFile(t *testing.T) {
 }
 
 func TestPythonType_Detect_ModFile(t *testing.T) {
-	workflowType := Python{}
+	workflowType := workflow.Python{}
 
 	dir := t.TempDir()
 
@@ -33,7 +34,7 @@ func TestPythonType_Detect_ModFile(t *testing.T) {
 }
 
 func TestPythonType_Create(t *testing.T) {
-	workflowType := Python{}
+	workflowType := workflow.Python{}
 
 	tools := internal.Tools{
 		tool.NewPython(func() *internal.Executable { return &internal.Executable{Path: "php-test"} }),
@@ -47,7 +48,7 @@ func TestPythonType_Create(t *testing.T) {
 		tool.NewBlack(func() *internal.Executable { return &internal.Executable{Path: "black-test"} }),
 	}
 
-	project := workflowType.Create(Config{Directory: "dir1"}, tools)
+	project := workflowType.Create(workflow.Config{Directory: "dir1"}, tools)
 
 	require.NotNil(t, project)
 	assert.Nil(t, project.Workflow.Configurator)

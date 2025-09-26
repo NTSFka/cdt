@@ -1,9 +1,10 @@
-package workflow
+package workflow_test
 
 import (
 	"cdt/internal"
 	"cdt/internal/test"
 	"cdt/internal/tool"
+	"cdt/internal/workflow"
 	"os"
 	"path/filepath"
 	"testing"
@@ -13,7 +14,7 @@ import (
 )
 
 func TestFromConfig_Empty(t *testing.T) {
-	config, err := FromConfig(internal.ConfigWorkflow{}, internal.Tools{})
+	config, err := workflow.FromConfig(internal.ConfigWorkflow{}, internal.Tools{})
 
 	require.NoError(t, err)
 	assert.Equal(t, &internal.Workflow{Name: "custom"}, config)
@@ -23,7 +24,7 @@ func TestFromConfig_Configure_NotFound(t *testing.T) {
 	config := internal.ConfigWorkflow{Configure: internal.StrPtr("configure")}
 	tools := internal.Tools{}
 
-	tool, err := FromConfig(config, tools)
+	tool, err := workflow.FromConfig(config, tools)
 
 	require.EqualError(t, err, "tool 'configure' not found")
 	assert.Nil(t, tool)
@@ -35,7 +36,7 @@ func TestFromConfig_Configure_NotSupported(t *testing.T) {
 		internal.NewExecutableTool("configure", "Test", "Test", internal.Tags{}, nil),
 	}
 
-	tool, err := FromConfig(config, tools)
+	tool, err := workflow.FromConfig(config, tools)
 
 	require.EqualError(t, err, "tool 'configure' doesn't support configuration")
 	assert.Nil(t, tool)
@@ -53,7 +54,7 @@ func TestFromConfig_Configure(t *testing.T) {
 		nil,
 	}
 
-	workflow, err := FromConfig(config, internal.Tools{tool})
+	workflow, err := workflow.FromConfig(config, internal.Tools{tool})
 
 	require.NoError(t, err)
 	require.NotNil(t, workflow)
@@ -69,7 +70,7 @@ func TestFromConfig_Build_NotFound(t *testing.T) {
 	config := internal.ConfigWorkflow{Build: internal.StrPtr("build")}
 	tools := internal.Tools{}
 
-	tool, err := FromConfig(config, tools)
+	tool, err := workflow.FromConfig(config, tools)
 
 	require.EqualError(t, err, "tool 'build' not found")
 	assert.Nil(t, tool)
@@ -81,7 +82,7 @@ func TestFromConfig_Build_NotSupported(t *testing.T) {
 		internal.NewExecutableTool("build", "Test", "Test", internal.Tags{}, nil),
 	}
 
-	tool, err := FromConfig(config, tools)
+	tool, err := workflow.FromConfig(config, tools)
 
 	require.EqualError(t, err, "tool 'build' doesn't support building")
 	assert.Nil(t, tool)
@@ -99,7 +100,7 @@ func TestFromConfig_Build(t *testing.T) {
 		nil,
 	}
 
-	workflow, err := FromConfig(config, internal.Tools{tool})
+	workflow, err := workflow.FromConfig(config, internal.Tools{tool})
 
 	require.NoError(t, err)
 	require.NotNil(t, workflow)
@@ -115,7 +116,7 @@ func TestFromConfig_Test_NotFound(t *testing.T) {
 	config := internal.ConfigWorkflow{Test: internal.StrPtr("test")}
 	tools := internal.Tools{}
 
-	tool, err := FromConfig(config, tools)
+	tool, err := workflow.FromConfig(config, tools)
 
 	require.EqualError(t, err, "tool 'test' not found")
 	assert.Nil(t, tool)
@@ -127,7 +128,7 @@ func TestFromConfig_Test_NotSupported(t *testing.T) {
 		internal.NewExecutableTool("test", "Test", "Test", internal.Tags{}, nil),
 	}
 
-	tool, err := FromConfig(config, tools)
+	tool, err := workflow.FromConfig(config, tools)
 
 	require.EqualError(t, err, "tool 'test' doesn't support testing")
 	assert.Nil(t, tool)
@@ -145,7 +146,7 @@ func TestFromConfig_Test(t *testing.T) {
 		nil,
 	}
 
-	workflow, err := FromConfig(config, internal.Tools{tool})
+	workflow, err := workflow.FromConfig(config, internal.Tools{tool})
 
 	require.NoError(t, err)
 	require.NotNil(t, workflow)
@@ -161,7 +162,7 @@ func TestFromConfig_Format_NotFound(t *testing.T) {
 	config := internal.ConfigWorkflow{Format: internal.StrPtr("format")}
 	tools := internal.Tools{}
 
-	tool, err := FromConfig(config, tools)
+	tool, err := workflow.FromConfig(config, tools)
 
 	require.EqualError(t, err, "tool 'format' not found")
 	assert.Nil(t, tool)
@@ -173,7 +174,7 @@ func TestFromConfig_Format_NotSupported(t *testing.T) {
 		internal.NewExecutableTool("format", "Test", "Test", internal.Tags{}, nil),
 	}
 
-	tool, err := FromConfig(config, tools)
+	tool, err := workflow.FromConfig(config, tools)
 
 	require.EqualError(t, err, "tool 'format' doesn't support formatting")
 	assert.Nil(t, tool)
@@ -191,7 +192,7 @@ func TestFromConfig_Format(t *testing.T) {
 		nil,
 	}
 
-	workflow, err := FromConfig(config, internal.Tools{tool})
+	workflow, err := workflow.FromConfig(config, internal.Tools{tool})
 
 	require.NoError(t, err)
 	require.NotNil(t, workflow)
@@ -207,7 +208,7 @@ func TestFromConfig_Lint_NotFound(t *testing.T) {
 	config := internal.ConfigWorkflow{Lint: internal.StrPtr("lint")}
 	tools := internal.Tools{}
 
-	tool, err := FromConfig(config, tools)
+	tool, err := workflow.FromConfig(config, tools)
 
 	require.EqualError(t, err, "tool 'lint' not found")
 	assert.Nil(t, tool)
@@ -219,7 +220,7 @@ func TestFromConfig_Lint_NotSupported(t *testing.T) {
 		internal.NewExecutableTool("lint", "Test", "Test", internal.Tags{}, nil),
 	}
 
-	tool, err := FromConfig(config, tools)
+	tool, err := workflow.FromConfig(config, tools)
 
 	require.EqualError(t, err, "tool 'lint' doesn't support linting")
 	assert.Nil(t, tool)
@@ -237,7 +238,7 @@ func TestFromConfig_Lint(t *testing.T) {
 		nil,
 	}
 
-	workflow, err := FromConfig(config, internal.Tools{tool})
+	workflow, err := workflow.FromConfig(config, internal.Tools{tool})
 
 	require.NoError(t, err)
 	require.NotNil(t, workflow)
@@ -253,7 +254,7 @@ func TestFromConfig_Run_NotFound(t *testing.T) {
 	config := internal.ConfigWorkflow{Run: internal.StrPtr("run")}
 	tools := internal.Tools{}
 
-	tool, err := FromConfig(config, tools)
+	tool, err := workflow.FromConfig(config, tools)
 
 	require.EqualError(t, err, "tool 'run' not found")
 	assert.Nil(t, tool)
@@ -265,7 +266,7 @@ func TestFromConfig_Run_NotSupported(t *testing.T) {
 		internal.NewExecutableTool("run", "Test", "Test", internal.Tags{}, nil),
 	}
 
-	tool, err := FromConfig(config, tools)
+	tool, err := workflow.FromConfig(config, tools)
 
 	require.EqualError(t, err, "tool 'run' doesn't support run")
 	assert.Nil(t, tool)
@@ -283,7 +284,7 @@ func TestFromConfig_Run(t *testing.T) {
 		nil,
 	}
 
-	workflow, err := FromConfig(config, internal.Tools{tool})
+	workflow, err := workflow.FromConfig(config, internal.Tools{tool})
 
 	require.NoError(t, err)
 	require.NotNil(t, workflow)
@@ -296,7 +297,7 @@ func TestFromConfig_Run(t *testing.T) {
 }
 
 func TestBuildProject_Default(t *testing.T) {
-	project, err := CreateProject(internal.Config{RootDirectory: "dir1"}, internal.Tools{})
+	project, err := workflow.CreateProject(internal.Config{RootDirectory: "dir1"}, internal.Tools{})
 
 	require.NoError(t, err)
 
@@ -347,7 +348,7 @@ func TestBuildProject_Custom(t *testing.T) {
 		internal.ProjectRunner
 	}{internal.MakeExecutableTool("tool6", "Test", "Test", internal.Tags{}, nil), nil}
 
-	project, err := CreateProject(config, internal.Tools{tool1, tool2, tool3, tool4, tool5, tool6})
+	project, err := workflow.CreateProject(config, internal.Tools{tool1, tool2, tool3, tool4, tool5, tool6})
 
 	require.NoError(t, err)
 
@@ -373,7 +374,7 @@ func TestBuildProject_Custom_Fail(t *testing.T) {
 			Run:       internal.StrPtr("tool6"),
 		},
 	}
-	project, err := CreateProject(config, internal.Tools{})
+	project, err := workflow.CreateProject(config, internal.Tools{})
 
 	require.EqualError(t, err, "tool 'tool1' not found")
 	assert.Nil(t, project)
@@ -386,7 +387,7 @@ func TestBuildProject_Custom_UnknownWorkflow(t *testing.T) {
 	}
 
 	assert.PanicsWithValue(t, "unknown workflow type: int", func() {
-		_, _ = CreateProject(config, internal.Tools{})
+		_, _ = workflow.CreateProject(config, internal.Tools{})
 	})
 }
 
@@ -396,7 +397,7 @@ func TestBuildProject_Custom_StringWorkflow_Unsupported(t *testing.T) {
 		Workflow:      "my-workflow",
 	}
 
-	workflow, err := CreateProject(config, internal.Tools{})
+	workflow, err := workflow.CreateProject(config, internal.Tools{})
 
 	require.EqualError(t, err, "workflow 'my-workflow' not found")
 	assert.Nil(t, workflow)
@@ -412,7 +413,7 @@ func TestBuildProject_Custom_StringWorkflow_Go(t *testing.T) {
 	}
 
 	config := internal.Config{RootDirectory: rootDir, Workflow: "go"}
-	project, err := CreateProject(config, internal.Tools{
+	project, err := workflow.CreateProject(config, internal.Tools{
 		tool.DetectGo(t.Context(), env),
 		tool.DetectGolangCILint(t.Context(), env),
 	})
@@ -431,7 +432,7 @@ func TestBuildProject_CMake(t *testing.T) {
 	}
 
 	config := internal.Config{RootDirectory: rootDir}
-	project, err := CreateProject(config, internal.Tools{
+	project, err := workflow.CreateProject(config, internal.Tools{
 		tool.DetectCMake(t.Context(), env),
 		tool.DetectCTest(t.Context(), env),
 		tool.DetectClangFormat(t.Context(), env),
@@ -452,7 +453,7 @@ func TestBuildProject_Go(t *testing.T) {
 	}
 
 	config := internal.Config{RootDirectory: rootDir}
-	project, err := CreateProject(config, internal.Tools{
+	project, err := workflow.CreateProject(config, internal.Tools{
 		tool.DetectGo(t.Context(), env),
 		tool.DetectGolangCILint(t.Context(), env),
 	})

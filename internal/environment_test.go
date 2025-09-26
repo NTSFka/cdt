@@ -1,7 +1,8 @@
-package internal
+package internal_test
 
 import (
 	"bytes"
+	"cdt/internal"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -9,7 +10,7 @@ import (
 )
 
 func TestEnvironment_EnvironmentProviders_PrintTable_Empty(t *testing.T) {
-	providers := EnvironmentProviders{}
+	providers := internal.EnvironmentProviders{}
 
 	output := bytes.Buffer{}
 	providers.PrintTable(&output)
@@ -32,7 +33,7 @@ func (t *testEnvironmentProvider) ParameterInfo() string {
 	return "test"
 }
 
-func (t *testEnvironmentProvider) Detect(_ string) *Environment {
+func (t *testEnvironmentProvider) Detect(_ string) *internal.Environment {
 	return nil
 }
 
@@ -48,13 +49,13 @@ func (t *testEnvironmentProvider) IsAvailable() bool {
 	return false
 }
 
-func (t *testEnvironmentProvider) CreateEnvironment(_ string, _ string) (Environment, error) {
+func (t *testEnvironmentProvider) CreateEnvironment(_ string, _ string) (internal.Environment, error) {
 	return nil, nil // nolint: nilnil
 }
 
 func TestEnvironment_EnvironmentProviders_PrintTable(t *testing.T) {
-	providers := EnvironmentProviders{
-		SystemEnvironmentProvider,
+	providers := internal.EnvironmentProviders{
+		internal.SystemEnvironmentProvider,
 		&testEnvironmentProvider{},
 	}
 
@@ -65,49 +66,49 @@ func TestEnvironment_EnvironmentProviders_PrintTable(t *testing.T) {
 }
 
 func TestEnvironment_SystemEnvironmentProvider_Data(t *testing.T) {
-	assert.Equal(t, "system", SystemEnvironmentProvider.Id())
-	assert.Equal(t, "System", SystemEnvironmentProvider.Name())
-	assert.Equal(t, "Native OS system environment", SystemEnvironmentProvider.Info())
-	assert.Equal(t, []string{"s"}, SystemEnvironmentProvider.Aliases())
-	assert.True(t, SystemEnvironmentProvider.IsAvailable())
+	assert.Equal(t, "system", internal.SystemEnvironmentProvider.Id())
+	assert.Equal(t, "System", internal.SystemEnvironmentProvider.Name())
+	assert.Equal(t, "Native OS system environment", internal.SystemEnvironmentProvider.Info())
+	assert.Equal(t, []string{"s"}, internal.SystemEnvironmentProvider.Aliases())
+	assert.True(t, internal.SystemEnvironmentProvider.IsAvailable())
 
-	env, err := SystemEnvironmentProvider.CreateEnvironment(".", "test")
+	env, err := internal.SystemEnvironmentProvider.CreateEnvironment(".", "test")
 	require.NoError(t, err)
-	assert.Equal(t, SystemEnvironment, env)
+	assert.Equal(t, internal.SystemEnvironment, env)
 }
 
 func TestEnvironment_SystemEnvironmentProvider_Detect(t *testing.T) {
-	assert.Nil(t, SystemEnvironmentProvider.Detect("."))
+	assert.Nil(t, internal.SystemEnvironmentProvider.Detect("."))
 }
 
 func TestEnvironment_SystemEnvironment_Id(t *testing.T) {
-	assert.Equal(t, "system", SystemEnvironment.Id())
+	assert.Equal(t, "system", internal.SystemEnvironment.Id())
 }
 
 func TestEnvironment_SystemEnvironment_Start(t *testing.T) {
-	require.NoError(t, SystemEnvironment.Start(t.Context()))
+	require.NoError(t, internal.SystemEnvironment.Start(t.Context()))
 }
 
 func TestEnvironment_SystemEnvironment_IsRunning(t *testing.T) {
-	assert.True(t, SystemEnvironment.IsRunning(t.Context()))
+	assert.True(t, internal.SystemEnvironment.IsRunning(t.Context()))
 }
 
 func TestEnvironment_SystemEnvironment_Stop(t *testing.T) {
-	require.NoError(t, SystemEnvironment.Stop(t.Context()))
+	require.NoError(t, internal.SystemEnvironment.Stop(t.Context()))
 }
 
 func TestEnvironment_SystemEnvironment_Cleanup(t *testing.T) {
-	require.NoError(t, SystemEnvironment.Cleanup(t.Context()))
+	require.NoError(t, internal.SystemEnvironment.Cleanup(t.Context()))
 }
 
 func TestEnvironment_SystemEnvironment_FindExecutable_NotFound(t *testing.T) {
-	executable := SystemEnvironment.FindExecutable(t.Context(), "tool-not-found")
+	executable := internal.SystemEnvironment.FindExecutable(t.Context(), "tool-not-found")
 
 	assert.Nil(t, executable)
 }
 
 func TestEnvironment_SystemEnvironment_FindExecutable(t *testing.T) {
-	executable := SystemEnvironment.FindExecutable(t.Context(), "echo")
+	executable := internal.SystemEnvironment.FindExecutable(t.Context(), "echo")
 
 	require.NotNil(t, executable)
 	assert.NotNil(t, executable.Runtime)
@@ -116,13 +117,13 @@ func TestEnvironment_SystemEnvironment_FindExecutable(t *testing.T) {
 
 func TestEnvironment_SystemEnvironment_RunExecutable(t *testing.T) {
 	buffer := bytes.Buffer{}
-	options := RunOptions{
+	options := internal.RunOptions{
 		Directory: ".",
 		Output:    &buffer,
 		Error:     nil,
 	}
 
-	err := SystemEnvironment.RunExecutable(t.Context(), options, "echo", []string{"test"})
+	err := internal.SystemEnvironment.RunExecutable(t.Context(), options, "echo", []string{"test"})
 	require.NoError(t, err)
 	assert.Equal(t, "test\n", buffer.String())
 }

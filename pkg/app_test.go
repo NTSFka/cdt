@@ -1,8 +1,9 @@
-package pkg
+package pkg_test
 
 import (
 	"cdt/internal"
 	"cdt/internal/test"
+	"cdt/pkg"
 	"context"
 	"errors"
 	"os"
@@ -16,7 +17,7 @@ import (
 )
 
 func TestApp_Run_ContextBuild_Failed(t *testing.T) {
-	app := NewApp(func(cfg internal.Config) (*internal.Context, error) {
+	app := pkg.NewApp(func(cfg internal.Config) (*internal.Context, error) {
 		return nil, errors.New("failed")
 	})
 
@@ -33,7 +34,7 @@ func TestApp_Run_ContextBuild_Failed(t *testing.T) {
 func TestApp_Run_Environment_Cleanup(t *testing.T) {
 	env := test.NewEnvironment(t)
 
-	app := NewApp(func(cfg internal.Config) (*internal.Context, error) {
+	app := pkg.NewApp(func(cfg internal.Config) (*internal.Context, error) {
 		return &internal.Context{
 			Environment: env,
 		}, nil
@@ -54,7 +55,7 @@ func TestApp_Run_Environment_Cleanup(t *testing.T) {
 }
 
 func TestApp_Run_Debug(t *testing.T) {
-	app := NewApp(func(cfg internal.Config) (*internal.Context, error) {
+	app := pkg.NewApp(func(cfg internal.Config) (*internal.Context, error) {
 		return &internal.Context{}, nil
 	})
 
@@ -71,7 +72,7 @@ func TestApp_Run_Debug(t *testing.T) {
 func TestApp_Run_ConfigDefault(t *testing.T) {
 	var config *internal.Config
 
-	app := NewApp(func(cfg internal.Config) (*internal.Context, error) {
+	app := pkg.NewApp(func(cfg internal.Config) (*internal.Context, error) {
 		config = &cfg
 
 		return &internal.Context{}, nil
@@ -98,7 +99,7 @@ func TestApp_Run_ConfigDefault(t *testing.T) {
 func TestApp_Run_ConfigFull(t *testing.T) {
 	var config *internal.Config
 
-	app := NewApp(func(cfg internal.Config) (*internal.Context, error) {
+	app := pkg.NewApp(func(cfg internal.Config) (*internal.Context, error) {
 		config = &cfg
 
 		return &internal.Context{}, nil
@@ -131,7 +132,7 @@ func TestApp_Run_ConfigFull(t *testing.T) {
 func TestApp_Run_ConfigFullAlias(t *testing.T) {
 	var config *internal.Config
 
-	app := NewApp(func(cfg internal.Config) (*internal.Context, error) {
+	app := pkg.NewApp(func(cfg internal.Config) (*internal.Context, error) {
 		config = &cfg
 
 		return &internal.Context{}, nil
@@ -164,7 +165,7 @@ func TestApp_Run_ConfigFullAlias(t *testing.T) {
 func TestApp_Run_ConfigFile_DefaultPath(t *testing.T) {
 	var config *internal.Config
 
-	app := NewApp(func(cfg internal.Config) (*internal.Context, error) {
+	app := pkg.NewApp(func(cfg internal.Config) (*internal.Context, error) {
 		config = &cfg
 
 		return &internal.Context{}, nil
@@ -177,7 +178,7 @@ func TestApp_Run_ConfigFile_DefaultPath(t *testing.T) {
 
 	tempDir := t.TempDir()
 
-	require.NoError(t, os.WriteFile(filepath.Join(tempDir, ConfigFileName), []byte(`
+	require.NoError(t, os.WriteFile(filepath.Join(tempDir, pkg.ConfigFileName), []byte(`
 project:
     work-directory: /path/to/project
     build-directory: /path/to/build
@@ -202,7 +203,7 @@ project:
 func TestApp_Run_ConfigFile_CustomPath(t *testing.T) {
 	var config *internal.Config
 
-	app := NewApp(func(cfg internal.Config) (*internal.Context, error) {
+	app := pkg.NewApp(func(cfg internal.Config) (*internal.Context, error) {
 		config = &cfg
 
 		return &internal.Context{}, nil
@@ -240,7 +241,7 @@ project:
 func TestApp_Run_ConfigFile_CustomPath_Alias(t *testing.T) {
 	var config *internal.Config
 
-	app := NewApp(func(cfg internal.Config) (*internal.Context, error) {
+	app := pkg.NewApp(func(cfg internal.Config) (*internal.Context, error) {
 		config = &cfg
 
 		return &internal.Context{}, nil
@@ -276,7 +277,7 @@ project:
 }
 
 func TestApp_Run_ConfigFile_CustomPath_UnreadableFile(t *testing.T) {
-	app := NewApp(func(cfg internal.Config) (*internal.Context, error) {
+	app := pkg.NewApp(func(cfg internal.Config) (*internal.Context, error) {
 		return &internal.Context{}, nil
 	})
 
@@ -300,7 +301,7 @@ Hello world!
 }
 
 func TestApp_Run_ConfigFile_CustomPath_InvalidContent(t *testing.T) {
-	app := NewApp(func(cfg internal.Config) (*internal.Context, error) {
+	app := pkg.NewApp(func(cfg internal.Config) (*internal.Context, error) {
 		return &internal.Context{}, nil
 	})
 

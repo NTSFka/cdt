@@ -1,8 +1,9 @@
-package tool
+package tool_test
 
 import (
 	"cdt/internal"
 	"cdt/internal/test"
+	"cdt/internal/tool"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -13,15 +14,15 @@ func TestBandit_DetectBandit(t *testing.T) {
 	env := test.NewEnvironment(t)
 
 	env.OnFindExecutable("bandit").
-		Return(env.NewExecutable("/bin/tool"))
+		Return(env.NewExecutable("/bin/bandit"))
 
-	tool := DetectBandit(t.Context(), env)
-	assert.NotNil(t, tool)
-	assert.Equal(t, "bandit", tool.Id())
-	assert.True(t, tool.IsAvailable())
+	bandit := tool.DetectBandit(t.Context(), env)
+	assert.NotNil(t, bandit)
+	assert.Equal(t, "bandit", bandit.Id())
+	assert.True(t, bandit.IsAvailable())
 
-	if executable := tool.Executable(); assert.NotNil(t, executable) {
-		assert.Equal(t, "/bin/tool", executable.Path)
+	if executable := bandit.Executable(); assert.NotNil(t, executable) {
+		assert.Equal(t, "/bin/bandit", executable.Path)
 	}
 
 	env.AssertExpectations(t)
@@ -33,11 +34,11 @@ func TestBandit_DetectBandit_NotFound(t *testing.T) {
 	env.OnFindExecutable("bandit").
 		Return(nil)
 
-	tool := DetectBandit(t.Context(), env)
-	assert.NotNil(t, tool)
-	assert.Equal(t, "bandit", tool.Id())
-	assert.False(t, tool.IsAvailable())
-	assert.Nil(t, tool.Executable())
+	bandit := tool.DetectBandit(t.Context(), env)
+	assert.NotNil(t, bandit)
+	assert.Equal(t, "bandit", bandit.Id())
+	assert.False(t, bandit.IsAvailable())
+	assert.Nil(t, bandit.Executable())
 
 	env.AssertExpectations(t)
 }
@@ -45,14 +46,14 @@ func TestBandit_DetectBandit_NotFound(t *testing.T) {
 func TestBandit_Bandit_LintAll(t *testing.T) {
 	exec := test.NewExecutable(t)
 
-	tool := NewBandit(exec.LazyExecutable("lint"))
+	bandit := tool.NewBandit(exec.LazyExecutable("lint"))
 
 	info := internal.ProjectInfo{Directory: "."}
 
 	exec.OnRun("lint", []string{"*"}).
 		Return(nil)
 
-	err := tool.LintAll(t.Context(), internal.ProjectLinterOptions{ProjectInfo: info})
+	err := bandit.LintAll(t.Context(), internal.ProjectLinterOptions{ProjectInfo: info})
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -61,14 +62,14 @@ func TestBandit_Bandit_LintAll(t *testing.T) {
 func TestBandit_Bandit_Lint(t *testing.T) {
 	exec := test.NewExecutable(t)
 
-	tool := NewBandit(exec.LazyExecutable("lint"))
+	bandit := tool.NewBandit(exec.LazyExecutable("lint"))
 
 	info := internal.ProjectInfo{Directory: "."}
 
 	exec.OnRun("lint", []string{"file.py", "/path/to/file2.py"}).
 		Return(nil)
 
-	err := tool.LintFiles(t.Context(), internal.ProjectLinterOptions{ProjectInfo: info}, []string{"file.py", "/path/to/file2.py"})
+	err := bandit.LintFiles(t.Context(), internal.ProjectLinterOptions{ProjectInfo: info}, []string{"file.py", "/path/to/file2.py"})
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)

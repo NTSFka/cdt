@@ -1,7 +1,8 @@
-package internal
+package internal_test
 
 import (
 	"bytes"
+	"cdt/internal"
 	"os"
 	"path/filepath"
 	"testing"
@@ -11,7 +12,7 @@ import (
 )
 
 func TestUtils_PathExists_NotFound(t *testing.T) {
-	assert.False(t, PathExists(filepath.Join(t.TempDir(), "not-found")))
+	assert.False(t, internal.PathExists(filepath.Join(t.TempDir(), "not-found")))
 }
 
 func TestUtils_PathExists_Found(t *testing.T) {
@@ -20,37 +21,37 @@ func TestUtils_PathExists_Found(t *testing.T) {
 	_, err := os.Create(path)
 	require.NoError(t, err)
 
-	assert.True(t, PathExists(path))
+	assert.True(t, internal.PathExists(path))
 }
 
 func TestAssert_Success(t *testing.T) {
 	assert.NotPanics(t, func() {
-		Assert(true, "success")
+		internal.Assert(true, "success")
 	})
 }
 
 func TestAssert_Fails(t *testing.T) {
 	assert.Panics(t, func() {
-		Assert(false, "failed")
+		internal.Assert(false, "failed")
 	}, "failed")
 }
 
 func TestStrPtr(t *testing.T) {
 	s := "test"
 
-	assert.Equal(t, &s, StrPtr(s))
+	assert.Equal(t, &s, internal.StrPtr(s))
 }
 
 func TestDetectTermWidth_NotTerminal(t *testing.T) {
 	writer := &bytes.Buffer{}
 
-	width := DetectTermWidth(writer)
+	width := internal.DetectTermWidth(writer)
 
 	assert.Nil(t, width)
 }
 
 func TestDetectTermWidth_StdOut(t *testing.T) {
-	width := DetectTermWidth(os.Stdout)
+	width := internal.DetectTermWidth(os.Stdout)
 
 	assert.Nil(t, width)
 }
