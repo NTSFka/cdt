@@ -29,7 +29,11 @@ func parseEnvironment(environment string) (string, string) {
 	}
 }
 
-func initEnvironment(directory string, environment *string, envProviders internal.EnvironmentProviders) (internal.Environment, error) {
+func initEnvironment(
+	directory string,
+	environment *string,
+	envProviders internal.EnvironmentProviders,
+) (internal.Environment, error) {
 	if environment != nil {
 		toolName, argument := parseEnvironment(*environment)
 

@@ -22,9 +22,12 @@ func TestApp_Run_ContextBuild_Failed(t *testing.T) {
 	})
 
 	// A fake command to do nothing
-	app.Commands = append(app.Commands, &cli.Command{Name: "__test__", Action: func(ctx context.Context, cmd *cli.Command) error {
-		return nil
-	}})
+	app.Commands = append(app.Commands, &cli.Command{
+		Name: "__test__",
+		Action: func(ctx context.Context, cmd *cli.Command) error {
+			return nil
+		},
+	})
 
 	err := app.Run(t.Context(), []string{"cdt", "__test__"})
 
@@ -41,9 +44,12 @@ func TestApp_Run_Environment_Cleanup(t *testing.T) {
 	})
 
 	// A fake command to do nothing
-	app.Commands = append(app.Commands, &cli.Command{Name: "__test__", Action: func(ctx context.Context, cmd *cli.Command) error {
-		return nil
-	}})
+	app.Commands = append(app.Commands, &cli.Command{
+		Name: "__test__",
+		Action: func(ctx context.Context, cmd *cli.Command) error {
+			return nil
+		},
+	})
 
 	env.On("Cleanup", mock.Anything).Return(nil)
 
@@ -60,9 +66,12 @@ func TestApp_Run_Debug(t *testing.T) {
 	})
 
 	// A fake command to do nothing
-	app.Commands = append(app.Commands, &cli.Command{Name: "__test__", Action: func(ctx context.Context, cmd *cli.Command) error {
-		return nil
-	}})
+	app.Commands = append(app.Commands, &cli.Command{
+		Name: "__test__",
+		Action: func(ctx context.Context, cmd *cli.Command) error {
+			return nil
+		},
+	})
 
 	err := app.Run(t.Context(), []string{"cdt", "--debug", "__test__"})
 
@@ -79,9 +88,12 @@ func TestApp_Run_ConfigDefault(t *testing.T) {
 	})
 
 	// A fake command to do nothing
-	app.Commands = append(app.Commands, &cli.Command{Name: "__test__", Action: func(ctx context.Context, cmd *cli.Command) error {
-		return nil
-	}})
+	app.Commands = append(app.Commands, &cli.Command{
+		Name: "__test__",
+		Action: func(ctx context.Context, cmd *cli.Command) error {
+			return nil
+		},
+	})
 
 	err := app.Run(t.Context(), []string{"cdt", "__test__"})
 
@@ -106,9 +118,12 @@ func TestApp_Run_ConfigFull(t *testing.T) {
 	})
 
 	// A fake command to do nothing
-	app.Commands = append(app.Commands, &cli.Command{Name: "__test__", Action: func(ctx context.Context, cmd *cli.Command) error {
-		return nil
-	}})
+	app.Commands = append(app.Commands, &cli.Command{
+		Name: "__test__",
+		Action: func(ctx context.Context, cmd *cli.Command) error {
+			return nil
+		},
+	})
 
 	err := app.Run(t.Context(), []string{"cdt",
 		"--root", "/path/to/project",
@@ -139,9 +154,12 @@ func TestApp_Run_ConfigFullAlias(t *testing.T) {
 	})
 
 	// A fake command to do nothing
-	app.Commands = append(app.Commands, &cli.Command{Name: "__test__", Action: func(ctx context.Context, cmd *cli.Command) error {
-		return nil
-	}})
+	app.Commands = append(app.Commands, &cli.Command{
+		Name: "__test__",
+		Action: func(ctx context.Context, cmd *cli.Command) error {
+			return nil
+		},
+	})
 
 	err := app.Run(t.Context(), []string{"cdt",
 		"-r", "/path/to/project",
@@ -172,9 +190,12 @@ func TestApp_Run_ConfigFile_DefaultPath(t *testing.T) {
 	})
 
 	// A fake command to do nothing
-	app.Commands = append(app.Commands, &cli.Command{Name: "__test__", Action: func(ctx context.Context, cmd *cli.Command) error {
-		return nil
-	}})
+	app.Commands = append(app.Commands, &cli.Command{
+		Name: "__test__",
+		Action: func(ctx context.Context, cmd *cli.Command) error {
+			return nil
+		},
+	})
 
 	tempDir := t.TempDir()
 
@@ -210,9 +231,12 @@ func TestApp_Run_ConfigFile_CustomPath(t *testing.T) {
 	})
 
 	// A fake command to do nothing
-	app.Commands = append(app.Commands, &cli.Command{Name: "__test__", Action: func(ctx context.Context, cmd *cli.Command) error {
-		return nil
-	}})
+	app.Commands = append(app.Commands, &cli.Command{
+		Name: "__test__",
+		Action: func(ctx context.Context, cmd *cli.Command) error {
+			return nil
+		},
+	})
 
 	configFilePath := filepath.Join(t.TempDir(), "my-cdt.yml")
 
@@ -248,9 +272,12 @@ func TestApp_Run_ConfigFile_CustomPath_Alias(t *testing.T) {
 	})
 
 	// A fake command to do nothing
-	app.Commands = append(app.Commands, &cli.Command{Name: "__test__", Action: func(ctx context.Context, cmd *cli.Command) error {
-		return nil
-	}})
+	app.Commands = append(app.Commands, &cli.Command{
+		Name: "__test__",
+		Action: func(ctx context.Context, cmd *cli.Command) error {
+			return nil
+		},
+	})
 
 	configFilePath := filepath.Join(t.TempDir(), "my-cdt.yml")
 
@@ -282,9 +309,12 @@ func TestApp_Run_ConfigFile_CustomPath_UnreadableFile(t *testing.T) {
 	})
 
 	// A fake command to do nothing
-	app.Commands = append(app.Commands, &cli.Command{Name: "__test__", Action: func(ctx context.Context, cmd *cli.Command) error {
-		return nil
-	}})
+	app.Commands = append(app.Commands, &cli.Command{
+		Name: "__test__",
+		Action: func(ctx context.Context, cmd *cli.Command) error {
+			return nil
+		},
+	})
 
 	configFilePath := filepath.Join(t.TempDir(), "my-cdt.yml")
 
@@ -306,9 +336,12 @@ func TestApp_Run_ConfigFile_CustomPath_InvalidContent(t *testing.T) {
 	})
 
 	// A fake command to do nothing
-	app.Commands = append(app.Commands, &cli.Command{Name: "__test__", Action: func(ctx context.Context, cmd *cli.Command) error {
-		return nil
-	}})
+	app.Commands = append(app.Commands, &cli.Command{
+		Name: "__test__",
+		Action: func(ctx context.Context, cmd *cli.Command) error {
+			return nil
+		},
+	})
 
 	configFilePath := filepath.Join(t.TempDir(), "my-cdt.yml")
 

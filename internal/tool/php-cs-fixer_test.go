@@ -127,7 +127,11 @@ func TestPHPCSFixer_PHPCSFixer_FormatCheckFiles(t *testing.T) {
 	exec.OnRun("format", []string{"fix", "--dry-run", "tests/*", "/path/to/file.php"}).
 		Return(nil)
 
-	err := phpcsFixer.FormatCheckFiles(t.Context(), internal.ProjectFormatterOptions{ProjectInfo: info}, []string{"tests/*", "/path/to/file.php"})
+	err := phpcsFixer.FormatCheckFiles(
+		t.Context(),
+		internal.ProjectFormatterOptions{ProjectInfo: info},
+		[]string{"tests/*", "/path/to/file.php"},
+	)
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)

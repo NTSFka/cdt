@@ -67,7 +67,7 @@ func formatCommandAction(ctx context.Context, cmd *cli.Command) error {
 
 	var err error
 
-	if cmd.Bool("check") {
+	if cmd.Bool("check") { // nolint: nestif
 		if files := cmd.StringArgs("files"); len(files) > 0 {
 			err = formatter.FormatCheckFiles(ctx, options, files)
 		} else {

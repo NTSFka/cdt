@@ -95,7 +95,11 @@ func TestPHPStan_PHPStan_Lint(t *testing.T) {
 	exec.OnRun("lint", []string{"analyse", "file.php", "/path/to/file2.php"}).
 		Return(nil)
 
-	err := phpStan.LintFiles(t.Context(), internal.ProjectLinterOptions{ProjectInfo: info}, []string{"file.php", "/path/to/file2.php"})
+	err := phpStan.LintFiles(
+		t.Context(),
+		internal.ProjectLinterOptions{ProjectInfo: info},
+		[]string{"file.php", "/path/to/file2.php"},
+	)
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)

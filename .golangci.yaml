@@ -21,7 +21,7 @@ linters:
     - fatcontext
     #- forcetypeassert
     - funcorder
-    #- funlen
+    - funlen
     - gochecknoinits
     - gochecksumtype
     - gocognit
@@ -34,14 +34,13 @@ linters:
     - gomoddirectives
     - gomodguard
     - goprintffuncname
-    #- gosec
     - grouper
     - iface
     - importas
     - inamedparam
     - interfacebloat
     - intrange
-    #- lll
+    - lll
     - loggercheck
     - maintidx
     - makezero
@@ -49,7 +48,7 @@ linters:
     - misspell
     - musttag
     - nakedret
-    #- nestif
+    - nestif
     - nilerr
     - nilnesserr
     - nilnil
@@ -58,7 +57,6 @@ linters:
     - predeclared
     - reassign
     - recvcheck
-    #- revive
     - sloglint
     - tagalign
     - testifylint

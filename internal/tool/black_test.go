@@ -101,7 +101,11 @@ func TestBlack_Black_FormatCheckFiles(t *testing.T) {
 	exec.OnRun("format", []string{"--check", "tests/*", "/path/to/file.py"}).
 		Return(nil)
 
-	err := black.FormatCheckFiles(t.Context(), internal.ProjectFormatterOptions{ProjectInfo: info}, []string{"tests/*", "/path/to/file.py"})
+	err := black.FormatCheckFiles(
+		t.Context(),
+		internal.ProjectFormatterOptions{ProjectInfo: info},
+		[]string{"tests/*", "/path/to/file.py"},
+	)
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)

@@ -79,7 +79,12 @@ func TestComposer_Composer_AddDependencies(t *testing.T) {
 	exec.OnRun("composer", []string{"require", "dep1"}).
 		Return(nil)
 
-	err := composer.AddDependencies(t.Context(), internal.ProjectDependencyManagerOptions{ProjectInfo: info}, []string{"dep1"}, false)
+	err := composer.AddDependencies(
+		t.Context(),
+		internal.ProjectDependencyManagerOptions{ProjectInfo: info},
+		[]string{"dep1"},
+		false,
+	)
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -95,7 +100,12 @@ func TestComposer_Composer_AddDependencies_Dev(t *testing.T) {
 	exec.OnRun("composer", []string{"require", "--dev", "dep1"}).
 		Return(nil)
 
-	err := composer.AddDependencies(t.Context(), internal.ProjectDependencyManagerOptions{ProjectInfo: info}, []string{"dep1"}, true)
+	err := composer.AddDependencies(
+		t.Context(),
+		internal.ProjectDependencyManagerOptions{ProjectInfo: info},
+		[]string{"dep1"},
+		true,
+	)
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -111,7 +121,12 @@ func TestComposer_Composer_RemoveDependencies(t *testing.T) {
 	exec.OnRun("composer", []string{"remove", "dep1"}).
 		Return(nil)
 
-	err := composer.RemoveDependencies(t.Context(), internal.ProjectDependencyManagerOptions{ProjectInfo: info}, []string{"dep1"}, false)
+	err := composer.RemoveDependencies(
+		t.Context(),
+		internal.ProjectDependencyManagerOptions{ProjectInfo: info},
+		[]string{"dep1"},
+		false,
+	)
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -127,7 +142,12 @@ func TestComposer_Composer_RemoveDependencies_Dev(t *testing.T) {
 	exec.OnRun("composer", []string{"remove", "--dev", "dep1"}).
 		Return(nil)
 
-	err := composer.RemoveDependencies(t.Context(), internal.ProjectDependencyManagerOptions{ProjectInfo: info}, []string{"dep1"}, true)
+	err := composer.RemoveDependencies(
+		t.Context(),
+		internal.ProjectDependencyManagerOptions{ProjectInfo: info},
+		[]string{"dep1"},
+		true,
+	)
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -143,7 +163,11 @@ func TestComposer_Composer_UpdateDependencies(t *testing.T) {
 	exec.OnRun("composer", []string{"update", "dep1"}).
 		Return(nil)
 
-	err := composer.UpdateDependencies(t.Context(), internal.ProjectDependencyManagerOptions{ProjectInfo: info}, []string{"dep1"})
+	err := composer.UpdateDependencies(
+		t.Context(),
+		internal.ProjectDependencyManagerOptions{ProjectInfo: info},
+		[]string{"dep1"},
+	)
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)

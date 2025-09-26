@@ -116,11 +116,21 @@ func (g *Go) LintFiles(ctx context.Context, options internal.ProjectLinterOption
 	return g.RunForProject(ctx, options.ProjectInfo, append(append(options.ExtraArgs, "vet"), filenames...))
 }
 
-func (g *Go) AddDependencies(ctx context.Context, options internal.ProjectDependencyManagerOptions, dependencies []string, _ bool) error {
+func (g *Go) AddDependencies(
+	ctx context.Context,
+	options internal.ProjectDependencyManagerOptions,
+	dependencies []string,
+	_ bool,
+) error {
 	return g.RunForProject(ctx, options.ProjectInfo, append(append(options.ExtraArgs, "get"), dependencies...))
 }
 
-func (g *Go) RemoveDependencies(ctx context.Context, options internal.ProjectDependencyManagerOptions, dependencies []string, _ bool) error {
+func (g *Go) RemoveDependencies(
+	ctx context.Context,
+	options internal.ProjectDependencyManagerOptions,
+	dependencies []string,
+	_ bool,
+) error {
 	var noneDependencies []string
 
 	for _, dependency := range dependencies {
@@ -130,7 +140,11 @@ func (g *Go) RemoveDependencies(ctx context.Context, options internal.ProjectDep
 	return g.RunForProject(ctx, options.ProjectInfo, append(append(options.ExtraArgs, "get"), noneDependencies...))
 }
 
-func (g *Go) UpdateDependencies(ctx context.Context, options internal.ProjectDependencyManagerOptions, dependencies []string) error {
+func (g *Go) UpdateDependencies(
+	ctx context.Context,
+	options internal.ProjectDependencyManagerOptions,
+	dependencies []string,
+) error {
 	return g.RunForProject(ctx, options.ProjectInfo, append(append(options.ExtraArgs, "get"), dependencies...))
 }
 

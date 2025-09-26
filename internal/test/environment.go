@@ -54,7 +54,12 @@ func (e *Environment) FindExecutable(ctx context.Context, name string) *internal
 	return result.(*internal.Executable)
 }
 
-func (e *Environment) RunExecutable(ctx context.Context, options internal.RunOptions, path string, args []string) error {
+func (e *Environment) RunExecutable(
+	ctx context.Context,
+	options internal.RunOptions,
+	path string,
+	args []string,
+) error {
 	return e.Called(ctx, options, path, args).Error(0)
 }
 

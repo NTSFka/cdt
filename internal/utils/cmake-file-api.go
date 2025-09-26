@@ -63,7 +63,7 @@ type Reply struct {
 	Targets []ReplyTarget
 }
 
-func loadJsonFile(path string, target any) error {
+func loadJSONFile(path string, target any) error {
 	content, err := os.ReadFile(path)
 	if err != nil {
 		return err
@@ -88,7 +88,8 @@ func convertTargetType(targetType string) string {
 	return TargetUnsupported
 }
 
-// The Reply returns query reply after cmake run.
+// Reply returns query reply after cmake run.
+// nolint: funlen
 func (c *CmakeFileApi) Reply() (*Reply, error) {
 	indices, err := filepath.Glob(filepath.Join(c.GetReplyDirectory(), "index-*.json"))
 
@@ -103,12 +104,12 @@ func (c *CmakeFileApi) Reply() (*Reply, error) {
 	var dataIndex struct {
 		Reply struct {
 			CodemodelV2 struct {
-				JsonFile string `json:"jsonFile"`
+				JSONFile string `json:"jsonFile"`
 			} `json:"codemodel-v2"`
 		} `json:"reply"`
 	}
 
-	if err := loadJsonFile(indices[0], &dataIndex); err != nil {
+	if err := loadJSONFile(indices[0], &dataIndex); err != nil {
 		return nil, err
 	}
 
@@ -116,14 +117,14 @@ func (c *CmakeFileApi) Reply() (*Reply, error) {
 		Configurations []struct {
 			Targets []struct {
 				Name     string `json:"name"`
-				JsonFile string `json:"jsonFile"`
+				JSONFile string `json:"jsonFile"`
 			} `json:"targets"`
 		} `json:"configurations"`
 	}
 
-	codeModelPath := filepath.Join(c.GetReplyDirectory(), dataIndex.Reply.CodemodelV2.JsonFile)
+	codeModelPath := filepath.Join(c.GetReplyDirectory(), dataIndex.Reply.CodemodelV2.JSONFile)
 
-	if err := loadJsonFile(codeModelPath, &dataCodemodel); err != nil {
+	if err := loadJSONFile(codeModelPath, &dataCodemodel); err != nil {
 		return nil, err
 	}
 
@@ -131,7 +132,7 @@ func (c *CmakeFileApi) Reply() (*Reply, error) {
 
 	for _, configuration := range dataCodemodel.Configurations {
 		for _, target := range configuration.Targets {
-			path := filepath.Join(c.GetReplyDirectory(), target.JsonFile)
+			path := filepath.Join(c.GetReplyDirectory(), target.JSONFile)
 
 			var targetInfo struct {
 				Sources []struct {
@@ -145,11 +146,11 @@ func (c *CmakeFileApi) Reply() (*Reply, error) {
 				} `json:"paths"`
 			}
 
-			if err := loadJsonFile(path, &targetInfo); err != nil {
+			if err := loadJSONFile(path, &targetInfo); err != nil {
 				return nil, err
 			}
 
-			// If the target source is in build directory, it's dependency
+			// If the target source is in the build directory, it's a dependency
 			dependency := strings.HasPrefix(targetInfo.Paths.Source, c.BuildDirectory)
 
 			var files []string

@@ -112,7 +112,9 @@ func (c *CMake) BuildTargets(ctx context.Context, options internal.ProjectBuilde
 }
 
 func (c *CMake) RunTarget(ctx context.Context, options internal.ProjectRunnerOptions, target string) error {
-	if err := c.BuildTargets(ctx, internal.ProjectBuilderOptions{ProjectInfo: options.ProjectInfo}, []string{target}); err != nil {
+	buildOptions := internal.ProjectBuilderOptions{ProjectInfo: options.ProjectInfo}
+
+	if err := c.BuildTargets(ctx, buildOptions, []string{target}); err != nil {
 		return err
 	}
 

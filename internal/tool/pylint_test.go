@@ -69,7 +69,11 @@ func TestPylint_Pylint_Lint(t *testing.T) {
 	exec.OnRun("lint", []string{"file.py", "/path/to/file2.py"}).
 		Return(nil)
 
-	err := pylint.LintFiles(t.Context(), internal.ProjectLinterOptions{ProjectInfo: info}, []string{"file.py", "/path/to/file2.py"})
+	err := pylint.LintFiles(
+		t.Context(),
+		internal.ProjectLinterOptions{ProjectInfo: info},
+		[]string{"file.py", "/path/to/file2.py"},
+	)
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)

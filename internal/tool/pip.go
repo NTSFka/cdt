@@ -38,20 +38,50 @@ func NewPip(detect func() *internal.Executable) *Pip {
 	}
 }
 
-func (p *Pip) AddDependencies(ctx context.Context, options internal.ProjectDependencyManagerOptions, dependencies []string, _ bool) error {
-	return p.RunForProject(ctx, options.ProjectInfo, append(append([]string{"install"}, options.ExtraArgs...), dependencies...))
+func (p *Pip) AddDependencies(
+	ctx context.Context,
+	options internal.ProjectDependencyManagerOptions,
+	dependencies []string,
+	_ bool,
+) error {
+	return p.RunForProject(
+		ctx,
+		options.ProjectInfo,
+		append(append([]string{"install"}, options.ExtraArgs...), dependencies...),
+	)
 }
 
-func (p *Pip) RemoveDependencies(ctx context.Context, options internal.ProjectDependencyManagerOptions, dependencies []string, _ bool) error {
-	return p.RunForProject(ctx, options.ProjectInfo, append(append([]string{"uninstall"}, options.ExtraArgs...), dependencies...))
+func (p *Pip) RemoveDependencies(
+	ctx context.Context,
+	options internal.ProjectDependencyManagerOptions,
+	dependencies []string,
+	_ bool,
+) error {
+	return p.RunForProject(
+		ctx,
+		options.ProjectInfo,
+		append(append([]string{"uninstall"}, options.ExtraArgs...), dependencies...),
+	)
 }
 
-func (p *Pip) UpdateDependencies(ctx context.Context, options internal.ProjectDependencyManagerOptions, dependencies []string) error {
-	return p.RunForProject(ctx, options.ProjectInfo, append(append([]string{"install", "--upgrade"}, options.ExtraArgs...), dependencies...))
+func (p *Pip) UpdateDependencies(
+	ctx context.Context,
+	options internal.ProjectDependencyManagerOptions,
+	dependencies []string,
+) error {
+	return p.RunForProject(
+		ctx,
+		options.ProjectInfo,
+		append(append([]string{"install", "--upgrade"}, options.ExtraArgs...), dependencies...),
+	)
 }
 
 func (p *Pip) FetchDependencies(ctx context.Context, options internal.ProjectDependencyManagerOptions, _ bool) error {
-	return p.RunForProject(ctx, options.ProjectInfo, append([]string{"install", "-r", "requirements.txt"}, options.ExtraArgs...))
+	return p.RunForProject(
+		ctx,
+		options.ProjectInfo,
+		append([]string{"install", "-r", "requirements.txt"}, options.ExtraArgs...),
+	)
 }
 
 func (p *Pip) ListDependencies(ctx context.Context, options internal.ProjectDependencyManagerOptions) error {

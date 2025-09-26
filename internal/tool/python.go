@@ -131,7 +131,12 @@ func (e *pythonVirtualEnvironment) FindExecutable(ctx context.Context, name stri
 	}, "venv", e.venvDirectory, "name", name)
 }
 
-func (e *pythonVirtualEnvironment) RunExecutable(ctx context.Context, options internal.RunOptions, name string, args []string) error {
+func (e *pythonVirtualEnvironment) RunExecutable(
+	ctx context.Context,
+	options internal.RunOptions,
+	name string,
+	args []string,
+) error {
 	path := e.findPath(name)
 
 	if path == nil {

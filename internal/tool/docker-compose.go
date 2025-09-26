@@ -141,7 +141,12 @@ func (d *dockerComposeEnvironment) FindExecutable(ctx context.Context, name stri
 	}, "service", d.service, "name", name)
 }
 
-func (d *dockerComposeEnvironment) RunExecutable(ctx context.Context, options internal.RunOptions, path string, args []string) error {
+func (d *dockerComposeEnvironment) RunExecutable(
+	ctx context.Context,
+	options internal.RunOptions,
+	path string,
+	args []string,
+) error {
 	if err := d.autoStart(ctx); err != nil {
 		return fmt.Errorf("docker compose start failed: %w", err)
 	}

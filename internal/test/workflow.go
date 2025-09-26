@@ -38,7 +38,11 @@ func (t *ProjectBuilder) BuildAll(ctx context.Context, options internal.ProjectB
 	return t.Called(ctx, options).Error(0)
 }
 
-func (t *ProjectBuilder) BuildTargets(ctx context.Context, options internal.ProjectBuilderOptions, targets []string) error {
+func (t *ProjectBuilder) BuildTargets(
+	ctx context.Context,
+	options internal.ProjectBuilderOptions,
+	targets []string,
+) error {
 	return t.Called(ctx, options, targets).Error(0)
 }
 
@@ -57,7 +61,11 @@ func (t *ProjectFormatter) FormatAll(ctx context.Context, options internal.Proje
 	return t.Called(ctx, options).Error(0)
 }
 
-func (t *ProjectFormatter) FormatFiles(ctx context.Context, options internal.ProjectFormatterOptions, filenames []string) error {
+func (t *ProjectFormatter) FormatFiles(
+	ctx context.Context,
+	options internal.ProjectFormatterOptions,
+	filenames []string,
+) error {
 	return t.Called(ctx, options, filenames).Error(0)
 }
 
@@ -65,7 +73,11 @@ func (t *ProjectFormatter) FormatCheckAll(ctx context.Context, options internal.
 	return t.Called(ctx, options).Error(0)
 }
 
-func (t *ProjectFormatter) FormatCheckFiles(ctx context.Context, options internal.ProjectFormatterOptions, filenames []string) error {
+func (t *ProjectFormatter) FormatCheckFiles(
+	ctx context.Context,
+	options internal.ProjectFormatterOptions,
+	filenames []string,
+) error {
 	return t.Called(ctx, options, filenames).Error(0)
 }
 
@@ -84,7 +96,11 @@ func (t *ProjectLinter) LintAll(ctx context.Context, options internal.ProjectLin
 	return t.Called(ctx, options).Error(0)
 }
 
-func (t *ProjectLinter) LintFiles(ctx context.Context, options internal.ProjectLinterOptions, filenames []string) error {
+func (t *ProjectLinter) LintFiles(
+	ctx context.Context,
+	options internal.ProjectLinterOptions,
+	filenames []string,
+) error {
 	return t.Called(ctx, options, filenames).Error(0)
 }
 
@@ -133,7 +149,10 @@ func NewStructureProvider(t *testing.T) *StructureProvider {
 	return &provider
 }
 
-func (t *StructureProvider) Structure(ctx context.Context, info internal.ProjectInfo) (*internal.ProjectStructure, error) {
+func (t *StructureProvider) Structure(
+	ctx context.Context,
+	info internal.ProjectInfo,
+) (*internal.ProjectStructure, error) {
 	called := t.Called(ctx, info)
 
 	return called.Get(0).(*internal.ProjectStructure), called.Error(1)
@@ -150,26 +169,50 @@ func NewDependencyManager(t *testing.T) *DependencyManager {
 	return &manager
 }
 
-func (d *DependencyManager) AddDependencies(ctx context.Context, options internal.ProjectDependencyManagerOptions, dependencies []string, dev bool) error {
+func (d *DependencyManager) AddDependencies(
+	ctx context.Context,
+	options internal.ProjectDependencyManagerOptions,
+	dependencies []string,
+	dev bool,
+) error {
 	return d.Called(ctx, options, dependencies, dev).Error(0)
 }
 
-func (d *DependencyManager) RemoveDependencies(ctx context.Context, options internal.ProjectDependencyManagerOptions, dependencies []string, dev bool) error {
+func (d *DependencyManager) RemoveDependencies(
+	ctx context.Context,
+	options internal.ProjectDependencyManagerOptions,
+	dependencies []string,
+	dev bool,
+) error {
 	return d.Called(ctx, options, dependencies, dev).Error(0)
 }
 
-func (d *DependencyManager) UpdateDependencies(ctx context.Context, options internal.ProjectDependencyManagerOptions, dependencies []string) error {
+func (d *DependencyManager) UpdateDependencies(
+	ctx context.Context,
+	options internal.ProjectDependencyManagerOptions,
+	dependencies []string,
+) error {
 	return d.Called(ctx, options, dependencies).Error(0)
 }
 
-func (d *DependencyManager) FetchDependencies(ctx context.Context, options internal.ProjectDependencyManagerOptions, noDev bool) error {
+func (d *DependencyManager) FetchDependencies(
+	ctx context.Context,
+	options internal.ProjectDependencyManagerOptions,
+	noDev bool,
+) error {
 	return d.Called(ctx, options, noDev).Error(0)
 }
 
-func (d *DependencyManager) ListDependencies(ctx context.Context, options internal.ProjectDependencyManagerOptions) error {
+func (d *DependencyManager) ListDependencies(
+	ctx context.Context,
+	options internal.ProjectDependencyManagerOptions,
+) error {
 	return d.Called(ctx, options).Error(0)
 }
 
-func (d *DependencyManager) AuditDependencies(ctx context.Context, options internal.ProjectDependencyManagerOptions) error {
+func (d *DependencyManager) AuditDependencies(
+	ctx context.Context,
+	options internal.ProjectDependencyManagerOptions,
+) error {
 	return d.Called(ctx, options).Error(0)
 }

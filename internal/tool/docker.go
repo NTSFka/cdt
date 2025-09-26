@@ -178,7 +178,12 @@ func (d *dockerEnvironment) FindExecutable(ctx context.Context, name string) *in
 	}, "container", d.containerId, "name", name)
 }
 
-func (d *dockerEnvironment) RunExecutable(ctx context.Context, options internal.RunOptions, path string, args []string) error {
+func (d *dockerEnvironment) RunExecutable(
+	ctx context.Context,
+	options internal.RunOptions,
+	path string,
+	args []string,
+) error {
 	if err := d.autoStart(ctx); err != nil {
 		return err
 	}

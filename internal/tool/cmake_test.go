@@ -237,7 +237,11 @@ func TestCMake_BuildTargets(t *testing.T) {
 	}).
 		Return(nil)
 
-	err := cmake.BuildTargets(t.Context(), internal.ProjectBuilderOptions{ProjectInfo: info}, []string{"target1", "target2"})
+	err := cmake.BuildTargets(
+		t.Context(),
+		internal.ProjectBuilderOptions{ProjectInfo: info},
+		[]string{"target1", "target2"},
+	)
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -271,7 +275,11 @@ func TestCMake_BuildTargets_Failed(t *testing.T) {
 	}).
 		Return(errors.New("failed"))
 
-	err := cmake.BuildTargets(t.Context(), internal.ProjectBuilderOptions{ProjectInfo: info}, []string{"target1", "target2"})
+	err := cmake.BuildTargets(
+		t.Context(),
+		internal.ProjectBuilderOptions{ProjectInfo: info},
+		[]string{"target1", "target2"},
+	)
 	require.EqualError(t, err, "failed")
 
 	exec.AssertExpectations(t)
@@ -298,7 +306,11 @@ func TestCMake_BuildTargets_ConfigureFailed(t *testing.T) {
 	}).
 		Return(errors.New("failed"))
 
-	err := cmake.BuildTargets(t.Context(), internal.ProjectBuilderOptions{ProjectInfo: info}, []string{"target1", "target2"})
+	err := cmake.BuildTargets(
+		t.Context(),
+		internal.ProjectBuilderOptions{ProjectInfo: info},
+		[]string{"target1", "target2"},
+	)
 	require.EqualError(t, err, "failed")
 
 	exec.AssertExpectations(t)

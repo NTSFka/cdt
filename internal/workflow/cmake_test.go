@@ -144,7 +144,11 @@ func TestCMakeProject_Project_Test(t *testing.T) {
 	cmakeMock.OnRunAnything("cmake-test").Return(nil)
 	ctestMock.OnRun("ctest-test", []string{"-R", "my-test", "--test-dir", buildDir}).Return(nil)
 
-	err = project.Workflow.Tester.TestPattern(t.Context(), internal.ProjectTesterOptions{ProjectInfo: project.Info}, "my-test")
+	err = project.Workflow.Tester.TestPattern(
+		t.Context(),
+		internal.ProjectTesterOptions{ProjectInfo: project.Info},
+		"my-test",
+	)
 	require.NoError(t, err)
 
 	cmakeMock.AssertExpectations(t)

@@ -70,7 +70,11 @@ func FromConfig(config internal.ConfigWorkflow, tools internal.Tools) (*internal
 	return &workflow, nil
 }
 
-func createProjectConfigCustom(config internal.Config, configWorkflow internal.ConfigWorkflow, tools internal.Tools) (*internal.Project, error) {
+func createProjectConfigCustom(
+	config internal.Config,
+	configWorkflow internal.ConfigWorkflow,
+	tools internal.Tools,
+) (*internal.Project, error) {
 	if workflow, err := FromConfig(configWorkflow, tools); workflow != nil {
 		return &internal.Project{
 			Info: internal.ProjectInfo{
@@ -84,7 +88,11 @@ func createProjectConfigCustom(config internal.Config, configWorkflow internal.C
 	}
 }
 
-func createProjectConfigName(config internal.Config, workflowName string, tools internal.Tools) (*internal.Project, error) {
+func createProjectConfigName(
+	config internal.Config,
+	workflowName string,
+	tools internal.Tools,
+) (*internal.Project, error) {
 	for _, workflowType := range SupportedTypes {
 		if workflowName == workflowType.Id() {
 			cfg := Config{

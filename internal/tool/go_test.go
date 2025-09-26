@@ -151,7 +151,11 @@ func TestGo_BuildTargets(t *testing.T) {
 	exec.OnRun("go", []string{"build", "target1", "target2"}).
 		Return(nil)
 
-	err := goTool.BuildTargets(t.Context(), internal.ProjectBuilderOptions{ProjectInfo: info}, []string{"target1", "target2"})
+	err := goTool.BuildTargets(
+		t.Context(),
+		internal.ProjectBuilderOptions{ProjectInfo: info},
+		[]string{"target1", "target2"},
+	)
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -167,7 +171,11 @@ func TestGo_BuildTargets_Failed(t *testing.T) {
 	exec.OnRun("go", []string{"build", "target1", "target2"}).
 		Return(errors.New("failed"))
 
-	err := goTool.BuildTargets(t.Context(), internal.ProjectBuilderOptions{ProjectInfo: info}, []string{"target1", "target2"})
+	err := goTool.BuildTargets(
+		t.Context(),
+		internal.ProjectBuilderOptions{ProjectInfo: info},
+		[]string{"target1", "target2"},
+	)
 	require.EqualError(t, err, "failed")
 
 	exec.AssertExpectations(t)
@@ -401,7 +409,12 @@ func TestGo_Go_AddDependencies(t *testing.T) {
 	exec.OnRun("go", []string{"get", "dep1"}).
 		Return(nil)
 
-	err := goTool.AddDependencies(t.Context(), internal.ProjectDependencyManagerOptions{ProjectInfo: info}, []string{"dep1"}, false)
+	err := goTool.AddDependencies(
+		t.Context(),
+		internal.ProjectDependencyManagerOptions{ProjectInfo: info},
+		[]string{"dep1"},
+		false,
+	)
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -417,7 +430,12 @@ func TestGo_Go_RemoveDependencies(t *testing.T) {
 	exec.OnRun("go", []string{"get", "dep1@none"}).
 		Return(nil)
 
-	err := goTool.RemoveDependencies(t.Context(), internal.ProjectDependencyManagerOptions{ProjectInfo: info}, []string{"dep1"}, false)
+	err := goTool.RemoveDependencies(
+		t.Context(),
+		internal.ProjectDependencyManagerOptions{ProjectInfo: info},
+		[]string{"dep1"},
+		false,
+	)
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -433,7 +451,11 @@ func TestGo_Go_UpdateDependencies(t *testing.T) {
 	exec.OnRun("go", []string{"get", "dep1"}).
 		Return(nil)
 
-	err := goTool.UpdateDependencies(t.Context(), internal.ProjectDependencyManagerOptions{ProjectInfo: info}, []string{"dep1"})
+	err := goTool.UpdateDependencies(
+		t.Context(),
+		internal.ProjectDependencyManagerOptions{ProjectInfo: info},
+		[]string{"dep1"},
+	)
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)

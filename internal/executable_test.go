@@ -18,7 +18,12 @@ func (t *testExecutableRuntime) Id() string {
 	return t.Called().Get(0).(string)
 }
 
-func (t *testExecutableRuntime) RunExecutable(ctx context.Context, options internal.RunOptions, path string, args []string) error {
+func (t *testExecutableRuntime) RunExecutable(
+	ctx context.Context,
+	options internal.RunOptions,
+	path string,
+	args []string,
+) error {
 	return t.Called(ctx, options, path, args).Error(0)
 }
 

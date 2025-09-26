@@ -24,7 +24,9 @@ func TestDockerCompose_NewDockerCompose_NoExecutable(t *testing.T) {
 }
 
 func TestDockerCompose_NewDockerCompose_WithExecutable(t *testing.T) {
-	dockerCompose := tool.NewDockerCompose(func() *internal.Executable { return &internal.Executable{Path: "/bin/docker"} })
+	dockerCompose := tool.NewDockerCompose(func() *internal.Executable {
+		return &internal.Executable{Path: "/bin/docker"}
+	})
 
 	assert.NotNil(t, dockerCompose)
 	assert.Equal(t, "docker-compose", dockerCompose.Id())

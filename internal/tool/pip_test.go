@@ -76,7 +76,12 @@ func TestPip_Pip_AddDependencies(t *testing.T) {
 	exec.OnRun("pip", []string{"install", "dep1"}).
 		Return(nil)
 
-	err := pip.AddDependencies(t.Context(), internal.ProjectDependencyManagerOptions{ProjectInfo: info}, []string{"dep1"}, false)
+	err := pip.AddDependencies(
+		t.Context(),
+		internal.ProjectDependencyManagerOptions{ProjectInfo: info},
+		[]string{"dep1"},
+		false,
+	)
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -92,7 +97,12 @@ func TestPip_Pip_RemoveDependencies(t *testing.T) {
 	exec.OnRun("pip", []string{"uninstall", "dep1"}).
 		Return(nil)
 
-	err := pip.RemoveDependencies(t.Context(), internal.ProjectDependencyManagerOptions{ProjectInfo: info}, []string{"dep1"}, false)
+	err := pip.RemoveDependencies(
+		t.Context(),
+		internal.ProjectDependencyManagerOptions{ProjectInfo: info},
+		[]string{"dep1"},
+		false,
+	)
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -108,7 +118,11 @@ func TestPip_Pip_UpdateDependencies(t *testing.T) {
 	exec.OnRun("pip", []string{"install", "--upgrade", "dep1"}).
 		Return(nil)
 
-	err := pip.UpdateDependencies(t.Context(), internal.ProjectDependencyManagerOptions{ProjectInfo: info}, []string{"dep1"})
+	err := pip.UpdateDependencies(
+		t.Context(),
+		internal.ProjectDependencyManagerOptions{ProjectInfo: info},
+		[]string{"dep1"},
+	)
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)

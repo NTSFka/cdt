@@ -9,6 +9,7 @@ import (
 	"github.com/urfave/cli/v3"
 )
 
+// nolint: funlen
 func NewDependencyCommand() *cli.Command {
 	return &cli.Command{
 		Name:    "dependency",

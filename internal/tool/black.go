@@ -44,7 +44,11 @@ func (b *Black) FormatCheckAll(ctx context.Context, options internal.ProjectForm
 	return b.RunForProject(ctx, options.ProjectInfo, append([]string{"--check"}, options.ExtraArgs...))
 }
 
-func (b *Black) FormatCheckFiles(ctx context.Context, options internal.ProjectFormatterOptions, filenames []string) error {
+func (b *Black) FormatCheckFiles(
+	ctx context.Context,
+	options internal.ProjectFormatterOptions,
+	filenames []string,
+) error {
 	paths := b.buildPaths(options.Directory, filenames)
 
 	return b.RunForProject(ctx, options.ProjectInfo, append(append([]string{"--check"}, options.ExtraArgs...), paths...))

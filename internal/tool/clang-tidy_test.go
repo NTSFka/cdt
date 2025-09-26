@@ -159,7 +159,11 @@ func TestClangTidy_LintFiles(t *testing.T) {
 	}).
 		Return(nil)
 
-	err := clangTidy.LintFiles(t.Context(), internal.ProjectLinterOptions{ProjectInfo: info}, []string{"file1.go", filepath.Join(info.Directory, "file3.go")})
+	err := clangTidy.LintFiles(
+		t.Context(),
+		internal.ProjectLinterOptions{ProjectInfo: info},
+		[]string{"file1.go", filepath.Join(info.Directory, "file3.go")},
+	)
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)

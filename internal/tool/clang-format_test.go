@@ -163,7 +163,11 @@ func TestClangFormat_FormatFiles(t *testing.T) {
 	}).
 		Return(nil)
 
-	err := clangFormat.FormatFiles(t.Context(), internal.ProjectFormatterOptions{ProjectInfo: info}, []string{"file1.go", filepath.Join(info.Directory, "file3.go")})
+	err := clangFormat.FormatFiles(
+		t.Context(),
+		internal.ProjectFormatterOptions{ProjectInfo: info},
+		[]string{"file1.go", filepath.Join(info.Directory, "file3.go")},
+	)
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -331,7 +335,11 @@ func TestClangFormat_FormatCheckFiles(t *testing.T) {
 	}).
 		Return(nil)
 
-	err := clangFormat.FormatCheckFiles(t.Context(), internal.ProjectFormatterOptions{ProjectInfo: info}, []string{"file1.go", filepath.Join(info.Directory, "file3.go")})
+	err := clangFormat.FormatCheckFiles(
+		t.Context(),
+		internal.ProjectFormatterOptions{ProjectInfo: info},
+		[]string{"file1.go", filepath.Join(info.Directory, "file3.go")},
+	)
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -351,7 +359,11 @@ func TestClangFormat_FormatCheckFiles_Failed(t *testing.T) {
 	}).
 		Return(errors.New("failed"))
 
-	err := clangFormat.FormatCheckFiles(t.Context(), internal.ProjectFormatterOptions{ProjectInfo: info}, []string{"file1.go"})
+	err := clangFormat.FormatCheckFiles(
+		t.Context(),
+		internal.ProjectFormatterOptions{ProjectInfo: info},
+		[]string{"file1.go"},
+	)
 	require.EqualError(t, err, "failed")
 
 	exec.AssertExpectations(t)
@@ -375,7 +387,11 @@ func TestClangFormat_FormatCheckFiles_CustomConfig(t *testing.T) {
 	}).
 		Return(nil)
 
-	err = clangFormat.FormatCheckFiles(t.Context(), internal.ProjectFormatterOptions{ProjectInfo: info}, []string{"file1.go"})
+	err = clangFormat.FormatCheckFiles(
+		t.Context(),
+		internal.ProjectFormatterOptions{ProjectInfo: info},
+		[]string{"file1.go"},
+	)
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)

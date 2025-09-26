@@ -49,7 +49,11 @@ func (c *ClangFormat) FormatAll(ctx context.Context, options internal.ProjectFor
 }
 
 // FormatFiles formats a file in the project.
-func (c *ClangFormat) FormatFiles(ctx context.Context, options internal.ProjectFormatterOptions, filenames []string) error {
+func (c *ClangFormat) FormatFiles(
+	ctx context.Context,
+	options internal.ProjectFormatterOptions,
+	filenames []string,
+) error {
 	paths := c.buildPaths(options.Directory, filenames)
 
 	toolArgs := c.buildArgs(options.Directory, []string{"-i"}, paths)
@@ -73,7 +77,11 @@ func (c *ClangFormat) FormatCheckAll(ctx context.Context, options internal.Proje
 }
 
 // FormatCheckFiles checks a file if it needs formatting.
-func (c *ClangFormat) FormatCheckFiles(ctx context.Context, options internal.ProjectFormatterOptions, filenames []string) error {
+func (c *ClangFormat) FormatCheckFiles(
+	ctx context.Context,
+	options internal.ProjectFormatterOptions,
+	filenames []string,
+) error {
 	paths := c.buildPaths(options.Directory, filenames)
 
 	toolArgs := c.buildArgs(options.Directory, []string{"--dry-run"}, paths)

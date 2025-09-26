@@ -15,6 +15,7 @@ import (
 const ConfigFileName = "cdt.yml"
 
 // NewApp creates the main CLI application.
+// nolint:funlen
 func NewApp(buildContext func(config internal.Config) (*internal.Context, error)) *cli.Command {
 	return &cli.Command{
 		Name:                  "cdt",
@@ -25,25 +26,29 @@ func NewApp(buildContext func(config internal.Config) (*internal.Context, error)
 			&cli.StringFlag{
 				Name:    "root",
 				Aliases: []string{"r"},
-				Usage:   "Project root directory. If contains " + ConfigFileName + " file, it will be used as a configuration file.",
-				Value:   ".",
+				Usage: "Project root directory. If contains " + ConfigFileName + " file, it will be used as " +
+					"a configuration file.",
+				Value: ".",
 			},
 			&cli.StringFlag{
 				Name:    "build",
 				Aliases: []string{"b"},
-				Usage:   "Build directory for intermediate data. If not specified the value from configuration file some default will be used.",
-				Value:   "build",
+				Usage: "Build directory for intermediate data. If not specified the value from configuration file " +
+					"some default will be used.",
+				Value: "build",
 			},
 			&cli.StringFlag{
 				Name:    "environment",
 				Aliases: []string{"e"},
-				Usage:   "Environment to use, e.g. `docker:image`. If not specified the value from configuration file or system environment will be used.",
-				Value:   "system",
+				Usage: "Environment to use, e.g. `docker:image`. If not specified the value from configuration file " +
+					"or system environment will be used.",
+				Value: "system",
 			},
 			&cli.StringFlag{
 				Name:    "workflow",
 				Aliases: []string{"w"},
-				Usage:   "What workflow to use, e.g. `go`. If not specified the value from configuration file or detected workflow will be used.",
+				Usage: "What workflow to use, e.g. `go`. If not specified the value from configuration file or " +
+					"detected workflow will be used.",
 			},
 			&cli.StringFlag{
 				Name:    "config",

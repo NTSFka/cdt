@@ -69,7 +69,11 @@ func TestRuff_Ruff_Lint(t *testing.T) {
 	exec.OnRun("lint", []string{"check", "file.py", "/path/to/file2.py"}).
 		Return(nil)
 
-	err := ruff.LintFiles(t.Context(), internal.ProjectLinterOptions{ProjectInfo: info}, []string{"file.py", "/path/to/file2.py"})
+	err := ruff.LintFiles(
+		t.Context(),
+		internal.ProjectLinterOptions{ProjectInfo: info},
+		[]string{"file.py", "/path/to/file2.py"},
+	)
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -133,7 +137,11 @@ func TestRuff_Ruff_FormatCheckFiles(t *testing.T) {
 	exec.OnRun("format", []string{"format", "--check", "tests/*", "/path/to/file.py"}).
 		Return(nil)
 
-	err := ruff.FormatCheckFiles(t.Context(), internal.ProjectFormatterOptions{ProjectInfo: info}, []string{"tests/*", "/path/to/file.py"})
+	err := ruff.FormatCheckFiles(
+		t.Context(),
+		internal.ProjectFormatterOptions{ProjectInfo: info},
+		[]string{"tests/*", "/path/to/file.py"},
+	)
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)

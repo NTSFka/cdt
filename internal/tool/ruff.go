@@ -54,10 +54,18 @@ func (r *Ruff) FormatCheckAll(ctx context.Context, options internal.ProjectForma
 	return r.RunForProject(ctx, options.ProjectInfo, append([]string{"format", "--check"}, options.ExtraArgs...))
 }
 
-func (r *Ruff) FormatCheckFiles(ctx context.Context, options internal.ProjectFormatterOptions, filenames []string) error {
+func (r *Ruff) FormatCheckFiles(
+	ctx context.Context,
+	options internal.ProjectFormatterOptions,
+	filenames []string,
+) error {
 	paths := r.buildPaths(options.Directory, filenames)
 
-	return r.RunForProject(ctx, options.ProjectInfo, append(append([]string{"format", "--check"}, options.ExtraArgs...), paths...))
+	return r.RunForProject(
+		ctx,
+		options.ProjectInfo,
+		append(append([]string{"format", "--check"}, options.ExtraArgs...), paths...),
+	)
 }
 
 func (r *Ruff) buildPaths(directory string, filenames []string) []string {
