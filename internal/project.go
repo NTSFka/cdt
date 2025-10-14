@@ -67,7 +67,7 @@ func (p *EmptyProjectStructureProvider) Structure(
 	_ context.Context,
 	_ ProjectInfo,
 ) (*ProjectStructure, error) {
-	return &ProjectStructure{}, nil
+	return nil, errors.New("no structure provided")
 }
 
 // A FixedProjectStructureProvider provides a predefined project structure.

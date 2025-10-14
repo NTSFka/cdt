@@ -28,9 +28,8 @@ func TestProject_EmptyStructureProvider(t *testing.T) {
 	provider := internal.EmptyProjectStructureProvider{}
 	structure, err := provider.Structure(t.Context(), internal.ProjectInfo{})
 
-	require.NoError(t, err)
-	assert.NotNil(t, structure)
-	assert.Empty(t, structure.Targets)
+	require.EqualError(t, err, "no structure provided")
+	assert.Nil(t, structure)
 }
 
 func TestProject_FixedStructureProvider(t *testing.T) {
