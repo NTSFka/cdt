@@ -14,7 +14,7 @@ import (
 )
 
 func TestDockerCompose_NewDockerCompose_NoExecutable(t *testing.T) {
-	dockerCompose := tool.NewDockerCompose(func() *internal.Executable { return nil })
+	dockerCompose := tool.NewDockerCompose(test.LazyExecutableNil)
 
 	assert.NotNil(t, dockerCompose)
 	assert.Equal(t, "docker-compose", dockerCompose.Id())
@@ -25,9 +25,7 @@ func TestDockerCompose_NewDockerCompose_NoExecutable(t *testing.T) {
 }
 
 func TestDockerCompose_NewDockerCompose_WithExecutable(t *testing.T) {
-	dockerCompose := tool.NewDockerCompose(func() *internal.Executable {
-		return &internal.Executable{Path: "/bin/docker"}
-	})
+	dockerCompose := tool.NewDockerCompose(test.LazyExecutable("/bin/docker"))
 
 	assert.NotNil(t, dockerCompose)
 	assert.Equal(t, "docker-compose", dockerCompose.Id())
@@ -37,7 +35,7 @@ func TestDockerCompose_NewDockerCompose_WithExecutable(t *testing.T) {
 func TestDockerCompose_DetectDockerCompose_NotFound(t *testing.T) {
 	env := test.NewEnvironment(t)
 	env.OnFindExecutable("docker").
-		Return(nil)
+		Return(nil, nil)
 
 	dockerCompose := tool.DetectDockerCompose(t.Context(), env)
 	assert.NotNil(t, dockerCompose)
@@ -50,7 +48,7 @@ func TestDockerCompose_DetectDockerCompose_NotFound(t *testing.T) {
 func TestDockerCompose_DetectDockerCompose_Found(t *testing.T) {
 	env := test.NewEnvironment(t)
 	env.OnFindExecutable("docker").
-		Return(env.NewExecutable("docker"))
+		Return(env.NewExecutable("docker"), nil, nil)
 
 	dockerCompose := tool.DetectDockerCompose(t.Context(), env)
 	assert.NotNil(t, dockerCompose)
@@ -61,9 +59,7 @@ func TestDockerCompose_DetectDockerCompose_Found(t *testing.T) {
 }
 
 func TestDockerCompose_Detect(t *testing.T) {
-	dockerCompose := tool.NewDockerCompose(
-		func() *internal.Executable { return &internal.Executable{Path: "docker"} },
-	)
+	dockerCompose := tool.NewDockerCompose(test.LazyExecutable("docker"))
 	assert.NotNil(t, dockerCompose)
 
 	env := dockerCompose.Detect(".")
@@ -71,9 +67,7 @@ func TestDockerCompose_Detect(t *testing.T) {
 }
 
 func TestDockerCompose_CreateEnvironment(t *testing.T) {
-	dockerCompose := tool.NewDockerCompose(
-		func() *internal.Executable { return &internal.Executable{Path: "docker"} },
-	)
+	dockerCompose := tool.NewDockerCompose(test.LazyExecutable("docker"))
 	assert.NotNil(t, dockerCompose)
 
 	env, err := dockerCompose.CreateEnvironment(".", "service1")
@@ -84,9 +78,7 @@ func TestDockerCompose_CreateEnvironment(t *testing.T) {
 }
 
 func TestDockerCompose_CreateEnvironment_NoService(t *testing.T) {
-	dockerCompose := tool.NewDockerCompose(
-		func() *internal.Executable { return &internal.Executable{Path: "docker"} },
-	)
+	dockerCompose := tool.NewDockerCompose(test.LazyExecutable("docker"))
 	assert.NotNil(t, dockerCompose)
 
 	env, err := dockerCompose.CreateEnvironment(".", "")
@@ -294,8 +286,9 @@ func TestDockerCompose_Environment_FindExecutable(t *testing.T) {
 	runMock.OnCallOutput([]string{"compose", "exec", "service12", "which", "tool1"}, "/usr/bin/tool1").
 		Return(nil)
 
-	executable := env.FindExecutable(t.Context(), "tool1")
+	executable, err := env.FindExecutable(t.Context(), "tool1")
 	require.NotNil(t, executable)
+	require.NoError(t, err)
 	assert.Equal(t, "/usr/bin/tool1", executable.Path)
 
 	runMock.AssertExpectations(t)
@@ -312,8 +305,9 @@ func TestDockerCompose_Environment_FindExecutable_Failed(t *testing.T) {
 	runMock.OnCallOutput([]string{"compose", "exec", "service13", "which", "tool1"}, "/usr/bin/tool1").
 		Return(errors.New("failed"))
 
-	executable := env.FindExecutable(t.Context(), "tool1")
+	executable, err := env.FindExecutable(t.Context(), "tool1")
 	assert.Nil(t, executable)
+	require.EqualError(t, err, "failed")
 
 	runMock.AssertExpectations(t)
 }
@@ -333,8 +327,9 @@ func TestDockerCompose_Environment_FindExecutable_AutoStart(t *testing.T) {
 	runMock.OnCallOutput([]string{"compose", "exec", "service14", "which", "tool1"}, "/usr/bin/tool1").
 		Return(nil)
 
-	executable := env.FindExecutable(t.Context(), "tool1")
+	executable, err := env.FindExecutable(t.Context(), "tool1")
 	require.NotNil(t, executable)
+	require.NoError(t, err)
 	assert.Equal(t, "/usr/bin/tool1", executable.Path)
 
 	runMock.AssertExpectations(t)
@@ -352,8 +347,9 @@ func TestDockerCompose_Environment_FindExecutable_AutoStart_Failed(t *testing.T)
 	runMock.OnCall([]string{"compose", "up", "-d"}).
 		Return(errors.New("failed"))
 
-	executable := env.FindExecutable(t.Context(), "tool1")
+	executable, err := env.FindExecutable(t.Context(), "tool1")
 	assert.Nil(t, executable)
+	require.EqualError(t, err, "failed")
 
 	runMock.AssertExpectations(t)
 }

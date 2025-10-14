@@ -25,8 +25,8 @@ func createConfiguratorTool(id string, executable *internal.Executable) *struct 
 			"TestPattern",
 			"",
 			internal.Tags{},
-			func() *internal.Executable {
-				return executable
+			func() (*internal.Executable, error) {
+				return executable, nil
 			},
 		),
 		test.ProjectConfigurator{},
@@ -114,9 +114,15 @@ func createBuilderTool(id string, executable *internal.Executable) *struct {
 		internal.ExecutableTool
 		test.ProjectBuilder
 	}{
-		internal.MakeExecutableTool(id, "Test", "", internal.Tags{}, func() *internal.Executable {
-			return executable
-		}),
+		internal.MakeExecutableTool(
+			id,
+			"Test",
+			"",
+			internal.Tags{},
+			func() (*internal.Executable, error) {
+				return executable, nil
+			},
+		),
 		test.ProjectBuilder{},
 	}
 }
@@ -260,9 +266,15 @@ func createTesterTool(id string, executable *internal.Executable) *struct {
 		internal.ExecutableTool
 		test.ProjectTester
 	}{
-		internal.MakeExecutableTool(id, "Test", "", internal.Tags{}, func() *internal.Executable {
-			return executable
-		}),
+		internal.MakeExecutableTool(
+			id,
+			"Test",
+			"",
+			internal.Tags{},
+			func() (*internal.Executable, error) {
+				return executable, nil
+			},
+		),
 		test.ProjectTester{},
 	}
 }
@@ -406,9 +418,15 @@ func createFormatterTool(id string, executable *internal.Executable) *struct {
 		internal.ExecutableTool
 		test.ProjectFormatter
 	}{
-		internal.MakeExecutableTool(id, "Test", "", internal.Tags{}, func() *internal.Executable {
-			return executable
-		}),
+		internal.MakeExecutableTool(
+			id,
+			"Test",
+			"",
+			internal.Tags{},
+			func() (*internal.Executable, error) {
+				return executable, nil
+			},
+		),
 		test.ProjectFormatter{},
 	}
 }
@@ -684,9 +702,15 @@ func createLinterTool(id string, executable *internal.Executable) *struct {
 		internal.ExecutableTool
 		test.ProjectLinter
 	}{
-		internal.MakeExecutableTool(id, "Test", "", internal.Tags{}, func() *internal.Executable {
-			return executable
-		}),
+		internal.MakeExecutableTool(
+			id,
+			"Test",
+			"",
+			internal.Tags{},
+			func() (*internal.Executable, error) {
+				return executable, nil
+			},
+		),
 		test.ProjectLinter{},
 	}
 }
@@ -963,9 +987,15 @@ func createRunnerTool(id string, executable *internal.Executable) *struct {
 		internal.ExecutableTool
 		test.ProjectRunner
 	}{
-		internal.MakeExecutableTool(id, "Test", "", internal.Tags{}, func() *internal.Executable {
-			return executable
-		}),
+		internal.MakeExecutableTool(
+			id,
+			"Test",
+			"",
+			internal.Tags{},
+			func() (*internal.Executable, error) {
+				return executable, nil
+			},
+		),
 		test.ProjectRunner{},
 	}
 }
@@ -1051,9 +1081,15 @@ func createDependencyManagerTool(id string, executable *internal.Executable) *st
 		internal.ExecutableTool
 		test.DependencyManager
 	}{
-		internal.MakeExecutableTool(id, "Test", "", internal.Tags{}, func() *internal.Executable {
-			return executable
-		}),
+		internal.MakeExecutableTool(
+			id,
+			"Test",
+			"",
+			internal.Tags{},
+			func() (*internal.Executable, error) {
+				return executable, nil
+			},
+		),
 		test.DependencyManager{},
 	}
 }

@@ -13,21 +13,25 @@ type Pip struct {
 
 // DetectPip create a tool for pip.
 func DetectPip(ctx context.Context, environment internal.Environment) *Pip {
-	return NewPip(func() *internal.Executable {
-		if executable := environment.FindExecutable(ctx, "pip"); executable != nil {
-			return executable
+	return NewPip(func() (*internal.Executable, error) {
+		if executable, err := environment.FindExecutable(ctx, "pip"); executable != nil {
+			return executable, nil
+		} else if err != nil {
+			return nil, err
 		}
 
-		if executable := environment.FindExecutable(ctx, "pip3"); executable != nil {
-			return executable
+		if executable, err := environment.FindExecutable(ctx, "pip3"); executable != nil {
+			return executable, nil
+		} else if err != nil {
+			return nil, err
 		}
 
-		return nil
+		return nil, nil
 	})
 }
 
 // NewPip creates a pip tool from a custom executable.
-func NewPip(detect func() *internal.Executable) *Pip {
+func NewPip(detect internal.ExecutableToolDetectFunc) *Pip {
 	return &Pip{
 		ExecutableTool: internal.MakeExecutableTool(
 			"pip",

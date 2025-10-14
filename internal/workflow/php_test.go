@@ -39,22 +39,12 @@ func TestPHPType_Create(t *testing.T) {
 	workflowType := workflow.PHP{}
 
 	tools := internal.Tools{
-		tool.NewPHP(func() *internal.Executable { return &internal.Executable{Path: "php-test"} }),
-		tool.NewPHPUnit(
-			func() *internal.Executable { return &internal.Executable{Path: "phpunit-test"} },
-		),
-		tool.NewParaTest(
-			func() *internal.Executable { return &internal.Executable{Path: "paratest-test"} },
-		),
-		tool.NewPHPStan(
-			func() *internal.Executable { return &internal.Executable{Path: "phpstan-test"} },
-		),
-		tool.NewPHPCSFixer(
-			func() *internal.Executable { return &internal.Executable{Path: "php-cs-fixer-test"} },
-		),
-		tool.NewComposer(
-			func() *internal.Executable { return &internal.Executable{Path: "composer-test"} },
-		),
+		tool.NewPHP(test.LazyExecutable("php-test")),
+		tool.NewPHPUnit(test.LazyExecutable("phpunit-test")),
+		tool.NewParaTest(test.LazyExecutable("paratest-test")),
+		tool.NewPHPStan(test.LazyExecutable("phpstan-test")),
+		tool.NewPHPCSFixer(test.LazyExecutable("php-cs-fixer-test")),
+		tool.NewComposer(test.LazyExecutable("composer-test")),
 	}
 
 	project := workflowType.Create(workflow.Config{Directory: "dir1"}, tools)
@@ -74,18 +64,12 @@ func TestPHPType_Project_TestAll_Paratest(t *testing.T) {
 	phpunitMock := test.NewExecutable(t)
 
 	tools := internal.Tools{
-		tool.NewPHP(func() *internal.Executable { return &internal.Executable{Path: "php-test"} }),
+		tool.NewPHP(test.LazyExecutable("php-test")),
 		tool.NewPHPUnit(phpunitMock.LazyExecutable("phpunit-test")),
 		tool.NewParaTest(paratestMock.LazyExecutable("paratest-test")),
-		tool.NewPHPStan(
-			func() *internal.Executable { return &internal.Executable{Path: "phpstan-test"} },
-		),
-		tool.NewPHPCSFixer(
-			func() *internal.Executable { return &internal.Executable{Path: "php-cs-fixer-test"} },
-		),
-		tool.NewComposer(
-			func() *internal.Executable { return &internal.Executable{Path: "composer-test"} },
-		),
+		tool.NewPHPStan(test.LazyExecutable("phpstan-test")),
+		tool.NewPHPCSFixer(test.LazyExecutable("php-cs-fixer-test")),
+		tool.NewComposer(test.LazyExecutable("composer-test")),
 	}
 
 	dir := t.TempDir()
@@ -111,18 +95,12 @@ func TestPHPType_Project_TestAll_PHPUnit(t *testing.T) {
 	phpunitMock := test.NewExecutable(t)
 
 	tools := internal.Tools{
-		tool.NewPHP(func() *internal.Executable { return &internal.Executable{Path: "php-test"} }),
+		tool.NewPHP(test.LazyExecutable("php-test")),
 		tool.NewPHPUnit(phpunitMock.LazyExecutable("phpunit-test")),
-		tool.NewParaTest(func() *internal.Executable { return nil }),
-		tool.NewPHPStan(
-			func() *internal.Executable { return &internal.Executable{Path: "phpstan-test"} },
-		),
-		tool.NewPHPCSFixer(
-			func() *internal.Executable { return &internal.Executable{Path: "php-cs-fixer-test"} },
-		),
-		tool.NewComposer(
-			func() *internal.Executable { return &internal.Executable{Path: "composer-test"} },
-		),
+		tool.NewParaTest(test.LazyExecutableNil),
+		tool.NewPHPStan(test.LazyExecutable("phpstan-test")),
+		tool.NewPHPCSFixer(test.LazyExecutable("php-cs-fixer-test")),
+		tool.NewComposer(test.LazyExecutable("composer-test")),
 	}
 
 	dir := t.TempDir()
@@ -148,18 +126,12 @@ func TestPHPType_Project_Test_Paratest(t *testing.T) {
 	phpunitMock := test.NewExecutable(t)
 
 	tools := internal.Tools{
-		tool.NewPHP(func() *internal.Executable { return &internal.Executable{Path: "php-test"} }),
+		tool.NewPHP(test.LazyExecutable("php-test")),
 		tool.NewPHPUnit(phpunitMock.LazyExecutable("phpunit-test")),
 		tool.NewParaTest(paratestMock.LazyExecutable("paratest-test")),
-		tool.NewPHPStan(
-			func() *internal.Executable { return &internal.Executable{Path: "phpstan-test"} },
-		),
-		tool.NewPHPCSFixer(
-			func() *internal.Executable { return &internal.Executable{Path: "php-cs-fixer-test"} },
-		),
-		tool.NewComposer(
-			func() *internal.Executable { return &internal.Executable{Path: "composer-test"} },
-		),
+		tool.NewPHPStan(test.LazyExecutable("phpstan-test")),
+		tool.NewPHPCSFixer(test.LazyExecutable("php-cs-fixer-test")),
+		tool.NewComposer(test.LazyExecutable("composer-test")),
 	}
 
 	dir := t.TempDir()
@@ -186,18 +158,12 @@ func TestPHPType_Project_Test_PHPUnit(t *testing.T) {
 	phpunitMock := test.NewExecutable(t)
 
 	tools := internal.Tools{
-		tool.NewPHP(func() *internal.Executable { return &internal.Executable{Path: "php-test"} }),
+		tool.NewPHP(test.LazyExecutable("php-test")),
 		tool.NewPHPUnit(phpunitMock.LazyExecutable("phpunit-test")),
-		tool.NewParaTest(func() *internal.Executable { return nil }),
-		tool.NewPHPStan(
-			func() *internal.Executable { return &internal.Executable{Path: "phpstan-test"} },
-		),
-		tool.NewPHPCSFixer(
-			func() *internal.Executable { return &internal.Executable{Path: "php-cs-fixer-test"} },
-		),
-		tool.NewComposer(
-			func() *internal.Executable { return &internal.Executable{Path: "composer-test"} },
-		),
+		tool.NewParaTest(test.LazyExecutableNil),
+		tool.NewPHPStan(test.LazyExecutable("phpstan-test")),
+		tool.NewPHPCSFixer(test.LazyExecutable("php-cs-fixer-test")),
+		tool.NewComposer(test.LazyExecutable("composer-test")),
 	}
 
 	dir := t.TempDir()

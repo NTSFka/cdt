@@ -56,15 +56,18 @@ type Tool interface {
 	Run(ctx context.Context, options RunOptions, args []string) error
 }
 
+type ExecutableToolDetectFunc func() (*Executable, error)
+
 // ExecutableTool is a simple implementation of the Tool interface.
 type ExecutableTool struct {
-	id         string
-	name       string
-	info       string
-	tags       Tags
-	detected   bool
-	detect     func() *Executable
-	executable *Executable
+	id          string
+	name        string
+	info        string
+	tags        Tags
+	detected    bool
+	detectError error
+	detect      ExecutableToolDetectFunc
+	executable  *Executable
 }
 
 // MakeExecutableTool creates an executable tool.
@@ -73,16 +76,17 @@ func MakeExecutableTool(
 	name string,
 	info string,
 	tags Tags,
-	detect func() *Executable,
+	detect ExecutableToolDetectFunc,
 ) ExecutableTool {
 	return ExecutableTool{
-		id:         id,
-		name:       name,
-		info:       info,
-		tags:       tags,
-		detected:   false,
-		detect:     detect,
-		executable: nil,
+		id:          id,
+		name:        name,
+		info:        info,
+		tags:        tags,
+		detected:    false,
+		detectError: nil,
+		detect:      detect,
+		executable:  nil,
 	}
 }
 
@@ -92,7 +96,7 @@ func NewExecutableTool(
 	name string,
 	info string,
 	tags Tags,
-	detect func() *Executable,
+	detect ExecutableToolDetectFunc,
 ) *ExecutableTool {
 	executable := MakeExecutableTool(id, name, info, tags, detect)
 
@@ -127,7 +131,7 @@ func (t *ExecutableTool) Executable() *Executable {
 	if !t.detected {
 		Assert(t.detect != nil, "detect function is not set")
 
-		t.executable = t.detect()
+		t.executable, t.detectError = t.detect()
 		t.detected = true
 	}
 
@@ -136,6 +140,10 @@ func (t *ExecutableTool) Executable() *Executable {
 
 func (t *ExecutableTool) Run(ctx context.Context, options RunOptions, args []string) error {
 	if t.Executable() == nil {
+		if t.detectError != nil {
+			return t.detectError
+		}
+
 		return t.NotFoundError()
 	}
 

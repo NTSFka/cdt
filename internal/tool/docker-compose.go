@@ -17,7 +17,7 @@ type DockerCompose struct {
 }
 
 // NewDockerCompose creates a docker compose tool from a custom docker executable.
-func NewDockerCompose(detect func() *internal.Executable) *DockerCompose {
+func NewDockerCompose(detect internal.ExecutableToolDetectFunc) *DockerCompose {
 	return &DockerCompose{
 		internal.MakeExecutableTool(
 			"docker-compose",
@@ -32,7 +32,7 @@ func NewDockerCompose(detect func() *internal.Executable) *DockerCompose {
 // DetectDockerCompose create a docker compose tool with detected docker executable in the given environment.
 func DetectDockerCompose(ctx context.Context, environment internal.Environment) *DockerCompose {
 	return NewDockerCompose(
-		func() *internal.Executable { return environment.FindExecutable(ctx, "docker") },
+		func() (*internal.Executable, error) { return environment.FindExecutable(ctx, "docker") },
 	)
 }
 
@@ -128,23 +128,31 @@ func (d *dockerComposeEnvironment) Cleanup(ctx context.Context) error {
 func (d *dockerComposeEnvironment) FindExecutable(
 	ctx context.Context,
 	name string,
-) *internal.Executable {
+) (*internal.Executable, error) {
 	if err := d.autoStart(ctx); err != nil {
-		return nil
+		return nil, err
 	}
 
-	return internal.Trace(ctx, "docker-compose.find_executable", func() *internal.Executable {
-		output, err := d.runOutput(ctx, []string{"exec", d.service, "which", name})
+	return internal.TraceErr(
+		ctx,
+		"docker-compose.find_executable",
+		func() (*internal.Executable, error) {
+			output, err := d.runOutput(ctx, []string{"exec", d.service, "which", name})
 
-		if err != nil {
-			return nil
-		}
+			if err != nil {
+				return nil, err
+			}
 
-		return &internal.Executable{
-			Path:    output,
-			Runtime: d,
-		}
-	}, "service", d.service, "name", name)
+			return &internal.Executable{
+				Path:    output,
+				Runtime: d,
+			}, nil
+		},
+		"service",
+		d.service,
+		"name",
+		name,
+	)
 }
 
 func (d *dockerComposeEnvironment) RunExecutable(

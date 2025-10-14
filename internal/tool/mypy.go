@@ -13,13 +13,13 @@ type MyPy struct {
 
 // DetectMyPy create a tool for mypy.
 func DetectMyPy(ctx context.Context, environment internal.Environment) *MyPy {
-	return NewMyPy(func() *internal.Executable {
+	return NewMyPy(func() (*internal.Executable, error) {
 		return environment.FindExecutable(ctx, "mypy")
 	})
 }
 
 // NewMyPy creates a mypy tool from a custom executable.
-func NewMyPy(detect func() *internal.Executable) *MyPy {
+func NewMyPy(detect internal.ExecutableToolDetectFunc) *MyPy {
 	return &MyPy{
 		ExecutableTool: internal.MakeExecutableTool(
 			"mypy",

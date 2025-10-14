@@ -13,13 +13,13 @@ type Flake8 struct {
 
 // DetectFlake8 create a tool for flake8.
 func DetectFlake8(ctx context.Context, environment internal.Environment) *Flake8 {
-	return NewFlake8(func() *internal.Executable {
+	return NewFlake8(func() (*internal.Executable, error) {
 		return environment.FindExecutable(ctx, "flake8")
 	})
 }
 
 // NewFlake8 creates a flake8 tool from a custom executable.
-func NewFlake8(detect func() *internal.Executable) *Flake8 {
+func NewFlake8(detect internal.ExecutableToolDetectFunc) *Flake8 {
 	return &Flake8{
 		ExecutableTool: internal.MakeExecutableTool(
 			"flake8",

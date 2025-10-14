@@ -13,13 +13,13 @@ type Ruff struct {
 
 // DetectRuff create a tool for ruff.
 func DetectRuff(ctx context.Context, environment internal.Environment) *Ruff {
-	return NewRuff(func() *internal.Executable {
+	return NewRuff(func() (*internal.Executable, error) {
 		return environment.FindExecutable(ctx, "ruff")
 	})
 }
 
 // NewRuff creates a ruff tool from a custom executable.
-func NewRuff(detect func() *internal.Executable) *Ruff {
+func NewRuff(detect internal.ExecutableToolDetectFunc) *Ruff {
 	return &Ruff{
 		ExecutableTool: internal.MakeExecutableTool(
 			"ruff",

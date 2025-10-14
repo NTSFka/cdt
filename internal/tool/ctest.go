@@ -12,7 +12,7 @@ type CTest struct {
 }
 
 // NewCTest creates a ctest tool from a custom executable.
-func NewCTest(detect func() *internal.Executable) *CTest {
+func NewCTest(detect internal.ExecutableToolDetectFunc) *CTest {
 	return &CTest{
 		internal.MakeExecutableTool(
 			"ctest",
@@ -26,7 +26,7 @@ func NewCTest(detect func() *internal.Executable) *CTest {
 
 // DetectCTest create ctest tool can be used in the project.
 func DetectCTest(ctx context.Context, environment internal.Environment) *CTest {
-	return NewCTest(func() *internal.Executable {
+	return NewCTest(func() (*internal.Executable, error) {
 		return environment.FindExecutable(ctx, "ctest")
 	})
 }

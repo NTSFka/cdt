@@ -15,7 +15,7 @@ func TestPyTest_DetectPyTest(t *testing.T) {
 	env := test.NewEnvironment(t)
 
 	env.OnFindExecutable("pytest").
-		Return(env.NewExecutable("/bin/pytest"))
+		Return(env.NewExecutable("/bin/pytest"), nil)
 
 	pyTest := tool.DetectPyTest(t.Context(), env)
 	assert.NotNil(t, pyTest)
@@ -33,7 +33,7 @@ func TestPyTest_DetectPyTest_NotFound(t *testing.T) {
 	env := test.NewEnvironment(t)
 
 	env.OnFindExecutable("pytest").
-		Return(nil)
+		Return(nil, nil)
 
 	pyTest := tool.DetectPyTest(t.Context(), env)
 	assert.NotNil(t, pyTest)

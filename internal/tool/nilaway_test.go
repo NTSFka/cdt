@@ -14,7 +14,7 @@ import (
 func TestNilAway_DetectNilAway(t *testing.T) {
 	env := test.NewEnvironment(t)
 	env.OnFindExecutable("nilaway").
-		Return(env.NewExecutable("/bin/nilaway"))
+		Return(env.NewExecutable("/bin/nilaway"), nil)
 
 	nilAway := tool.DetectNilAway(t.Context(), env)
 	assert.NotNil(t, nilAway)
@@ -31,7 +31,7 @@ func TestNilAway_DetectNilAway(t *testing.T) {
 func TestNilAway_DetectNilAway_NotFound(t *testing.T) {
 	env := test.NewEnvironment(t)
 	env.OnFindExecutable("nilaway").
-		Return(nil)
+		Return(nil, nil)
 
 	nilAway := tool.DetectNilAway(t.Context(), env)
 	assert.NotNil(t, nilAway)

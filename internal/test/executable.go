@@ -9,6 +9,16 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
+func LazyExecutableNil() (*internal.Executable, error) {
+	return nil, nil // nolint: nilnil
+}
+
+func LazyExecutable(path string) func() (*internal.Executable, error) {
+	return func() (*internal.Executable, error) {
+		return &internal.Executable{Path: path}, nil
+	}
+}
+
 // Executable allow testing executable invocation.
 type Executable struct {
 	mock.Mock
@@ -50,9 +60,9 @@ func (m *Executable) NewExecutable(path string) *internal.Executable {
 }
 
 // LazyExecutable creates a new lazy executable via function call.
-func (m *Executable) LazyExecutable(path string) func() *internal.Executable {
-	return func() *internal.Executable {
-		return m.NewExecutable(path)
+func (m *Executable) LazyExecutable(path string) func() (*internal.Executable, error) {
+	return func() (*internal.Executable, error) {
+		return m.NewExecutable(path), nil
 	}
 }
 

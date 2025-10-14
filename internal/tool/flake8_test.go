@@ -15,7 +15,7 @@ func TestFlake8_DetectFlake8(t *testing.T) {
 	env := test.NewEnvironment(t)
 
 	env.OnFindExecutable("flake8").
-		Return(env.NewExecutable("/bin/flake8"))
+		Return(env.NewExecutable("/bin/flake8"), nil)
 
 	flake8 := tool.DetectFlake8(t.Context(), env)
 	assert.NotNil(t, flake8)
@@ -33,7 +33,7 @@ func TestFlake8_DetectFlake8_NotFound(t *testing.T) {
 	env := test.NewEnvironment(t)
 
 	env.OnFindExecutable("flake8").
-		Return(nil)
+		Return(nil, nil)
 
 	flake8 := tool.DetectFlake8(t.Context(), env)
 	assert.NotNil(t, flake8)

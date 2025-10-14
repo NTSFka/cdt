@@ -20,7 +20,7 @@ func checkTool(
 	environment internal.Environment,
 	toolName string,
 ) {
-	if executable := environment.FindExecutable(ctx, toolName); executable == nil {
+	if executable, _ := environment.FindExecutable(ctx, toolName); executable == nil {
 		t.Skipf("unable to find tool: %v", toolName)
 	}
 }

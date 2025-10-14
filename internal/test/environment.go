@@ -45,14 +45,19 @@ func (e *Environment) Cleanup(ctx context.Context) error {
 	return e.Called(ctx).Error(0)
 }
 
-func (e *Environment) FindExecutable(ctx context.Context, name string) *internal.Executable {
-	result := e.Called(ctx, name).Get(0)
+func (e *Environment) FindExecutable(
+	ctx context.Context,
+	name string,
+) (*internal.Executable, error) {
+	args := e.Called(ctx, name)
+	result := args.Get(0)
+	err := args.Error(1)
 
 	if result == nil {
-		return nil
+		return nil, err
 	}
 
-	return result.(*internal.Executable)
+	return result.(*internal.Executable), err
 }
 
 func (e *Environment) RunExecutable(

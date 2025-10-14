@@ -15,7 +15,7 @@ import (
 func TestCTest_DetectCTest(t *testing.T) {
 	env := test.NewEnvironment(t)
 	env.OnFindExecutable("ctest").
-		Return(env.NewExecutable("/bin/ctest"))
+		Return(env.NewExecutable("/bin/ctest"), nil)
 
 	ctest := tool.DetectCTest(t.Context(), env)
 	assert.NotNil(t, ctest)
@@ -32,7 +32,7 @@ func TestCTest_DetectCTest(t *testing.T) {
 func TestCTest_DetectCTest_NotFound(t *testing.T) {
 	env := test.NewEnvironment(t)
 	env.OnFindExecutable("ctest").
-		Return(nil)
+		Return(nil, nil)
 
 	ctest := tool.DetectCTest(t.Context(), env)
 	assert.NotNil(t, ctest)

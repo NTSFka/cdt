@@ -40,12 +40,10 @@ func TestCMakeType_Create_CustomBuildDirectory(t *testing.T) {
 	workflowType := workflow.CMake{}
 
 	tools := internal.Tools{
-		tool.NewCMake(
-			func() *internal.Executable { return &internal.Executable{Path: "cmake-test"} },
-		),
-		tool.NewClangFormat(func() *internal.Executable { return nil }),
-		tool.NewClangTidy(func() *internal.Executable { return nil }),
-		tool.NewCTest(func() *internal.Executable { return nil }),
+		tool.NewCMake(test.LazyExecutable("cmake-test")),
+		tool.NewClangFormat(test.LazyExecutableNil),
+		tool.NewClangTidy(test.LazyExecutableNil),
+		tool.NewCTest(test.LazyExecutableNil),
 	}
 
 	buildDirectory := "my-build-directory"
@@ -70,8 +68,8 @@ func TestCMakeType_Project_TestAll(t *testing.T) {
 	tools := internal.Tools{
 		tool.NewCMake(cmakeMock.LazyExecutable("cmake-test")),
 		tool.NewCTest(ctestMock.LazyExecutable("ctest-test")),
-		tool.NewClangFormat(func() *internal.Executable { return nil }),
-		tool.NewClangTidy(func() *internal.Executable { return nil }),
+		tool.NewClangFormat(test.LazyExecutableNil),
+		tool.NewClangTidy(test.LazyExecutableNil),
 	}
 
 	dir := t.TempDir()
@@ -108,8 +106,8 @@ func TestCMakeType_Project_TestAll_BuildFailed(t *testing.T) {
 	tools := internal.Tools{
 		tool.NewCMake(cmakeMock.LazyExecutable("cmake-test")),
 		tool.NewCTest(ctestMock.LazyExecutable("ctest-test")),
-		tool.NewClangFormat(func() *internal.Executable { return nil }),
-		tool.NewClangTidy(func() *internal.Executable { return nil }),
+		tool.NewClangFormat(test.LazyExecutableNil),
+		tool.NewClangTidy(test.LazyExecutableNil),
 	}
 
 	dir := t.TempDir()
@@ -145,8 +143,8 @@ func TestCMakeProject_Project_Test(t *testing.T) {
 	tools := internal.Tools{
 		tool.NewCMake(cmakeMock.LazyExecutable("cmake-test")),
 		tool.NewCTest(ctestMock.LazyExecutable("ctest-test")),
-		tool.NewClangFormat(func() *internal.Executable { return nil }),
-		tool.NewClangTidy(func() *internal.Executable { return nil }),
+		tool.NewClangFormat(test.LazyExecutableNil),
+		tool.NewClangTidy(test.LazyExecutableNil),
 	}
 
 	dir := t.TempDir()
@@ -184,8 +182,8 @@ func TestCMakeProject_Project_TestBuild_Failed(t *testing.T) {
 	tools := internal.Tools{
 		tool.NewCMake(cmakeMock.LazyExecutable("cmake-test")),
 		tool.NewCTest(ctestMock.LazyExecutable("ctest-test")),
-		tool.NewClangFormat(func() *internal.Executable { return nil }),
-		tool.NewClangTidy(func() *internal.Executable { return nil }),
+		tool.NewClangFormat(test.LazyExecutableNil),
+		tool.NewClangTidy(test.LazyExecutableNil),
 	}
 
 	dir := t.TempDir()

@@ -24,9 +24,7 @@ func TestTool_List_Tags(t *testing.T) {
 			"Tool",
 			"Some tool",
 			internal.Tags{"tag1"},
-			func() *internal.Executable {
-				return nil
-			},
+			test.LazyExecutableNil,
 		),
 	}
 
@@ -61,9 +59,7 @@ func TestTool_ListAll(t *testing.T) {
 			"Tool",
 			"Some tool",
 			internal.Tags{},
-			func() *internal.Executable {
-				return nil
-			},
+			test.LazyExecutableNil,
 		),
 	}
 
@@ -91,9 +87,7 @@ func TestTool_Run_Unavailable(t *testing.T) {
 			"Tool",
 			"Some tool",
 			internal.Tags{},
-			func() *internal.Executable {
-				return nil
-			},
+			test.LazyExecutableNil,
 		),
 	}
 

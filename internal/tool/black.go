@@ -13,13 +13,13 @@ type Black struct {
 
 // DetectBlack create a tool for black.
 func DetectBlack(ctx context.Context, environment internal.Environment) *Black {
-	return NewBlack(func() *internal.Executable {
+	return NewBlack(func() (*internal.Executable, error) {
 		return environment.FindExecutable(ctx, "black")
 	})
 }
 
 // NewBlack creates a black tool from a custom executable.
-func NewBlack(detect func() *internal.Executable) *Black {
+func NewBlack(detect internal.ExecutableToolDetectFunc) *Black {
 	return &Black{
 		ExecutableTool: internal.MakeExecutableTool(
 			"black",

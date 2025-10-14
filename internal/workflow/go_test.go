@@ -1,6 +1,7 @@
 package workflow_test
 
 import (
+	"cdt/internal/test"
 	"os"
 	"path/filepath"
 	"testing"
@@ -44,8 +45,8 @@ func TestGoType_Create(t *testing.T) {
 	workflowType := workflow.Go{}
 
 	tools := internal.Tools{
-		tool.NewGo(func() *internal.Executable { return &internal.Executable{Path: "go-test"} }),
-		tool.NewGolangCILint(func() *internal.Executable { return nil }),
+		tool.NewGo(test.LazyExecutable("go-test")),
+		tool.NewGolangCILint(test.LazyExecutableNil),
 	}
 
 	project := workflowType.Create(workflow.Config{Directory: "dir1"}, tools)

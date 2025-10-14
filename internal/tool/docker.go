@@ -18,7 +18,7 @@ type Docker struct {
 }
 
 // NewDocker creates a docker tool from a custom executable.
-func NewDocker(detect func() *internal.Executable) *Docker {
+func NewDocker(detect internal.ExecutableToolDetectFunc) *Docker {
 	return &Docker{internal.MakeExecutableTool(
 		"docker",
 		"Docker",
@@ -30,7 +30,7 @@ func NewDocker(detect func() *internal.Executable) *Docker {
 
 // DetectDocker create a docker tool with a detected docker executable in the given environment.
 func DetectDocker(ctx context.Context, environment internal.Environment) *Docker {
-	return NewDocker(func() *internal.Executable {
+	return NewDocker(func() (*internal.Executable, error) {
 		return environment.FindExecutable(ctx, "docker")
 	})
 }
@@ -158,24 +158,27 @@ func (d *dockerEnvironment) Cleanup(ctx context.Context) error {
 	}, "container", d.containerId)
 }
 
-func (d *dockerEnvironment) FindExecutable(ctx context.Context, name string) *internal.Executable {
+func (d *dockerEnvironment) FindExecutable(
+	ctx context.Context,
+	name string,
+) (*internal.Executable, error) {
 	if err := d.autoStart(ctx); err != nil {
-		return nil
+		return nil, err
 	}
 
 	internal.Assert(d.containerId != "", "container ID is not set")
 
-	return internal.Trace(ctx, "docker.find_executable", func() *internal.Executable {
+	return internal.TraceErr(ctx, "docker.find_executable", func() (*internal.Executable, error) {
 		output, err := d.runOutput(ctx, []string{"exec", d.containerId, "which", name})
 
 		if err != nil {
-			return nil
+			return nil, err
 		}
 
 		return &internal.Executable{
 			Path:    output,
 			Runtime: d,
-		}
+		}, nil
 	}, "container", d.containerId, "name", name)
 }
 

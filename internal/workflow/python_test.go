@@ -1,6 +1,7 @@
 package workflow_test
 
 import (
+	"cdt/internal/test"
 	"os"
 	"path/filepath"
 	"testing"
@@ -38,31 +39,15 @@ func TestPythonType_Create(t *testing.T) {
 	workflowType := workflow.Python{}
 
 	tools := internal.Tools{
-		tool.NewPython(
-			func() *internal.Executable { return &internal.Executable{Path: "php-test"} },
-		),
-		tool.NewPyTest(
-			func() *internal.Executable { return &internal.Executable{Path: "pytest-test"} },
-		),
-		tool.NewPip(func() *internal.Executable { return &internal.Executable{Path: "pip-test"} }),
-		tool.NewPylint(
-			func() *internal.Executable { return &internal.Executable{Path: "pylint-test"} },
-		),
-		tool.NewFlake8(
-			func() *internal.Executable { return &internal.Executable{Path: "flake8-test"} },
-		),
-		tool.NewMyPy(
-			func() *internal.Executable { return &internal.Executable{Path: "mypy-test"} },
-		),
-		tool.NewRuff(
-			func() *internal.Executable { return &internal.Executable{Path: "ruff-test"} },
-		),
-		tool.NewBandit(
-			func() *internal.Executable { return &internal.Executable{Path: "bandit-test"} },
-		),
-		tool.NewBlack(
-			func() *internal.Executable { return &internal.Executable{Path: "black-test"} },
-		),
+		tool.NewPython(test.LazyExecutable("php-test")),
+		tool.NewPyTest(test.LazyExecutable("pytest-test")),
+		tool.NewPip(test.LazyExecutable("pip-test")),
+		tool.NewPylint(test.LazyExecutable("pylint-test")),
+		tool.NewFlake8(test.LazyExecutable("flake8-test")),
+		tool.NewMyPy(test.LazyExecutable("mypy-test")),
+		tool.NewRuff(test.LazyExecutable("ruff-test")),
+		tool.NewBandit(test.LazyExecutable("bandit-test")),
+		tool.NewBlack(test.LazyExecutable("black-test")),
 	}
 
 	project := workflowType.Create(workflow.Config{Directory: "dir1"}, tools)

@@ -16,7 +16,7 @@ func TestPHP_DetectPHP(t *testing.T) {
 	env := test.NewEnvironment(t)
 
 	env.OnFindExecutable("php").
-		Return(env.NewExecutable("/bin/php"))
+		Return(env.NewExecutable("/bin/php"), nil)
 
 	php := tool.DetectPHP(t.Context(), env)
 	assert.NotNil(t, php)
@@ -34,7 +34,7 @@ func TestPHP_DetectPHP_NotFound(t *testing.T) {
 	env := test.NewEnvironment(t)
 
 	env.OnFindExecutable("php").
-		Return(nil)
+		Return(nil, nil)
 
 	php := tool.DetectPHP(t.Context(), env)
 	assert.NotNil(t, php)

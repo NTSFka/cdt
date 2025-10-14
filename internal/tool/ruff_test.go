@@ -15,7 +15,7 @@ func TestRuff_DetectRuff(t *testing.T) {
 	env := test.NewEnvironment(t)
 
 	env.OnFindExecutable("ruff").
-		Return(env.NewExecutable("/bin/ruff"))
+		Return(env.NewExecutable("/bin/ruff"), nil)
 
 	ruff := tool.DetectRuff(t.Context(), env)
 	assert.NotNil(t, ruff)
@@ -33,7 +33,7 @@ func TestRuff_DetectRuff_NotFound(t *testing.T) {
 	env := test.NewEnvironment(t)
 
 	env.OnFindExecutable("ruff").
-		Return(nil)
+		Return(nil, nil)
 
 	ruff := tool.DetectRuff(t.Context(), env)
 	assert.NotNil(t, ruff)

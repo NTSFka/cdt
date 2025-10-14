@@ -13,13 +13,13 @@ type Pylint struct {
 
 // DetectPylint create a tool for pylint.
 func DetectPylint(ctx context.Context, environment internal.Environment) *Pylint {
-	return NewPylint(func() *internal.Executable {
+	return NewPylint(func() (*internal.Executable, error) {
 		return environment.FindExecutable(ctx, "pylint")
 	})
 }
 
 // NewPylint creates a pylint tool from a custom executable.
-func NewPylint(detect func() *internal.Executable) *Pylint {
+func NewPylint(detect internal.ExecutableToolDetectFunc) *Pylint {
 	return &Pylint{
 		ExecutableTool: internal.MakeExecutableTool(
 			"pylint",

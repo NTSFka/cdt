@@ -13,23 +13,27 @@ type PHPCSFixer struct {
 
 // DetectPHPCSFixer create a tool for php-cs-fixer.
 func DetectPHPCSFixer(ctx context.Context, environment internal.Environment) *PHPCSFixer {
-	return NewPHPCSFixer(func() *internal.Executable {
+	return NewPHPCSFixer(func() (*internal.Executable, error) {
 		// Detect composer vendor
-		if executable := environment.FindExecutable(ctx, "vendor/bin/php-cs-fixer"); executable != nil {
-			return executable
+		if executable, err := environment.FindExecutable(ctx, "vendor/bin/php-cs-fixer"); executable != nil {
+			return executable, nil
+		} else if err != nil {
+			return nil, err
 		}
 
 		// Detect unversioned (system default)
-		if executable := environment.FindExecutable(ctx, "php-cs-fixer"); executable != nil {
-			return executable
+		if executable, err := environment.FindExecutable(ctx, "php-cs-fixer"); executable != nil {
+			return executable, nil
+		} else if err != nil {
+			return nil, err
 		}
 
-		return nil
+		return nil, nil
 	})
 }
 
 // NewPHPCSFixer creates a php-cs-fixer tool from a custom executable.
-func NewPHPCSFixer(detect func() *internal.Executable) *PHPCSFixer {
+func NewPHPCSFixer(detect internal.ExecutableToolDetectFunc) *PHPCSFixer {
 	return &PHPCSFixer{
 		ExecutableTool: internal.MakeExecutableTool(
 			"php-cs-fixer",

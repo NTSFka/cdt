@@ -2,6 +2,7 @@ package internal_test
 
 import (
 	"bytes"
+	"cdt/internal/test"
 	"context"
 	"os"
 	"testing"
@@ -19,9 +20,7 @@ func TestTool_MakeExecutableTool_NotAvailable(t *testing.T) {
 		"Tool Name",
 		"Tool Info",
 		internal.Tags{},
-		func() *internal.Executable {
-			return nil
-		},
+		test.LazyExecutableNil,
 	)
 
 	assert.Equal(t, "toolId", tool.Id())
@@ -42,9 +41,7 @@ func TestTool_MakeExecutableTool(t *testing.T) {
 		"Tool Name",
 		"Tool Info",
 		internal.Tags{},
-		func() *internal.Executable {
-			return &internal.Executable{Path: "/bin/tool"}
-		},
+		test.LazyExecutable("/bin/tool"),
 	)
 
 	assert.Equal(t, "toolId", tool.Id())
@@ -62,9 +59,7 @@ func TestTool_NewExecutableTool_NotAvailable(t *testing.T) {
 		"Tool Name",
 		"Tool Info",
 		internal.Tags{},
-		func() *internal.Executable {
-			return nil
-		},
+		test.LazyExecutableNil,
 	)
 
 	assert.Equal(t, "toolId", tool.Id())
@@ -85,9 +80,7 @@ func TestTool_NewExecutableTool(t *testing.T) {
 		"Tool Name",
 		"Tool Info",
 		internal.Tags{},
-		func() *internal.Executable {
-			return &internal.Executable{Path: "/bin/tool"}
-		},
+		test.LazyExecutable("/bin/tool"),
 	)
 
 	assert.Equal(t, "toolId", tool.Id())
@@ -104,9 +97,15 @@ func TestTool_ExecutableTool_Run(t *testing.T) {
 	runtime.Test(t)
 	runtime.On("Id").Return("test")
 
-	tool := internal.MakeExecutableTool("id", "", "", internal.Tags{}, func() *internal.Executable {
-		return &internal.Executable{Path: "echo", Runtime: runtime}
-	})
+	tool := internal.MakeExecutableTool(
+		"id",
+		"",
+		"",
+		internal.Tags{},
+		func() (*internal.Executable, error) {
+			return &internal.Executable{Path: "echo", Runtime: runtime}, nil
+		},
+	)
 
 	runtime.On("RunExecutable", mock.Anything, internal.RunOptions{}, "echo", []string{"arg1", "arg2"}).
 		Return(nil)
@@ -122,9 +121,15 @@ func TestTool_ExecutableTool_RunForProject(t *testing.T) {
 	runtime.Test(t)
 	runtime.On("Id").Return("test")
 
-	tool := internal.MakeExecutableTool("id", "", "", internal.Tags{}, func() *internal.Executable {
-		return &internal.Executable{Path: "echo", Runtime: runtime}
-	})
+	tool := internal.MakeExecutableTool(
+		"id",
+		"",
+		"",
+		internal.Tags{},
+		func() (*internal.Executable, error) {
+			return &internal.Executable{Path: "echo", Runtime: runtime}, nil
+		},
+	)
 
 	runtime.On("RunExecutable", mock.Anything, internal.RunOptions{
 		Directory: "",
@@ -151,9 +156,7 @@ func TestTool_Tools_OnlyAvailable_Empty(t *testing.T) {
 
 func TestTool_Tools_OnlyAvailable_NotAvailable(t *testing.T) {
 	tools := internal.Tools{
-		internal.NewExecutableTool("toolId", "", "", internal.Tags{}, func() *internal.Executable {
-			return nil
-		}),
+		internal.NewExecutableTool("toolId", "", "", internal.Tags{}, test.LazyExecutableNil),
 	}
 
 	assert.Empty(t, tools.OnlyAvailable())
@@ -161,12 +164,14 @@ func TestTool_Tools_OnlyAvailable_NotAvailable(t *testing.T) {
 
 func TestTool_Tools_OnlyAvailable(t *testing.T) {
 	tools := internal.Tools{
-		internal.NewExecutableTool("id1", "", "", internal.Tags{}, func() *internal.Executable {
-			return nil
-		}),
-		internal.NewExecutableTool("id2", "", "", internal.Tags{}, func() *internal.Executable {
-			return &internal.Executable{Path: "/bin/tool"}
-		}),
+		internal.NewExecutableTool("id1", "", "", internal.Tags{}, test.LazyExecutableNil),
+		internal.NewExecutableTool(
+			"id2",
+			"",
+			"",
+			internal.Tags{},
+			test.LazyExecutable("/bin/tool"),
+		),
 	}
 
 	active := tools.OnlyAvailable()
@@ -182,18 +187,14 @@ func TestTool_Tools_FilterByTags_NotFound(t *testing.T) {
 			"",
 			"",
 			internal.Tags{"tag1"},
-			func() *internal.Executable {
-				return nil
-			},
+			test.LazyExecutableNil,
 		),
 		internal.NewExecutableTool(
 			"id2",
 			"",
 			"",
 			internal.Tags{"tag2"},
-			func() *internal.Executable {
-				return &internal.Executable{Path: "/bin/tool"}
-			},
+			test.LazyExecutable("/bin/tool"),
 		),
 	}
 
@@ -208,18 +209,14 @@ func TestTool_Tools_FilterByTags_Found(t *testing.T) {
 			"",
 			"",
 			internal.Tags{"tag1", "tag11"},
-			func() *internal.Executable {
-				return nil
-			},
+			test.LazyExecutableNil,
 		),
 		internal.NewExecutableTool(
 			"id2",
 			"",
 			"",
 			internal.Tags{"tag2", "tag21"},
-			func() *internal.Executable {
-				return &internal.Executable{Path: "/bin/tool"}
-			},
+			test.LazyExecutable("/bin/tool"),
 		),
 	}
 
@@ -254,18 +251,14 @@ func TestTool_Tools_FilterByTags_Found_MultipleTags(t *testing.T) {
 			"",
 			"",
 			internal.Tags{"tag1", "tag2"},
-			func() *internal.Executable {
-				return nil
-			},
+			test.LazyExecutableNil,
 		),
 		internal.NewExecutableTool(
 			"id2",
 			"",
 			"",
 			internal.Tags{"tag3", "tag4"},
-			func() *internal.Executable {
-				return &internal.Executable{Path: "/bin/tool"}
-			},
+			test.LazyExecutable("/bin/tool"),
 		),
 	}
 
@@ -366,17 +359,15 @@ func TestTool_PrintTable(t *testing.T) {
 			"Tool 1",
 			"",
 			internal.Tags{},
-			func() *internal.Executable {
-				return nil
-			},
+			test.LazyExecutableNil,
 		),
 		internal.NewExecutableTool(
 			"id2",
 			"Tool 2",
 			"",
 			internal.Tags{},
-			func() *internal.Executable {
-				return &internal.Executable{Path: "/bin/tool", Runtime: &runtime}
+			func() (*internal.Executable, error) {
+				return &internal.Executable{Path: "/bin/tool", Runtime: &runtime}, nil
 			},
 		),
 	}

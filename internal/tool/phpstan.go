@@ -13,23 +13,27 @@ type PHPStan struct {
 
 // DetectPHPStan create a tool for phpstan.
 func DetectPHPStan(ctx context.Context, environment internal.Environment) *PHPStan {
-	return NewPHPStan(func() *internal.Executable {
+	return NewPHPStan(func() (*internal.Executable, error) {
 		// Detect composer vendor
-		if executable := environment.FindExecutable(ctx, "vendor/bin/phpstan"); executable != nil {
-			return executable
+		if executable, err := environment.FindExecutable(ctx, "vendor/bin/phpstan"); executable != nil {
+			return executable, nil
+		} else if err != nil {
+			return nil, err
 		}
 
 		// Detect unversioned (system default)
-		if executable := environment.FindExecutable(ctx, "phpstan"); executable != nil {
-			return executable
+		if executable, err := environment.FindExecutable(ctx, "phpstan"); executable != nil {
+			return executable, nil
+		} else if err != nil {
+			return nil, err
 		}
 
-		return nil
+		return nil, nil
 	})
 }
 
 // NewPHPStan creates a phpstan tool from a custom executable.
-func NewPHPStan(detect func() *internal.Executable) *PHPStan {
+func NewPHPStan(detect internal.ExecutableToolDetectFunc) *PHPStan {
 	return &PHPStan{
 		ExecutableTool: internal.MakeExecutableTool(
 			"phpstan",

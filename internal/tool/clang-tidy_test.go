@@ -18,7 +18,7 @@ import (
 func TestClangTidy_DetectClangTidy(t *testing.T) {
 	env := test.NewEnvironment(t)
 	env.OnFindExecutable("clang-tidy").
-		Return(env.NewExecutable("/bin/clang-tidy"))
+		Return(env.NewExecutable("/bin/clang-tidy"), nil)
 
 	clangTidy := tool.DetectClangTidy(t.Context(), env)
 	assert.NotNil(t, clangTidy)
@@ -35,7 +35,7 @@ func TestClangTidy_DetectClangTidy(t *testing.T) {
 func TestClangTidy_DetectClangTidy_NotFound(t *testing.T) {
 	env := test.NewEnvironment(t)
 	env.OnFindExecutable("clang-tidy").
-		Return(nil)
+		Return(nil, nil)
 
 	clangTidy := tool.DetectClangTidy(t.Context(), env)
 	assert.NotNil(t, clangTidy)

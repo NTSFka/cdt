@@ -12,7 +12,7 @@ type NilAway struct {
 }
 
 // NewNilAway creates a go tool from a custom executable.
-func NewNilAway(detect func() *internal.Executable) *NilAway {
+func NewNilAway(detect internal.ExecutableToolDetectFunc) *NilAway {
 	return &NilAway{
 		internal.MakeExecutableTool(
 			"nilaway",
@@ -26,7 +26,7 @@ func NewNilAway(detect func() *internal.Executable) *NilAway {
 
 // DetectNilAway create nilaway tool can be used in the project.
 func DetectNilAway(ctx context.Context, environment internal.Environment) *NilAway {
-	return NewNilAway(func() *internal.Executable {
+	return NewNilAway(func() (*internal.Executable, error) {
 		return environment.FindExecutable(ctx, "nilaway")
 	})
 }

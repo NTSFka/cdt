@@ -39,9 +39,7 @@ func TestWorkflowShow_Custom(t *testing.T) {
 			"Test",
 			"",
 			internal.Tags{},
-			func() *internal.Executable {
-				return nil
-			},
+			test.LazyExecutableNil,
 		),
 		test.ProjectConfigurator{},
 	}
@@ -55,9 +53,7 @@ func TestWorkflowShow_Custom(t *testing.T) {
 			"Test 1",
 			"",
 			internal.Tags{},
-			func() *internal.Executable {
-				return nil
-			},
+			test.LazyExecutableNil,
 		),
 		test.ProjectLinter{},
 	}
@@ -71,9 +67,7 @@ func TestWorkflowShow_Custom(t *testing.T) {
 			"Test 2",
 			"",
 			internal.Tags{},
-			func() *internal.Executable {
-				return nil
-			},
+			test.LazyExecutableNil,
 		),
 		test.ProjectLinter{},
 	}
@@ -94,8 +88,8 @@ func TestWorkflowShow_Custom(t *testing.T) {
 
 func TestWorkflowShow_Named(t *testing.T) {
 	tools := internal.Tools{
-		tool.NewGo(func() *internal.Executable { return &internal.Executable{Path: "go-test"} }),
-		tool.NewGolangCILint(func() *internal.Executable { return nil }),
+		tool.NewGo(test.LazyExecutable("go-test")),
+		tool.NewGolangCILint(test.LazyExecutableNil),
 	}
 
 	err := runWorkflow(t.Context(), internal.Context{

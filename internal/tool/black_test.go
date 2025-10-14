@@ -15,7 +15,7 @@ func TestBlack_DetectBlack(t *testing.T) {
 	env := test.NewEnvironment(t)
 
 	env.OnFindExecutable("black").
-		Return(env.NewExecutable("/bin/black"))
+		Return(env.NewExecutable("/bin/black"), nil)
 
 	black := tool.DetectBlack(t.Context(), env)
 	assert.NotNil(t, black)
@@ -33,7 +33,7 @@ func TestBlack_DetectBlack_NotFound(t *testing.T) {
 	env := test.NewEnvironment(t)
 
 	env.OnFindExecutable("black").
-		Return(nil)
+		Return(nil, nil)
 
 	black := tool.DetectBlack(t.Context(), env)
 	assert.NotNil(t, black)

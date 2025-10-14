@@ -15,7 +15,7 @@ import (
 func TestCMake_CMakeDetect(t *testing.T) {
 	env := test.NewEnvironment(t)
 	env.OnFindExecutable("cmake").
-		Return(env.NewExecutable("/bin/cmake"))
+		Return(env.NewExecutable("/bin/cmake"), nil)
 
 	cmake := tool.DetectCMake(t.Context(), env)
 	assert.NotNil(t, cmake)
@@ -32,7 +32,7 @@ func TestCMake_CMakeDetect(t *testing.T) {
 func TestCMake_CMakeDetect_NotFound(t *testing.T) {
 	env := test.NewEnvironment(t)
 	env.OnFindExecutable("cmake").
-		Return(nil)
+		Return(nil, nil)
 
 	cmake := tool.DetectCMake(t.Context(), env)
 	assert.NotNil(t, cmake)

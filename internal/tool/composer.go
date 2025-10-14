@@ -12,23 +12,27 @@ type Composer struct {
 
 // DetectComposer create a tool for composer.
 func DetectComposer(ctx context.Context, environment internal.Environment) *Composer {
-	return NewComposer(func() *internal.Executable {
+	return NewComposer(func() (*internal.Executable, error) {
 		// PHAR
-		if executable := environment.FindExecutable(ctx, "composer.phar"); executable != nil {
-			return executable
+		if executable, err := environment.FindExecutable(ctx, "composer.phar"); executable != nil {
+			return executable, nil
+		} else if err != nil {
+			return nil, err
 		}
 
 		// System version
-		if executable := environment.FindExecutable(ctx, "composer"); executable != nil {
-			return executable
+		if executable, err := environment.FindExecutable(ctx, "composer"); executable != nil {
+			return executable, nil
+		} else if err != nil {
+			return nil, err
 		}
 
-		return nil
+		return nil, nil
 	})
 }
 
 // NewComposer creates a composer tool from a custom executable.
-func NewComposer(detect func() *internal.Executable) *Composer {
+func NewComposer(detect internal.ExecutableToolDetectFunc) *Composer {
 	return &Composer{
 		ExecutableTool: internal.MakeExecutableTool(
 			"composer",

@@ -15,13 +15,13 @@ type ClangTidy struct {
 
 // DetectClangTidy create a tool for clang-tidy.
 func DetectClangTidy(ctx context.Context, environment internal.Environment) *ClangTidy {
-	return NewClangTidy(func() *internal.Executable {
+	return NewClangTidy(func() (*internal.Executable, error) {
 		return environment.FindExecutable(ctx, "clang-tidy")
 	})
 }
 
 // NewClangTidy creates a clang-tidy tool from a custom executable.
-func NewClangTidy(detect func() *internal.Executable) *ClangTidy {
+func NewClangTidy(detect internal.ExecutableToolDetectFunc) *ClangTidy {
 	return &ClangTidy{
 		ExecutableTool: internal.MakeExecutableTool(
 			"clang-tidy",

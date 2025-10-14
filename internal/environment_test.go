@@ -106,15 +106,17 @@ func TestEnvironment_SystemEnvironment_Cleanup(t *testing.T) {
 }
 
 func TestEnvironment_SystemEnvironment_FindExecutable_NotFound(t *testing.T) {
-	executable := internal.SystemEnvironment.FindExecutable(t.Context(), "tool-not-found")
+	executable, err := internal.SystemEnvironment.FindExecutable(t.Context(), "tool-not-found")
 
 	assert.Nil(t, executable)
+	assert.Error(t, err)
 }
 
 func TestEnvironment_SystemEnvironment_FindExecutable(t *testing.T) {
-	executable := internal.SystemEnvironment.FindExecutable(t.Context(), "echo")
+	executable, err := internal.SystemEnvironment.FindExecutable(t.Context(), "echo")
 
 	require.NotNil(t, executable)
+	require.NoError(t, err)
 	assert.NotNil(t, executable.Runtime)
 	assert.Contains(t, executable.Path, "echo")
 }

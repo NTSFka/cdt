@@ -15,13 +15,13 @@ type Python struct {
 
 // DetectPython create a tool for python.
 func DetectPython(ctx context.Context, environment internal.Environment) *Python {
-	return NewPython(func() *internal.Executable {
+	return NewPython(func() (*internal.Executable, error) {
 		return environment.FindExecutable(ctx, "python3")
 	})
 }
 
 // NewPython creates a python tool from a custom executable.
-func NewPython(detect func() *internal.Executable) *Python {
+func NewPython(detect internal.ExecutableToolDetectFunc) *Python {
 	return &Python{
 		ExecutableTool: internal.MakeExecutableTool(
 			"python",
@@ -126,16 +126,16 @@ func (e *pythonVirtualEnvironment) Cleanup(_ context.Context) error {
 func (e *pythonVirtualEnvironment) FindExecutable(
 	ctx context.Context,
 	name string,
-) *internal.Executable {
-	return internal.Trace(ctx, "pyenv.find_executable", func() *internal.Executable {
+) (*internal.Executable, error) {
+	return internal.TraceErr(ctx, "pyenv.find_executable", func() (*internal.Executable, error) {
 		if path := e.findPath(name); path != nil {
 			return &internal.Executable{
 				Path:    name,
 				Runtime: e,
-			}
+			}, nil
 		}
 
-		return nil
+		return nil, nil
 	}, "venv", e.venvDirectory, "name", name)
 }
 

@@ -12,13 +12,13 @@ type PyTest struct {
 
 // DetectPyTest create a tool for pytest.
 func DetectPyTest(ctx context.Context, environment internal.Environment) *PyTest {
-	return NewPyTest(func() *internal.Executable {
+	return NewPyTest(func() (*internal.Executable, error) {
 		return environment.FindExecutable(ctx, "pytest")
 	})
 }
 
 // NewPyTest creates a pytest tool from a custom executable.
-func NewPyTest(detect func() *internal.Executable) *PyTest {
+func NewPyTest(detect internal.ExecutableToolDetectFunc) *PyTest {
 	return &PyTest{
 		ExecutableTool: internal.MakeExecutableTool(
 			"pytest",

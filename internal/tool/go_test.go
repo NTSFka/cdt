@@ -15,7 +15,7 @@ import (
 func TestGo_DetectGo(t *testing.T) {
 	env := test.NewEnvironment(t)
 	env.OnFindExecutable("go").
-		Return(env.NewExecutable("/bin/go"))
+		Return(env.NewExecutable("/bin/go"), nil)
 
 	goTool := tool.DetectGo(t.Context(), env)
 	assert.NotNil(t, goTool)
@@ -32,7 +32,7 @@ func TestGo_DetectGo(t *testing.T) {
 func TestGo_DetectGo_NotFound(t *testing.T) {
 	env := test.NewEnvironment(t)
 	env.OnFindExecutable("go").
-		Return(nil)
+		Return(nil, nil)
 
 	goTool := tool.DetectGo(t.Context(), env)
 	assert.NotNil(t, goTool)

@@ -13,13 +13,13 @@ type Bandit struct {
 
 // DetectBandit create a tool for bandit.
 func DetectBandit(ctx context.Context, environment internal.Environment) *Bandit {
-	return NewBandit(func() *internal.Executable {
+	return NewBandit(func() (*internal.Executable, error) {
 		return environment.FindExecutable(ctx, "bandit")
 	})
 }
 
 // NewBandit creates a bandit tool from a custom executable.
-func NewBandit(detect func() *internal.Executable) *Bandit {
+func NewBandit(detect internal.ExecutableToolDetectFunc) *Bandit {
 	return &Bandit{
 		ExecutableTool: internal.MakeExecutableTool(
 			"bandit",

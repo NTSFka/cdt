@@ -12,23 +12,27 @@ type ParaTest struct {
 
 // DetectParaTest create a tool for paratest.
 func DetectParaTest(ctx context.Context, environment internal.Environment) *ParaTest {
-	return NewParaTest(func() *internal.Executable {
+	return NewParaTest(func() (*internal.Executable, error) {
 		// Detect composer vendor
-		if executable := environment.FindExecutable(ctx, "vendor/bin/paratest"); executable != nil {
-			return executable
+		if executable, err := environment.FindExecutable(ctx, "vendor/bin/paratest"); executable != nil {
+			return executable, nil
+		} else if err != nil {
+			return nil, err
 		}
 
 		// Detect unversioned (system default)
-		if executable := environment.FindExecutable(ctx, "paratest"); executable != nil {
-			return executable
+		if executable, err := environment.FindExecutable(ctx, "paratest"); executable != nil {
+			return executable, nil
+		} else if err != nil {
+			return nil, err
 		}
 
-		return nil
+		return nil, nil
 	})
 }
 
 // NewParaTest creates a paratest tool from a custom executable.
-func NewParaTest(detect func() *internal.Executable) *ParaTest {
+func NewParaTest(detect internal.ExecutableToolDetectFunc) *ParaTest {
 	return &ParaTest{
 		ExecutableTool: internal.MakeExecutableTool(
 			"paratest",

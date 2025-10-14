@@ -18,7 +18,7 @@ import (
 func TestClangFormat_DetectClangFormat(t *testing.T) {
 	env := test.NewEnvironment(t)
 	env.OnFindExecutable("clang-format").
-		Return(env.NewExecutable("/bin/clang-format"))
+		Return(env.NewExecutable("/bin/clang-format"), nil)
 
 	clangFormat := tool.DetectClangFormat(t.Context(), env)
 	assert.NotNil(t, clangFormat)
@@ -35,7 +35,7 @@ func TestClangFormat_DetectClangFormat(t *testing.T) {
 func TestClangFormat_DetectClangFormat_NotFound(t *testing.T) {
 	env := test.NewEnvironment(t)
 	env.OnFindExecutable("clang-format").
-		Return(nil)
+		Return(nil, nil)
 
 	clangFormat := tool.DetectClangFormat(t.Context(), env)
 	assert.NotNil(t, clangFormat)

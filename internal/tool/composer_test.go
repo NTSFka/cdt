@@ -16,7 +16,7 @@ func TestComposer_DetectComposer_Phar(t *testing.T) {
 
 	// Composer installation
 	env.OnFindExecutable("composer.phar").
-		Return(env.NewExecutable("/bin/composer"))
+		Return(env.NewExecutable("/bin/composer"), nil)
 
 	composer := tool.DetectComposer(t.Context(), env)
 	assert.NotNil(t, composer)
@@ -35,11 +35,11 @@ func TestComposer_DetectComposer_System(t *testing.T) {
 
 	// Composer installation
 	env.OnFindExecutable("composer.phar").
-		Return(nil)
+		Return(nil, nil)
 
 	// System installation
 	env.OnFindExecutable("composer").
-		Return(env.NewExecutable("/bin/composer"))
+		Return(env.NewExecutable("/bin/composer"), nil)
 
 	composer := tool.DetectComposer(t.Context(), env)
 	assert.NotNil(t, composer)
@@ -57,9 +57,9 @@ func TestComposer_DetectComposer_NotFound(t *testing.T) {
 	env := test.NewEnvironment(t)
 
 	env.OnFindExecutable("composer.phar").
-		Return(nil)
+		Return(nil, nil)
 	env.OnFindExecutable("composer").
-		Return(nil)
+		Return(nil, nil)
 
 	composer := tool.DetectComposer(t.Context(), env)
 	assert.NotNil(t, composer)

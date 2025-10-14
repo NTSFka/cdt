@@ -16,7 +16,7 @@ type Go struct {
 }
 
 // NewGo creates a go tool from a custom executable.
-func NewGo(detect func() *internal.Executable) *Go {
+func NewGo(detect internal.ExecutableToolDetectFunc) *Go {
 	return &Go{
 		internal.MakeExecutableTool(
 			"go",
@@ -37,7 +37,7 @@ func NewGo(detect func() *internal.Executable) *Go {
 
 // DetectGo create go tool can be used in the project.
 func DetectGo(ctx context.Context, environment internal.Environment) *Go {
-	return NewGo(func() *internal.Executable {
+	return NewGo(func() (*internal.Executable, error) {
 		return environment.FindExecutable(ctx, "go")
 	})
 }

@@ -44,3 +44,36 @@ func Trace[R any](ctx context.Context, name string, function func() R, args ...a
 
 	return res
 }
+
+// TraceErr captures a function call by storing start and end.
+func TraceErr[R any](
+	ctx context.Context,
+	name string,
+	function func() (R, error),
+	args ...any,
+) (R, error) {
+	logger := slog.With(args...)
+
+	logger.DebugContext(ctx, indent()+"+ "+name)
+
+	traceIndent++
+
+	start := time.Now()
+
+	res, err := function()
+
+	traceIndent--
+
+	logger.DebugContext(
+		ctx,
+		indent()+"- "+name,
+		"result",
+		res,
+		"error",
+		err,
+		"duration",
+		time.Since(start),
+	)
+
+	return res, err
+}
