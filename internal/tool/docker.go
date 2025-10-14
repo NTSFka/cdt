@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"os"
 	"path/filepath"
 	"strings"
 
@@ -137,7 +138,9 @@ func (d *dockerEnvironment) IsRunning(ctx context.Context) bool {
 }
 
 func (d *dockerEnvironment) Stop(ctx context.Context) error {
-	internal.Assert(d.containerId != "", "container ID is not set")
+	if d.containerId == "" {
+		return nil
+	}
 
 	internal.Infof("Docker stop")
 
@@ -210,7 +213,12 @@ func (d *dockerEnvironment) runOutput(ctx context.Context, args []string) (strin
 	output := bytes.Buffer{}
 	err := d.docker.Run(
 		ctx,
-		internal.RunOptions{Directory: d.directory, Output: &output, Silent: true},
+		internal.RunOptions{
+			Directory: d.directory,
+			Output:    &output,
+			Error:     os.Stderr,
+			Silent:    true,
+		},
 		args,
 	)
 
