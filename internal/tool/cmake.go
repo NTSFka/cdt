@@ -3,6 +3,7 @@ package tool
 import (
 	"context"
 	"fmt"
+	"os"
 	"path/filepath"
 
 	"cdt/internal"
@@ -148,19 +149,31 @@ func (c *CMake) RunTarget(
 
 	for _, t := range reply.Targets {
 		if t.Name == target && t.Type == utils.TargetExecutable {
-			// TODO: run environment?
-			executable := internal.Executable{
-				Path:    filepath.Join(*options.IntermediateDirectory, t.Name),
-				Runtime: internal.SystemEnvironment,
-			}
-
-			return executable.Run(
-				ctx,
-				internal.RunOptions{Directory: options.Directory},
-				options.ExtraArgs,
-			)
+			return runTarget(ctx, options, t)
 		}
 	}
 
 	return fmt.Errorf("target '%s' not found", target)
+}
+
+func runTarget(
+	ctx context.Context,
+	options internal.ProjectRunnerOptions,
+	target utils.ReplyTarget,
+) error {
+	executable := internal.Executable{
+		Path:    filepath.Join(*options.IntermediateDirectory, target.Name),
+		Runtime: options.Runtime,
+	}
+
+	return executable.Run(
+		ctx,
+		internal.RunOptions{
+			Directory: options.Directory,
+			Output:    os.Stdout,
+			Error:     os.Stderr,
+			Input:     os.Stdin,
+		},
+		options.ExtraArgs,
+	)
 }

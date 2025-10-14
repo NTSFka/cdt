@@ -94,6 +94,9 @@ type ProjectLinter interface {
 type ProjectRunnerOptions struct {
 	ProjectInfo
 
+	// Runtime is a runtime of the target binary
+	Runtime ExecutableRuntime
+
 	// ExtraArgs are extra arguments for the specific runner implementation
 	ExtraArgs []string
 }

@@ -80,6 +80,10 @@ func TestCMakeRealProjectConfigureAndBuildAndRun(t *testing.T) {
 	)
 	require.NoError(t, err)
 
-	err = cmake.RunTarget(t.Context(), internal.ProjectRunnerOptions{ProjectInfo: info}, "main")
+	err = cmake.RunTarget(
+		t.Context(),
+		internal.ProjectRunnerOptions{ProjectInfo: info, Runtime: environment},
+		"main",
+	)
 	require.NoError(t, err)
 }

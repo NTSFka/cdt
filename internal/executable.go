@@ -2,6 +2,7 @@ package internal
 
 import (
 	"context"
+	"errors"
 	"io"
 	"strings"
 )
@@ -44,6 +45,10 @@ type Executable struct {
 // Run starts the executable with the given arguments.
 func (e *Executable) Run(ctx context.Context, options RunOptions, args []string) error {
 	runArgs := e.buildArgs(args)
+
+	if e.Runtime == nil {
+		return errors.New("executable runtime is not set")
+	}
 
 	if !options.Silent {
 		Infof("%v: %v %v", e.Runtime.Id(), e.Path, strings.Join(runArgs, " "))

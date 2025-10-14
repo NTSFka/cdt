@@ -62,6 +62,7 @@ func runCommandAction(ctx context.Context, cmd *cli.Command) error {
 
 	options := internal.ProjectRunnerOptions{
 		ProjectInfo: cmdContext.Project.Info,
+		Runtime:     cmdContext.Environment,
 		ExtraArgs:   cmd.Args().Tail(),
 	}
 
