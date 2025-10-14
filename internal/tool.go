@@ -264,3 +264,21 @@ func GetTool[T Tool](tools Tools) T {
 
 	panic("Tool not found")
 }
+
+// DetectExecutableChain allow constructing a detection chain for executable that might have different names.
+func DetectExecutableChain(
+	names []string,
+	detect func(string) (*Executable, error),
+) func() (*Executable, error) {
+	return func() (*Executable, error) {
+		for _, name := range names {
+			if executable, err := detect(name); executable != nil {
+				return executable, nil
+			} else if err != nil {
+				return nil, err
+			}
+		}
+
+		return nil, nil
+	}
+}

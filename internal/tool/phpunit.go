@@ -12,23 +12,12 @@ type PHPUnit struct {
 
 // DetectPHPUnit create a tool for phpunit.
 func DetectPHPUnit(ctx context.Context, environment internal.Environment) *PHPUnit {
-	return NewPHPUnit(func() (*internal.Executable, error) {
-		// Detect composer vendor
-		if executable, err := environment.FindExecutable(ctx, "vendor/bin/phpunit"); executable != nil {
-			return executable, nil
-		} else if err != nil {
-			return nil, err
-		}
-
-		// Detect unversioned (system default)
-		if executable, err := environment.FindExecutable(ctx, "phpunit"); executable != nil {
-			return executable, nil
-		} else if err != nil {
-			return nil, err
-		}
-
-		return nil, nil
-	})
+	return NewPHPUnit(internal.DetectExecutableChain(
+		[]string{"vendor/bin/phpunit", "phpunit"},
+		func(name string) (*internal.Executable, error) {
+			return environment.FindExecutable(ctx, name)
+		},
+	))
 }
 
 // NewPHPUnit creates a phpunit tool from a custom executable.
