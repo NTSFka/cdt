@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"runtime/debug"
 	"slices"
 	"strings"
 
@@ -13,7 +14,24 @@ import (
 	"cdt/pkg"
 )
 
-var version = "dev"
+// Release: `go build -ldflags="-X main.version=0.1.0"`.
+var version = ""
+
+func buildVersion() string {
+	if version != "" {
+		return version
+	}
+
+	if info, ok := debug.ReadBuildInfo(); ok {
+		for _, setting := range info.Settings {
+			if setting.Key == "vcs.revision" {
+				return "dev+" + setting.Value[0:7]
+			}
+		}
+	}
+
+	return "dev"
+}
 
 func parseEnvironment(environment string) (string, string) {
 	parts := strings.SplitN(environment, ":", 2)
@@ -91,7 +109,7 @@ func main() {
 		return buildContext(ctx, config)
 	})
 
-	app.Version = version
+	app.Version = buildVersion()
 
 	if err := app.Run(ctx, os.Args); err != nil {
 		fmt.Printf("ERROR: %v\n", err)
