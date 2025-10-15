@@ -68,8 +68,9 @@ func NewDependencyCommand() *cli.Command {
 				},
 			},
 			{
-				Name:  "fetch",
-				Usage: "fetch the project dependencies",
+				Name:    "fetch",
+				Usage:   "fetch the project dependencies",
+				Aliases: []string{"install"},
 				Flags: []cli.Flag{
 					&cli.BoolFlag{
 						Name:  "no-dev",

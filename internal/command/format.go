@@ -12,9 +12,10 @@ import (
 
 func NewFormatCommand() *cli.Command {
 	return &cli.Command{
-		Name:   "format",
-		Usage:  "Format files in the project",
-		Action: formatCommandAction,
+		Name:    "format",
+		Usage:   "Format files in the project",
+		Action:  formatCommandAction,
+		Aliases: []string{"fmt"},
 		Flags: []cli.Flag{
 			&cli.BoolFlag{
 				Name:  "check",
