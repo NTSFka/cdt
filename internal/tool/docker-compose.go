@@ -140,7 +140,7 @@ func (d *dockerComposeEnvironment) FindExecutable(
 			output, err := d.runOutput(ctx, []string{"exec", d.service, "which", name})
 
 			if err != nil {
-				return nil, err
+				return nil, nil // nolint: nilerr
 			}
 
 			return &internal.Executable{

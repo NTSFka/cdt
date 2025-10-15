@@ -364,7 +364,7 @@ func TestDocker_Environment_FindExecutable(t *testing.T) {
 	runMock.AssertExpectations(t)
 }
 
-func TestDocker_Environment_FindExecutable_Failed(t *testing.T) {
+func TestDocker_Environment_FindExecutable_NotFound(t *testing.T) {
 	runMock, env := dockerPrepare(t, "image15")
 
 	runMock.OnStart("image15", "15dc587d6d92").
@@ -383,7 +383,7 @@ func TestDocker_Environment_FindExecutable_Failed(t *testing.T) {
 
 	executable, err := env.FindExecutable(t.Context(), "tool1")
 	assert.Nil(t, executable)
-	require.EqualError(t, err, "docker run failed: failed")
+	require.NoError(t, err)
 
 	runMock.AssertExpectations(t)
 }

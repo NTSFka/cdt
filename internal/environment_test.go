@@ -109,7 +109,7 @@ func TestEnvironment_SystemEnvironment_FindExecutable_NotFound(t *testing.T) {
 	executable, err := internal.SystemEnvironment.FindExecutable(t.Context(), "tool-not-found")
 
 	assert.Nil(t, executable)
-	assert.Error(t, err)
+	assert.NoError(t, err)
 }
 
 func TestEnvironment_SystemEnvironment_FindExecutable(t *testing.T) {

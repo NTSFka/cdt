@@ -294,7 +294,7 @@ func TestDockerCompose_Environment_FindExecutable(t *testing.T) {
 	runMock.AssertExpectations(t)
 }
 
-func TestDockerCompose_Environment_FindExecutable_Failed(t *testing.T) {
+func TestDockerCompose_Environment_FindExecutable_NotFound(t *testing.T) {
 	runMock, env := dockerComposePrepare(t, "service13")
 
 	// Is running
@@ -307,7 +307,7 @@ func TestDockerCompose_Environment_FindExecutable_Failed(t *testing.T) {
 
 	executable, err := env.FindExecutable(t.Context(), "tool1")
 	assert.Nil(t, executable)
-	require.EqualError(t, err, "failed")
+	require.NoError(t, err)
 
 	runMock.AssertExpectations(t)
 }

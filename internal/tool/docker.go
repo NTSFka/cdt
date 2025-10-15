@@ -175,7 +175,7 @@ func (d *dockerEnvironment) FindExecutable(
 		output, err := d.runOutput(ctx, []string{"exec", d.containerId, "which", name})
 
 		if err != nil {
-			return nil, err
+			return nil, nil // nolint: nilerr
 		}
 
 		return &internal.Executable{

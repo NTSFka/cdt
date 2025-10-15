@@ -169,7 +169,7 @@ func (s *systemEnvironment) FindExecutable(ctx context.Context, name string) (*E
 	return TraceErr(ctx, "system.find_executable", func() (*Executable, error) {
 		path, err := exec.LookPath(name)
 		if err != nil {
-			return nil, err
+			return nil, nil // nolint: nilerr
 		}
 
 		return &Executable{Path: path, Runtime: s}, nil
