@@ -77,7 +77,14 @@ func (g *Go) Structure(
 }
 
 func (g *Go) BuildAll(ctx context.Context, options internal.ProjectBuilderOptions) error {
-	return g.RunForProject(ctx, options.ProjectInfo, append(options.ExtraArgs, "build"))
+	args := options.ExtraArgs
+	args = append(args, "build")
+
+	if options.IntermediateDirectory != nil {
+		args = append(args, "-o", *options.IntermediateDirectory)
+	}
+
+	return g.RunForProject(ctx, options.ProjectInfo, args)
 }
 
 func (g *Go) BuildTargets(
@@ -85,10 +92,17 @@ func (g *Go) BuildTargets(
 	options internal.ProjectBuilderOptions,
 	targets []string,
 ) error {
+	args := options.ExtraArgs
+	args = append(args, "build")
+
+	if options.IntermediateDirectory != nil {
+		args = append(args, "-o", *options.IntermediateDirectory)
+	}
+
 	return g.RunForProject(
 		ctx,
 		options.ProjectInfo,
-		append(append(options.ExtraArgs, "build"), targets...),
+		append(args, targets...),
 	)
 }
 

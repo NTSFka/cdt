@@ -51,7 +51,7 @@ func TestBlack_Black_FormatAll(t *testing.T) {
 
 	info := internal.ProjectInfo{Directory: "."}
 
-	exec.OnRun("format", []string{}).
+	exec.OnRun("format", []string{"."}).
 		Return(nil)
 
 	err := black.FormatAll(t.Context(), internal.ProjectFormatterOptions{ProjectInfo: info})
@@ -87,7 +87,7 @@ func TestBlack_Black_FormatCheckAll(t *testing.T) {
 
 	info := internal.ProjectInfo{Directory: "."}
 
-	exec.OnRun("format", []string{"--check"}).
+	exec.OnRun("format", []string{"--check", "."}).
 		Return(nil)
 
 	err := black.FormatCheckAll(t.Context(), internal.ProjectFormatterOptions{ProjectInfo: info})

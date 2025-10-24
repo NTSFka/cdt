@@ -1,0 +1,11 @@
+{
+    "name": "ntsfka/php",
+    "description": "Test project",
+    "type": "project",
+    "require": {},
+    "require-dev": {
+      "phpunit/phpunit": "~9",
+      "phpstan/phpstan": "^2",
+      "friendsofphp/php-cs-fixer": "^3"
+    }
+}

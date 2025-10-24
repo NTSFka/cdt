@@ -143,6 +143,24 @@ func TestGo_BuildAll_Failed(t *testing.T) {
 	exec.AssertExpectations(t)
 }
 
+func TestGo_BuildAll_IntermediateDirectory(t *testing.T) {
+	exec := test.NewExecutable(t)
+
+	goTool := tool.NewGo(exec.LazyExecutable("go"))
+
+	buildDir := t.TempDir()
+
+	info := internal.ProjectInfo{Directory: ".", IntermediateDirectory: &buildDir}
+
+	exec.OnRun("go", []string{"build", "-o", buildDir}).
+		Return(nil)
+
+	err := goTool.BuildAll(t.Context(), internal.ProjectBuilderOptions{ProjectInfo: info})
+	require.NoError(t, err)
+
+	exec.AssertExpectations(t)
+}
+
 func TestGo_BuildTargets(t *testing.T) {
 	exec := test.NewExecutable(t)
 
@@ -179,6 +197,28 @@ func TestGo_BuildTargets_Failed(t *testing.T) {
 		[]string{"target1", "target2"},
 	)
 	require.EqualError(t, err, "failed")
+
+	exec.AssertExpectations(t)
+}
+
+func TestGo_BuildTargets_IntermediateDirectory(t *testing.T) {
+	exec := test.NewExecutable(t)
+
+	goTool := tool.NewGo(exec.LazyExecutable("go"))
+
+	buildDir := t.TempDir()
+
+	info := internal.ProjectInfo{Directory: ".", IntermediateDirectory: &buildDir}
+
+	exec.OnRun("go", []string{"build", "-o", buildDir, "target1", "target2"}).
+		Return(nil)
+
+	err := goTool.BuildTargets(
+		t.Context(),
+		internal.ProjectBuilderOptions{ProjectInfo: info},
+		[]string{"target1", "target2"},
+	)
+	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
 }

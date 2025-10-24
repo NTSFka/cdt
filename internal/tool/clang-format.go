@@ -45,9 +45,7 @@ func (c *ClangFormat) FormatAll(
 		return fmt.Errorf("failed to obtain project structure: %w", err)
 	}
 
-	paths := c.buildPaths(options.Directory, structure.GetFiles())
-
-	toolArgs := c.buildArgs(options.Directory, []string{"-i"}, paths)
+	toolArgs := c.buildArgs(options.Directory, []string{"-i"}, structure.GetFiles())
 
 	return c.RunForProject(ctx, options.ProjectInfo, append(toolArgs, options.ExtraArgs...))
 }
@@ -58,9 +56,7 @@ func (c *ClangFormat) FormatFiles(
 	options internal.ProjectFormatterOptions,
 	filenames []string,
 ) error {
-	paths := c.buildPaths(options.Directory, filenames)
-
-	toolArgs := c.buildArgs(options.Directory, []string{"-i"}, paths)
+	toolArgs := c.buildArgs(options.Directory, []string{"-i"}, filenames)
 
 	return c.RunForProject(ctx, options.ProjectInfo, append(toolArgs, options.ExtraArgs...))
 }
@@ -76,9 +72,7 @@ func (c *ClangFormat) FormatCheckAll(
 		return fmt.Errorf("failed to obtain project structure: %w", err)
 	}
 
-	paths := c.buildPaths(options.Directory, structure.GetFiles())
-
-	toolArgs := c.buildArgs(options.Directory, []string{"--dry-run"}, paths)
+	toolArgs := c.buildArgs(options.Directory, []string{"--dry-run"}, structure.GetFiles())
 
 	return c.RunForProject(ctx, options.ProjectInfo, append(toolArgs, options.ExtraArgs...))
 }
@@ -89,25 +83,9 @@ func (c *ClangFormat) FormatCheckFiles(
 	options internal.ProjectFormatterOptions,
 	filenames []string,
 ) error {
-	paths := c.buildPaths(options.Directory, filenames)
-
-	toolArgs := c.buildArgs(options.Directory, []string{"--dry-run"}, paths)
+	toolArgs := c.buildArgs(options.Directory, []string{"--dry-run"}, filenames)
 
 	return c.RunForProject(ctx, options.ProjectInfo, append(toolArgs, options.ExtraArgs...))
-}
-
-func (c *ClangFormat) buildPaths(directory string, filenames []string) []string {
-	var paths []string
-
-	for _, filename := range filenames {
-		if filepath.IsAbs(filename) {
-			paths = append(paths, filename)
-		} else {
-			paths = append(paths, filepath.Join(directory, filename))
-		}
-	}
-
-	return paths
 }
 
 func (c *ClangFormat) buildArgs(directory string, extraArgs []string, paths []string) []string {

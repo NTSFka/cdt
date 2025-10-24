@@ -1,10 +1,8 @@
 package tool
 
 import (
-	"context"
-	"path/filepath"
-
 	"cdt/internal"
+	"context"
 )
 
 type Flake8 struct {
@@ -40,21 +38,5 @@ func (p *Flake8) LintFiles(
 	options internal.ProjectLinterOptions,
 	filenames []string,
 ) error {
-	paths := p.buildPaths(options.Directory, filenames)
-
-	return p.RunForProject(ctx, options.ProjectInfo, append(options.ExtraArgs, paths...))
-}
-
-func (p *Flake8) buildPaths(directory string, filenames []string) []string {
-	var paths []string
-
-	for _, filename := range filenames {
-		if filepath.IsAbs(filename) {
-			paths = append(paths, filename)
-		} else {
-			paths = append(paths, filepath.Join(directory, filename))
-		}
-	}
-
-	return paths
+	return p.RunForProject(ctx, options.ProjectInfo, append(options.ExtraArgs, filenames...))
 }

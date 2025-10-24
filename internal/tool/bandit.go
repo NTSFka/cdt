@@ -1,10 +1,8 @@
 package tool
 
 import (
-	"context"
-	"path/filepath"
-
 	"cdt/internal"
+	"context"
 )
 
 type Bandit struct {
@@ -40,21 +38,5 @@ func (b *Bandit) LintFiles(
 	options internal.ProjectLinterOptions,
 	filenames []string,
 ) error {
-	paths := b.buildPaths(options.Directory, filenames)
-
-	return b.RunForProject(ctx, options.ProjectInfo, append(options.ExtraArgs, paths...))
-}
-
-func (b *Bandit) buildPaths(directory string, filenames []string) []string {
-	var paths []string
-
-	for _, filename := range filenames {
-		if filepath.IsAbs(filename) {
-			paths = append(paths, filename)
-		} else {
-			paths = append(paths, filepath.Join(directory, filename))
-		}
-	}
-
-	return paths
+	return b.RunForProject(ctx, options.ProjectInfo, append(options.ExtraArgs, filenames...))
 }

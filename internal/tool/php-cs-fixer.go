@@ -1,10 +1,8 @@
 package tool
 
 import (
-	"context"
-	"path/filepath"
-
 	"cdt/internal"
+	"context"
 )
 
 type PHPCSFixer struct {
@@ -46,12 +44,10 @@ func (p *PHPCSFixer) FormatFiles(
 	options internal.ProjectFormatterOptions,
 	filenames []string,
 ) error {
-	paths := p.buildPaths(options.Directory, filenames)
-
 	return p.RunForProject(
 		ctx,
 		options.ProjectInfo,
-		append(append([]string{"fix"}, options.ExtraArgs...), paths...),
+		append(append([]string{"fix"}, options.ExtraArgs...), filenames...),
 	)
 }
 
@@ -71,25 +67,9 @@ func (p *PHPCSFixer) FormatCheckFiles(
 	options internal.ProjectFormatterOptions,
 	filenames []string,
 ) error {
-	paths := p.buildPaths(options.Directory, filenames)
-
 	return p.RunForProject(
 		ctx,
 		options.ProjectInfo,
-		append(append([]string{"fix", "--dry-run"}, options.ExtraArgs...), paths...),
+		append(append([]string{"fix", "--dry-run"}, options.ExtraArgs...), filenames...),
 	)
-}
-
-func (p *PHPCSFixer) buildPaths(directory string, filenames []string) []string {
-	var paths []string
-
-	for _, filename := range filenames {
-		if filepath.IsAbs(filename) {
-			paths = append(paths, filename)
-		} else {
-			paths = append(paths, filepath.Join(directory, filename))
-		}
-	}
-
-	return paths
 }

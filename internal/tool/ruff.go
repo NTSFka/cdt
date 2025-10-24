@@ -1,10 +1,8 @@
 package tool
 
 import (
-	"context"
-	"path/filepath"
-
 	"cdt/internal"
+	"context"
 )
 
 type Ruff struct {
@@ -44,12 +42,10 @@ func (r *Ruff) LintFiles(
 	options internal.ProjectLinterOptions,
 	filenames []string,
 ) error {
-	paths := r.buildPaths(options.Directory, filenames)
-
 	return r.RunForProject(
 		ctx,
 		options.ProjectInfo,
-		append(append([]string{"check"}, options.ExtraArgs...), paths...),
+		append(append([]string{"check"}, options.ExtraArgs...), filenames...),
 	)
 }
 
@@ -66,12 +62,10 @@ func (r *Ruff) FormatFiles(
 	options internal.ProjectFormatterOptions,
 	filenames []string,
 ) error {
-	paths := r.buildPaths(options.Directory, filenames)
-
 	return r.RunForProject(
 		ctx,
 		options.ProjectInfo,
-		append(append([]string{"format"}, options.ExtraArgs...), paths...),
+		append(append([]string{"format"}, options.ExtraArgs...), filenames...),
 	)
 }
 
@@ -88,25 +82,9 @@ func (r *Ruff) FormatCheckFiles(
 	options internal.ProjectFormatterOptions,
 	filenames []string,
 ) error {
-	paths := r.buildPaths(options.Directory, filenames)
-
 	return r.RunForProject(
 		ctx,
 		options.ProjectInfo,
-		append(append([]string{"format", "--check"}, options.ExtraArgs...), paths...),
+		append(append([]string{"format", "--check"}, options.ExtraArgs...), filenames...),
 	)
-}
-
-func (r *Ruff) buildPaths(directory string, filenames []string) []string {
-	var paths []string
-
-	for _, filename := range filenames {
-		if filepath.IsAbs(filename) {
-			paths = append(paths, filename)
-		} else {
-			paths = append(paths, filepath.Join(directory, filename))
-		}
-	}
-
-	return paths
 }

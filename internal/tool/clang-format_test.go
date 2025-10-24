@@ -68,8 +68,8 @@ func TestClangFormat_FormatAll(t *testing.T) {
 	exec.OnRun("clang-format", []string{
 		"--Werror",
 		"-i",
-		filepath.Join(info.Directory, "file1.go"),
-		filepath.Join(info.Directory, "file2.go"),
+		"file1.go",
+		"file2.go",
 	}).
 		Return(nil)
 
@@ -101,8 +101,8 @@ func TestClangFormat_FormatAll_Failed(t *testing.T) {
 	exec.OnRun("clang-format", []string{
 		"--Werror",
 		"-i",
-		filepath.Join(info.Directory, "file1.go"),
-		filepath.Join(info.Directory, "file2.go"),
+		"file1.go",
+		"file2.go",
 	}).
 		Return(errors.New("failed"))
 
@@ -138,8 +138,8 @@ func TestClangFormat_FormatAll_CustomConfig(t *testing.T) {
 		fmt.Sprintf("--style=file:%v", filepath.Join(info.Directory, ".clang-format")),
 		"--Werror",
 		"-i",
-		filepath.Join(info.Directory, "file1.go"),
-		filepath.Join(info.Directory, "file2.go"),
+		"file1.go",
+		"file2.go",
 	}).
 		Return(nil)
 
@@ -162,7 +162,7 @@ func TestClangFormat_FormatFiles(t *testing.T) {
 	exec.OnRun("clang-format", []string{
 		"--Werror",
 		"-i",
-		filepath.Join(info.Directory, "file1.go"),
+		"file1.go",
 		filepath.Join(info.Directory, "file3.go"),
 	}).
 		Return(nil)
@@ -187,7 +187,7 @@ func TestClangFormat_FormatFiles_Failed(t *testing.T) {
 	exec.OnRun("clang-format", []string{
 		"--Werror",
 		"-i",
-		filepath.Join(info.Directory, "file1.go"),
+		"file1.go",
 	}).
 		Return(errors.New("failed"))
 
@@ -218,7 +218,7 @@ func TestClangFormat_FormatFiles_CustomConfig(t *testing.T) {
 		fmt.Sprintf("--style=file:%v", filepath.Join(info.Directory, ".clang-format")),
 		"--Werror",
 		"-i",
-		filepath.Join(info.Directory, "file1.go"),
+		"file1.go",
 	}).
 		Return(nil)
 
@@ -254,8 +254,8 @@ func TestClangFormat_FormatCheckAll(t *testing.T) {
 	exec.OnRun("clang-format", []string{
 		"--Werror",
 		"--dry-run",
-		filepath.Join(info.Directory, "file1.go"),
-		filepath.Join(info.Directory, "file2.go"),
+		"file1.go",
+		"file2.go",
 	}).
 		Return(nil)
 
@@ -290,8 +290,8 @@ func TestClangFormat_FormatCheckAll_Failed(t *testing.T) {
 	exec.OnRun("clang-format", []string{
 		"--Werror",
 		"--dry-run",
-		filepath.Join(info.Directory, "file1.go"),
-		filepath.Join(info.Directory, "file2.go"),
+		"file1.go",
+		"file2.go",
 	}).
 		Return(errors.New("failed"))
 
@@ -330,8 +330,8 @@ func TestClangFormat_FormatCheckAll_CustomConfig(t *testing.T) {
 		fmt.Sprintf("--style=file:%v", filepath.Join(info.Directory, ".clang-format")),
 		"--Werror",
 		"--dry-run",
-		filepath.Join(info.Directory, "file1.go"),
-		filepath.Join(info.Directory, "file2.go"),
+		"file1.go",
+		"file2.go",
 	}).
 		Return(nil)
 
@@ -357,7 +357,7 @@ func TestClangFormat_FormatCheckFiles(t *testing.T) {
 	exec.OnRun("clang-format", []string{
 		"--Werror",
 		"--dry-run",
-		filepath.Join(info.Directory, "file1.go"),
+		"file1.go",
 		filepath.Join(info.Directory, "file3.go"),
 	}).
 		Return(nil)
@@ -413,7 +413,7 @@ func TestClangFormat_FormatCheckFiles_CustomConfig(t *testing.T) {
 		fmt.Sprintf("--style=file:%v", filepath.Join(info.Directory, ".clang-format")),
 		"--Werror",
 		"--dry-run",
-		filepath.Join(info.Directory, "file1.go"),
+		"file1.go",
 	}).
 		Return(nil)
 

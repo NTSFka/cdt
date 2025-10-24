@@ -44,9 +44,7 @@ func (c *ClangTidy) LintAll(ctx context.Context, options internal.ProjectLinterO
 		return internal.ErrNoIntermediateDirectory
 	}
 
-	paths := c.buildPaths(options.Directory, structure.GetFiles())
-
-	toolArgs := c.buildArgs(options.Directory, *options.IntermediateDirectory, paths)
+	toolArgs := c.buildArgs(options.Directory, *options.IntermediateDirectory, structure.GetFiles())
 
 	return c.ExecutableTool.RunForProject(
 		ctx,
@@ -60,13 +58,11 @@ func (c *ClangTidy) LintFiles(
 	options internal.ProjectLinterOptions,
 	filenames []string,
 ) error {
-	paths := c.buildPaths(options.Directory, filenames)
-
 	if options.IntermediateDirectory == nil {
 		return internal.ErrNoIntermediateDirectory
 	}
 
-	toolArgs := c.buildArgs(options.Directory, *options.IntermediateDirectory, paths)
+	toolArgs := c.buildArgs(options.Directory, *options.IntermediateDirectory, filenames)
 
 	return c.ExecutableTool.RunForProject(
 		ctx,
@@ -85,20 +81,6 @@ func (c *ClangTidy) RunForProject(
 	}
 
 	return c.ExecutableTool.RunForProject(ctx, info, append(toolArgs, args...))
-}
-
-func (c *ClangTidy) buildPaths(directory string, filenames []string) []string {
-	var paths []string
-
-	for _, filename := range filenames {
-		if filepath.IsAbs(filename) {
-			paths = append(paths, filename)
-		} else {
-			paths = append(paths, filepath.Join(directory, filename))
-		}
-	}
-
-	return paths
 }
 
 func (c *ClangTidy) buildArgs(

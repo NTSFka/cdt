@@ -67,8 +67,8 @@ func TestClangTidy_LintAll(t *testing.T) {
 
 	exec.OnRun("clang-tidy", []string{
 		"-p", *info.IntermediateDirectory,
-		filepath.Join(info.Directory, "file1.go"),
-		filepath.Join(info.Directory, "file2.go"),
+		"file1.go",
+		"file2.go",
 	}).
 		Return(nil)
 
@@ -99,8 +99,8 @@ func TestClangTidy_LintAll_Failed(t *testing.T) {
 
 	exec.OnRun("clang-tidy", []string{
 		"-p", *info.IntermediateDirectory,
-		filepath.Join(info.Directory, "file1.go"),
-		filepath.Join(info.Directory, "file2.go"),
+		"file1.go",
+		"file2.go",
 	}).
 		Return(errors.New("failed"))
 
@@ -135,8 +135,8 @@ func TestClangTidy_LintAll_CustomConfig(t *testing.T) {
 	exec.OnRun("clang-tidy", []string{
 		fmt.Sprintf("--config-file=%v", filepath.Join(info.Directory, ".clang-tidy")),
 		"-p", *info.IntermediateDirectory,
-		filepath.Join(info.Directory, "file1.go"),
-		filepath.Join(info.Directory, "file2.go"),
+		"file1.go",
+		"file2.go",
 	}).
 		Return(nil)
 
@@ -158,7 +158,7 @@ func TestClangTidy_LintFiles(t *testing.T) {
 
 	exec.OnRun("clang-tidy", []string{
 		"-p", *info.IntermediateDirectory,
-		filepath.Join(info.Directory, "file1.go"),
+		"file1.go",
 		filepath.Join(info.Directory, "file3.go"),
 	}).
 		Return(nil)
@@ -185,7 +185,7 @@ func TestClangTidy_LintFiles_Failed(t *testing.T) {
 
 	exec.OnRun("clang-tidy", []string{
 		"-p", *info.IntermediateDirectory,
-		filepath.Join(info.Directory, "file1.go"),
+		"file1.go",
 	}).
 		Return(errors.New("failed"))
 
@@ -215,7 +215,7 @@ func TestClangTidy_LintFiles_CustomConfig(t *testing.T) {
 	exec.OnRun("clang-tidy", []string{
 		fmt.Sprintf("--config-file=%v", filepath.Join(info.Directory, ".clang-tidy")),
 		"-p", *info.IntermediateDirectory,
-		filepath.Join(info.Directory, "file1.go"),
+		"file1.go",
 	}).
 		Return(nil)
 

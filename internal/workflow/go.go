@@ -35,8 +35,9 @@ func (g *Go) Create(config Config, tools internal.Tools) internal.Project {
 
 	return internal.Project{
 		Info: internal.ProjectInfo{
-			Directory:         config.Directory,
-			StructureProvider: goTool,
+			Directory:             config.Directory,
+			StructureProvider:     goTool,
+			IntermediateDirectory: config.IntermediateDirectory,
 		},
 		Workflow: workflow,
 	}
