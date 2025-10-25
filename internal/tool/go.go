@@ -80,8 +80,8 @@ func (g *Go) BuildAll(ctx context.Context, options internal.ProjectBuilderOption
 	args := options.ExtraArgs
 	args = append(args, "build")
 
-	if options.IntermediateDirectory != nil {
-		args = append(args, "-o", *options.IntermediateDirectory)
+	if options.OutputDirectory != nil {
+		args = append(args, "-o", *options.OutputDirectory)
 	}
 
 	return g.RunForProject(ctx, options.ProjectInfo, args)
@@ -95,8 +95,8 @@ func (g *Go) BuildTargets(
 	args := options.ExtraArgs
 	args = append(args, "build")
 
-	if options.IntermediateDirectory != nil {
-		args = append(args, "-o", *options.IntermediateDirectory)
+	if options.OutputDirectory != nil {
+		args = append(args, "-o", *options.OutputDirectory)
 	}
 
 	return g.RunForProject(

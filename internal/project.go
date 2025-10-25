@@ -38,15 +38,15 @@ func (p *ProjectStructure) GetFiles() []string {
 	return slices.Compact(files)
 }
 
-var ErrNoIntermediateDirectory = errors.New("no intermediate directory set")
+var ErrNoOutputDirectory = errors.New("no output directory set")
 
 // A ProjectInfo provides information about the project.
 type ProjectInfo struct {
 	// Directory is the directory of the project
 	Directory string
 
-	// IntermediateDirectory is the directory of the project's intermediate files
-	IntermediateDirectory *string
+	// OutputDirectory is the directory of the project's output files
+	OutputDirectory *string
 
 	// StructureProvider provides structure of the project primary in cases when the structure is dynamic from
 	// some configuration

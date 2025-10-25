@@ -74,8 +74,8 @@ func workflowCommandShowAction(ctx context.Context, cmd *cli.Command) error {
 		for _, workflowType := range workflow.SupportedTypes {
 			if workflowType.Id() == workflowId {
 				config := workflow.Config{
-					Directory:             cmdContext.Config.RootDirectory,
-					IntermediateDirectory: cmdContext.Config.BuildDirectory,
+					Directory:       cmdContext.Config.RootDirectory,
+					OutputDirectory: cmdContext.Config.OutputDirectory,
 				}
 
 				workflowPrintWorkflow(

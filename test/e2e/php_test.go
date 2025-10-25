@@ -16,13 +16,13 @@ func TestPhpRun(t *testing.T) {
 
 	checkTool(t, t.Context(), environment, "php")
 
-	buildDir := t.TempDir()
+	outputDir := t.TempDir()
 
 	var err error
 
 	buffer := bytes.Buffer{}
 	err = runCdtOutput(t.Context(), io.MultiWriter(os.Stdout, &buffer), os.Stderr,
-		"-w", "php", "-r", "data/php", "-b", buildDir,
+		"-w", "php", "-r", "data/php", "-o", outputDir,
 		"run", "bin/hello.php",
 	)
 	require.NoError(t, err)
@@ -37,16 +37,16 @@ func TestPhpTest(t *testing.T) {
 
 	checkTool(t, t.Context(), environment, "php")
 
-	buildDir := t.TempDir()
+	outputDir := t.TempDir()
 
 	// Install dependencies
 	var err error
-	err = runCdt(t.Context(), "-w", "php", "-r", "data/php", "-b", buildDir, "dep", "install")
+	err = runCdt(t.Context(), "-w", "php", "-r", "data/php", "-o", outputDir, "dep", "install")
 	require.NoError(t, err)
 
 	buffer := bytes.Buffer{}
 	err = runCdtOutput(t.Context(), io.MultiWriter(os.Stdout, &buffer), os.Stderr,
-		"-w", "php", "-r", "data/php", "-b", buildDir,
+		"-w", "php", "-r", "data/php", "-o", outputDir,
 		"test",
 	)
 	require.NoError(t, err)
@@ -62,16 +62,16 @@ func TestPhpFormat(t *testing.T) {
 
 	checkTool(t, t.Context(), environment, "php")
 
-	buildDir := t.TempDir()
+	outputDir := t.TempDir()
 
 	// Install dependencies
 	var err error
-	err = runCdt(t.Context(), "-w", "php", "-r", "data/php", "-b", buildDir, "dep", "install")
+	err = runCdt(t.Context(), "-w", "php", "-r", "data/php", "-o", outputDir, "dep", "install")
 	require.NoError(t, err)
 
 	buffer := bytes.Buffer{}
 	err = runCdtOutput(t.Context(), io.MultiWriter(os.Stdout, &buffer), os.Stderr,
-		"-w", "php", "-r", "data/php", "-b", buildDir,
+		"-w", "php", "-r", "data/php", "-o", outputDir,
 		"format",
 	)
 	require.NoError(t, err)
@@ -85,16 +85,16 @@ func TestPhpLint(t *testing.T) {
 
 	checkTool(t, t.Context(), environment, "php")
 
-	buildDir := t.TempDir()
+	outputDir := t.TempDir()
 
 	// Install dependencies
 	var err error
-	err = runCdt(t.Context(), "-w", "php", "-r", "data/php", "-b", buildDir, "dep", "install")
+	err = runCdt(t.Context(), "-w", "php", "-r", "data/php", "-o", outputDir, "dep", "install")
 	require.NoError(t, err)
 
 	buffer := bytes.Buffer{}
 	err = runCdtOutput(t.Context(), io.MultiWriter(os.Stdout, &buffer), os.Stderr,
-		"-w", "php", "-r", "data/php", "-b", buildDir,
+		"-w", "php", "-r", "data/php", "-o", outputDir,
 		"lint",
 	)
 	require.NoError(t, err)

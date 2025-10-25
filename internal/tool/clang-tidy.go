@@ -40,11 +40,11 @@ func (c *ClangTidy) LintAll(ctx context.Context, options internal.ProjectLinterO
 		return fmt.Errorf("failed to obtain project structure: %w", err)
 	}
 
-	if options.IntermediateDirectory == nil {
-		return internal.ErrNoIntermediateDirectory
+	if options.OutputDirectory == nil {
+		return internal.ErrNoOutputDirectory
 	}
 
-	toolArgs := c.buildArgs(options.Directory, *options.IntermediateDirectory, structure.GetFiles())
+	toolArgs := c.buildArgs(options.Directory, *options.OutputDirectory, structure.GetFiles())
 
 	return c.ExecutableTool.RunForProject(
 		ctx,
@@ -58,11 +58,11 @@ func (c *ClangTidy) LintFiles(
 	options internal.ProjectLinterOptions,
 	filenames []string,
 ) error {
-	if options.IntermediateDirectory == nil {
-		return internal.ErrNoIntermediateDirectory
+	if options.OutputDirectory == nil {
+		return internal.ErrNoOutputDirectory
 	}
 
-	toolArgs := c.buildArgs(options.Directory, *options.IntermediateDirectory, filenames)
+	toolArgs := c.buildArgs(options.Directory, *options.OutputDirectory, filenames)
 
 	return c.ExecutableTool.RunForProject(
 		ctx,

@@ -28,7 +28,7 @@ func TestLoadConfigFile_EmptyProject(t *testing.T) {
 	require.NotNil(t, config)
 	require.NotNil(t, config.Project)
 	assert.Nil(t, config.Project.WorkDirectory)
-	assert.Nil(t, config.Project.BuildDirectory)
+	assert.Nil(t, config.Project.OutputDirectory)
 	assert.Nil(t, config.Project.Environment)
 }
 
@@ -52,7 +52,7 @@ func TestLoadConfigFile_Whole(t *testing.T) {
 	reader := strings.NewReader(`
 project:
     work-directory: /path/to/project
-    build-directory: /path/to/build
+    output-directory: /path/to/build
     environment: docker:golang
     workflow:
         build: tool1
@@ -73,8 +73,8 @@ project:
 	require.NotNil(t, config.Project.WorkDirectory)
 	assert.Equal(t, "/path/to/project", *config.Project.WorkDirectory)
 
-	require.NotNil(t, config.Project.BuildDirectory)
-	assert.Equal(t, "/path/to/build", *config.Project.BuildDirectory)
+	require.NotNil(t, config.Project.OutputDirectory)
+	assert.Equal(t, "/path/to/build", *config.Project.OutputDirectory)
 
 	require.NotNil(t, config.Project.Environment)
 	assert.Equal(t, "docker:golang", *config.Project.Environment)
@@ -109,7 +109,7 @@ func TestLoadConfigFile_Whole_WorkflowString(t *testing.T) {
 	reader := strings.NewReader(`
 project:
     work-directory: /path/to/project
-    build-directory: /path/to/build
+    output-directory: /path/to/build
     environment: docker:golang
     workflow: go
 `,
@@ -123,8 +123,8 @@ project:
 	require.NotNil(t, config.Project.WorkDirectory)
 	assert.Equal(t, "/path/to/project", *config.Project.WorkDirectory)
 
-	require.NotNil(t, config.Project.BuildDirectory)
-	assert.Equal(t, "/path/to/build", *config.Project.BuildDirectory)
+	require.NotNil(t, config.Project.OutputDirectory)
+	assert.Equal(t, "/path/to/build", *config.Project.OutputDirectory)
 
 	require.NotNil(t, config.Project.Environment)
 	assert.Equal(t, "docker:golang", *config.Project.Environment)
@@ -152,9 +152,9 @@ func TestFileConfig_UpdateConfig(t *testing.T) {
 
 	fileConfig := internal.FileConfig{
 		Project: internal.FileConfigProject{
-			WorkDirectory:  internal.StrPtr("/project/work"),
-			BuildDirectory: internal.StrPtr("/project/build"),
-			Environment:    internal.StrPtr("env:arg"),
+			WorkDirectory:   internal.StrPtr("/project/work"),
+			OutputDirectory: internal.StrPtr("/project/build"),
+			Environment:     internal.StrPtr("env:arg"),
 			Workflow: &internal.FileConfigProjectWorkflow{
 				Configure:  internal.StrPtr("tool1"),
 				Build:      internal.StrPtr("tool2"),
@@ -174,8 +174,8 @@ func TestFileConfig_UpdateConfig(t *testing.T) {
 	require.NotNil(t, config.WorkDirectory)
 	assert.Equal(t, "/project/work", *config.WorkDirectory)
 
-	require.NotNil(t, config.BuildDirectory)
-	assert.Equal(t, "/project/build", *config.BuildDirectory)
+	require.NotNil(t, config.OutputDirectory)
+	assert.Equal(t, "/project/build", *config.OutputDirectory)
 
 	require.NotNil(t, config.Environment)
 	assert.Equal(t, "env:arg", *config.Environment)
@@ -210,10 +210,10 @@ func TestFileConfig_UpdateConfig_WorkflowString(t *testing.T) {
 
 	fileConfig := internal.FileConfig{
 		Project: internal.FileConfigProject{
-			WorkDirectory:  internal.StrPtr("/project/work"),
-			BuildDirectory: internal.StrPtr("/project/build"),
-			Environment:    internal.StrPtr("env:arg"),
-			Workflow:       "my-workflow",
+			WorkDirectory:   internal.StrPtr("/project/work"),
+			OutputDirectory: internal.StrPtr("/project/build"),
+			Environment:     internal.StrPtr("env:arg"),
+			Workflow:        "my-workflow",
 		},
 	}
 
@@ -224,8 +224,8 @@ func TestFileConfig_UpdateConfig_WorkflowString(t *testing.T) {
 	require.NotNil(t, config.WorkDirectory)
 	assert.Equal(t, "/project/work", *config.WorkDirectory)
 
-	require.NotNil(t, config.BuildDirectory)
-	assert.Equal(t, "/project/build", *config.BuildDirectory)
+	require.NotNil(t, config.OutputDirectory)
+	assert.Equal(t, "/project/build", *config.OutputDirectory)
 
 	require.NotNil(t, config.Environment)
 	assert.Equal(t, "env:arg", *config.Environment)
@@ -241,10 +241,10 @@ func TestFileConfig_UpdateConfig_WorkflowInvalid(t *testing.T) {
 
 	fileConfig := internal.FileConfig{
 		Project: internal.FileConfigProject{
-			WorkDirectory:  internal.StrPtr("/project/work"),
-			BuildDirectory: internal.StrPtr("/project/build"),
-			Environment:    internal.StrPtr("env:arg"),
-			Workflow:       42,
+			WorkDirectory:   internal.StrPtr("/project/work"),
+			OutputDirectory: internal.StrPtr("/project/build"),
+			Environment:     internal.StrPtr("env:arg"),
+			Workflow:        42,
 		},
 	}
 

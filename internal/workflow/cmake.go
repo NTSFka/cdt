@@ -42,17 +42,17 @@ func (c *CMake) Create(config Config, tools internal.Tools) internal.Project {
 
 	var buildDirectory string
 
-	if config.IntermediateDirectory != nil {
-		buildDirectory = *config.IntermediateDirectory
+	if config.OutputDirectory != nil {
+		buildDirectory = *config.OutputDirectory
 	} else {
 		buildDirectory = filepath.Join("build", "dev")
 	}
 
 	return internal.Project{
 		Info: internal.ProjectInfo{
-			Directory:             config.Directory,
-			IntermediateDirectory: &buildDirectory,
-			StructureProvider:     cmake,
+			Directory:         config.Directory,
+			OutputDirectory:   &buildDirectory,
+			StructureProvider: cmake,
 		},
 		Workflow: workflow,
 	}

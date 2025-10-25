@@ -21,18 +21,18 @@ func TestCMakeConfigureAndBuildAndRun(t *testing.T) {
 
 	checkTool(t, t.Context(), environment, "cmake")
 
-	buildDir := t.TempDir()
+	outputDir := t.TempDir()
 
 	var err error
 
 	// Configure
-	err = runCdt(t.Context(), "-w", "cmake", "-r", "data/cmake", "-b", buildDir,
+	err = runCdt(t.Context(), "-w", "cmake", "-r", "data/cmake", "-o", outputDir,
 		"configure",
 	)
 	require.NoError(t, err)
 
 	// Build all
-	err = runCdt(t.Context(), "-w", "cmake", "-r", "data/cmake", "-b", buildDir,
+	err = runCdt(t.Context(), "-w", "cmake", "-r", "data/cmake", "-o", outputDir,
 		"build",
 	)
 	require.NoError(t, err)
@@ -40,7 +40,7 @@ func TestCMakeConfigureAndBuildAndRun(t *testing.T) {
 	// Run
 	buffer := bytes.Buffer{}
 	err = runCdtOutput(t.Context(), io.MultiWriter(os.Stdout, &buffer), os.Stderr,
-		"-w", "cmake", "-r", "data/cmake", "-b", buildDir,
+		"-w", "cmake", "-r", "data/cmake", "-o", outputDir,
 		"run", "main",
 	)
 	require.NoError(t, err)
@@ -56,11 +56,11 @@ func TestCMakeBuild(t *testing.T) {
 
 	checkTool(t, t.Context(), environment, "cmake")
 
-	buildDir := t.TempDir()
+	outputDir := t.TempDir()
 
 	buffer := bytes.Buffer{}
 	err := runCdtOutput(t.Context(), io.MultiWriter(os.Stdout, &buffer), os.Stderr,
-		"-w", "cmake", "-r", "data/cmake", "-b", buildDir,
+		"-w", "cmake", "-r", "data/cmake", "-o", outputDir,
 		"build",
 	)
 	require.NoError(t, err)
@@ -75,11 +75,11 @@ func TestCMakeTest(t *testing.T) {
 
 	checkTool(t, t.Context(), environment, "cmake")
 
-	buildDir := t.TempDir()
+	outputDir := t.TempDir()
 
 	buffer := bytes.Buffer{}
 	err := runCdtOutput(t.Context(), io.MultiWriter(os.Stdout, &buffer), os.Stderr,
-		"-w", "cmake", "-r", "data/cmake", "-b", buildDir,
+		"-w", "cmake", "-r", "data/cmake", "-o", outputDir,
 		"test",
 	)
 	require.NoError(t, err)
@@ -96,11 +96,11 @@ func TestCMakeFormat(t *testing.T) {
 	checkTool(t, t.Context(), environment, "cmake")
 	checkTool(t, t.Context(), environment, "clang-format")
 
-	buildDir := t.TempDir()
+	outputDir := t.TempDir()
 
 	buffer := bytes.Buffer{}
 	err := runCdtOutput(t.Context(), io.MultiWriter(os.Stdout, &buffer), os.Stderr,
-		"-w", "cmake", "-r", "data/cmake", "-b", buildDir,
+		"-w", "cmake", "-r", "data/cmake", "-o", outputDir,
 		"format",
 	)
 	require.NoError(t, err)
@@ -116,11 +116,11 @@ func TestCMakeLint(t *testing.T) {
 	checkTool(t, t.Context(), environment, "cmake")
 	checkTool(t, t.Context(), environment, "clang-tidy")
 
-	buildDir := t.TempDir()
+	outputDir := t.TempDir()
 
 	buffer := bytes.Buffer{}
 	err := runCdtOutput(t.Context(), io.MultiWriter(os.Stdout, &buffer), os.Stderr,
-		"-w", "cmake", "-r", "data/cmake", "-b", buildDir,
+		"-w", "cmake", "-r", "data/cmake", "-o", outputDir,
 		"lint",
 	)
 	require.NoError(t, err)

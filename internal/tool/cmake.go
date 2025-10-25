@@ -47,11 +47,11 @@ func (c *CMake) Structure(
 		return nil, err
 	}
 
-	if info.IntermediateDirectory == nil {
-		return nil, internal.ErrNoIntermediateDirectory
+	if info.OutputDirectory == nil {
+		return nil, internal.ErrNoOutputDirectory
 	}
 
-	fileApi := utils.NewCmakeFileApi(*info.IntermediateDirectory)
+	fileApi := utils.NewCmakeFileApi(*info.OutputDirectory)
 
 	structure := internal.ProjectStructure{
 		Targets: make(map[string]internal.ProjectTarget),
@@ -70,11 +70,11 @@ func (c *CMake) Structure(
 }
 
 func (c *CMake) Configure(ctx context.Context, options internal.ProjectConfiguratorOptions) error {
-	if options.IntermediateDirectory == nil {
-		return internal.ErrNoIntermediateDirectory
+	if options.OutputDirectory == nil {
+		return internal.ErrNoOutputDirectory
 	}
 
-	fileApi := utils.NewCmakeFileApi(*options.IntermediateDirectory)
+	fileApi := utils.NewCmakeFileApi(*options.OutputDirectory)
 
 	if err := fileApi.Query("codemodel", 2); err != nil {
 		return err
@@ -83,7 +83,7 @@ func (c *CMake) Configure(ctx context.Context, options internal.ProjectConfigura
 	var callArgs []string
 	callArgs = append(callArgs, "-DCMAKE_EXPORT_COMPILE_COMMANDS=ON")
 	callArgs = append(callArgs, "-S", ".")
-	callArgs = append(callArgs, "-B", *options.IntermediateDirectory)
+	callArgs = append(callArgs, "-B", *options.OutputDirectory)
 	callArgs = append(callArgs, options.ExtraArgs...)
 
 	return c.RunForProject(ctx, options.ProjectInfo, callArgs)
@@ -94,11 +94,11 @@ func (c *CMake) BuildAll(ctx context.Context, options internal.ProjectBuilderOpt
 		return err
 	}
 
-	if options.IntermediateDirectory == nil {
-		return internal.ErrNoIntermediateDirectory
+	if options.OutputDirectory == nil {
+		return internal.ErrNoOutputDirectory
 	}
 
-	callArgs := []string{"--build", *options.IntermediateDirectory}
+	callArgs := []string{"--build", *options.OutputDirectory}
 	callArgs = append(callArgs, options.ExtraArgs...)
 
 	return c.RunForProject(ctx, options.ProjectInfo, callArgs)
@@ -113,11 +113,11 @@ func (c *CMake) BuildTargets(
 		return err
 	}
 
-	if options.IntermediateDirectory == nil {
-		return internal.ErrNoIntermediateDirectory
+	if options.OutputDirectory == nil {
+		return internal.ErrNoOutputDirectory
 	}
 
-	callArgs := []string{"--build", *options.IntermediateDirectory}
+	callArgs := []string{"--build", *options.OutputDirectory}
 	callArgs = append(callArgs, "--target")
 	callArgs = append(callArgs, targets...)
 	callArgs = append(callArgs, options.ExtraArgs...)
@@ -136,11 +136,11 @@ func (c *CMake) RunTarget(
 		return err
 	}
 
-	if options.IntermediateDirectory == nil {
-		return internal.ErrNoIntermediateDirectory
+	if options.OutputDirectory == nil {
+		return internal.ErrNoOutputDirectory
 	}
 
-	fileApi := utils.NewCmakeFileApi(*options.IntermediateDirectory)
+	fileApi := utils.NewCmakeFileApi(*options.OutputDirectory)
 
 	reply, err := fileApi.Reply()
 	if err != nil {
@@ -162,7 +162,7 @@ func runTarget(
 	target utils.ReplyTarget,
 ) error {
 	executable := internal.Executable{
-		Path:    filepath.Join(*options.IntermediateDirectory, target.Name),
+		Path:    filepath.Join(*options.OutputDirectory, target.Name),
 		Runtime: options.Runtime,
 	}
 

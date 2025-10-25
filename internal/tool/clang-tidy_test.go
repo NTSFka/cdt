@@ -52,8 +52,8 @@ func TestClangTidy_LintAll(t *testing.T) {
 	clangTidy := tool.NewClangTidy(exec.LazyExecutable("clang-tidy"))
 
 	info := internal.ProjectInfo{
-		Directory:             "project",
-		IntermediateDirectory: internal.StrPtr("build"),
+		Directory:       "project",
+		OutputDirectory: internal.StrPtr("build"),
 		StructureProvider: &internal.FixedProjectStructureProvider{
 			ProjectStructure: internal.ProjectStructure{
 				Targets: map[string]internal.ProjectTarget{
@@ -66,7 +66,7 @@ func TestClangTidy_LintAll(t *testing.T) {
 	}
 
 	exec.OnRun("clang-tidy", []string{
-		"-p", *info.IntermediateDirectory,
+		"-p", *info.OutputDirectory,
 		"file1.go",
 		"file2.go",
 	}).
@@ -84,8 +84,8 @@ func TestClangTidy_LintAll_Failed(t *testing.T) {
 	clangTidy := tool.NewClangTidy(exec.LazyExecutable("clang-tidy"))
 
 	info := internal.ProjectInfo{
-		Directory:             "project",
-		IntermediateDirectory: internal.StrPtr("build"),
+		Directory:       "project",
+		OutputDirectory: internal.StrPtr("build"),
 		StructureProvider: &internal.FixedProjectStructureProvider{
 			ProjectStructure: internal.ProjectStructure{
 				Targets: map[string]internal.ProjectTarget{
@@ -98,7 +98,7 @@ func TestClangTidy_LintAll_Failed(t *testing.T) {
 	}
 
 	exec.OnRun("clang-tidy", []string{
-		"-p", *info.IntermediateDirectory,
+		"-p", *info.OutputDirectory,
 		"file1.go",
 		"file2.go",
 	}).
@@ -116,8 +116,8 @@ func TestClangTidy_LintAll_CustomConfig(t *testing.T) {
 	clangTidy := tool.NewClangTidy(exec.LazyExecutable("clang-tidy"))
 
 	info := internal.ProjectInfo{
-		Directory:             t.TempDir(),
-		IntermediateDirectory: internal.StrPtr("build"),
+		Directory:       t.TempDir(),
+		OutputDirectory: internal.StrPtr("build"),
 		StructureProvider: &internal.FixedProjectStructureProvider{
 			ProjectStructure: internal.ProjectStructure{
 				Targets: map[string]internal.ProjectTarget{
@@ -134,7 +134,7 @@ func TestClangTidy_LintAll_CustomConfig(t *testing.T) {
 
 	exec.OnRun("clang-tidy", []string{
 		fmt.Sprintf("--config-file=%v", filepath.Join(info.Directory, ".clang-tidy")),
-		"-p", *info.IntermediateDirectory,
+		"-p", *info.OutputDirectory,
 		"file1.go",
 		"file2.go",
 	}).
@@ -152,12 +152,12 @@ func TestClangTidy_LintFiles(t *testing.T) {
 	clangTidy := tool.NewClangTidy(exec.LazyExecutable("clang-tidy"))
 
 	info := internal.ProjectInfo{
-		Directory:             t.TempDir(),
-		IntermediateDirectory: internal.StrPtr("build"),
+		Directory:       t.TempDir(),
+		OutputDirectory: internal.StrPtr("build"),
 	}
 
 	exec.OnRun("clang-tidy", []string{
-		"-p", *info.IntermediateDirectory,
+		"-p", *info.OutputDirectory,
 		"file1.go",
 		filepath.Join(info.Directory, "file3.go"),
 	}).
@@ -179,12 +179,12 @@ func TestClangTidy_LintFiles_Failed(t *testing.T) {
 	clangTidy := tool.NewClangTidy(exec.LazyExecutable("clang-tidy"))
 
 	info := internal.ProjectInfo{
-		Directory:             "project",
-		IntermediateDirectory: internal.StrPtr("build"),
+		Directory:       "project",
+		OutputDirectory: internal.StrPtr("build"),
 	}
 
 	exec.OnRun("clang-tidy", []string{
-		"-p", *info.IntermediateDirectory,
+		"-p", *info.OutputDirectory,
 		"file1.go",
 	}).
 		Return(errors.New("failed"))
@@ -205,8 +205,8 @@ func TestClangTidy_LintFiles_CustomConfig(t *testing.T) {
 	clangTidy := tool.NewClangTidy(exec.LazyExecutable("clang-tidy"))
 
 	info := internal.ProjectInfo{
-		Directory:             t.TempDir(),
-		IntermediateDirectory: internal.StrPtr("build"),
+		Directory:       t.TempDir(),
+		OutputDirectory: internal.StrPtr("build"),
 	}
 
 	_, err := os.Create(filepath.Join(info.Directory, ".clang-tidy"))
@@ -214,7 +214,7 @@ func TestClangTidy_LintFiles_CustomConfig(t *testing.T) {
 
 	exec.OnRun("clang-tidy", []string{
 		fmt.Sprintf("--config-file=%v", filepath.Join(info.Directory, ".clang-tidy")),
-		"-p", *info.IntermediateDirectory,
+		"-p", *info.OutputDirectory,
 		"file1.go",
 	}).
 		Return(nil)

@@ -43,15 +43,15 @@ func TestCTest_DetectCTest_NotFound(t *testing.T) {
 	env.AssertExpectations(t)
 }
 
-func TestCTest_RunForProject_NoIntermediateDirectory(t *testing.T) {
+func TestCTest_RunForProject_NoOutputDirectory(t *testing.T) {
 	exec := test.NewExecutable(t)
 
 	ctest := tool.NewCTest(exec.LazyExecutable("ctest"))
 
-	desc := internal.ProjectInfo{Directory: "project", IntermediateDirectory: nil}
+	desc := internal.ProjectInfo{Directory: "project", OutputDirectory: nil}
 
 	err := ctest.RunForProject(t.Context(), desc, []string{})
-	require.ErrorIs(t, err, internal.ErrNoIntermediateDirectory)
+	require.ErrorIs(t, err, internal.ErrNoOutputDirectory)
 
 	exec.AssertExpectations(t)
 }
@@ -62,8 +62,8 @@ func TestCTest_RunForProject(t *testing.T) {
 	ctest := tool.NewCTest(exec.LazyExecutable("ctest"))
 
 	desc := internal.ProjectInfo{
-		Directory:             "project",
-		IntermediateDirectory: internal.StrPtr("build"),
+		Directory:       "project",
+		OutputDirectory: internal.StrPtr("build"),
 	}
 
 	exec.OnRun("ctest", []string{"--test-dir", "build"}).
@@ -81,8 +81,8 @@ func TestCTest_RunForProject_Failed(t *testing.T) {
 	ctest := tool.NewCTest(exec.LazyExecutable("ctest"))
 
 	desc := internal.ProjectInfo{
-		Directory:             "project",
-		IntermediateDirectory: internal.StrPtr("build"),
+		Directory:       "project",
+		OutputDirectory: internal.StrPtr("build"),
 	}
 
 	exec.OnRun("ctest", []string{"--test-dir", "build"}).

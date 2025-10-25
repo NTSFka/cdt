@@ -93,7 +93,7 @@ configuration is required, it's possible to invoke the configuration manually.
 cdt configure
 
 # Custom build directory
-cdt --build build/debug configure
+cdt --output build/debug configure
 ```
 
 ### Project compilation

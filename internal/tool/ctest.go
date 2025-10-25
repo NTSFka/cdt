@@ -32,11 +32,11 @@ func DetectCTest(ctx context.Context, environment internal.Environment) *CTest {
 }
 
 func (c *CTest) RunForProject(ctx context.Context, info internal.ProjectInfo, args []string) error {
-	if info.IntermediateDirectory == nil {
-		return internal.ErrNoIntermediateDirectory
+	if info.OutputDirectory == nil {
+		return internal.ErrNoOutputDirectory
 	}
 
 	return c.ExecutableTool.RunForProject(ctx, info, append(args,
-		"--test-dir", *info.IntermediateDirectory,
+		"--test-dir", *info.OutputDirectory,
 	))
 }

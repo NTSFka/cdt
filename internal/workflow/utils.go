@@ -97,8 +97,8 @@ func createProjectConfigName(
 	for _, workflowType := range SupportedTypes {
 		if workflowName == workflowType.Id() {
 			cfg := Config{
-				Directory:             config.RootDirectory,
-				IntermediateDirectory: config.BuildDirectory,
+				Directory:       config.RootDirectory,
+				OutputDirectory: config.OutputDirectory,
 			}
 
 			workflow := workflowType.Create(cfg, tools)
@@ -114,8 +114,8 @@ func createProjectDetect(config internal.Config, tools internal.Tools) (*interna
 	for _, workflowType := range SupportedTypes {
 		if workflowType.Detect(config.RootDirectory) {
 			cfg := Config{
-				Directory:             config.RootDirectory,
-				IntermediateDirectory: config.BuildDirectory,
+				Directory:       config.RootDirectory,
+				OutputDirectory: config.OutputDirectory,
 			}
 
 			workflow := workflowType.Create(cfg, tools)

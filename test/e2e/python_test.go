@@ -25,14 +25,14 @@ func TestPythonRun(t *testing.T) {
 	envDir := t.TempDir()
 	require.NoError(t, initPythonEnvironment(t.Context(), envDir))
 
-	buildDir := t.TempDir()
+	outputDir := t.TempDir()
 
 	var err error
 
 	buffer := bytes.Buffer{}
 	err = runCdtOutput(t.Context(), io.MultiWriter(os.Stdout, &buffer), os.Stderr,
 		"-e", "pyenv:"+envDir,
-		"-w", "python", "-r", "data/python", "-b", buildDir,
+		"-w", "python", "-r", "data/python", "-o", outputDir,
 		"run", "hello.py",
 	)
 	require.NoError(t, err)
@@ -47,13 +47,13 @@ func TestPythonTest(t *testing.T) {
 	envDir := t.TempDir()
 	require.NoError(t, initPythonEnvironment(t.Context(), envDir))
 
-	buildDir := t.TempDir()
+	outputDir := t.TempDir()
 
 	// Install dependencies
 	var err error
 	err = runCdt(t.Context(),
 		"-e", "pyenv:"+envDir,
-		"-w", "python", "-r", "data/python", "-b", buildDir,
+		"-w", "python", "-r", "data/python", "-o", outputDir,
 		"dep", "add", "pytest",
 	)
 	require.NoError(t, err)
@@ -61,7 +61,7 @@ func TestPythonTest(t *testing.T) {
 	buffer := bytes.Buffer{}
 	err = runCdtOutput(t.Context(), io.MultiWriter(os.Stdout, &buffer), os.Stderr,
 		"-e", "pyenv:"+envDir,
-		"-w", "python", "-r", "data/python", "-b", buildDir,
+		"-w", "python", "-r", "data/python", "-o", outputDir,
 		"test",
 	)
 	require.NoError(t, err)
@@ -76,13 +76,13 @@ func TestPythonFormat(t *testing.T) {
 	envDir := t.TempDir()
 	require.NoError(t, initPythonEnvironment(t.Context(), envDir))
 
-	buildDir := t.TempDir()
+	outputDir := t.TempDir()
 
 	// Install dependencies
 	var err error
 	err = runCdt(t.Context(),
 		"-e", "pyenv:"+envDir,
-		"-w", "python", "-r", "data/python", "-b", buildDir,
+		"-w", "python", "-r", "data/python", "-o", outputDir,
 		"dep", "add", "black",
 	)
 	require.NoError(t, err)
@@ -90,7 +90,7 @@ func TestPythonFormat(t *testing.T) {
 	buffer := bytes.Buffer{}
 	err = runCdtOutput(t.Context(), io.MultiWriter(os.Stdout, &buffer), os.Stderr,
 		"-e", "pyenv:"+envDir,
-		"-w", "python", "-r", "data/python", "-b", buildDir,
+		"-w", "python", "-r", "data/python", "-o", outputDir,
 		"format",
 	)
 	require.NoError(t, err)
@@ -104,13 +104,13 @@ func TestPythonLint(t *testing.T) {
 	envDir := t.TempDir()
 	require.NoError(t, initPythonEnvironment(t.Context(), envDir))
 
-	buildDir := t.TempDir()
+	outputDir := t.TempDir()
 
 	// Install dependencies
 	var err error
 	err = runCdt(t.Context(),
 		"-e", "pyenv:"+envDir,
-		"-w", "python", "-r", "data/python", "-b", buildDir,
+		"-w", "python", "-r", "data/python", "-o", outputDir,
 		"dep", "add", "pylint",
 	)
 	require.NoError(t, err)
@@ -118,7 +118,7 @@ func TestPythonLint(t *testing.T) {
 	buffer := bytes.Buffer{}
 	err = runCdtOutput(t.Context(), io.MultiWriter(os.Stdout, &buffer), os.Stderr,
 		"-e", "pyenv:"+envDir,
-		"-w", "python", "-r", "data/python", "-b", buildDir,
+		"-w", "python", "-r", "data/python", "-o", outputDir,
 		"lint",
 	)
 	require.NoError(t, err)

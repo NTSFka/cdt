@@ -101,11 +101,11 @@ func TestApp_Run_ConfigDefault(t *testing.T) {
 	require.NoError(t, err)
 	require.NotNil(t, config)
 	assert.Equal(t, internal.Config{
-		RootDirectory:  ".",
-		WorkDirectory:  nil,
-		BuildDirectory: nil,
-		Environment:    nil,
-		Workflow:       nil,
+		RootDirectory:   ".",
+		WorkDirectory:   nil,
+		OutputDirectory: nil,
+		Environment:     nil,
+		Workflow:        nil,
 	}, *config)
 }
 
@@ -128,7 +128,7 @@ func TestApp_Run_ConfigFull(t *testing.T) {
 
 	err := app.Run(t.Context(), []string{"cdt",
 		"--root", "/path/to/project",
-		"--build", "/path/to/build",
+		"--output", "/path/to/build",
 		"--environment", "env:arg",
 		"--workflow", "go",
 		"__test__",
@@ -137,11 +137,11 @@ func TestApp_Run_ConfigFull(t *testing.T) {
 	require.NoError(t, err)
 	require.NotNil(t, config)
 	assert.Equal(t, internal.Config{
-		RootDirectory:  "/path/to/project",
-		WorkDirectory:  nil,
-		BuildDirectory: internal.StrPtr("/path/to/build"),
-		Environment:    internal.StrPtr("env:arg"),
-		Workflow:       "go",
+		RootDirectory:   "/path/to/project",
+		WorkDirectory:   nil,
+		OutputDirectory: internal.StrPtr("/path/to/build"),
+		Environment:     internal.StrPtr("env:arg"),
+		Workflow:        "go",
 	}, *config)
 }
 
@@ -164,7 +164,7 @@ func TestApp_Run_ConfigFullAlias(t *testing.T) {
 
 	err := app.Run(t.Context(), []string{"cdt",
 		"-r", "/path/to/project",
-		"-b", "/path/to/build",
+		"-o", "/path/to/build",
 		"-e", "env:arg",
 		"-w", "go",
 		"__test__",
@@ -173,11 +173,11 @@ func TestApp_Run_ConfigFullAlias(t *testing.T) {
 	require.NoError(t, err)
 	require.NotNil(t, config)
 	assert.Equal(t, internal.Config{
-		RootDirectory:  "/path/to/project",
-		WorkDirectory:  nil,
-		BuildDirectory: internal.StrPtr("/path/to/build"),
-		Environment:    internal.StrPtr("env:arg"),
-		Workflow:       "go",
+		RootDirectory:   "/path/to/project",
+		WorkDirectory:   nil,
+		OutputDirectory: internal.StrPtr("/path/to/build"),
+		Environment:     internal.StrPtr("env:arg"),
+		Workflow:        "go",
 	}, *config)
 }
 
@@ -203,7 +203,7 @@ func TestApp_Run_ConfigFile_DefaultPath(t *testing.T) {
 	require.NoError(t, os.WriteFile(filepath.Join(tempDir, pkg.ConfigFileName), []byte(`
 project:
     work-directory: /path/to/project
-    build-directory: /path/to/build
+    output-directory: /path/to/build
     environment: env:arg
 `), 0600))
 
@@ -215,10 +215,10 @@ project:
 	require.NoError(t, err)
 	require.NotNil(t, config)
 	assert.Equal(t, internal.Config{
-		RootDirectory:  tempDir,
-		WorkDirectory:  internal.StrPtr("/path/to/project"),
-		BuildDirectory: internal.StrPtr("/path/to/build"),
-		Environment:    internal.StrPtr("env:arg"),
+		RootDirectory:   tempDir,
+		WorkDirectory:   internal.StrPtr("/path/to/project"),
+		OutputDirectory: internal.StrPtr("/path/to/build"),
+		Environment:     internal.StrPtr("env:arg"),
 	}, *config)
 }
 
@@ -244,7 +244,7 @@ func TestApp_Run_ConfigFile_CustomPath(t *testing.T) {
 	require.NoError(t, os.WriteFile(configFilePath, []byte(`
 project:
     work-directory: /path/to/work
-    build-directory: /path/to/build
+    output-directory: /path/to/build
     environment: env:arg
 `), 0600))
 
@@ -256,10 +256,10 @@ project:
 	require.NoError(t, err)
 	require.NotNil(t, config)
 	assert.Equal(t, internal.Config{
-		RootDirectory:  ".",
-		WorkDirectory:  internal.StrPtr("/path/to/work"),
-		BuildDirectory: internal.StrPtr("/path/to/build"),
-		Environment:    internal.StrPtr("env:arg"),
+		RootDirectory:   ".",
+		WorkDirectory:   internal.StrPtr("/path/to/work"),
+		OutputDirectory: internal.StrPtr("/path/to/build"),
+		Environment:     internal.StrPtr("env:arg"),
 	}, *config)
 }
 
@@ -285,7 +285,7 @@ func TestApp_Run_ConfigFile_CustomPath_Alias(t *testing.T) {
 	require.NoError(t, os.WriteFile(configFilePath, []byte(`
 project:
     work-directory: /path/to/project
-    build-directory: /path/to/build
+    output-directory: /path/to/build
     environment: env:arg
 `), 0600))
 
@@ -297,10 +297,10 @@ project:
 	require.NoError(t, err)
 	require.NotNil(t, config)
 	assert.Equal(t, internal.Config{
-		RootDirectory:  ".",
-		WorkDirectory:  internal.StrPtr("/path/to/project"),
-		BuildDirectory: internal.StrPtr("/path/to/build"),
-		Environment:    internal.StrPtr("env:arg"),
+		RootDirectory:   ".",
+		WorkDirectory:   internal.StrPtr("/path/to/project"),
+		OutputDirectory: internal.StrPtr("/path/to/build"),
+		Environment:     internal.StrPtr("env:arg"),
 	}, *config)
 }
 

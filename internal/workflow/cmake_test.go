@@ -49,13 +49,13 @@ func TestCMakeType_Create_CustomBuildDirectory(t *testing.T) {
 	buildDirectory := "my-build-directory"
 
 	project := workflowType.Create(
-		workflow.Config{Directory: "dir1", IntermediateDirectory: &buildDirectory},
+		workflow.Config{Directory: "dir1", OutputDirectory: &buildDirectory},
 		tools,
 	)
 
 	assert.Equal(t, "dir1", project.Info.Directory)
-	require.NotNil(t, project.Info.IntermediateDirectory)
-	assert.Equal(t, buildDirectory, *project.Info.IntermediateDirectory)
+	require.NotNil(t, project.Info.OutputDirectory)
+	assert.Equal(t, buildDirectory, *project.Info.OutputDirectory)
 	assert.NotNil(t, project.Workflow.Linter)
 	assert.NotNil(t, project.Workflow.Formatter)
 }
@@ -80,7 +80,7 @@ func TestCMakeType_Project_TestAll(t *testing.T) {
 	buildDir := filepath.Join(dir, "build")
 
 	project := workflowType.Create(
-		workflow.Config{Directory: dir, IntermediateDirectory: &buildDir},
+		workflow.Config{Directory: dir, OutputDirectory: &buildDir},
 		tools,
 	)
 
@@ -118,7 +118,7 @@ func TestCMakeType_Project_TestAll_BuildFailed(t *testing.T) {
 	buildDir := filepath.Join(dir, "build")
 
 	project := workflowType.Create(
-		workflow.Config{Directory: dir, IntermediateDirectory: &buildDir},
+		workflow.Config{Directory: dir, OutputDirectory: &buildDir},
 		tools,
 	)
 
@@ -155,7 +155,7 @@ func TestCMakeProject_Project_Test(t *testing.T) {
 	buildDir := filepath.Join(dir, "build")
 
 	project := workflowType.Create(
-		workflow.Config{Directory: dir, IntermediateDirectory: &buildDir},
+		workflow.Config{Directory: dir, OutputDirectory: &buildDir},
 		tools,
 	)
 
@@ -194,7 +194,7 @@ func TestCMakeProject_Project_TestBuild_Failed(t *testing.T) {
 	buildDir := filepath.Join(dir, "build")
 
 	project := workflowType.Create(
-		workflow.Config{Directory: dir, IntermediateDirectory: &buildDir},
+		workflow.Config{Directory: dir, OutputDirectory: &buildDir},
 		tools,
 	)
 

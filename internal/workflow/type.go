@@ -17,8 +17,8 @@ type Config struct {
 	// Directory is the root directory of the project
 	Directory string
 
-	// IntermediateDirectory is the directory for the project's intermediate files
-	IntermediateDirectory *string
+	// OutputDirectory is the directory for the project's output files
+	OutputDirectory *string
 }
 
 // Type specifies a predefined workflow type.

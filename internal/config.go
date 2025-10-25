@@ -15,8 +15,8 @@ type Config struct {
 	// WorkDirectory is a directory where tools should run
 	WorkDirectory *string
 
-	// BuildDirectory is the project's intermediate directory
-	BuildDirectory *string
+	// OutputDirectory is the project's output directory
+	OutputDirectory *string
 
 	// Environment defines an environment to use
 	Environment *string
@@ -54,8 +54,8 @@ func (c *FileConfig) UpdateConfig(config *Config) {
 		config.WorkDirectory = c.Project.WorkDirectory
 	}
 
-	if c.Project.BuildDirectory != nil {
-		config.BuildDirectory = c.Project.BuildDirectory
+	if c.Project.OutputDirectory != nil {
+		config.OutputDirectory = c.Project.OutputDirectory
 	}
 
 	if c.Project.Environment != nil {
@@ -86,8 +86,8 @@ func (c *FileConfig) UpdateConfig(config *Config) {
 type FileConfigProject struct {
 	// WorkDirectory specifies a directory where tools should run. Can be relative to the root directory or absolute.
 	WorkDirectory *string `yaml:"work-directory"`
-	// BuildDirectory specifies a directory where intermediate files can be store.
-	BuildDirectory *string `yaml:"build-directory"`
+	// OutputDirectory specifies a directory where output files can be store.
+	OutputDirectory *string `yaml:"output-directory"`
 	// Environment specifies which environment to run tools in for the given project
 	Environment *string `yaml:"environment"`
 	// Workflow specifies the project workflow, can be FileConfigProjectWorkflow or string

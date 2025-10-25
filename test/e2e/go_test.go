@@ -16,11 +16,11 @@ func TestGoBuild(t *testing.T) {
 
 	checkTool(t, t.Context(), environment, "go")
 
-	buildDir := t.TempDir()
+	outputDir := t.TempDir()
 
 	buffer := bytes.Buffer{}
 	err := runCdtOutput(t.Context(), io.MultiWriter(os.Stdout, &buffer), os.Stderr,
-		"-w", "go", "-r", "data/go", "-b", buildDir,
+		"-w", "go", "-r", "data/go", "-o", outputDir,
 		"build",
 	)
 	require.NoError(t, err)
@@ -31,14 +31,14 @@ func TestGoRun(t *testing.T) {
 
 	checkTool(t, t.Context(), environment, "go")
 
-	buildDir := t.TempDir()
+	outputDir := t.TempDir()
 
 	var err error
 
 	// Run
 	buffer := bytes.Buffer{}
 	err = runCdtOutput(t.Context(), io.MultiWriter(os.Stdout, &buffer), os.Stderr,
-		"-w", "go", "-r", "data/go", "-b", buildDir,
+		"-w", "go", "-r", "data/go", "-o", outputDir,
 		"run", "hello",
 	)
 	require.NoError(t, err)
@@ -50,11 +50,11 @@ func TestGoTest(t *testing.T) {
 
 	checkTool(t, t.Context(), environment, "go")
 
-	buildDir := t.TempDir()
+	outputDir := t.TempDir()
 
 	buffer := bytes.Buffer{}
 	err := runCdtOutput(t.Context(), io.MultiWriter(os.Stdout, &buffer), os.Stderr,
-		"-w", "go", "-r", "data/go", "-b", buildDir,
+		"-w", "go", "-r", "data/go", "-o", outputDir,
 		"test",
 	)
 	require.NoError(t, err)
@@ -67,11 +67,11 @@ func TestGoFormat(t *testing.T) {
 
 	checkTool(t, t.Context(), environment, "go")
 
-	buildDir := t.TempDir()
+	outputDir := t.TempDir()
 
 	buffer := bytes.Buffer{}
 	err := runCdtOutput(t.Context(), io.MultiWriter(os.Stdout, &buffer), os.Stderr,
-		"-w", "go", "-r", "data/go", "-b", buildDir,
+		"-w", "go", "-r", "data/go", "-o", outputDir,
 		"format",
 	)
 	require.NoError(t, err)
@@ -82,11 +82,11 @@ func TestGoLint(t *testing.T) {
 
 	checkTool(t, t.Context(), environment, "go")
 
-	buildDir := t.TempDir()
+	outputDir := t.TempDir()
 
 	buffer := bytes.Buffer{}
 	err := runCdtOutput(t.Context(), io.MultiWriter(os.Stdout, &buffer), os.Stderr,
-		"-w", "go", "-r", "data/go", "-b", buildDir,
+		"-w", "go", "-r", "data/go", "-o", outputDir,
 		"lint",
 	)
 	require.NoError(t, err)

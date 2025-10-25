@@ -32,11 +32,10 @@ func NewApp(buildContext func(config internal.Config) (*internal.Context, error)
 				Value: ".",
 			},
 			&cli.StringFlag{
-				Name:    "build",
-				Aliases: []string{"b"},
-				Usage: "Build directory for intermediate data. If not specified the value from configuration file " +
-					"some default will be used.",
-				Value: "build",
+				Name:    "output",
+				Aliases: []string{"o"},
+				Usage: "Build directory for output data. If not specified the value from configuration file " +
+					"some default might be used.",
 			},
 			&cli.StringFlag{
 				Name:    "environment",
@@ -138,9 +137,9 @@ func createConfig(cmd *cli.Command) (*internal.Config, error) {
 	}
 
 	// Override configuration file
-	if cmd.Count("build") > 0 {
-		directory := cmd.String("build")
-		config.BuildDirectory = &directory
+	if cmd.Count("output") > 0 {
+		directory := cmd.String("output")
+		config.OutputDirectory = &directory
 	}
 
 	if cmd.Count("environment") > 0 {
