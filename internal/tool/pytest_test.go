@@ -17,7 +17,7 @@ func TestPyTest_DetectPyTest(t *testing.T) {
 	env.OnFindExecutable("pytest").
 		Return(env.NewExecutable("/bin/pytest"), nil)
 
-	pyTest := tool.DetectPyTest(t.Context(), env)
+	pyTest := tool.DetectPyTest(t.Context(), internal.ConfigTools{}, env)
 	assert.NotNil(t, pyTest)
 	assert.Equal(t, "pytest", pyTest.Id())
 	assert.True(t, pyTest.IsAvailable())
@@ -35,11 +35,31 @@ func TestPyTest_DetectPyTest_NotFound(t *testing.T) {
 	env.OnFindExecutable("pytest").
 		Return(nil, nil)
 
-	pyTest := tool.DetectPyTest(t.Context(), env)
+	pyTest := tool.DetectPyTest(t.Context(), internal.ConfigTools{}, env)
 	assert.NotNil(t, pyTest)
 	assert.Equal(t, "pytest", pyTest.Id())
 	assert.False(t, pyTest.IsAvailable())
 	assert.Nil(t, pyTest.Executable())
+
+	env.AssertExpectations(t)
+}
+
+func TestPyTest_DetectPyTest_Config(t *testing.T) {
+	env := test.NewEnvironment(t)
+
+	env.OnFindExecutable("pytest2").
+		Return(env.NewExecutable("/bin/pytest"), nil)
+
+	pyTest := tool.DetectPyTest(t.Context(), internal.ConfigTools{
+		"pytest": "pytest2",
+	}, env)
+	assert.NotNil(t, pyTest)
+	assert.Equal(t, "pytest", pyTest.Id())
+	assert.True(t, pyTest.IsAvailable())
+
+	if executable := pyTest.Executable(); assert.NotNil(t, executable) {
+		assert.Equal(t, "/bin/pytest", executable.Path)
+	}
 
 	env.AssertExpectations(t)
 }

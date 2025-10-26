@@ -5,14 +5,20 @@ import (
 	"context"
 )
 
+const IdMyPy = "mypy"
+
 type MyPy struct {
 	internal.ExecutableTool
 }
 
 // DetectMyPy create a tool for mypy.
-func DetectMyPy(ctx context.Context, environment internal.Environment) *MyPy {
+func DetectMyPy(
+	ctx context.Context,
+	config internal.ConfigTools,
+	environment internal.Environment,
+) *MyPy {
 	return NewMyPy(func() (*internal.Executable, error) {
-		return environment.FindExecutable(ctx, "mypy")
+		return environment.FindExecutable(ctx, config.Get(IdMyPy, "mypy"))
 	})
 }
 
@@ -20,7 +26,7 @@ func DetectMyPy(ctx context.Context, environment internal.Environment) *MyPy {
 func NewMyPy(detect internal.ExecutableToolDetectFunc) *MyPy {
 	return &MyPy{
 		ExecutableTool: internal.MakeExecutableTool(
-			"mypy",
+			IdMyPy,
 			"MyPy",
 			"Mypy is a static type checker for Python.",
 			internal.Tags{internal.ToolTagPython, internal.ToolTagLint},

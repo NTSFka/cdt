@@ -5,14 +5,20 @@ import (
 	"context"
 )
 
+const IdBlack = "black"
+
 type Black struct {
 	internal.ExecutableTool
 }
 
 // DetectBlack create a tool for black.
-func DetectBlack(ctx context.Context, environment internal.Environment) *Black {
+func DetectBlack(
+	ctx context.Context,
+	config internal.ConfigTools,
+	environment internal.Environment,
+) *Black {
 	return NewBlack(func() (*internal.Executable, error) {
-		return environment.FindExecutable(ctx, "black")
+		return environment.FindExecutable(ctx, config.Get(IdBlack, "black"))
 	})
 }
 
@@ -20,7 +26,7 @@ func DetectBlack(ctx context.Context, environment internal.Environment) *Black {
 func NewBlack(detect internal.ExecutableToolDetectFunc) *Black {
 	return &Black{
 		ExecutableTool: internal.MakeExecutableTool(
-			"black",
+			IdBlack,
 			"Black",
 			"Black is the uncompromising Python code formatter.",
 			internal.Tags{internal.ToolTagPython, internal.ToolTagFormat},

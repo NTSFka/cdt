@@ -43,3 +43,17 @@ project:
     run: make
     dependency: conan
 ```
+
+
+### Tools
+
+The default behavior of the tool is to detect tools automatically. You can specify versions or paths of used tools
+manually via `tools` section:
+
+```yaml
+tools:
+  # Use Clang 15 (automatically find the path)
+  clang-format: clang-format-15
+  # Use PHP 8.2 (manually specified the path)
+  php: /usr/bin/php8.2
+```

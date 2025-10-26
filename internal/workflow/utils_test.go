@@ -418,8 +418,8 @@ func TestBuildProject_Custom_StringWorkflow_Go(t *testing.T) {
 
 	config := internal.Config{RootDirectory: rootDir, Workflow: "go"}
 	project, err := workflow.CreateProject(config, internal.Tools{
-		tool.DetectGo(t.Context(), env),
-		tool.DetectGolangCILint(t.Context(), env),
+		tool.DetectGo(t.Context(), internal.ConfigTools{}, env),
+		tool.DetectGolangCILint(t.Context(), internal.ConfigTools{}, env),
 	})
 
 	require.NoError(t, err)
@@ -437,10 +437,10 @@ func TestBuildProject_CMake(t *testing.T) {
 
 	config := internal.Config{RootDirectory: rootDir}
 	project, err := workflow.CreateProject(config, internal.Tools{
-		tool.DetectCMake(t.Context(), env),
-		tool.DetectCTest(t.Context(), env),
-		tool.DetectClangFormat(t.Context(), env),
-		tool.DetectClangTidy(t.Context(), env),
+		tool.DetectCMake(t.Context(), internal.ConfigTools{}, env),
+		tool.DetectCTest(t.Context(), internal.ConfigTools{}, env),
+		tool.DetectClangFormat(t.Context(), internal.ConfigTools{}, env),
+		tool.DetectClangTidy(t.Context(), internal.ConfigTools{}, env),
 	})
 
 	require.NoError(t, err)
@@ -458,8 +458,8 @@ func TestBuildProject_Go(t *testing.T) {
 
 	config := internal.Config{RootDirectory: rootDir}
 	project, err := workflow.CreateProject(config, internal.Tools{
-		tool.DetectGo(t.Context(), env),
-		tool.DetectGolangCILint(t.Context(), env),
+		tool.DetectGo(t.Context(), internal.ConfigTools{}, env),
+		tool.DetectGolangCILint(t.Context(), internal.ConfigTools{}, env),
 	})
 
 	require.NoError(t, err)

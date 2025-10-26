@@ -18,7 +18,7 @@ func TestPHPStan_DetectPHPStan_Composer(t *testing.T) {
 	env.OnFindExecutable("vendor/bin/phpstan").
 		Return(env.NewExecutable("/bin/phpstan"), nil)
 
-	phpStan := tool.DetectPHPStan(t.Context(), env)
+	phpStan := tool.DetectPHPStan(t.Context(), internal.ConfigTools{}, env)
 	assert.NotNil(t, phpStan)
 	assert.Equal(t, "phpstan", phpStan.Id())
 	assert.True(t, phpStan.IsAvailable())
@@ -41,7 +41,7 @@ func TestPHPStan_DetectPHPStan_System(t *testing.T) {
 	env.OnFindExecutable("phpstan").
 		Return(env.NewExecutable("/bin/phpstan"), nil)
 
-	phpStan := tool.DetectPHPStan(t.Context(), env)
+	phpStan := tool.DetectPHPStan(t.Context(), internal.ConfigTools{}, env)
 	assert.NotNil(t, phpStan)
 	assert.Equal(t, "phpstan", phpStan.Id())
 	assert.True(t, phpStan.IsAvailable())
@@ -61,11 +61,32 @@ func TestPHPStan_DetectPHPStan_NotFound(t *testing.T) {
 	env.OnFindExecutable("phpstan").
 		Return(nil, nil)
 
-	phpStan := tool.DetectPHPStan(t.Context(), env)
+	phpStan := tool.DetectPHPStan(t.Context(), internal.ConfigTools{}, env)
 	assert.NotNil(t, phpStan)
 	assert.Equal(t, "phpstan", phpStan.Id())
 	assert.False(t, phpStan.IsAvailable())
 	assert.Nil(t, phpStan.Executable())
+
+	env.AssertExpectations(t)
+}
+
+func TestPHPStan_DetectPHPStan_Config(t *testing.T) {
+	env := test.NewEnvironment(t)
+
+	// Composer installation
+	env.OnFindExecutable("phpstan-2").
+		Return(env.NewExecutable("/bin/phpstan"), nil)
+
+	phpStan := tool.DetectPHPStan(t.Context(), internal.ConfigTools{
+		"phpstan": "phpstan-2",
+	}, env)
+	assert.NotNil(t, phpStan)
+	assert.Equal(t, "phpstan", phpStan.Id())
+	assert.True(t, phpStan.IsAvailable())
+
+	if executable := phpStan.Executable(); assert.NotNil(t, executable) {
+		assert.Equal(t, "/bin/phpstan", executable.Path)
+	}
 
 	env.AssertExpectations(t)
 }

@@ -17,7 +17,7 @@ func TestFlake8_DetectFlake8(t *testing.T) {
 	env.OnFindExecutable("flake8").
 		Return(env.NewExecutable("/bin/flake8"), nil)
 
-	flake8 := tool.DetectFlake8(t.Context(), env)
+	flake8 := tool.DetectFlake8(t.Context(), internal.ConfigTools{}, env)
 	assert.NotNil(t, flake8)
 	assert.Equal(t, "flake8", flake8.Id())
 	assert.True(t, flake8.IsAvailable())
@@ -35,11 +35,31 @@ func TestFlake8_DetectFlake8_NotFound(t *testing.T) {
 	env.OnFindExecutable("flake8").
 		Return(nil, nil)
 
-	flake8 := tool.DetectFlake8(t.Context(), env)
+	flake8 := tool.DetectFlake8(t.Context(), internal.ConfigTools{}, env)
 	assert.NotNil(t, flake8)
 	assert.Equal(t, "flake8", flake8.Id())
 	assert.False(t, flake8.IsAvailable())
 	assert.Nil(t, flake8.Executable())
+
+	env.AssertExpectations(t)
+}
+
+func TestFlake8_DetectFlake8_Config(t *testing.T) {
+	env := test.NewEnvironment(t)
+
+	env.OnFindExecutable("flake8-2").
+		Return(env.NewExecutable("/bin/flake8"), nil)
+
+	flake8 := tool.DetectFlake8(t.Context(), internal.ConfigTools{
+		"flake8": "flake8-2",
+	}, env)
+	assert.NotNil(t, flake8)
+	assert.Equal(t, "flake8", flake8.Id())
+	assert.True(t, flake8.IsAvailable())
+
+	if executable := flake8.Executable(); assert.NotNil(t, executable) {
+		assert.Equal(t, "/bin/flake8", executable.Path)
+	}
 
 	env.AssertExpectations(t)
 }

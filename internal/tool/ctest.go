@@ -6,6 +6,8 @@ import (
 	"cdt/internal"
 )
 
+const IdCTest = "ctest"
+
 // CTest is a test runner from CMake.
 type CTest struct {
 	internal.ExecutableTool
@@ -15,7 +17,7 @@ type CTest struct {
 func NewCTest(detect internal.ExecutableToolDetectFunc) *CTest {
 	return &CTest{
 		internal.MakeExecutableTool(
-			"ctest",
+			IdCTest,
 			"CTest",
 			"The ctest executable is the CMake test driver program.",
 			internal.Tags{internal.ToolTagC, internal.ToolTagCpp, internal.ToolTagTest},
@@ -25,9 +27,13 @@ func NewCTest(detect internal.ExecutableToolDetectFunc) *CTest {
 }
 
 // DetectCTest create ctest tool can be used in the project.
-func DetectCTest(ctx context.Context, environment internal.Environment) *CTest {
+func DetectCTest(
+	ctx context.Context,
+	config internal.ConfigTools,
+	environment internal.Environment,
+) *CTest {
 	return NewCTest(func() (*internal.Executable, error) {
-		return environment.FindExecutable(ctx, "ctest")
+		return environment.FindExecutable(ctx, config.Get(IdCTest, "ctest"))
 	})
 }
 

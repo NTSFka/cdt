@@ -5,14 +5,20 @@ import (
 	"context"
 )
 
+const IdPylint = "pylint"
+
 type Pylint struct {
 	internal.ExecutableTool
 }
 
 // DetectPylint create a tool for pylint.
-func DetectPylint(ctx context.Context, environment internal.Environment) *Pylint {
+func DetectPylint(
+	ctx context.Context,
+	config internal.ConfigTools,
+	environment internal.Environment,
+) *Pylint {
 	return NewPylint(func() (*internal.Executable, error) {
-		return environment.FindExecutable(ctx, "pylint")
+		return environment.FindExecutable(ctx, config.Get(IdPylint, "pylint"))
 	})
 }
 
@@ -20,7 +26,7 @@ func DetectPylint(ctx context.Context, environment internal.Environment) *Pylint
 func NewPylint(detect internal.ExecutableToolDetectFunc) *Pylint {
 	return &Pylint{
 		ExecutableTool: internal.MakeExecutableTool(
-			"pylint",
+			IdPylint,
 			"Pylint",
 			"Pylint is a static code analyser.",
 			internal.Tags{internal.ToolTagPython, internal.ToolTagLint},

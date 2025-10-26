@@ -5,12 +5,24 @@ import (
 	"context"
 )
 
+const IdPHPStan = "phpstan"
+
 type PHPStan struct {
 	internal.ExecutableTool
 }
 
 // DetectPHPStan create a tool for phpstan.
-func DetectPHPStan(ctx context.Context, environment internal.Environment) *PHPStan {
+func DetectPHPStan(
+	ctx context.Context,
+	config internal.ConfigTools,
+	environment internal.Environment,
+) *PHPStan {
+	if path, ok := config[IdPHPStan]; ok {
+		return NewPHPStan(func() (*internal.Executable, error) {
+			return environment.FindExecutable(ctx, path)
+		})
+	}
+
 	return NewPHPStan(internal.DetectExecutableChain(
 		[]string{"vendor/bin/phpstan", "phpstan"},
 		func(name string) (*internal.Executable, error) {
@@ -23,7 +35,7 @@ func DetectPHPStan(ctx context.Context, environment internal.Environment) *PHPSt
 func NewPHPStan(detect internal.ExecutableToolDetectFunc) *PHPStan {
 	return &PHPStan{
 		ExecutableTool: internal.MakeExecutableTool(
-			"phpstan",
+			IdPHPStan,
 			"PHPStan",
 			"Analyses source code.",
 			internal.Tags{internal.ToolTagPhp, internal.ToolTagLint},

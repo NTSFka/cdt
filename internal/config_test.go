@@ -48,8 +48,12 @@ func TestLoadConfigFile_Workflow_InvalidStructure(t *testing.T) {
 	require.Nil(t, config)
 }
 
+// nolint: funlen
 func TestLoadConfigFile_Whole(t *testing.T) {
 	reader := strings.NewReader(`
+tools:
+    php: php-8.4
+
 project:
     work-directory: /path/to/project
     output-directory: /path/to/build
@@ -69,6 +73,11 @@ project:
 	require.NoError(t, err)
 
 	require.NotNil(t, config)
+
+	require.NotNil(t, config.Tools)
+	require.Contains(t, *config.Tools, "php")
+	assert.Equal(t, "php-8.4", (*config.Tools)["php"])
+
 	require.NotNil(t, config.Project)
 	require.NotNil(t, config.Project.WorkDirectory)
 	assert.Equal(t, "/path/to/project", *config.Project.WorkDirectory)
@@ -147,10 +156,14 @@ func TestFileConfig_UpdateConfig_Empty(t *testing.T) {
 	assert.Equal(t, internal.DefaultConfig(), config)
 }
 
+// nolint: funlen
 func TestFileConfig_UpdateConfig(t *testing.T) {
 	config := internal.DefaultConfig()
 
 	fileConfig := internal.FileConfig{
+		Tools: &internal.FileConfigTools{
+			"tool1": "tool1-7",
+		},
 		Project: internal.FileConfigProject{
 			WorkDirectory:   internal.StrPtr("/project/work"),
 			OutputDirectory: internal.StrPtr("/project/build"),
@@ -203,6 +216,9 @@ func TestFileConfig_UpdateConfig(t *testing.T) {
 
 	require.NotNil(t, workflow.Dependency)
 	assert.Equal(t, "tool7", *workflow.Dependency)
+
+	require.NotNil(t, config.Tools)
+	assert.Equal(t, "tool1-7", config.Tools["tool1"])
 }
 
 func TestFileConfig_UpdateConfig_WorkflowString(t *testing.T) {

@@ -1,6 +1,7 @@
 package tool_test
 
 import (
+	"cdt/internal"
 	"testing"
 
 	"cdt/internal/test"
@@ -12,7 +13,7 @@ import (
 func TestInitTools(t *testing.T) {
 	env := test.NewEnvironment(t)
 
-	tools := tool.InitTools(t.Context(), env)
+	tools := tool.InitTools(t.Context(), internal.ConfigTools{}, env)
 
 	assert.NotEmpty(t, tools)
 }
@@ -20,7 +21,7 @@ func TestInitTools(t *testing.T) {
 func TestInitEnvironmentProviders(t *testing.T) {
 	env := test.NewEnvironment(t)
 
-	providers := tool.InitEnvironmentProviders(t.Context(), env)
+	providers := tool.InitEnvironmentProviders(t.Context(), internal.ConfigTools{}, env)
 
 	assert.NotEmpty(t, providers)
 }

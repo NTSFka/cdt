@@ -7,12 +7,24 @@ import (
 	"cdt/internal"
 )
 
+const IdPip = "pip"
+
 type Pip struct {
 	internal.ExecutableTool
 }
 
 // DetectPip create a tool for pip.
-func DetectPip(ctx context.Context, environment internal.Environment) *Pip {
+func DetectPip(
+	ctx context.Context,
+	config internal.ConfigTools,
+	environment internal.Environment,
+) *Pip {
+	if path, ok := config[IdPip]; ok {
+		return NewPip(func() (*internal.Executable, error) {
+			return environment.FindExecutable(ctx, path)
+		})
+	}
+
 	return NewPip(internal.DetectExecutableChain(
 		[]string{"pip", "pip3"},
 		func(name string) (*internal.Executable, error) {
@@ -25,7 +37,7 @@ func DetectPip(ctx context.Context, environment internal.Environment) *Pip {
 func NewPip(detect internal.ExecutableToolDetectFunc) *Pip {
 	return &Pip{
 		ExecutableTool: internal.MakeExecutableTool(
-			"pip",
+			IdPip,
 			"pip",
 			"pip is the package installer for Python. ",
 			internal.Tags{internal.ToolTagPython, internal.ToolTagDependency},

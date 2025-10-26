@@ -6,6 +6,8 @@ import (
 	"cdt/internal"
 )
 
+const IdGolangCILint = "golangci-lint"
+
 // A GolangCILint is a tool that wraps golang main tool `golangci-lint`.
 type GolangCILint struct {
 	internal.ExecutableTool
@@ -15,7 +17,7 @@ type GolangCILint struct {
 func NewGolangCILint(detect internal.ExecutableToolDetectFunc) *GolangCILint {
 	return &GolangCILint{
 		internal.MakeExecutableTool(
-			"golangci-lint",
+			IdGolangCILint,
 			"Golangci-lint",
 			"Smart, fast linters runner.",
 			internal.Tags{internal.ToolTagGo, internal.ToolTagLint},
@@ -25,9 +27,13 @@ func NewGolangCILint(detect internal.ExecutableToolDetectFunc) *GolangCILint {
 }
 
 // DetectGolangCILint create golangci-lint tool can be used in the project.
-func DetectGolangCILint(ctx context.Context, environment internal.Environment) *GolangCILint {
+func DetectGolangCILint(
+	ctx context.Context,
+	config internal.ConfigTools,
+	environment internal.Environment,
+) *GolangCILint {
 	return NewGolangCILint(func() (*internal.Executable, error) {
-		return environment.FindExecutable(ctx, "golangci-lint")
+		return environment.FindExecutable(ctx, config.Get(IdGolangCILint, "golangci-lint"))
 	})
 }
 

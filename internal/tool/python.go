@@ -9,14 +9,20 @@ import (
 	"cdt/internal"
 )
 
+const IdPython = "python"
+
 type Python struct {
 	internal.ExecutableTool
 }
 
 // DetectPython create a tool for python.
-func DetectPython(ctx context.Context, environment internal.Environment) *Python {
+func DetectPython(
+	ctx context.Context,
+	config internal.ConfigTools,
+	environment internal.Environment,
+) *Python {
 	return NewPython(func() (*internal.Executable, error) {
-		return environment.FindExecutable(ctx, "python3")
+		return environment.FindExecutable(ctx, config.Get(IdPython, "python3"))
 	})
 }
 
@@ -24,7 +30,7 @@ func DetectPython(ctx context.Context, environment internal.Environment) *Python
 func NewPython(detect internal.ExecutableToolDetectFunc) *Python {
 	return &Python{
 		ExecutableTool: internal.MakeExecutableTool(
-			"python",
+			IdPython,
 			"Python",
 			"Python is a programming language that lets you work quickly and integrate systems more effectively.",
 			internal.Tags{internal.ToolTagPython, internal.ToolTagRun, internal.ToolTagEnvironment},

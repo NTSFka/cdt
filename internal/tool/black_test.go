@@ -17,7 +17,7 @@ func TestBlack_DetectBlack(t *testing.T) {
 	env.OnFindExecutable("black").
 		Return(env.NewExecutable("/bin/black"), nil)
 
-	black := tool.DetectBlack(t.Context(), env)
+	black := tool.DetectBlack(t.Context(), internal.ConfigTools{}, env)
 	assert.NotNil(t, black)
 	assert.Equal(t, "black", black.Id())
 	assert.True(t, black.IsAvailable())
@@ -35,11 +35,31 @@ func TestBlack_DetectBlack_NotFound(t *testing.T) {
 	env.OnFindExecutable("black").
 		Return(nil, nil)
 
-	black := tool.DetectBlack(t.Context(), env)
+	black := tool.DetectBlack(t.Context(), internal.ConfigTools{}, env)
 	assert.NotNil(t, black)
 	assert.Equal(t, "black", black.Id())
 	assert.False(t, black.IsAvailable())
 	assert.Nil(t, black.Executable())
+
+	env.AssertExpectations(t)
+}
+
+func TestBlack_DetectBandit_Config(t *testing.T) {
+	env := test.NewEnvironment(t)
+
+	env.OnFindExecutable("black-1").
+		Return(env.NewExecutable("/bin/black"), nil)
+
+	black := tool.DetectBlack(t.Context(), internal.ConfigTools{
+		"black": "black-1",
+	}, env)
+	assert.NotNil(t, black)
+	assert.Equal(t, "black", black.Id())
+	assert.True(t, black.IsAvailable())
+
+	if executable := black.Executable(); assert.NotNil(t, executable) {
+		assert.Equal(t, "/bin/black", executable.Path)
+	}
 
 	env.AssertExpectations(t)
 }

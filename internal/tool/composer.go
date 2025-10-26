@@ -6,12 +6,24 @@ import (
 	"cdt/internal"
 )
 
+const IdComposer = "composer"
+
 type Composer struct {
 	internal.ExecutableTool
 }
 
 // DetectComposer create a tool for composer.
-func DetectComposer(ctx context.Context, environment internal.Environment) *Composer {
+func DetectComposer(
+	ctx context.Context,
+	config internal.ConfigTools,
+	environment internal.Environment,
+) *Composer {
+	if path, ok := config[IdComposer]; ok {
+		return NewComposer(func() (*internal.Executable, error) {
+			return environment.FindExecutable(ctx, path)
+		})
+	}
+
 	return NewComposer(internal.DetectExecutableChain(
 		[]string{"composer.phar", "composer"},
 		func(name string) (*internal.Executable, error) {
@@ -24,7 +36,7 @@ func DetectComposer(ctx context.Context, environment internal.Environment) *Comp
 func NewComposer(detect internal.ExecutableToolDetectFunc) *Composer {
 	return &Composer{
 		ExecutableTool: internal.MakeExecutableTool(
-			"composer",
+			IdComposer,
 			"Composer",
 			"A Dependency Manager for PHP",
 			internal.Tags{internal.ToolTagPhp, internal.ToolTagDependency},

@@ -6,14 +6,20 @@ import (
 	"cdt/internal"
 )
 
+const IdPyTest = "pytest"
+
 type PyTest struct {
 	internal.ExecutableTool
 }
 
 // DetectPyTest create a tool for pytest.
-func DetectPyTest(ctx context.Context, environment internal.Environment) *PyTest {
+func DetectPyTest(
+	ctx context.Context,
+	config internal.ConfigTools,
+	environment internal.Environment,
+) *PyTest {
 	return NewPyTest(func() (*internal.Executable, error) {
-		return environment.FindExecutable(ctx, "pytest")
+		return environment.FindExecutable(ctx, config.Get(IdPyTest, "pytest"))
 	})
 }
 
@@ -21,7 +27,7 @@ func DetectPyTest(ctx context.Context, environment internal.Environment) *PyTest
 func NewPyTest(detect internal.ExecutableToolDetectFunc) *PyTest {
 	return &PyTest{
 		ExecutableTool: internal.MakeExecutableTool(
-			"pytest",
+			IdPyTest,
 			"PyTest",
 			"The pytest framework makes it easy to write small, readable tests, and can scale to support complex "+
 				"functional testing for applications and libraries.",

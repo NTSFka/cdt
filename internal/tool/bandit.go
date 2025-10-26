@@ -5,14 +5,20 @@ import (
 	"context"
 )
 
+const IdBandit = "bandit"
+
 type Bandit struct {
 	internal.ExecutableTool
 }
 
 // DetectBandit create a tool for bandit.
-func DetectBandit(ctx context.Context, environment internal.Environment) *Bandit {
+func DetectBandit(
+	ctx context.Context,
+	config internal.ConfigTools,
+	environment internal.Environment,
+) *Bandit {
 	return NewBandit(func() (*internal.Executable, error) {
-		return environment.FindExecutable(ctx, "bandit")
+		return environment.FindExecutable(ctx, config.Get(IdBandit, "bandit"))
 	})
 }
 
@@ -20,7 +26,7 @@ func DetectBandit(ctx context.Context, environment internal.Environment) *Bandit
 func NewBandit(detect internal.ExecutableToolDetectFunc) *Bandit {
 	return &Bandit{
 		ExecutableTool: internal.MakeExecutableTool(
-			"bandit",
+			IdBandit,
 			"Bandit",
 			"A security linter from PyCQA.",
 			internal.Tags{internal.ToolTagPython, internal.ToolTagLint},

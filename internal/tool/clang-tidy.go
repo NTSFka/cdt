@@ -9,14 +9,20 @@ import (
 	"cdt/internal"
 )
 
+const IdClangTidy = "clang-tidy"
+
 type ClangTidy struct {
 	internal.ExecutableTool
 }
 
 // DetectClangTidy create a tool for clang-tidy.
-func DetectClangTidy(ctx context.Context, environment internal.Environment) *ClangTidy {
+func DetectClangTidy(
+	ctx context.Context,
+	config internal.ConfigTools,
+	environment internal.Environment,
+) *ClangTidy {
 	return NewClangTidy(func() (*internal.Executable, error) {
-		return environment.FindExecutable(ctx, "clang-tidy")
+		return environment.FindExecutable(ctx, config.Get(IdClangTidy, "clang-tidy"))
 	})
 }
 
@@ -24,7 +30,7 @@ func DetectClangTidy(ctx context.Context, environment internal.Environment) *Cla
 func NewClangTidy(detect internal.ExecutableToolDetectFunc) *ClangTidy {
 	return &ClangTidy{
 		ExecutableTool: internal.MakeExecutableTool(
-			"clang-tidy",
+			IdClangTidy,
 			"Clang Tidy",
 			"A clang-based C++ “linter” tool.",
 			internal.Tags{internal.ToolTagC, internal.ToolTagCpp, internal.ToolTagLint},

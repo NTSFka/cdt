@@ -37,7 +37,7 @@ func TestDockerCompose_DetectDockerCompose_NotFound(t *testing.T) {
 	env.OnFindExecutable("docker").
 		Return(nil, nil)
 
-	dockerCompose := tool.DetectDockerCompose(t.Context(), env)
+	dockerCompose := tool.DetectDockerCompose(t.Context(), internal.ConfigTools{}, env)
 	assert.NotNil(t, dockerCompose)
 	assert.Equal(t, "docker-compose", dockerCompose.Id())
 	assert.False(t, dockerCompose.IsAvailable())
@@ -50,7 +50,22 @@ func TestDockerCompose_DetectDockerCompose_Found(t *testing.T) {
 	env.OnFindExecutable("docker").
 		Return(env.NewExecutable("docker"), nil, nil)
 
-	dockerCompose := tool.DetectDockerCompose(t.Context(), env)
+	dockerCompose := tool.DetectDockerCompose(t.Context(), internal.ConfigTools{}, env)
+	assert.NotNil(t, dockerCompose)
+	assert.Equal(t, "docker-compose", dockerCompose.Id())
+	assert.True(t, dockerCompose.IsAvailable())
+
+	env.AssertExpectations(t)
+}
+
+func TestDockerCompose_DetectDockerCompose_Config(t *testing.T) {
+	env := test.NewEnvironment(t)
+	env.OnFindExecutable("docker-2").
+		Return(env.NewExecutable("docker"), nil, nil)
+
+	dockerCompose := tool.DetectDockerCompose(t.Context(), internal.ConfigTools{
+		"docker-compose": "docker-2",
+	}, env)
 	assert.NotNil(t, dockerCompose)
 	assert.Equal(t, "docker-compose", dockerCompose.Id())
 	assert.True(t, dockerCompose.IsAvailable())

@@ -6,12 +6,24 @@ import (
 	"cdt/internal"
 )
 
+const IdPHPUnit = "phpunit"
+
 type PHPUnit struct {
 	internal.ExecutableTool
 }
 
 // DetectPHPUnit create a tool for phpunit.
-func DetectPHPUnit(ctx context.Context, environment internal.Environment) *PHPUnit {
+func DetectPHPUnit(
+	ctx context.Context,
+	config internal.ConfigTools,
+	environment internal.Environment,
+) *PHPUnit {
+	if path, ok := config[IdPHPUnit]; ok {
+		return NewPHPUnit(func() (*internal.Executable, error) {
+			return environment.FindExecutable(ctx, path)
+		})
+	}
+
 	return NewPHPUnit(internal.DetectExecutableChain(
 		[]string{"vendor/bin/phpunit", "phpunit"},
 		func(name string) (*internal.Executable, error) {
@@ -24,7 +36,7 @@ func DetectPHPUnit(ctx context.Context, environment internal.Environment) *PHPUn
 func NewPHPUnit(detect internal.ExecutableToolDetectFunc) *PHPUnit {
 	return &PHPUnit{
 		ExecutableTool: internal.MakeExecutableTool(
-			"phpunit",
+			IdPHPUnit,
 			"PHPUnit",
 			"PHPUnit is a programmer-oriented testing framework for PHP.",
 			internal.Tags{internal.ToolTagPhp, internal.ToolTagTest},

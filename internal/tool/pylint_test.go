@@ -17,7 +17,7 @@ func TestPylint_DetectPylint(t *testing.T) {
 	env.OnFindExecutable("pylint").
 		Return(env.NewExecutable("/bin/pylint"), nil)
 
-	pylint := tool.DetectPylint(t.Context(), env)
+	pylint := tool.DetectPylint(t.Context(), internal.ConfigTools{}, env)
 	assert.NotNil(t, pylint)
 	assert.Equal(t, "pylint", pylint.Id())
 	assert.True(t, pylint.IsAvailable())
@@ -35,11 +35,31 @@ func TestPylint_DetectPylint_NotFound(t *testing.T) {
 	env.OnFindExecutable("pylint").
 		Return(nil, nil)
 
-	pylint := tool.DetectPylint(t.Context(), env)
+	pylint := tool.DetectPylint(t.Context(), internal.ConfigTools{}, env)
 	assert.NotNil(t, pylint)
 	assert.Equal(t, "pylint", pylint.Id())
 	assert.False(t, pylint.IsAvailable())
 	assert.Nil(t, pylint.Executable())
+
+	env.AssertExpectations(t)
+}
+
+func TestPylint_DetectPylint_Config(t *testing.T) {
+	env := test.NewEnvironment(t)
+
+	env.OnFindExecutable("pylint4").
+		Return(env.NewExecutable("/bin/pylint"), nil)
+
+	pylint := tool.DetectPylint(t.Context(), internal.ConfigTools{
+		"pylint": "pylint4",
+	}, env)
+	assert.NotNil(t, pylint)
+	assert.Equal(t, "pylint", pylint.Id())
+	assert.True(t, pylint.IsAvailable())
+
+	if executable := pylint.Executable(); assert.NotNil(t, executable) {
+		assert.Equal(t, "/bin/pylint", executable.Path)
+	}
 
 	env.AssertExpectations(t)
 }

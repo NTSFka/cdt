@@ -5,14 +5,20 @@ import (
 	"context"
 )
 
+const IdRuff = "ruff"
+
 type Ruff struct {
 	internal.ExecutableTool
 }
 
 // DetectRuff create a tool for ruff.
-func DetectRuff(ctx context.Context, environment internal.Environment) *Ruff {
+func DetectRuff(
+	ctx context.Context,
+	config internal.ConfigTools,
+	environment internal.Environment,
+) *Ruff {
 	return NewRuff(func() (*internal.Executable, error) {
-		return environment.FindExecutable(ctx, "ruff")
+		return environment.FindExecutable(ctx, config.Get(IdRuff, "ruff"))
 	})
 }
 
@@ -20,7 +26,7 @@ func DetectRuff(ctx context.Context, environment internal.Environment) *Ruff {
 func NewRuff(detect internal.ExecutableToolDetectFunc) *Ruff {
 	return &Ruff{
 		ExecutableTool: internal.MakeExecutableTool(
-			"ruff",
+			IdRuff,
 			"Ruff",
 			"An extremely fast Python linter and code formatter, written in Rust.",
 			internal.Tags{internal.ToolTagPython, internal.ToolTagLint, internal.ToolTagFormat},

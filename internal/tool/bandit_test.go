@@ -17,7 +17,7 @@ func TestBandit_DetectBandit(t *testing.T) {
 	env.OnFindExecutable("bandit").
 		Return(env.NewExecutable("/bin/bandit"), nil)
 
-	bandit := tool.DetectBandit(t.Context(), env)
+	bandit := tool.DetectBandit(t.Context(), internal.ConfigTools{}, env)
 	assert.NotNil(t, bandit)
 	assert.Equal(t, "bandit", bandit.Id())
 	assert.True(t, bandit.IsAvailable())
@@ -35,11 +35,31 @@ func TestBandit_DetectBandit_NotFound(t *testing.T) {
 	env.OnFindExecutable("bandit").
 		Return(nil, nil)
 
-	bandit := tool.DetectBandit(t.Context(), env)
+	bandit := tool.DetectBandit(t.Context(), internal.ConfigTools{}, env)
 	assert.NotNil(t, bandit)
 	assert.Equal(t, "bandit", bandit.Id())
 	assert.False(t, bandit.IsAvailable())
 	assert.Nil(t, bandit.Executable())
+
+	env.AssertExpectations(t)
+}
+
+func TestBandit_DetectBandit_Config(t *testing.T) {
+	env := test.NewEnvironment(t)
+
+	env.OnFindExecutable("bandit-1").
+		Return(env.NewExecutable("/bin/bandit"), nil)
+
+	bandit := tool.DetectBandit(t.Context(), internal.ConfigTools{
+		"bandit": "bandit-1",
+	}, env)
+	assert.NotNil(t, bandit)
+	assert.Equal(t, "bandit", bandit.Id())
+	assert.True(t, bandit.IsAvailable())
+
+	if executable := bandit.Executable(); assert.NotNil(t, executable) {
+		assert.Equal(t, "/bin/bandit", executable.Path)
+	}
 
 	env.AssertExpectations(t)
 }

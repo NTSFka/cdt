@@ -10,6 +10,8 @@ import (
 	"cdt/internal/utils"
 )
 
+const IdCMake = "cmake"
+
 type CMake struct {
 	internal.ExecutableTool
 }
@@ -18,7 +20,7 @@ type CMake struct {
 func NewCMake(detect internal.ExecutableToolDetectFunc) *CMake {
 	return &CMake{
 		internal.MakeExecutableTool(
-			"cmake",
+			IdCMake,
 			"CMake",
 			"A Powerful Software Build System",
 			internal.Tags{
@@ -33,9 +35,13 @@ func NewCMake(detect internal.ExecutableToolDetectFunc) *CMake {
 }
 
 // DetectCMake create cmake tool can be used in the project.
-func DetectCMake(ctx context.Context, environment internal.Environment) *CMake {
+func DetectCMake(
+	ctx context.Context,
+	config internal.ConfigTools,
+	environment internal.Environment,
+) *CMake {
 	return NewCMake(func() (*internal.Executable, error) {
-		return environment.FindExecutable(ctx, "cmake")
+		return environment.FindExecutable(ctx, config.Get(IdCMake, "cmake"))
 	})
 }
 

@@ -17,7 +17,7 @@ func TestCMake_CMakeDetect(t *testing.T) {
 	env.OnFindExecutable("cmake").
 		Return(env.NewExecutable("/bin/cmake"), nil)
 
-	cmake := tool.DetectCMake(t.Context(), env)
+	cmake := tool.DetectCMake(t.Context(), internal.ConfigTools{}, env)
 	assert.NotNil(t, cmake)
 	assert.Equal(t, "cmake", cmake.Id())
 	assert.True(t, cmake.IsAvailable())
@@ -34,11 +34,30 @@ func TestCMake_CMakeDetect_NotFound(t *testing.T) {
 	env.OnFindExecutable("cmake").
 		Return(nil, nil)
 
-	cmake := tool.DetectCMake(t.Context(), env)
+	cmake := tool.DetectCMake(t.Context(), internal.ConfigTools{}, env)
 	assert.NotNil(t, cmake)
 	assert.Equal(t, "cmake", cmake.Id())
 	assert.False(t, cmake.IsAvailable())
 	assert.Nil(t, cmake.Executable())
+
+	env.AssertExpectations(t)
+}
+
+func TestCMake_CMakeDetect_Config(t *testing.T) {
+	env := test.NewEnvironment(t)
+	env.OnFindExecutable("cmake-4").
+		Return(env.NewExecutable("/bin/cmake"), nil)
+
+	cmake := tool.DetectCMake(t.Context(), internal.ConfigTools{
+		"cmake": "cmake-4",
+	}, env)
+	assert.NotNil(t, cmake)
+	assert.Equal(t, "cmake", cmake.Id())
+	assert.True(t, cmake.IsAvailable())
+
+	if executable := cmake.Executable(); assert.NotNil(t, executable) {
+		assert.Equal(t, "/bin/cmake", executable.Path)
+	}
 
 	env.AssertExpectations(t)
 }

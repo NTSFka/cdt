@@ -5,12 +5,24 @@ import (
 	"context"
 )
 
+const IdPHPCSFixer = "php-cs-fixer"
+
 type PHPCSFixer struct {
 	internal.ExecutableTool
 }
 
 // DetectPHPCSFixer create a tool for php-cs-fixer.
-func DetectPHPCSFixer(ctx context.Context, environment internal.Environment) *PHPCSFixer {
+func DetectPHPCSFixer(
+	ctx context.Context,
+	config internal.ConfigTools,
+	environment internal.Environment,
+) *PHPCSFixer {
+	if path, ok := config[IdPHPCSFixer]; ok {
+		return NewPHPCSFixer(func() (*internal.Executable, error) {
+			return environment.FindExecutable(ctx, path)
+		})
+	}
+
 	return NewPHPCSFixer(internal.DetectExecutableChain(
 		[]string{"vendor/bin/php-cs-fixer", "php-cs-fixer"},
 		func(name string) (*internal.Executable, error) {
@@ -23,7 +35,7 @@ func DetectPHPCSFixer(ctx context.Context, environment internal.Environment) *PH
 func NewPHPCSFixer(detect internal.ExecutableToolDetectFunc) *PHPCSFixer {
 	return &PHPCSFixer{
 		ExecutableTool: internal.MakeExecutableTool(
-			"php-cs-fixer",
+			IdPHPCSFixer,
 			"PHP-CS-Fixer",
 			"PHP Coding Standards Fixer",
 			internal.Tags{internal.ToolTagPhp, internal.ToolTagFormat},

@@ -17,7 +17,7 @@ func TestCTest_DetectCTest(t *testing.T) {
 	env.OnFindExecutable("ctest").
 		Return(env.NewExecutable("/bin/ctest"), nil)
 
-	ctest := tool.DetectCTest(t.Context(), env)
+	ctest := tool.DetectCTest(t.Context(), internal.ConfigTools{}, env)
 	assert.NotNil(t, ctest)
 	assert.Equal(t, "ctest", ctest.Id())
 	assert.True(t, ctest.IsAvailable())
@@ -34,11 +34,30 @@ func TestCTest_DetectCTest_NotFound(t *testing.T) {
 	env.OnFindExecutable("ctest").
 		Return(nil, nil)
 
-	ctest := tool.DetectCTest(t.Context(), env)
+	ctest := tool.DetectCTest(t.Context(), internal.ConfigTools{}, env)
 	assert.NotNil(t, ctest)
 	assert.Equal(t, "ctest", ctest.Id())
 	assert.False(t, ctest.IsAvailable())
 	assert.Nil(t, ctest.Executable())
+
+	env.AssertExpectations(t)
+}
+
+func TestCTest_DetectCTest_Config(t *testing.T) {
+	env := test.NewEnvironment(t)
+	env.OnFindExecutable("ctest-3").
+		Return(env.NewExecutable("/bin/ctest"), nil)
+
+	ctest := tool.DetectCTest(t.Context(), internal.ConfigTools{
+		"ctest": "ctest-3",
+	}, env)
+	assert.NotNil(t, ctest)
+	assert.Equal(t, "ctest", ctest.Id())
+	assert.True(t, ctest.IsAvailable())
+
+	if executable := ctest.Executable(); assert.NotNil(t, executable) {
+		assert.Equal(t, "/bin/ctest", executable.Path)
+	}
 
 	env.AssertExpectations(t)
 }

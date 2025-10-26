@@ -17,7 +17,7 @@ func TestGolangCILint_DetectGolangCILint(t *testing.T) {
 	env.OnFindExecutable("golangci-lint").
 		Return(env.NewExecutable("/bin/golangci-lint"), nil)
 
-	golangCILint := tool.DetectGolangCILint(t.Context(), env)
+	golangCILint := tool.DetectGolangCILint(t.Context(), internal.ConfigTools{}, env)
 	assert.NotNil(t, golangCILint)
 	assert.Equal(t, "golangci-lint", golangCILint.Id())
 	assert.True(t, golangCILint.IsAvailable())
@@ -34,11 +34,30 @@ func TestGolangCILint_DetectGolangCILint_NotFound(t *testing.T) {
 	env.OnFindExecutable("golangci-lint").
 		Return(nil, nil)
 
-	golangCILint := tool.DetectGolangCILint(t.Context(), env)
+	golangCILint := tool.DetectGolangCILint(t.Context(), internal.ConfigTools{}, env)
 	assert.NotNil(t, golangCILint)
 	assert.Equal(t, "golangci-lint", golangCILint.Id())
 	assert.False(t, golangCILint.IsAvailable())
 	assert.Nil(t, golangCILint.Executable())
+
+	env.AssertExpectations(t)
+}
+
+func TestGolangCILint_DetectGolangCILint_Config(t *testing.T) {
+	env := test.NewEnvironment(t)
+	env.OnFindExecutable("golangci-lint-1").
+		Return(env.NewExecutable("/bin/golangci-lint"), nil)
+
+	golangCILint := tool.DetectGolangCILint(t.Context(), internal.ConfigTools{
+		"golangci-lint": "golangci-lint-1",
+	}, env)
+	assert.NotNil(t, golangCILint)
+	assert.Equal(t, "golangci-lint", golangCILint.Id())
+	assert.True(t, golangCILint.IsAvailable())
+
+	if executable := golangCILint.Executable(); assert.NotNil(t, executable) {
+		assert.Equal(t, "/bin/golangci-lint", executable.Path)
+	}
 
 	env.AssertExpectations(t)
 }

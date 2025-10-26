@@ -11,6 +11,8 @@ import (
 	"cdt/internal"
 )
 
+const IdDockerCompose = "docker-compose"
+
 // A DockerCompose wraps docker compose tool to manage tools environment.
 type DockerCompose struct {
 	internal.ExecutableTool
@@ -20,7 +22,7 @@ type DockerCompose struct {
 func NewDockerCompose(detect internal.ExecutableToolDetectFunc) *DockerCompose {
 	return &DockerCompose{
 		internal.MakeExecutableTool(
-			"docker-compose",
+			IdDockerCompose,
 			"Docker compose",
 			"Define and run multi-container applications with Docker",
 			internal.Tags{internal.ToolTagEnvironment},
@@ -30,10 +32,14 @@ func NewDockerCompose(detect internal.ExecutableToolDetectFunc) *DockerCompose {
 }
 
 // DetectDockerCompose create a docker compose tool with detected docker executable in the given environment.
-func DetectDockerCompose(ctx context.Context, environment internal.Environment) *DockerCompose {
-	return NewDockerCompose(
-		func() (*internal.Executable, error) { return environment.FindExecutable(ctx, "docker") },
-	)
+func DetectDockerCompose(
+	ctx context.Context,
+	config internal.ConfigTools,
+	environment internal.Environment,
+) *DockerCompose {
+	return NewDockerCompose(func() (*internal.Executable, error) {
+		return environment.FindExecutable(ctx, config.Get(IdDockerCompose, "docker"))
+	})
 }
 
 func (d *DockerCompose) Aliases() []string {

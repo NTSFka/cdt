@@ -6,6 +6,8 @@ import (
 	"cdt/internal"
 )
 
+const IdNilAway = "nilaway"
+
 // A NilAway is a tool that wraps golang main tool `nilaway`.
 type NilAway struct {
 	internal.ExecutableTool
@@ -15,7 +17,7 @@ type NilAway struct {
 func NewNilAway(detect internal.ExecutableToolDetectFunc) *NilAway {
 	return &NilAway{
 		internal.MakeExecutableTool(
-			"nilaway",
+			IdNilAway,
 			"NilAway",
 			"NilAway is a static analysis tool that seeks to help developers avoid nil panics in production.",
 			internal.Tags{internal.ToolTagGo, internal.ToolTagLint},
@@ -25,9 +27,13 @@ func NewNilAway(detect internal.ExecutableToolDetectFunc) *NilAway {
 }
 
 // DetectNilAway create nilaway tool can be used in the project.
-func DetectNilAway(ctx context.Context, environment internal.Environment) *NilAway {
+func DetectNilAway(
+	ctx context.Context,
+	config internal.ConfigTools,
+	environment internal.Environment,
+) *NilAway {
 	return NewNilAway(func() (*internal.Executable, error) {
-		return environment.FindExecutable(ctx, "nilaway")
+		return environment.FindExecutable(ctx, config.Get(IdNilAway, "nilaway"))
 	})
 }
 

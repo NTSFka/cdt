@@ -10,6 +10,8 @@ import (
 	"cdt/internal"
 )
 
+const IdGo = "go"
+
 // A Go is a tool that wraps golang main tool `go`.
 type Go struct {
 	internal.ExecutableTool
@@ -19,7 +21,7 @@ type Go struct {
 func NewGo(detect internal.ExecutableToolDetectFunc) *Go {
 	return &Go{
 		internal.MakeExecutableTool(
-			"go",
+			IdGo,
 			"Go",
 			"tool for managing Go source code",
 			internal.Tags{
@@ -36,9 +38,13 @@ func NewGo(detect internal.ExecutableToolDetectFunc) *Go {
 }
 
 // DetectGo create go tool can be used in the project.
-func DetectGo(ctx context.Context, environment internal.Environment) *Go {
+func DetectGo(
+	ctx context.Context,
+	config internal.ConfigTools,
+	environment internal.Environment,
+) *Go {
 	return NewGo(func() (*internal.Executable, error) {
-		return environment.FindExecutable(ctx, "go")
+		return environment.FindExecutable(ctx, config.Get(IdGo, "go"))
 	})
 }
 

@@ -20,7 +20,7 @@ func TestPython_DetectPython(t *testing.T) {
 	env.OnFindExecutable("python3").
 		Return(env.NewExecutable("/bin/python"), nil)
 
-	python := tool.DetectPython(t.Context(), env)
+	python := tool.DetectPython(t.Context(), internal.ConfigTools{}, env)
 	assert.NotNil(t, python)
 	assert.Equal(t, "python", python.Id())
 	assert.True(t, python.IsAvailable())
@@ -38,11 +38,31 @@ func TestPython_DetectPython_NotFound(t *testing.T) {
 	env.OnFindExecutable("python3").
 		Return(nil, nil)
 
-	python := tool.DetectPython(t.Context(), env)
+	python := tool.DetectPython(t.Context(), internal.ConfigTools{}, env)
 	assert.NotNil(t, python)
 	assert.Equal(t, "python", python.Id())
 	assert.False(t, python.IsAvailable())
 	assert.Nil(t, python.Executable())
+
+	env.AssertExpectations(t)
+}
+
+func TestPython_DetectPython_Config(t *testing.T) {
+	env := test.NewEnvironment(t)
+
+	env.OnFindExecutable("python4").
+		Return(env.NewExecutable("/bin/python"), nil)
+
+	python := tool.DetectPython(t.Context(), internal.ConfigTools{
+		"python": "python4",
+	}, env)
+	assert.NotNil(t, python)
+	assert.Equal(t, "python", python.Id())
+	assert.True(t, python.IsAvailable())
+
+	if executable := python.Executable(); assert.NotNil(t, executable) {
+		assert.Equal(t, "/bin/python", executable.Path)
+	}
 
 	env.AssertExpectations(t)
 }

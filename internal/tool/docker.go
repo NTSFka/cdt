@@ -13,6 +13,8 @@ import (
 	"cdt/internal"
 )
 
+const IdDocker = "docker"
+
 // A Docker is a tool that wraps docker executable.
 type Docker struct {
 	internal.ExecutableTool
@@ -21,7 +23,7 @@ type Docker struct {
 // NewDocker creates a docker tool from a custom executable.
 func NewDocker(detect internal.ExecutableToolDetectFunc) *Docker {
 	return &Docker{internal.MakeExecutableTool(
-		"docker",
+		IdDocker,
 		"Docker",
 		"Docker image and container command line interface.",
 		internal.Tags{internal.ToolTagEnvironment},
@@ -30,9 +32,13 @@ func NewDocker(detect internal.ExecutableToolDetectFunc) *Docker {
 }
 
 // DetectDocker create a docker tool with a detected docker executable in the given environment.
-func DetectDocker(ctx context.Context, environment internal.Environment) *Docker {
+func DetectDocker(
+	ctx context.Context,
+	config internal.ConfigTools,
+	environment internal.Environment,
+) *Docker {
 	return NewDocker(func() (*internal.Executable, error) {
-		return environment.FindExecutable(ctx, "docker")
+		return environment.FindExecutable(ctx, config.Get(IdDocker, "docker"))
 	})
 }
 

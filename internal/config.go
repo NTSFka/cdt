@@ -23,12 +23,27 @@ type Config struct {
 
 	// Workflow defines tools to use in a workflow. Can be ConfigWorkflow or string.
 	Workflow any
+
+	// Tools stores custom tools configuration - tool name and executable path
+	Tools ConfigTools
 }
 
 // DefaultConfig returns default configuration.
 func DefaultConfig() Config {
 	return Config{
 		RootDirectory: ".",
+	}
+}
+
+// ConfigTools stores custom tools configuration - tool name and executable path.
+type ConfigTools map[string]string
+
+// Get returns a tool executable path by its ID.
+func (c ConfigTools) Get(id string, def string) string {
+	if path, ok := c[id]; ok {
+		return path
+	} else {
+		return def
 	}
 }
 
@@ -45,6 +60,7 @@ type ConfigWorkflow struct {
 
 // FileConfig stores configuration from file.
 type FileConfig struct {
+	Tools   *FileConfigTools  `yaml:"tools"`
 	Project FileConfigProject `yaml:"project"`
 }
 
@@ -80,7 +96,18 @@ func (c *FileConfig) UpdateConfig(config *Config) {
 			panic(fmt.Sprintf("invalid workflow type: %T", workflow))
 		}
 	}
+
+	if c.Tools != nil {
+		config.Tools = make(ConfigTools, len(*c.Tools))
+
+		for k, v := range *c.Tools {
+			config.Tools[k] = v
+		}
+	}
 }
+
+// FileConfigTools stores configuration from a file: tools part.
+type FileConfigTools map[string]string
 
 // FileConfigProject stores configuration from a file: project part.
 type FileConfigProject struct {

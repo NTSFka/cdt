@@ -9,15 +9,21 @@ import (
 	"cdt/internal"
 )
 
+const IdClangFormat = "clang-format"
+
 // ClangFormat is a formatter for the clang-format tool.
 type ClangFormat struct {
 	internal.ExecutableTool
 }
 
 // DetectClangFormat CreateEnvironment clang-format tool can be used in the project.
-func DetectClangFormat(ctx context.Context, environment internal.Environment) *ClangFormat {
+func DetectClangFormat(
+	ctx context.Context,
+	config internal.ConfigTools,
+	environment internal.Environment,
+) *ClangFormat {
 	return NewClangFormat(func() (*internal.Executable, error) {
-		return environment.FindExecutable(ctx, "clang-format")
+		return environment.FindExecutable(ctx, config.Get(IdClangFormat, "clang-format"))
 	})
 }
 
@@ -25,7 +31,7 @@ func DetectClangFormat(ctx context.Context, environment internal.Environment) *C
 func NewClangFormat(detect internal.ExecutableToolDetectFunc) *ClangFormat {
 	return &ClangFormat{
 		ExecutableTool: internal.MakeExecutableTool(
-			"clang-format",
+			IdClangFormat,
 			"Clang Format",
 			"A tool to format C/C++/Java/JavaScript/JSON/Objective-C/Protobuf/C# code.",
 			internal.Tags{internal.ToolTagC, internal.ToolTagCpp, internal.ToolTagFormat},

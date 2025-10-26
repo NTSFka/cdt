@@ -6,14 +6,20 @@ import (
 	"cdt/internal"
 )
 
+const IdPHP = "php"
+
 type PHP struct {
 	internal.ExecutableTool
 }
 
 // DetectPHP create a tool for php.
-func DetectPHP(ctx context.Context, environment internal.Environment) *PHP {
+func DetectPHP(
+	ctx context.Context,
+	config internal.ConfigTools,
+	environment internal.Environment,
+) *PHP {
 	return NewPHP(func() (*internal.Executable, error) {
-		return environment.FindExecutable(ctx, "php")
+		return environment.FindExecutable(ctx, config.Get(IdPHP, "php"))
 	})
 }
 
@@ -21,7 +27,7 @@ func DetectPHP(ctx context.Context, environment internal.Environment) *PHP {
 func NewPHP(detect internal.ExecutableToolDetectFunc) *PHP {
 	return &PHP{
 		ExecutableTool: internal.MakeExecutableTool(
-			"php",
+			IdPHP,
 			"PHP",
 			"Popular general-purpose scripting language that is especially suited to web development.",
 			internal.Tags{internal.ToolTagPhp, internal.ToolTagRun},

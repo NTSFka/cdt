@@ -18,7 +18,7 @@ func TestParaTest_DetectParaTest_Composer(t *testing.T) {
 	env.OnFindExecutable("vendor/bin/paratest").
 		Return(env.NewExecutable("/bin/paratest"), nil)
 
-	paraTest := tool.DetectParaTest(t.Context(), env)
+	paraTest := tool.DetectParaTest(t.Context(), internal.ConfigTools{}, env)
 	assert.NotNil(t, paraTest)
 	assert.Equal(t, "paratest", paraTest.Id())
 	assert.True(t, paraTest.IsAvailable())
@@ -41,7 +41,7 @@ func TestParaTest_DetectParaTest_System(t *testing.T) {
 	env.OnFindExecutable("paratest").
 		Return(env.NewExecutable("/bin/paratest"), nil)
 
-	paraTest := tool.DetectParaTest(t.Context(), env)
+	paraTest := tool.DetectParaTest(t.Context(), internal.ConfigTools{}, env)
 	assert.NotNil(t, paraTest)
 	assert.Equal(t, "paratest", paraTest.Id())
 	assert.True(t, paraTest.IsAvailable())
@@ -61,11 +61,32 @@ func TestParaTest_DetectParaTest_NotFound(t *testing.T) {
 	env.OnFindExecutable("paratest").
 		Return(nil, nil)
 
-	paraTest := tool.DetectParaTest(t.Context(), env)
+	paraTest := tool.DetectParaTest(t.Context(), internal.ConfigTools{}, env)
 	assert.NotNil(t, paraTest)
 	assert.Equal(t, "paratest", paraTest.Id())
 	assert.False(t, paraTest.IsAvailable())
 	assert.Nil(t, paraTest.Executable())
+
+	env.AssertExpectations(t)
+}
+
+func TestParaTest_DetectParaTest_Config(t *testing.T) {
+	env := test.NewEnvironment(t)
+
+	// Composer installation
+	env.OnFindExecutable("paratest-7").
+		Return(env.NewExecutable("/bin/paratest"), nil)
+
+	paraTest := tool.DetectParaTest(t.Context(), internal.ConfigTools{
+		"paratest": "paratest-7",
+	}, env)
+	assert.NotNil(t, paraTest)
+	assert.Equal(t, "paratest", paraTest.Id())
+	assert.True(t, paraTest.IsAvailable())
+
+	if executable := paraTest.Executable(); assert.NotNil(t, executable) {
+		assert.Equal(t, "/bin/paratest", executable.Path)
+	}
 
 	env.AssertExpectations(t)
 }

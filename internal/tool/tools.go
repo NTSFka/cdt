@@ -7,53 +7,58 @@ import (
 )
 
 // InitTools initializes all supported tools for a given environment.
-func InitTools(ctx context.Context, environment internal.Environment) internal.Tools {
+func InitTools(
+	ctx context.Context,
+	config internal.ConfigTools,
+	environment internal.Environment,
+) internal.Tools {
 	return internal.Tools{
 		// C/C++
-		DetectClangFormat(ctx, environment),
-		DetectClangTidy(ctx, environment),
-		DetectCMake(ctx, environment),
-		DetectCTest(ctx, environment),
+		DetectClangFormat(ctx, config, environment),
+		DetectClangTidy(ctx, config, environment),
+		DetectCMake(ctx, config, environment),
+		DetectCTest(ctx, config, environment),
 
 		// Go
-		DetectGo(ctx, environment),
-		DetectGolangCILint(ctx, environment),
-		DetectNilAway(ctx, environment),
+		DetectGo(ctx, config, environment),
+		DetectGolangCILint(ctx, config, environment),
+		DetectNilAway(ctx, config, environment),
 
 		// PHP
-		DetectPHP(ctx, environment),
-		DetectPHPUnit(ctx, environment),
-		DetectParaTest(ctx, environment),
-		DetectPHPStan(ctx, environment),
-		DetectPHPCSFixer(ctx, environment),
-		DetectComposer(ctx, environment),
+		DetectPHP(ctx, config, environment),
+		DetectPHPUnit(ctx, config, environment),
+		DetectParaTest(ctx, config, environment),
+		DetectPHPStan(ctx, config, environment),
+		DetectPHPCSFixer(ctx, config, environment),
+		DetectComposer(ctx, config, environment),
 
 		// Python
-		DetectPython(ctx, environment),
-		DetectPyTest(ctx, environment),
-		DetectPip(ctx, environment),
-		DetectPylint(ctx, environment),
-		DetectFlake8(ctx, environment),
-		DetectMyPy(ctx, environment),
-		DetectRuff(ctx, environment),
-		DetectBandit(ctx, environment),
-		DetectBlack(ctx, environment),
+		DetectPython(ctx, config, environment),
+		DetectPyTest(ctx, config, environment),
+		DetectPip(ctx, config, environment),
+		DetectPylint(ctx, config, environment),
+		DetectFlake8(ctx, config, environment),
+		DetectMyPy(ctx, config, environment),
+		DetectRuff(ctx, config, environment),
+		DetectBandit(ctx, config, environment),
+		DetectBlack(ctx, config, environment),
 
 		// Other
-		DetectDocker(ctx, environment),
-		DetectDockerCompose(ctx, environment),
+		DetectDocker(ctx, config, environment),
+		DetectDockerCompose(ctx, config, environment),
 	}
 }
 
 // InitEnvironmentProviders initializes environment providers.
 func InitEnvironmentProviders(
 	ctx context.Context,
+	config internal.ConfigTools,
 	environment internal.Environment,
 ) internal.EnvironmentProviders {
 	return internal.EnvironmentProviders{
 		internal.SystemEnvironmentProvider,
-		DetectDocker(ctx, environment),
-		DetectDockerCompose(ctx, environment),
-		DetectPython(ctx, environment),
+		DetectDocker(ctx, config, environment),
+		DetectDockerCompose(ctx, config, environment),
+		DetectPython(ctx, config, environment),
 	}
 }
