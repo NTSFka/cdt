@@ -49,7 +49,7 @@ func (c *CMake) Structure(
 	ctx context.Context,
 	info internal.ProjectInfo,
 ) (*internal.ProjectStructure, error) {
-	if err := c.Configure(ctx, internal.ProjectConfiguratorOptions{ProjectInfo: info}); err != nil {
+	if err := c.configureIfNeeded(ctx, internal.ProjectConfiguratorOptions{ProjectInfo: info}); err != nil {
 		return nil, err
 	}
 
@@ -96,7 +96,7 @@ func (c *CMake) Configure(ctx context.Context, options internal.ProjectConfigura
 }
 
 func (c *CMake) BuildAll(ctx context.Context, options internal.ProjectBuilderOptions) error {
-	if err := c.Configure(ctx, internal.ProjectConfiguratorOptions{ProjectInfo: options.ProjectInfo}); err != nil {
+	if err := c.configureIfNeeded(ctx, internal.ProjectConfiguratorOptions{ProjectInfo: options.ProjectInfo}); err != nil {
 		return err
 	}
 
@@ -115,7 +115,7 @@ func (c *CMake) BuildTargets(
 	options internal.ProjectBuilderOptions,
 	targets []string,
 ) error {
-	if err := c.Configure(ctx, internal.ProjectConfiguratorOptions{ProjectInfo: options.ProjectInfo}); err != nil {
+	if err := c.configureIfNeeded(ctx, internal.ProjectConfiguratorOptions{ProjectInfo: options.ProjectInfo}); err != nil {
 		return err
 	}
 
@@ -160,6 +160,19 @@ func (c *CMake) RunTarget(
 	}
 
 	return fmt.Errorf("target '%s' not found", target)
+}
+
+func (c *CMake) configureIfNeeded(
+	ctx context.Context,
+	options internal.ProjectConfiguratorOptions,
+) error {
+	if options.OutputDirectory != nil {
+		if !internal.PathExists(filepath.Join(*options.OutputDirectory, "CMakeCache.txt")) {
+			return c.Configure(ctx, options)
+		}
+	}
+
+	return nil
 }
 
 func runTarget(
