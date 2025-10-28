@@ -13,8 +13,8 @@ type CmakeFileApi struct {
 	BuildDirectory string
 }
 
-// NewCmakeFileApi create a struct for working with CMake File API.
-func NewCmakeFileApi(directory string) CmakeFileApi {
+// MakeCmakeFileApi create a struct for working with CMake File API.
+func MakeCmakeFileApi(directory string) CmakeFileApi {
 	return CmakeFileApi{BuildDirectory: directory}
 }
 
@@ -89,7 +89,6 @@ func convertTargetType(targetType string) string {
 }
 
 // Reply returns query reply after cmake run.
-// nolint: funlen
 func (c *CmakeFileApi) Reply() (*Reply, error) {
 	indices, err := filepath.Glob(filepath.Join(c.GetReplyDirectory(), "index-*.json"))
 
@@ -101,29 +100,14 @@ func (c *CmakeFileApi) Reply() (*Reply, error) {
 		return nil, errors.New("no reply index file found")
 	}
 
-	var dataIndex struct {
-		Reply struct {
-			CodemodelV2 struct {
-				JSONFile string `json:"jsonFile"`
-			} `json:"codemodel-v2"`
-		} `json:"reply"`
-	}
-
+	var dataIndex cmakeFileApiIndex
 	if err := loadJSONFile(indices[0], &dataIndex); err != nil {
 		return nil, err
 	}
 
-	var dataCodemodel struct {
-		Configurations []struct {
-			Targets []struct {
-				Name     string `json:"name"`
-				JSONFile string `json:"jsonFile"`
-			} `json:"targets"`
-		} `json:"configurations"`
-	}
-
 	codeModelPath := filepath.Join(c.GetReplyDirectory(), dataIndex.Reply.CodemodelV2.JSONFile)
 
+	var dataCodemodel cmakeFileApiCodemodelV2
 	if err := loadJSONFile(codeModelPath, &dataCodemodel); err != nil {
 		return nil, err
 	}
@@ -132,46 +116,88 @@ func (c *CmakeFileApi) Reply() (*Reply, error) {
 
 	for _, configuration := range dataCodemodel.Configurations {
 		for _, target := range configuration.Targets {
-			path := filepath.Join(c.GetReplyDirectory(), target.JSONFile)
-
-			var targetInfo struct {
-				Sources []struct {
-					Path string `json:"path"`
-				} `json:"sources"`
-				Type       string `json:"type"`
-				NameOnDisk string `json:"nameOnDisk"`
-				Paths      struct {
-					Source string `json:"source"`
-					Build  string `json:"build"`
-				} `json:"paths"`
-			}
-
-			if err := loadJSONFile(path, &targetInfo); err != nil {
+			if replyTarget, err := c.processTarget(target); replyTarget != nil {
+				targets = append(targets, *replyTarget)
+			} else if err != nil {
 				return nil, err
 			}
-
-			// If the target source is in the build directory, it's a dependency
-			dependency := strings.HasPrefix(targetInfo.Paths.Source, c.BuildDirectory)
-
-			var files []string
-
-			if !dependency {
-				for _, source := range targetInfo.Sources {
-					files = append(files, source.Path)
-				}
-			}
-
-			targets = append(targets, ReplyTarget{
-				Name:     target.Name,
-				Type:     convertTargetType(targetInfo.Type),
-				External: dependency,
-				Path:     targetInfo.NameOnDisk,
-				Files:    files,
-			})
 		}
 	}
 
 	return &Reply{
 		Targets: targets,
+	}, nil
+}
+
+type cmakeFileApiIndex struct {
+	Reply struct {
+		CodemodelV2 struct {
+			JSONFile string `json:"jsonFile"`
+		} `json:"codemodel-v2"`
+	} `json:"reply"`
+}
+
+type cmakeFileApiCodemodelV2 struct {
+	Configurations []cmakeFileApiCodemodelV2Configuration `json:"configurations"`
+}
+
+type cmakeFileApiCodemodelV2Configuration struct {
+	Targets []cmakeFileApiCodemodelV2ConfigurationTarget `json:"targets"`
+}
+
+type cmakeFileApiCodemodelV2ConfigurationTarget struct {
+	Name     string `json:"name"`
+	JSONFile string `json:"jsonFile"`
+}
+
+type cmakeFileApiTarget struct {
+	Sources []struct {
+		Path        string `json:"path"`
+		IsGenerated bool   `json:"isGenerated"`
+	} `json:"sources"`
+	Type       string `json:"type"`
+	NameOnDisk string `json:"nameOnDisk"`
+	Paths      struct {
+		Source string `json:"source"`
+		Build  string `json:"build"`
+	} `json:"paths"`
+}
+
+func (c *CmakeFileApi) processTarget(
+	target cmakeFileApiCodemodelV2ConfigurationTarget,
+) (*ReplyTarget, error) {
+	path := filepath.Join(c.GetReplyDirectory(), target.JSONFile)
+
+	var targetInfo cmakeFileApiTarget
+	if err := loadJSONFile(path, &targetInfo); err != nil {
+		return nil, err
+	}
+
+	// Ignore UTILITY targets
+	if targetInfo.Type == "UTILITY" {
+		return nil, nil // nolint: nilnil
+	}
+
+	// If the target source is in the build directory, it's a dependency
+	dependency := strings.HasPrefix(targetInfo.Paths.Source, c.BuildDirectory)
+
+	var files []string
+
+	if !dependency {
+		for _, source := range targetInfo.Sources {
+			if source.IsGenerated {
+				continue
+			}
+
+			files = append(files, source.Path)
+		}
+	}
+
+	return &ReplyTarget{
+		Name:     target.Name,
+		Type:     convertTargetType(targetInfo.Type),
+		External: dependency,
+		Path:     targetInfo.NameOnDisk,
+		Files:    files,
 	}, nil
 }

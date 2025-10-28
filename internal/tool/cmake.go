@@ -57,7 +57,7 @@ func (c *CMake) Structure(
 		return nil, internal.ErrNoOutputDirectory
 	}
 
-	fileApi := utils.NewCmakeFileApi(*info.OutputDirectory)
+	fileApi := utils.MakeCmakeFileApi(*info.OutputDirectory)
 
 	structure := internal.ProjectStructure{
 		Targets: make(map[string]internal.ProjectTarget),
@@ -80,7 +80,7 @@ func (c *CMake) Configure(ctx context.Context, options internal.ProjectConfigura
 		return internal.ErrNoOutputDirectory
 	}
 
-	fileApi := utils.NewCmakeFileApi(*options.OutputDirectory)
+	fileApi := utils.MakeCmakeFileApi(*options.OutputDirectory)
 
 	if err := fileApi.Query("codemodel", 2); err != nil {
 		return err
@@ -146,7 +146,7 @@ func (c *CMake) RunTarget(
 		return internal.ErrNoOutputDirectory
 	}
 
-	fileApi := utils.NewCmakeFileApi(*options.OutputDirectory)
+	fileApi := utils.MakeCmakeFileApi(*options.OutputDirectory)
 
 	reply, err := fileApi.Reply()
 	if err != nil {
