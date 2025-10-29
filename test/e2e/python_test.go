@@ -144,3 +144,110 @@ func TestPythonLint(t *testing.T) {
 	)
 	require.NoError(t, err)
 }
+
+func TestPythonRun_Docker(t *testing.T) {
+	environment := internal.SystemEnvironment
+
+	checkTool(t, t.Context(), environment, "docker")
+
+	outputDir := t.TempDir()
+
+	var err error
+
+	buffer := bytes.Buffer{}
+	err = runCdtOutput(t.Context(), io.MultiWriter(os.Stdout, &buffer), os.Stderr,
+		"-e", "d:python:3.14",
+		"-w", "python", "-r", "data/python", "-o", outputDir,
+		"run", "hello.py",
+	)
+	require.NoError(t, err)
+	require.Contains(t, buffer.String(), "Hello World!\n")
+}
+
+func TestPythonTest_Docker(t *testing.T) {
+	t.Skip("cannot share container between invocations")
+
+	environment := internal.SystemEnvironment
+
+	checkTool(t, t.Context(), environment, "docker")
+
+	outputDir := t.TempDir()
+
+	// Install dependencies
+	var err error
+	err = runCdt(t.Context(),
+		"-e", "d:python:3.14",
+		"-w", "python", "-r", "data/python", "-o", outputDir,
+		"dep", "add", "pytest",
+	)
+	require.NoError(t, err)
+
+	buffer := bytes.Buffer{}
+	err = runCdtOutput(t.Context(), io.MultiWriter(os.Stdout, &buffer), os.Stderr,
+		"-e", "d:python:3.14",
+		"-w", "python", "-r", "data/python", "-o", outputDir,
+		"test",
+	)
+	require.NoError(t, err)
+	require.Contains(t, buffer.String(), "passed")
+}
+
+func TestPythonFormat_Docker(t *testing.T) {
+	t.Skip("cannot share container between invocations")
+
+	environment := internal.SystemEnvironment
+
+	checkTool(t, t.Context(), environment, "docker")
+
+	envDir := t.TempDir()
+	require.NoError(t, initPythonEnvironment(t.Context(), envDir))
+
+	outputDir := t.TempDir()
+
+	// Install dependencies
+	var err error
+	err = runCdt(t.Context(),
+		"-e", "pyenv:"+envDir,
+		"-w", "python", "-r", "data/python", "-o", outputDir,
+		"dep", "add", "black",
+	)
+	require.NoError(t, err)
+
+	buffer := bytes.Buffer{}
+	err = runCdtOutput(t.Context(), io.MultiWriter(os.Stdout, &buffer), os.Stderr,
+		"-e", "pyenv:"+envDir,
+		"-w", "python", "-r", "data/python", "-o", outputDir,
+		"format",
+	)
+	require.NoError(t, err)
+}
+
+func TestPythonLint_Docker(t *testing.T) {
+	t.Skip("cannot share container between invocations")
+
+	environment := internal.SystemEnvironment
+
+	checkTool(t, t.Context(), environment, "docker")
+
+	envDir := t.TempDir()
+	require.NoError(t, initPythonEnvironment(t.Context(), envDir))
+
+	outputDir := t.TempDir()
+
+	// Install dependencies
+	var err error
+	err = runCdt(t.Context(),
+		"-e", "pyenv:"+envDir,
+		"-w", "python", "-r", "data/python", "-o", outputDir,
+		"dep", "add", "pylint",
+	)
+	require.NoError(t, err)
+
+	buffer := bytes.Buffer{}
+	err = runCdtOutput(t.Context(), io.MultiWriter(os.Stdout, &buffer), os.Stderr,
+		"-e", "pyenv:"+envDir,
+		"-w", "python", "-r", "data/python", "-o", outputDir,
+		"lint",
+	)
+	require.NoError(t, err)
+}
