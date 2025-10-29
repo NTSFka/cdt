@@ -3,6 +3,7 @@ package tool_test
 import (
 	"errors"
 	"fmt"
+	"os"
 	"path/filepath"
 	"testing"
 
@@ -373,6 +374,50 @@ func TestDocker_Environment_FindExecutable(t *testing.T) {
 		Return(nil)
 
 	executable, err := env.FindExecutable(t.Context(), "tool1")
+	require.NotNil(t, executable)
+	require.NoError(t, err)
+	assert.Equal(t, "/usr/bin/tool1", executable.Path)
+
+	runMock.AssertExpectations(t)
+}
+
+func TestDocker_Environment_FindExecutable_WorkingDirectory(t *testing.T) {
+	dir := t.TempDir()
+	binDir := filepath.Join(dir, "bin")
+	require.NoError(t, os.MkdirAll(binDir, os.ModePerm))
+	require.NoError(t, os.WriteFile(filepath.Join(binDir, "echo"), []byte(""), os.ModePerm))
+
+	t.Chdir(dir)
+
+	runMock := dockerRunMock{}
+	runMock.Test(t)
+
+	docker := tool.NewDocker(runMock.LazyExecutable("docker"))
+	assert.NotNil(t, docker)
+
+	env, err := docker.CreateEnvironment(dir, "image14")
+	require.NoError(t, err)
+	assert.NotNil(t, env)
+
+	runMock.OnCallOutput([]string{
+		"run", "--rm", "-d",
+		"-v", fmt.Sprintf("%s:/work", dir),
+		"-w", "/work",
+		"image14",
+		"/bin/bash", "-c", "trap : TERM INT; sleep infinity & wait",
+	}, "15dc587d6d92").Return(nil)
+
+	require.NoError(t, env.Start(t.Context()))
+
+	// Is running
+	runMock.OnInspectResult("15dc587d6d92", true).
+		Return(nil).
+		Once()
+
+	runMock.OnCallOutput([]string{"exec", "15dc587d6d92", "which", "bin/echo"}, "/usr/bin/tool1").
+		Return(nil)
+
+	executable, err := env.FindExecutable(t.Context(), filepath.Join(dir, "bin", "echo"))
 	require.NotNil(t, executable)
 	require.NoError(t, err)
 	assert.Equal(t, "/usr/bin/tool1", executable.Path)

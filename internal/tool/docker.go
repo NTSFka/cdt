@@ -177,6 +177,14 @@ func (d *dockerEnvironment) FindExecutable(
 	internal.Assert(d.containerId != "", "container ID is not set")
 
 	return internal.TraceErr(ctx, "docker.find_executable", func() (*internal.Executable, error) {
+		// Remove the directory from the name
+		if filepath.Base(name) != name {
+			searchName, err := filepath.Rel(d.directory, name)
+			if err == nil {
+				name = searchName
+			}
+		}
+
 		output, err := d.runOutput(ctx, []string{"exec", d.containerId, "which", name})
 
 		if err != nil {

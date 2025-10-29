@@ -8,6 +8,8 @@ import (
 
 // DetectOptions is a set of options for tool(s) detection.
 type DetectOptions struct {
+	// ProjectDirectory is a path to the project directory.
+	ProjectDirectory string
 	// Environment is an environment where tools should be look for.
 	Environment internal.Environment
 	// ToolsPaths is a mapping of tool IDs to executable paths.

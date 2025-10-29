@@ -2,6 +2,7 @@ package tool
 
 import (
 	"context"
+	"path/filepath"
 
 	"cdt/internal"
 )
@@ -24,7 +25,7 @@ func DetectPHPUnit(
 	}
 
 	return NewPHPUnit(internal.DetectExecutableChain(
-		[]string{"vendor/bin/phpunit", "phpunit"},
+		[]string{filepath.Join(options.ProjectDirectory, "vendor/bin/phpunit"), "phpunit"},
 		func(name string) (*internal.Executable, error) {
 			return options.Environment.FindExecutable(ctx, name)
 		},

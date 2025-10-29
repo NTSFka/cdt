@@ -2,6 +2,7 @@ package tool
 
 import (
 	"context"
+	"path/filepath"
 
 	"cdt/internal"
 )
@@ -24,7 +25,7 @@ func DetectComposer(
 	}
 
 	return NewComposer(internal.DetectExecutableChain(
-		[]string{"composer.phar", "composer"},
+		[]string{filepath.Join(options.ProjectDirectory, "composer.phar"), "composer"},
 		func(name string) (*internal.Executable, error) {
 			return options.Environment.FindExecutable(ctx, name)
 		},

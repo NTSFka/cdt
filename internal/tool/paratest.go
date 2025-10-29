@@ -2,6 +2,7 @@ package tool
 
 import (
 	"context"
+	"path/filepath"
 
 	"cdt/internal"
 )
@@ -24,7 +25,7 @@ func DetectParaTest(
 	}
 
 	return NewParaTest(internal.DetectExecutableChain(
-		[]string{"vendor/bin/paratest", "paratest"},
+		[]string{filepath.Join(options.ProjectDirectory, "vendor/bin/paratest"), "paratest"},
 		func(name string) (*internal.Executable, error) {
 			return options.Environment.FindExecutable(ctx, name)
 		},

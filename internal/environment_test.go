@@ -2,6 +2,8 @@ package internal_test
 
 import (
 	"bytes"
+	"os"
+	"path/filepath"
 	"testing"
 
 	"cdt/internal"
@@ -114,6 +116,25 @@ func TestEnvironment_SystemEnvironment_FindExecutable_NotFound(t *testing.T) {
 
 func TestEnvironment_SystemEnvironment_FindExecutable(t *testing.T) {
 	executable, err := internal.SystemEnvironment.FindExecutable(t.Context(), "echo")
+
+	require.NotNil(t, executable)
+	require.NoError(t, err)
+	assert.NotNil(t, executable.Runtime)
+	assert.Contains(t, executable.Path, "echo")
+}
+
+func TestEnvironment_SystemEnvironment_FindExecutable_WorkingDirectory(t *testing.T) {
+	dir := t.TempDir()
+	binDir := filepath.Join(dir, "bin")
+	require.NoError(t, os.MkdirAll(binDir, os.ModePerm))
+	require.NoError(t, os.WriteFile(filepath.Join(binDir, "echo"), []byte(""), os.ModePerm))
+
+	t.Chdir(dir)
+
+	executable, err := internal.SystemEnvironment.FindExecutable(
+		t.Context(),
+		filepath.Join("bin", "echo"),
+	)
 
 	require.NotNil(t, executable)
 	require.NoError(t, err)

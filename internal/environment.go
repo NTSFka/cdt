@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"os/exec"
+	"path/filepath"
 	"strings"
 
 	"github.com/jedib0t/go-pretty/v6/table"
@@ -170,6 +171,12 @@ func (s *systemEnvironment) FindExecutable(ctx context.Context, name string) (*E
 		path, err := exec.LookPath(name)
 		if err != nil {
 			return nil, nil // nolint: nilerr
+		}
+
+		// The LookPath doesn't return an absolute path for names with directory separator
+		if filepath.Base(name) != name {
+			path, err = filepath.Abs(path)
+			Assert(err == nil, "unable to get absolute path")
 		}
 
 		return &Executable{Path: path, Runtime: s}, nil

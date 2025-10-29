@@ -3,6 +3,7 @@ package tool
 import (
 	"cdt/internal"
 	"context"
+	"path/filepath"
 )
 
 const IdPHPStan = "phpstan"
@@ -23,7 +24,7 @@ func DetectPHPStan(
 	}
 
 	return NewPHPStan(internal.DetectExecutableChain(
-		[]string{"vendor/bin/phpstan", "phpstan"},
+		[]string{filepath.Join(options.ProjectDirectory, "vendor/bin/phpstan"), "phpstan"},
 		func(name string) (*internal.Executable, error) {
 			return options.Environment.FindExecutable(ctx, name)
 		},

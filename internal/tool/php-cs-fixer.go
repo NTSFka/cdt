@@ -3,6 +3,7 @@ package tool
 import (
 	"cdt/internal"
 	"context"
+	"path/filepath"
 )
 
 const IdPHPCSFixer = "php-cs-fixer"
@@ -23,7 +24,10 @@ func DetectPHPCSFixer(
 	}
 
 	return NewPHPCSFixer(internal.DetectExecutableChain(
-		[]string{"vendor/bin/php-cs-fixer", "php-cs-fixer"},
+		[]string{
+			filepath.Join(options.ProjectDirectory, "vendor/bin/php-cs-fixer"),
+			"php-cs-fixer",
+		},
 		func(name string) (*internal.Executable, error) {
 			return options.Environment.FindExecutable(ctx, name)
 		},

@@ -80,8 +80,9 @@ func buildContext(ctx context.Context, config internal.Config) (*internal.Contex
 	environmentProviders := tool.InitEnvironmentProviders(
 		ctx,
 		tool.DetectOptions{
-			Environment: internal.SystemEnvironment,
-			ToolsPaths:  config.Tools,
+			ProjectDirectory: config.RootDirectory,
+			Environment:      internal.SystemEnvironment,
+			ToolsPaths:       config.Tools,
 		},
 	)
 
@@ -92,8 +93,9 @@ func buildContext(ctx context.Context, config internal.Config) (*internal.Contex
 	}
 
 	tools := tool.InitTools(ctx, tool.DetectOptions{
-		Environment: env,
-		ToolsPaths:  config.Tools,
+		ProjectDirectory: config.RootDirectory,
+		Environment:      env,
+		ToolsPaths:       config.Tools,
 	})
 
 	project, err := workflow.CreateProject(config, tools)
