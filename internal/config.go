@@ -12,9 +12,6 @@ type Config struct {
 	// RootDirectory is a root directory of the project
 	RootDirectory string
 
-	// WorkDirectory is a directory where tools should run
-	WorkDirectory *string
-
 	// OutputDirectory is the project's output directory
 	OutputDirectory *string
 
@@ -66,10 +63,6 @@ type FileConfig struct {
 
 // UpdateConfig updates the given configuration by configuration from a file.
 func (c *FileConfig) UpdateConfig(config *Config) {
-	if c.Project.WorkDirectory != nil {
-		config.WorkDirectory = c.Project.WorkDirectory
-	}
-
 	if c.Project.OutputDirectory != nil {
 		config.OutputDirectory = c.Project.OutputDirectory
 	}
@@ -111,8 +104,6 @@ type FileConfigTools map[string]string
 
 // FileConfigProject stores configuration from a file: project part.
 type FileConfigProject struct {
-	// WorkDirectory specifies a directory where tools should run. Can be relative to the root directory or absolute.
-	WorkDirectory *string `yaml:"work-directory"`
 	// OutputDirectory specifies a directory where output files can be store.
 	OutputDirectory *string `yaml:"output-directory"`
 	// Environment specifies which environment to run tools in for the given project

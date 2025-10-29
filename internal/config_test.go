@@ -27,7 +27,6 @@ func TestLoadConfigFile_EmptyProject(t *testing.T) {
 
 	require.NotNil(t, config)
 	require.NotNil(t, config.Project)
-	assert.Nil(t, config.Project.WorkDirectory)
 	assert.Nil(t, config.Project.OutputDirectory)
 	assert.Nil(t, config.Project.Environment)
 }
@@ -79,8 +78,6 @@ project:
 	assert.Equal(t, "php-8.4", (*config.Tools)["php"])
 
 	require.NotNil(t, config.Project)
-	require.NotNil(t, config.Project.WorkDirectory)
-	assert.Equal(t, "/path/to/project", *config.Project.WorkDirectory)
 
 	require.NotNil(t, config.Project.OutputDirectory)
 	assert.Equal(t, "/path/to/build", *config.Project.OutputDirectory)
@@ -129,9 +126,6 @@ project:
 	require.NotNil(t, config)
 	require.NotNil(t, config.Project)
 
-	require.NotNil(t, config.Project.WorkDirectory)
-	assert.Equal(t, "/path/to/project", *config.Project.WorkDirectory)
-
 	require.NotNil(t, config.Project.OutputDirectory)
 	assert.Equal(t, "/path/to/build", *config.Project.OutputDirectory)
 
@@ -165,7 +159,6 @@ func TestFileConfig_UpdateConfig(t *testing.T) {
 			"tool1": "tool1-7",
 		},
 		Project: internal.FileConfigProject{
-			WorkDirectory:   internal.StrPtr("/project/work"),
 			OutputDirectory: internal.StrPtr("/project/build"),
 			Environment:     internal.StrPtr("env:arg"),
 			Workflow: &internal.FileConfigProjectWorkflow{
@@ -183,9 +176,6 @@ func TestFileConfig_UpdateConfig(t *testing.T) {
 	fileConfig.UpdateConfig(&config)
 
 	assert.Equal(t, ".", config.RootDirectory)
-
-	require.NotNil(t, config.WorkDirectory)
-	assert.Equal(t, "/project/work", *config.WorkDirectory)
 
 	require.NotNil(t, config.OutputDirectory)
 	assert.Equal(t, "/project/build", *config.OutputDirectory)
@@ -226,7 +216,6 @@ func TestFileConfig_UpdateConfig_WorkflowString(t *testing.T) {
 
 	fileConfig := internal.FileConfig{
 		Project: internal.FileConfigProject{
-			WorkDirectory:   internal.StrPtr("/project/work"),
 			OutputDirectory: internal.StrPtr("/project/build"),
 			Environment:     internal.StrPtr("env:arg"),
 			Workflow:        "my-workflow",
@@ -236,9 +225,6 @@ func TestFileConfig_UpdateConfig_WorkflowString(t *testing.T) {
 	fileConfig.UpdateConfig(&config)
 
 	assert.Equal(t, ".", config.RootDirectory)
-
-	require.NotNil(t, config.WorkDirectory)
-	assert.Equal(t, "/project/work", *config.WorkDirectory)
 
 	require.NotNil(t, config.OutputDirectory)
 	assert.Equal(t, "/project/build", *config.OutputDirectory)
@@ -257,7 +243,6 @@ func TestFileConfig_UpdateConfig_WorkflowInvalid(t *testing.T) {
 
 	fileConfig := internal.FileConfig{
 		Project: internal.FileConfigProject{
-			WorkDirectory:   internal.StrPtr("/project/work"),
 			OutputDirectory: internal.StrPtr("/project/build"),
 			Environment:     internal.StrPtr("env:arg"),
 			Workflow:        42,

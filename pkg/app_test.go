@@ -102,7 +102,6 @@ func TestApp_Run_ConfigDefault(t *testing.T) {
 	require.NotNil(t, config)
 	assert.Equal(t, internal.Config{
 		RootDirectory:   ".",
-		WorkDirectory:   nil,
 		OutputDirectory: nil,
 		Environment:     nil,
 		Workflow:        nil,
@@ -138,7 +137,6 @@ func TestApp_Run_ConfigFull(t *testing.T) {
 	require.NotNil(t, config)
 	assert.Equal(t, internal.Config{
 		RootDirectory:   "/path/to/project",
-		WorkDirectory:   nil,
 		OutputDirectory: internal.StrPtr("/path/to/build"),
 		Environment:     internal.StrPtr("env:arg"),
 		Workflow:        "go",
@@ -174,7 +172,6 @@ func TestApp_Run_ConfigFullAlias(t *testing.T) {
 	require.NotNil(t, config)
 	assert.Equal(t, internal.Config{
 		RootDirectory:   "/path/to/project",
-		WorkDirectory:   nil,
 		OutputDirectory: internal.StrPtr("/path/to/build"),
 		Environment:     internal.StrPtr("env:arg"),
 		Workflow:        "go",
@@ -216,7 +213,6 @@ project:
 	require.NotNil(t, config)
 	assert.Equal(t, internal.Config{
 		RootDirectory:   tempDir,
-		WorkDirectory:   internal.StrPtr("/path/to/project"),
 		OutputDirectory: internal.StrPtr("/path/to/build"),
 		Environment:     internal.StrPtr("env:arg"),
 	}, *config)
@@ -257,7 +253,6 @@ project:
 	require.NotNil(t, config)
 	assert.Equal(t, internal.Config{
 		RootDirectory:   ".",
-		WorkDirectory:   internal.StrPtr("/path/to/work"),
 		OutputDirectory: internal.StrPtr("/path/to/build"),
 		Environment:     internal.StrPtr("env:arg"),
 	}, *config)
@@ -298,7 +293,6 @@ project:
 	require.NotNil(t, config)
 	assert.Equal(t, internal.Config{
 		RootDirectory:   ".",
-		WorkDirectory:   internal.StrPtr("/path/to/project"),
 		OutputDirectory: internal.StrPtr("/path/to/build"),
 		Environment:     internal.StrPtr("env:arg"),
 	}, *config)
