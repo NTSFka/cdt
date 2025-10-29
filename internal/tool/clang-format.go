@@ -19,11 +19,13 @@ type ClangFormat struct {
 // DetectClangFormat CreateEnvironment clang-format tool can be used in the project.
 func DetectClangFormat(
 	ctx context.Context,
-	config internal.ConfigTools,
-	environment internal.Environment,
+	options DetectOptions,
 ) *ClangFormat {
 	return NewClangFormat(func() (*internal.Executable, error) {
-		return environment.FindExecutable(ctx, config.Get(IdClangFormat, "clang-format"))
+		return options.Environment.FindExecutable(
+			ctx,
+			options.GetToolPath(IdClangFormat, "clang-format"),
+		)
 	})
 }
 

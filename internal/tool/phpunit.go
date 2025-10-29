@@ -15,19 +15,18 @@ type PHPUnit struct {
 // DetectPHPUnit create a tool for phpunit.
 func DetectPHPUnit(
 	ctx context.Context,
-	config internal.ConfigTools,
-	environment internal.Environment,
+	options DetectOptions,
 ) *PHPUnit {
-	if path, ok := config[IdPHPUnit]; ok {
+	if path, ok := options.ToolsPaths[IdPHPUnit]; ok {
 		return NewPHPUnit(func() (*internal.Executable, error) {
-			return environment.FindExecutable(ctx, path)
+			return options.Environment.FindExecutable(ctx, path)
 		})
 	}
 
 	return NewPHPUnit(internal.DetectExecutableChain(
 		[]string{"vendor/bin/phpunit", "phpunit"},
 		func(name string) (*internal.Executable, error) {
-			return environment.FindExecutable(ctx, name)
+			return options.Environment.FindExecutable(ctx, name)
 		},
 	))
 }

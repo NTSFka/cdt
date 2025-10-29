@@ -15,11 +15,10 @@ type PyTest struct {
 // DetectPyTest create a tool for pytest.
 func DetectPyTest(
 	ctx context.Context,
-	config internal.ConfigTools,
-	environment internal.Environment,
+	options DetectOptions,
 ) *PyTest {
 	return NewPyTest(func() (*internal.Executable, error) {
-		return environment.FindExecutable(ctx, config.Get(IdPyTest, "pytest"))
+		return options.Environment.FindExecutable(ctx, options.GetToolPath(IdPyTest, "pytest"))
 	})
 }
 

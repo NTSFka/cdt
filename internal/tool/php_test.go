@@ -18,7 +18,7 @@ func TestPHP_DetectPHP(t *testing.T) {
 	env.OnFindExecutable("php").
 		Return(env.NewExecutable("/bin/php"), nil)
 
-	php := tool.DetectPHP(t.Context(), internal.ConfigTools{}, env)
+	php := tool.DetectPHP(t.Context(), tool.DetectOptions{Environment: env})
 	assert.NotNil(t, php)
 	assert.Equal(t, "php", php.Id())
 	assert.True(t, php.IsAvailable())
@@ -36,7 +36,7 @@ func TestPHP_DetectPHP_NotFound(t *testing.T) {
 	env.OnFindExecutable("php").
 		Return(nil, nil)
 
-	php := tool.DetectPHP(t.Context(), internal.ConfigTools{}, env)
+	php := tool.DetectPHP(t.Context(), tool.DetectOptions{Environment: env})
 	assert.NotNil(t, php)
 	assert.Equal(t, "php", php.Id())
 	assert.False(t, php.IsAvailable())
@@ -51,9 +51,10 @@ func TestPHP_DetectPHP_Config(t *testing.T) {
 	env.OnFindExecutable("php-8.2").
 		Return(env.NewExecutable("/bin/php"), nil)
 
-	php := tool.DetectPHP(t.Context(), internal.ConfigTools{
-		"php": "php-8.2",
-	}, env)
+	php := tool.DetectPHP(t.Context(), tool.DetectOptions{
+		Environment: env,
+		ToolsPaths:  map[string]string{"php": "php-8.2"},
+	})
 	assert.NotNil(t, php)
 	assert.Equal(t, "php", php.Id())
 	assert.True(t, php.IsAvailable())

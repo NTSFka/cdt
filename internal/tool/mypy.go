@@ -14,11 +14,10 @@ type MyPy struct {
 // DetectMyPy create a tool for mypy.
 func DetectMyPy(
 	ctx context.Context,
-	config internal.ConfigTools,
-	environment internal.Environment,
+	options DetectOptions,
 ) *MyPy {
 	return NewMyPy(func() (*internal.Executable, error) {
-		return environment.FindExecutable(ctx, config.Get(IdMyPy, "mypy"))
+		return options.Environment.FindExecutable(ctx, options.GetToolPath(IdMyPy, "mypy"))
 	})
 }
 

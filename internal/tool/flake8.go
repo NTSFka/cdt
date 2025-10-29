@@ -14,11 +14,10 @@ type Flake8 struct {
 // DetectFlake8 create a tool for flake8.
 func DetectFlake8(
 	ctx context.Context,
-	config internal.ConfigTools,
-	environment internal.Environment,
+	options DetectOptions,
 ) *Flake8 {
 	return NewFlake8(func() (*internal.Executable, error) {
-		return environment.FindExecutable(ctx, config.Get(IdFlake8, "flake8"))
+		return options.Environment.FindExecutable(ctx, options.GetToolPath(IdFlake8, "flake8"))
 	})
 }
 

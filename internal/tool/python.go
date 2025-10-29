@@ -18,11 +18,10 @@ type Python struct {
 // DetectPython create a tool for python.
 func DetectPython(
 	ctx context.Context,
-	config internal.ConfigTools,
-	environment internal.Environment,
+	options DetectOptions,
 ) *Python {
 	return NewPython(func() (*internal.Executable, error) {
-		return environment.FindExecutable(ctx, config.Get(IdPython, "python3"))
+		return options.Environment.FindExecutable(ctx, options.GetToolPath(IdPython, "python3"))
 	})
 }
 

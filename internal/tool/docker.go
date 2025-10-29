@@ -34,11 +34,10 @@ func NewDocker(detect internal.ExecutableToolDetectFunc) *Docker {
 // DetectDocker create a docker tool with a detected docker executable in the given environment.
 func DetectDocker(
 	ctx context.Context,
-	config internal.ConfigTools,
-	environment internal.Environment,
+	options DetectOptions,
 ) *Docker {
 	return NewDocker(func() (*internal.Executable, error) {
-		return environment.FindExecutable(ctx, config.Get(IdDocker, "docker"))
+		return options.Environment.FindExecutable(ctx, options.GetToolPath(IdDocker, "docker"))
 	})
 }
 

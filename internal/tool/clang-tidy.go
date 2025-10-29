@@ -18,11 +18,13 @@ type ClangTidy struct {
 // DetectClangTidy create a tool for clang-tidy.
 func DetectClangTidy(
 	ctx context.Context,
-	config internal.ConfigTools,
-	environment internal.Environment,
+	options DetectOptions,
 ) *ClangTidy {
 	return NewClangTidy(func() (*internal.Executable, error) {
-		return environment.FindExecutable(ctx, config.Get(IdClangTidy, "clang-tidy"))
+		return options.Environment.FindExecutable(
+			ctx,
+			options.GetToolPath(IdClangTidy, "clang-tidy"),
+		)
 	})
 }
 

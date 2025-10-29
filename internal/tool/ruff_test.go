@@ -17,7 +17,7 @@ func TestRuff_DetectRuff(t *testing.T) {
 	env.OnFindExecutable("ruff").
 		Return(env.NewExecutable("/bin/ruff"), nil)
 
-	ruff := tool.DetectRuff(t.Context(), internal.ConfigTools{}, env)
+	ruff := tool.DetectRuff(t.Context(), tool.DetectOptions{Environment: env})
 	assert.NotNil(t, ruff)
 	assert.Equal(t, "ruff", ruff.Id())
 	assert.True(t, ruff.IsAvailable())
@@ -35,7 +35,7 @@ func TestRuff_DetectRuff_NotFound(t *testing.T) {
 	env.OnFindExecutable("ruff").
 		Return(nil, nil)
 
-	ruff := tool.DetectRuff(t.Context(), internal.ConfigTools{}, env)
+	ruff := tool.DetectRuff(t.Context(), tool.DetectOptions{Environment: env})
 	assert.NotNil(t, ruff)
 	assert.Equal(t, "ruff", ruff.Id())
 	assert.False(t, ruff.IsAvailable())
@@ -44,15 +44,16 @@ func TestRuff_DetectRuff_NotFound(t *testing.T) {
 	env.AssertExpectations(t)
 }
 
-func TestRuff_DetectRuff_Coofig(t *testing.T) {
+func TestRuff_DetectRuff_Config(t *testing.T) {
 	env := test.NewEnvironment(t)
 
 	env.OnFindExecutable("ruff2").
 		Return(env.NewExecutable("/bin/ruff"), nil)
 
-	ruff := tool.DetectRuff(t.Context(), internal.ConfigTools{
-		"ruff": "ruff2",
-	}, env)
+	ruff := tool.DetectRuff(t.Context(), tool.DetectOptions{
+		Environment: env,
+		ToolsPaths:  map[string]string{"ruff": "ruff2"},
+	})
 	assert.NotNil(t, ruff)
 	assert.Equal(t, "ruff", ruff.Id())
 	assert.True(t, ruff.IsAvailable())

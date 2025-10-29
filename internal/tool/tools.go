@@ -6,59 +6,74 @@ import (
 	"cdt/internal"
 )
 
+// DetectOptions is a set of options for tool(s) detection.
+type DetectOptions struct {
+	// Environment is an environment where tools should be look for.
+	Environment internal.Environment
+	// ToolsPaths is a mapping of tool IDs to executable paths.
+	ToolsPaths map[string]string
+}
+
+// GetToolPath returns a tool executable path by its ID.
+func (c DetectOptions) GetToolPath(id string, def string) string {
+	if path, ok := c.ToolsPaths[id]; ok {
+		return path
+	} else {
+		return def
+	}
+}
+
 // InitTools initializes all supported tools for a given environment.
 func InitTools(
 	ctx context.Context,
-	config internal.ConfigTools,
-	environment internal.Environment,
+	options DetectOptions,
 ) internal.Tools {
 	return internal.Tools{
 		// C/C++
-		DetectClangFormat(ctx, config, environment),
-		DetectClangTidy(ctx, config, environment),
-		DetectCMake(ctx, config, environment),
-		DetectCTest(ctx, config, environment),
+		DetectClangFormat(ctx, options),
+		DetectClangTidy(ctx, options),
+		DetectCMake(ctx, options),
+		DetectCTest(ctx, options),
 
 		// Go
-		DetectGo(ctx, config, environment),
-		DetectGolangCILint(ctx, config, environment),
-		DetectNilAway(ctx, config, environment),
+		DetectGo(ctx, options),
+		DetectGolangCILint(ctx, options),
+		DetectNilAway(ctx, options),
 
 		// PHP
-		DetectPHP(ctx, config, environment),
-		DetectPHPUnit(ctx, config, environment),
-		DetectParaTest(ctx, config, environment),
-		DetectPHPStan(ctx, config, environment),
-		DetectPHPCSFixer(ctx, config, environment),
-		DetectComposer(ctx, config, environment),
+		DetectPHP(ctx, options),
+		DetectPHPUnit(ctx, options),
+		DetectParaTest(ctx, options),
+		DetectPHPStan(ctx, options),
+		DetectPHPCSFixer(ctx, options),
+		DetectComposer(ctx, options),
 
 		// Python
-		DetectPython(ctx, config, environment),
-		DetectPyTest(ctx, config, environment),
-		DetectPip(ctx, config, environment),
-		DetectPylint(ctx, config, environment),
-		DetectFlake8(ctx, config, environment),
-		DetectMyPy(ctx, config, environment),
-		DetectRuff(ctx, config, environment),
-		DetectBandit(ctx, config, environment),
-		DetectBlack(ctx, config, environment),
+		DetectPython(ctx, options),
+		DetectPyTest(ctx, options),
+		DetectPip(ctx, options),
+		DetectPylint(ctx, options),
+		DetectFlake8(ctx, options),
+		DetectMyPy(ctx, options),
+		DetectRuff(ctx, options),
+		DetectBandit(ctx, options),
+		DetectBlack(ctx, options),
 
 		// Other
-		DetectDocker(ctx, config, environment),
-		DetectDockerCompose(ctx, config, environment),
+		DetectDocker(ctx, options),
+		DetectDockerCompose(ctx, options),
 	}
 }
 
 // InitEnvironmentProviders initializes environment providers.
 func InitEnvironmentProviders(
 	ctx context.Context,
-	config internal.ConfigTools,
-	environment internal.Environment,
+	options DetectOptions,
 ) internal.EnvironmentProviders {
 	return internal.EnvironmentProviders{
 		internal.SystemEnvironmentProvider,
-		DetectDocker(ctx, config, environment),
-		DetectDockerCompose(ctx, config, environment),
-		DetectPython(ctx, config, environment),
+		DetectDocker(ctx, options),
+		DetectDockerCompose(ctx, options),
+		DetectPython(ctx, options),
 	}
 }

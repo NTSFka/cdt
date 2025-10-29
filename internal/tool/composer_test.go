@@ -18,7 +18,7 @@ func TestComposer_DetectComposer_Phar(t *testing.T) {
 	env.OnFindExecutable("composer.phar").
 		Return(env.NewExecutable("/bin/composer"), nil)
 
-	composer := tool.DetectComposer(t.Context(), internal.ConfigTools{}, env)
+	composer := tool.DetectComposer(t.Context(), tool.DetectOptions{Environment: env})
 	assert.NotNil(t, composer)
 	assert.Equal(t, "composer", composer.Id())
 	assert.True(t, composer.IsAvailable())
@@ -41,7 +41,7 @@ func TestComposer_DetectComposer_System(t *testing.T) {
 	env.OnFindExecutable("composer").
 		Return(env.NewExecutable("/bin/composer"), nil)
 
-	composer := tool.DetectComposer(t.Context(), internal.ConfigTools{}, env)
+	composer := tool.DetectComposer(t.Context(), tool.DetectOptions{Environment: env})
 	assert.NotNil(t, composer)
 	assert.Equal(t, "composer", composer.Id())
 	assert.True(t, composer.IsAvailable())
@@ -61,7 +61,7 @@ func TestComposer_DetectComposer_NotFound(t *testing.T) {
 	env.OnFindExecutable("composer").
 		Return(nil, nil)
 
-	composer := tool.DetectComposer(t.Context(), internal.ConfigTools{}, env)
+	composer := tool.DetectComposer(t.Context(), tool.DetectOptions{Environment: env})
 	assert.NotNil(t, composer)
 	assert.Equal(t, "composer", composer.Id())
 	assert.False(t, composer.IsAvailable())
@@ -77,9 +77,10 @@ func TestComposer_DetectComposer_Config(t *testing.T) {
 	env.OnFindExecutable("composer-2").
 		Return(env.NewExecutable("/bin/composer"), nil)
 
-	composer := tool.DetectComposer(t.Context(), internal.ConfigTools{
-		"composer": "composer-2",
-	}, env)
+	composer := tool.DetectComposer(t.Context(), tool.DetectOptions{
+		Environment: env,
+		ToolsPaths:  map[string]string{"composer": "composer-2"},
+	})
 	assert.NotNil(t, composer)
 	assert.Equal(t, "composer", composer.Id())
 	assert.True(t, composer.IsAvailable())

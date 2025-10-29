@@ -15,19 +15,18 @@ type Composer struct {
 // DetectComposer create a tool for composer.
 func DetectComposer(
 	ctx context.Context,
-	config internal.ConfigTools,
-	environment internal.Environment,
+	options DetectOptions,
 ) *Composer {
-	if path, ok := config[IdComposer]; ok {
+	if path, ok := options.ToolsPaths[IdComposer]; ok {
 		return NewComposer(func() (*internal.Executable, error) {
-			return environment.FindExecutable(ctx, path)
+			return options.Environment.FindExecutable(ctx, path)
 		})
 	}
 
 	return NewComposer(internal.DetectExecutableChain(
 		[]string{"composer.phar", "composer"},
 		func(name string) (*internal.Executable, error) {
-			return environment.FindExecutable(ctx, name)
+			return options.Environment.FindExecutable(ctx, name)
 		},
 	))
 }

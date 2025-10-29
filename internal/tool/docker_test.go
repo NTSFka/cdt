@@ -39,7 +39,7 @@ func TestDocker_DetectDocker_NotFound(t *testing.T) {
 	env.OnFindExecutable("docker").
 		Return(nil, nil)
 
-	docker := tool.DetectDocker(t.Context(), internal.ConfigTools{}, env)
+	docker := tool.DetectDocker(t.Context(), tool.DetectOptions{Environment: env})
 	assert.NotNil(t, docker)
 	assert.Equal(t, "docker", docker.Id())
 	assert.False(t, docker.IsAvailable())
@@ -52,7 +52,7 @@ func TestDocker_DetectDocker_Found(t *testing.T) {
 	env.OnFindExecutable("docker").
 		Return(env.NewExecutable("docker"), nil)
 
-	docker := tool.DetectDocker(t.Context(), internal.ConfigTools{}, env)
+	docker := tool.DetectDocker(t.Context(), tool.DetectOptions{Environment: env})
 	assert.NotNil(t, docker)
 	assert.Equal(t, "docker", docker.Id())
 	assert.True(t, docker.IsAvailable())
@@ -65,9 +65,10 @@ func TestDocker_DetectDocker_Config(t *testing.T) {
 	env.OnFindExecutable("docker-2").
 		Return(env.NewExecutable("docker"), nil)
 
-	docker := tool.DetectDocker(t.Context(), internal.ConfigTools{
-		"docker": "docker-2",
-	}, env)
+	docker := tool.DetectDocker(t.Context(), tool.DetectOptions{
+		Environment: env,
+		ToolsPaths:  map[string]string{"docker": "docker-2"},
+	})
 	assert.NotNil(t, docker)
 	assert.Equal(t, "docker", docker.Id())
 	assert.True(t, docker.IsAvailable())

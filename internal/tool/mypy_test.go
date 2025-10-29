@@ -17,7 +17,7 @@ func TestMyPy_DetectMyPy(t *testing.T) {
 	env.OnFindExecutable("mypy").
 		Return(env.NewExecutable("/bin/mypy"), nil)
 
-	mypy := tool.DetectMyPy(t.Context(), internal.ConfigTools{}, env)
+	mypy := tool.DetectMyPy(t.Context(), tool.DetectOptions{Environment: env})
 	assert.NotNil(t, mypy)
 	assert.Equal(t, "mypy", mypy.Id())
 	assert.True(t, mypy.IsAvailable())
@@ -35,7 +35,7 @@ func TestMyPy_DetectMyPy_NotFound(t *testing.T) {
 	env.OnFindExecutable("mypy").
 		Return(nil, nil)
 
-	mypy := tool.DetectMyPy(t.Context(), internal.ConfigTools{}, env)
+	mypy := tool.DetectMyPy(t.Context(), tool.DetectOptions{Environment: env})
 	assert.NotNil(t, mypy)
 	assert.Equal(t, "mypy", mypy.Id())
 	assert.False(t, mypy.IsAvailable())
@@ -50,9 +50,10 @@ func TestMyPy_DetectMyPy_Config(t *testing.T) {
 	env.OnFindExecutable("mypy-2").
 		Return(env.NewExecutable("/bin/mypy"), nil)
 
-	mypy := tool.DetectMyPy(t.Context(), internal.ConfigTools{
-		"mypy": "mypy-2",
-	}, env)
+	mypy := tool.DetectMyPy(t.Context(), tool.DetectOptions{
+		Environment: env,
+		ToolsPaths:  map[string]string{"mypy": "mypy-2"},
+	})
 	assert.NotNil(t, mypy)
 	assert.Equal(t, "mypy", mypy.Id())
 	assert.True(t, mypy.IsAvailable())

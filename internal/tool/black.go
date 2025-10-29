@@ -14,11 +14,10 @@ type Black struct {
 // DetectBlack create a tool for black.
 func DetectBlack(
 	ctx context.Context,
-	config internal.ConfigTools,
-	environment internal.Environment,
+	options DetectOptions,
 ) *Black {
 	return NewBlack(func() (*internal.Executable, error) {
-		return environment.FindExecutable(ctx, config.Get(IdBlack, "black"))
+		return options.Environment.FindExecutable(ctx, options.GetToolPath(IdBlack, "black"))
 	})
 }
 

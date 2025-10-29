@@ -14,11 +14,10 @@ type Bandit struct {
 // DetectBandit create a tool for bandit.
 func DetectBandit(
 	ctx context.Context,
-	config internal.ConfigTools,
-	environment internal.Environment,
+	options DetectOptions,
 ) *Bandit {
 	return NewBandit(func() (*internal.Executable, error) {
-		return environment.FindExecutable(ctx, config.Get(IdBandit, "bandit"))
+		return options.Environment.FindExecutable(ctx, options.GetToolPath(IdBandit, "bandit"))
 	})
 }
 

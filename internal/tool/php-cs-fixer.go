@@ -14,19 +14,18 @@ type PHPCSFixer struct {
 // DetectPHPCSFixer create a tool for php-cs-fixer.
 func DetectPHPCSFixer(
 	ctx context.Context,
-	config internal.ConfigTools,
-	environment internal.Environment,
+	options DetectOptions,
 ) *PHPCSFixer {
-	if path, ok := config[IdPHPCSFixer]; ok {
+	if path, ok := options.ToolsPaths[IdPHPCSFixer]; ok {
 		return NewPHPCSFixer(func() (*internal.Executable, error) {
-			return environment.FindExecutable(ctx, path)
+			return options.Environment.FindExecutable(ctx, path)
 		})
 	}
 
 	return NewPHPCSFixer(internal.DetectExecutableChain(
 		[]string{"vendor/bin/php-cs-fixer", "php-cs-fixer"},
 		func(name string) (*internal.Executable, error) {
-			return environment.FindExecutable(ctx, name)
+			return options.Environment.FindExecutable(ctx, name)
 		},
 	))
 }

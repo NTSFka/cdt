@@ -14,11 +14,10 @@ type Ruff struct {
 // DetectRuff create a tool for ruff.
 func DetectRuff(
 	ctx context.Context,
-	config internal.ConfigTools,
-	environment internal.Environment,
+	options DetectOptions,
 ) *Ruff {
 	return NewRuff(func() (*internal.Executable, error) {
-		return environment.FindExecutable(ctx, config.Get(IdRuff, "ruff"))
+		return options.Environment.FindExecutable(ctx, options.GetToolPath(IdRuff, "ruff"))
 	})
 }
 

@@ -40,11 +40,10 @@ func NewGo(detect internal.ExecutableToolDetectFunc) *Go {
 // DetectGo create go tool can be used in the project.
 func DetectGo(
 	ctx context.Context,
-	config internal.ConfigTools,
-	environment internal.Environment,
+	options DetectOptions,
 ) *Go {
 	return NewGo(func() (*internal.Executable, error) {
-		return environment.FindExecutable(ctx, config.Get(IdGo, "go"))
+		return options.Environment.FindExecutable(ctx, options.GetToolPath(IdGo, "go"))
 	})
 }
 

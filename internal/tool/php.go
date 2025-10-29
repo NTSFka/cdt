@@ -15,11 +15,10 @@ type PHP struct {
 // DetectPHP create a tool for php.
 func DetectPHP(
 	ctx context.Context,
-	config internal.ConfigTools,
-	environment internal.Environment,
+	options DetectOptions,
 ) *PHP {
 	return NewPHP(func() (*internal.Executable, error) {
-		return environment.FindExecutable(ctx, config.Get(IdPHP, "php"))
+		return options.Environment.FindExecutable(ctx, options.GetToolPath(IdPHP, "php"))
 	})
 }
 

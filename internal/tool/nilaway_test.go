@@ -16,7 +16,7 @@ func TestNilAway_DetectNilAway(t *testing.T) {
 	env.OnFindExecutable("nilaway").
 		Return(env.NewExecutable("/bin/nilaway"), nil)
 
-	nilAway := tool.DetectNilAway(t.Context(), internal.ConfigTools{}, env)
+	nilAway := tool.DetectNilAway(t.Context(), tool.DetectOptions{Environment: env})
 	assert.NotNil(t, nilAway)
 	assert.Equal(t, "nilaway", nilAway.Id())
 	assert.True(t, nilAway.IsAvailable())
@@ -33,7 +33,7 @@ func TestNilAway_DetectNilAway_NotFound(t *testing.T) {
 	env.OnFindExecutable("nilaway").
 		Return(nil, nil)
 
-	nilAway := tool.DetectNilAway(t.Context(), internal.ConfigTools{}, env)
+	nilAway := tool.DetectNilAway(t.Context(), tool.DetectOptions{Environment: env})
 	assert.NotNil(t, nilAway)
 	assert.Equal(t, "nilaway", nilAway.Id())
 	assert.False(t, nilAway.IsAvailable())
@@ -47,9 +47,10 @@ func TestNilAway_DetectNilAway_Config(t *testing.T) {
 	env.OnFindExecutable("nilaway-2").
 		Return(env.NewExecutable("/bin/nilaway"), nil)
 
-	nilAway := tool.DetectNilAway(t.Context(), internal.ConfigTools{
-		"nilaway": "nilaway-2",
-	}, env)
+	nilAway := tool.DetectNilAway(t.Context(), tool.DetectOptions{
+		Environment: env,
+		ToolsPaths:  map[string]string{"nilaway": "nilaway-2"},
+	})
 	assert.NotNil(t, nilAway)
 	assert.Equal(t, "nilaway", nilAway.Id())
 	assert.True(t, nilAway.IsAvailable())

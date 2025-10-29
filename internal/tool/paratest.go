@@ -15,19 +15,18 @@ type ParaTest struct {
 // DetectParaTest create a tool for paratest.
 func DetectParaTest(
 	ctx context.Context,
-	config internal.ConfigTools,
-	environment internal.Environment,
+	options DetectOptions,
 ) *ParaTest {
-	if path, ok := config[IdParaTest]; ok {
+	if path, ok := options.ToolsPaths[IdParaTest]; ok {
 		return NewParaTest(func() (*internal.Executable, error) {
-			return environment.FindExecutable(ctx, path)
+			return options.Environment.FindExecutable(ctx, path)
 		})
 	}
 
 	return NewParaTest(internal.DetectExecutableChain(
 		[]string{"vendor/bin/paratest", "paratest"},
 		func(name string) (*internal.Executable, error) {
-			return environment.FindExecutable(ctx, name)
+			return options.Environment.FindExecutable(ctx, name)
 		},
 	))
 }

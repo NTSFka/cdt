@@ -29,11 +29,13 @@ func NewGolangCILint(detect internal.ExecutableToolDetectFunc) *GolangCILint {
 // DetectGolangCILint create golangci-lint tool can be used in the project.
 func DetectGolangCILint(
 	ctx context.Context,
-	config internal.ConfigTools,
-	environment internal.Environment,
+	options DetectOptions,
 ) *GolangCILint {
 	return NewGolangCILint(func() (*internal.Executable, error) {
-		return environment.FindExecutable(ctx, config.Get(IdGolangCILint, "golangci-lint"))
+		return options.Environment.FindExecutable(
+			ctx,
+			options.GetToolPath(IdGolangCILint, "golangci-lint"),
+		)
 	})
 }
 

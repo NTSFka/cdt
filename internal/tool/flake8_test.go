@@ -17,7 +17,7 @@ func TestFlake8_DetectFlake8(t *testing.T) {
 	env.OnFindExecutable("flake8").
 		Return(env.NewExecutable("/bin/flake8"), nil)
 
-	flake8 := tool.DetectFlake8(t.Context(), internal.ConfigTools{}, env)
+	flake8 := tool.DetectFlake8(t.Context(), tool.DetectOptions{Environment: env})
 	assert.NotNil(t, flake8)
 	assert.Equal(t, "flake8", flake8.Id())
 	assert.True(t, flake8.IsAvailable())
@@ -35,7 +35,7 @@ func TestFlake8_DetectFlake8_NotFound(t *testing.T) {
 	env.OnFindExecutable("flake8").
 		Return(nil, nil)
 
-	flake8 := tool.DetectFlake8(t.Context(), internal.ConfigTools{}, env)
+	flake8 := tool.DetectFlake8(t.Context(), tool.DetectOptions{Environment: env})
 	assert.NotNil(t, flake8)
 	assert.Equal(t, "flake8", flake8.Id())
 	assert.False(t, flake8.IsAvailable())
@@ -50,9 +50,10 @@ func TestFlake8_DetectFlake8_Config(t *testing.T) {
 	env.OnFindExecutable("flake8-2").
 		Return(env.NewExecutable("/bin/flake8"), nil)
 
-	flake8 := tool.DetectFlake8(t.Context(), internal.ConfigTools{
-		"flake8": "flake8-2",
-	}, env)
+	flake8 := tool.DetectFlake8(t.Context(), tool.DetectOptions{
+		Environment: env,
+		ToolsPaths:  map[string]string{"flake8": "flake8-2"},
+	})
 	assert.NotNil(t, flake8)
 	assert.Equal(t, "flake8", flake8.Id())
 	assert.True(t, flake8.IsAvailable())

@@ -29,11 +29,10 @@ func NewCTest(detect internal.ExecutableToolDetectFunc) *CTest {
 // DetectCTest create ctest tool can be used in the project.
 func DetectCTest(
 	ctx context.Context,
-	config internal.ConfigTools,
-	environment internal.Environment,
+	options DetectOptions,
 ) *CTest {
 	return NewCTest(func() (*internal.Executable, error) {
-		return environment.FindExecutable(ctx, config.Get(IdCTest, "ctest"))
+		return options.Environment.FindExecutable(ctx, options.GetToolPath(IdCTest, "ctest"))
 	})
 }
 

@@ -16,19 +16,18 @@ type Pip struct {
 // DetectPip create a tool for pip.
 func DetectPip(
 	ctx context.Context,
-	config internal.ConfigTools,
-	environment internal.Environment,
+	options DetectOptions,
 ) *Pip {
-	if path, ok := config[IdPip]; ok {
+	if path, ok := options.ToolsPaths[IdPip]; ok {
 		return NewPip(func() (*internal.Executable, error) {
-			return environment.FindExecutable(ctx, path)
+			return options.Environment.FindExecutable(ctx, path)
 		})
 	}
 
 	return NewPip(internal.DetectExecutableChain(
 		[]string{"pip", "pip3"},
 		func(name string) (*internal.Executable, error) {
-			return environment.FindExecutable(ctx, name)
+			return options.Environment.FindExecutable(ctx, name)
 		},
 	))
 }

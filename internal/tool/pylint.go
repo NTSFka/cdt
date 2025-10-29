@@ -14,11 +14,10 @@ type Pylint struct {
 // DetectPylint create a tool for pylint.
 func DetectPylint(
 	ctx context.Context,
-	config internal.ConfigTools,
-	environment internal.Environment,
+	options DetectOptions,
 ) *Pylint {
 	return NewPylint(func() (*internal.Executable, error) {
-		return environment.FindExecutable(ctx, config.Get(IdPylint, "pylint"))
+		return options.Environment.FindExecutable(ctx, options.GetToolPath(IdPylint, "pylint"))
 	})
 }
 

@@ -34,11 +34,13 @@ func NewDockerCompose(detect internal.ExecutableToolDetectFunc) *DockerCompose {
 // DetectDockerCompose create a docker compose tool with detected docker executable in the given environment.
 func DetectDockerCompose(
 	ctx context.Context,
-	config internal.ConfigTools,
-	environment internal.Environment,
+	options DetectOptions,
 ) *DockerCompose {
 	return NewDockerCompose(func() (*internal.Executable, error) {
-		return environment.FindExecutable(ctx, config.Get(IdDockerCompose, "docker"))
+		return options.Environment.FindExecutable(
+			ctx,
+			options.GetToolPath(IdDockerCompose, "docker"),
+		)
 	})
 }
 

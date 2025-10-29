@@ -14,19 +14,18 @@ type PHPStan struct {
 // DetectPHPStan create a tool for phpstan.
 func DetectPHPStan(
 	ctx context.Context,
-	config internal.ConfigTools,
-	environment internal.Environment,
+	options DetectOptions,
 ) *PHPStan {
-	if path, ok := config[IdPHPStan]; ok {
+	if path, ok := options.ToolsPaths[IdPHPStan]; ok {
 		return NewPHPStan(func() (*internal.Executable, error) {
-			return environment.FindExecutable(ctx, path)
+			return options.Environment.FindExecutable(ctx, path)
 		})
 	}
 
 	return NewPHPStan(internal.DetectExecutableChain(
 		[]string{"vendor/bin/phpstan", "phpstan"},
 		func(name string) (*internal.Executable, error) {
-			return environment.FindExecutable(ctx, name)
+			return options.Environment.FindExecutable(ctx, name)
 		},
 	))
 }

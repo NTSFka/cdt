@@ -79,8 +79,10 @@ func initEnvironment(
 func buildContext(ctx context.Context, config internal.Config) (*internal.Context, error) {
 	environmentProviders := tool.InitEnvironmentProviders(
 		ctx,
-		config.Tools,
-		internal.SystemEnvironment,
+		tool.DetectOptions{
+			Environment: internal.SystemEnvironment,
+			ToolsPaths:  config.Tools,
+		},
 	)
 
 	env, err := initEnvironment(config.RootDirectory, config.Environment, environmentProviders)
@@ -89,7 +91,10 @@ func buildContext(ctx context.Context, config internal.Config) (*internal.Contex
 		return nil, err
 	}
 
-	tools := tool.InitTools(ctx, config.Tools, env)
+	tools := tool.InitTools(ctx, tool.DetectOptions{
+		Environment: env,
+		ToolsPaths:  config.Tools,
+	})
 
 	project, err := workflow.CreateProject(config, tools)
 
