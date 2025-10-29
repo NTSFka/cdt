@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"io"
 	"os"
+	"runtime"
 	"testing"
 
 	"cdt/internal"
@@ -93,6 +94,10 @@ func TestGoLint(t *testing.T) {
 }
 
 func TestGoBuild_Docker(t *testing.T) {
+	if runtime.GOOS == "windows" { // nolint: goconst
+		t.Skip("docker issues on Windows")
+	}
+
 	environment := internal.SystemEnvironment
 
 	checkTool(t, t.Context(), environment, "docker")
@@ -108,6 +113,10 @@ func TestGoBuild_Docker(t *testing.T) {
 }
 
 func TestGoRun_Docker(t *testing.T) {
+	if runtime.GOOS == "windows" { // nolint: goconst
+		t.Skip("docker issues on Windows")
+	}
+
 	environment := internal.SystemEnvironment
 
 	checkTool(t, t.Context(), environment, "docker")
@@ -127,6 +136,10 @@ func TestGoRun_Docker(t *testing.T) {
 }
 
 func TestGoTest_Docker(t *testing.T) {
+	if runtime.GOOS == "windows" { // nolint: goconst
+		t.Skip("docker issues on Windows")
+	}
+
 	environment := internal.SystemEnvironment
 
 	checkTool(t, t.Context(), environment, "docker")
@@ -144,6 +157,10 @@ func TestGoTest_Docker(t *testing.T) {
 }
 
 func TestGoFormat_Docker(t *testing.T) {
+	if runtime.GOOS == "windows" { // nolint: goconst
+		t.Skip("docker issues on Windows")
+	}
+
 	environment := internal.SystemEnvironment
 
 	checkTool(t, t.Context(), environment, "docker")
@@ -159,6 +176,10 @@ func TestGoFormat_Docker(t *testing.T) {
 }
 
 func TestGoLint_Docker(t *testing.T) {
+	if runtime.GOOS == "windows" { // nolint: goconst
+		t.Skip("docker issues on Windows")
+	}
+
 	environment := internal.SystemEnvironment
 
 	checkTool(t, t.Context(), environment, "docker")

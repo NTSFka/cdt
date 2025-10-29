@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"io"
 	"os"
+	"runtime"
 	"testing"
 
 	"cdt/internal"
@@ -91,6 +92,10 @@ func TestPhpLint(t *testing.T) {
 }
 
 func TestPhpRun_Docker(t *testing.T) {
+	if runtime.GOOS == "windows" { // nolint: goconst
+		t.Skip("docker issues on Windows")
+	}
+
 	environment := internal.SystemEnvironment
 
 	checkTool(t, t.Context(), environment, "docker")
@@ -109,6 +114,10 @@ func TestPhpRun_Docker(t *testing.T) {
 }
 
 func TestPhpTest_Docker(t *testing.T) {
+	if runtime.GOOS == "windows" { // nolint: goconst
+		t.Skip("docker issues on Windows")
+	}
+
 	environment := internal.SystemEnvironment
 
 	checkTool(t, t.Context(), environment, "docker")
@@ -130,6 +139,10 @@ func TestPhpTest_Docker(t *testing.T) {
 }
 
 func TestPhpFormat_Docker(t *testing.T) {
+	if runtime.GOOS == "windows" { // nolint: goconst
+		t.Skip("docker issues on Windows")
+	}
+
 	environment := internal.SystemEnvironment
 
 	checkTool(t, t.Context(), environment, "docker")
@@ -150,6 +163,10 @@ func TestPhpFormat_Docker(t *testing.T) {
 }
 
 func TestPhpLint_Docker(t *testing.T) {
+	if runtime.GOOS == "windows" { // nolint: goconst
+		t.Skip("docker issues on Windows")
+	}
+
 	environment := internal.SystemEnvironment
 
 	checkTool(t, t.Context(), environment, "docker")
