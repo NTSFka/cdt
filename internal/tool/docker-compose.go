@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"cdt/internal"
@@ -145,6 +146,14 @@ func (d *dockerComposeEnvironment) FindExecutable(
 		ctx,
 		"docker-compose.find_executable",
 		func() (*internal.Executable, error) {
+			// Remove the directory from the name
+			if filepath.Base(name) != name {
+				searchName, err := filepath.Rel(d.directory, name)
+				if err == nil {
+					name = searchName
+				}
+			}
+
 			output, err := d.runOutput(ctx, []string{"exec", d.service, "which", name})
 
 			if err != nil {

@@ -2,6 +2,8 @@ package tool_test
 
 import (
 	"errors"
+	"os"
+	"path/filepath"
 	"testing"
 
 	"cdt/internal"
@@ -303,6 +305,39 @@ func TestDockerCompose_Environment_FindExecutable(t *testing.T) {
 		Return(nil)
 
 	executable, err := env.FindExecutable(t.Context(), "tool1")
+	require.NotNil(t, executable)
+	require.NoError(t, err)
+	assert.Equal(t, "/usr/bin/tool1", executable.Path)
+
+	runMock.AssertExpectations(t)
+}
+
+func TestDockerCompose_Environment_FindExecutable_WorkingDirectory(t *testing.T) {
+	dir := t.TempDir()
+	binDir := filepath.Join(dir, "bin")
+	require.NoError(t, os.MkdirAll(binDir, os.ModePerm))
+	require.NoError(t, os.WriteFile(filepath.Join(binDir, "echo"), []byte(""), os.ModePerm))
+
+	t.Chdir(dir)
+
+	runMock := dockerComposeRunMock{}
+
+	dockerCompose := tool.NewDockerCompose(runMock.LazyExecutable("docker"))
+	assert.NotNil(t, dockerCompose)
+
+	env, err := dockerCompose.CreateEnvironment(dir, "service12")
+	require.NoError(t, err)
+	assert.NotNil(t, env)
+
+	// Is running
+	runMock.OnState("service12", true).
+		Return(nil).
+		Once()
+
+	runMock.OnCallOutput([]string{"compose", "exec", "service12", "which", "bin/echo"}, "/usr/bin/tool1").
+		Return(nil)
+
+	executable, err := env.FindExecutable(t.Context(), filepath.Join(dir, "bin", "echo"))
 	require.NotNil(t, executable)
 	require.NoError(t, err)
 	assert.Equal(t, "/usr/bin/tool1", executable.Path)
