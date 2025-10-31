@@ -27,8 +27,9 @@ func TestPHPType_Detect_ModFile(t *testing.T) {
 
 	dir := t.TempDir()
 
-	_, err := os.Create(filepath.Join(dir, "composer.json"))
+	file, err := os.Create(filepath.Join(dir, "composer.json"))
 	require.NoError(t, err)
+	assert.NoError(t, file.Close())
 
 	res := workflowType.Detect(dir)
 

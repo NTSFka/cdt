@@ -15,9 +15,13 @@ import (
 )
 
 func createGoModFile(dir string) error {
-	_, err := os.Create(filepath.Join(dir, "go.mod"))
+	file, err := os.Create(filepath.Join(dir, "go.mod"))
 
-	return err
+	if err != nil {
+		return err
+	}
+
+	return file.Close()
 }
 
 func TestGoType_Detect_NoModFile(t *testing.T) {

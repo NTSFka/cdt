@@ -38,11 +38,12 @@ func (c *CmakeFileApi) Query(kind string, version int) error {
 		return err
 	}
 
-	if _, err := os.Create(path); err != nil {
+	file, err := os.Create(path)
+	if err != nil {
 		return err
 	}
 
-	return nil
+	return file.Close()
 }
 
 const (

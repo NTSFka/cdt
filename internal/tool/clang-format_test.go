@@ -151,8 +151,9 @@ func TestClangFormat_FormatAll_CustomConfig(t *testing.T) {
 		},
 	}
 
-	_, err := os.Create(filepath.Join(info.Directory, ".clang-format"))
+	file, err := os.Create(filepath.Join(info.Directory, ".clang-format"))
 	require.NoError(t, err)
+	assert.NoError(t, file.Close())
 
 	exec.OnRun("clang-format", []string{
 		fmt.Sprintf("--style=file:%v", filepath.Join(info.Directory, ".clang-format")),
@@ -231,8 +232,9 @@ func TestClangFormat_FormatFiles_CustomConfig(t *testing.T) {
 		OutputDirectory: internal.StrPtr("build"),
 	}
 
-	_, err := os.Create(filepath.Join(info.Directory, ".clang-format"))
+	file, err := os.Create(filepath.Join(info.Directory, ".clang-format"))
 	require.NoError(t, err)
+	assert.NoError(t, file.Close())
 
 	exec.OnRun("clang-format", []string{
 		fmt.Sprintf("--style=file:%v", filepath.Join(info.Directory, ".clang-format")),
@@ -343,8 +345,9 @@ func TestClangFormat_FormatCheckAll_CustomConfig(t *testing.T) {
 		},
 	}
 
-	_, err := os.Create(filepath.Join(info.Directory, ".clang-format"))
+	file, err := os.Create(filepath.Join(info.Directory, ".clang-format"))
 	require.NoError(t, err)
+	assert.NoError(t, file.Close())
 
 	exec.OnRun("clang-format", []string{
 		fmt.Sprintf("--style=file:%v", filepath.Join(info.Directory, ".clang-format")),
@@ -426,8 +429,9 @@ func TestClangFormat_FormatCheckFiles_CustomConfig(t *testing.T) {
 		OutputDirectory: internal.StrPtr("build"),
 	}
 
-	_, err := os.Create(filepath.Join(info.Directory, ".clang-format"))
+	file, err := os.Create(filepath.Join(info.Directory, ".clang-format"))
 	require.NoError(t, err)
+	assert.NoError(t, file.Close())
 
 	exec.OnRun("clang-format", []string{
 		fmt.Sprintf("--style=file:%v", filepath.Join(info.Directory, ".clang-format")),

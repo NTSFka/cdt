@@ -27,8 +27,9 @@ func TestPythonType_Detect_ModFile(t *testing.T) {
 
 	dir := t.TempDir()
 
-	_, err := os.Create(filepath.Join(dir, "pyproject.toml"))
+	file, err := os.Create(filepath.Join(dir, "pyproject.toml"))
 	require.NoError(t, err)
+	assert.NoError(t, file.Close())
 
 	res := workflowType.Detect(dir)
 

@@ -149,8 +149,9 @@ func TestClangTidy_LintAll_CustomConfig(t *testing.T) {
 		},
 	}
 
-	_, err := os.Create(filepath.Join(info.Directory, ".clang-tidy"))
+	file, err := os.Create(filepath.Join(info.Directory, ".clang-tidy"))
 	require.NoError(t, err)
+	assert.NoError(t, file.Close())
 
 	exec.OnRun("clang-tidy", []string{
 		fmt.Sprintf("--config-file=%v", filepath.Join(info.Directory, ".clang-tidy")),
@@ -229,8 +230,9 @@ func TestClangTidy_LintFiles_CustomConfig(t *testing.T) {
 		OutputDirectory: internal.StrPtr("build"),
 	}
 
-	_, err := os.Create(filepath.Join(info.Directory, ".clang-tidy"))
+	file, err := os.Create(filepath.Join(info.Directory, ".clang-tidy"))
 	require.NoError(t, err)
+	assert.NoError(t, file.Close())
 
 	exec.OnRun("clang-tidy", []string{
 		fmt.Sprintf("--config-file=%v", filepath.Join(info.Directory, ".clang-tidy")),

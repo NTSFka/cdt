@@ -19,8 +19,9 @@ func TestUtils_PathExists_NotFound(t *testing.T) {
 func TestUtils_PathExists_Found(t *testing.T) {
 	path := filepath.Join(t.TempDir(), "file")
 
-	_, err := os.Create(path)
+	file, err := os.Create(path)
 	require.NoError(t, err)
+	assert.NoError(t, file.Close())
 
 	assert.True(t, internal.PathExists(path))
 }
