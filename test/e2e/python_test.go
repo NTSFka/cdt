@@ -146,10 +146,6 @@ func TestPythonLint(t *testing.T) {
 }
 
 func TestPythonRun_Docker(t *testing.T) {
-	if runtime.GOOS == "windows" { // nolint: goconst
-		t.Skip("docker issues on Windows")
-	}
-
 	environment := internal.SystemEnvironment
 
 	checkTool(t, t.Context(), environment, "docker")
@@ -160,7 +156,7 @@ func TestPythonRun_Docker(t *testing.T) {
 
 	buffer := bytes.Buffer{}
 	err = runCdtOutput(t.Context(), io.MultiWriter(os.Stdout, &buffer), os.Stderr,
-		"-e", "d:python:3.14",
+		"-e", "d:"+dockerImage(),
 		"-w", "python", "-r", "data/python", "-o", outputDir,
 		"run", "hello.py",
 	)
@@ -180,7 +176,7 @@ func TestPythonTest_Docker(t *testing.T) {
 	// Install dependencies
 	var err error
 	err = runCdt(t.Context(),
-		"-e", "d:python:3.14",
+		"-e", "d:"+dockerImage(),
 		"-w", "python", "-r", "data/python", "-o", outputDir,
 		"dep", "add", "pytest",
 	)
@@ -188,7 +184,7 @@ func TestPythonTest_Docker(t *testing.T) {
 
 	buffer := bytes.Buffer{}
 	err = runCdtOutput(t.Context(), io.MultiWriter(os.Stdout, &buffer), os.Stderr,
-		"-e", "d:python:3.14",
+		"-e", "d:"+dockerImage(),
 		"-w", "python", "-r", "data/python", "-o", outputDir,
 		"test",
 	)
@@ -219,7 +215,7 @@ func TestPythonFormat_Docker(t *testing.T) {
 
 	buffer := bytes.Buffer{}
 	err = runCdtOutput(t.Context(), io.MultiWriter(os.Stdout, &buffer), os.Stderr,
-		"-e", "pyenv:"+envDir,
+		"-e", "d:"+dockerImage(),
 		"-w", "python", "-r", "data/python", "-o", outputDir,
 		"format",
 	)
@@ -241,7 +237,7 @@ func TestPythonLint_Docker(t *testing.T) {
 	// Install dependencies
 	var err error
 	err = runCdt(t.Context(),
-		"-e", "pyenv:"+envDir,
+		"-e", "d:"+dockerImage(),
 		"-w", "python", "-r", "data/python", "-o", outputDir,
 		"dep", "add", "pylint",
 	)
@@ -249,9 +245,17 @@ func TestPythonLint_Docker(t *testing.T) {
 
 	buffer := bytes.Buffer{}
 	err = runCdtOutput(t.Context(), io.MultiWriter(os.Stdout, &buffer), os.Stderr,
-		"-e", "pyenv:"+envDir,
+		"-e", "d:"+dockerImage(),
 		"-w", "python", "-r", "data/python", "-o", outputDir,
 		"lint",
 	)
 	require.NoError(t, err)
+}
+
+func dockerImage() string {
+	if runtime.GOOS == "windows" { // nolint: goconst
+		return "python:3.14-windowsservercore"
+	}
+
+	return "python:3.14"
 }
