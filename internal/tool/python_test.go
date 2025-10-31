@@ -211,8 +211,9 @@ func TestPython_Environment_FindExecutable(t *testing.T) {
 
 	err = os.MkdirAll(filepath.Join(testDir, "bin"), 0700)
 	require.NoError(t, err)
-	_, err = os.OpenFile(filepath.Join(testDir, "bin", "tool1"), os.O_RDONLY|os.O_CREATE, 0600)
+	file, err := os.Create(filepath.Join(testDir, "bin", "tool1"))
 	require.NoError(t, err)
+	assert.NoError(t, file.Close())
 
 	executable, err := env.FindExecutable(t.Context(), "tool1")
 	require.NotNil(t, executable)
@@ -231,8 +232,9 @@ func TestPython_Environment_FindExecutable_Windows(t *testing.T) {
 
 	err = os.MkdirAll(filepath.Join(testDir, "Scripts"), 0700)
 	require.NoError(t, err)
-	_, err = os.OpenFile(filepath.Join(testDir, "Scripts", "tool1"), os.O_RDONLY|os.O_CREATE, 0600)
+	file, err := os.Create(filepath.Join(testDir, "Scripts", "tool1"))
 	require.NoError(t, err)
+	assert.NoError(t, file.Close())
 
 	executable, err := env.FindExecutable(t.Context(), "tool1")
 	require.NotNil(t, executable)

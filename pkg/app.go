@@ -160,6 +160,10 @@ func loadConfigFile(configPath string) (*internal.FileConfig, error) {
 		return nil, fmt.Errorf("failed to open configuration file: %w", err)
 	}
 
+	defer func() {
+		_ = file.Close()
+	}()
+
 	fileConfig, err := internal.LoadConfigFile(file)
 	if err != nil {
 		return nil, fmt.Errorf("failed to load configuration file: %w", err)

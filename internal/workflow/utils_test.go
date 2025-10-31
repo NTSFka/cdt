@@ -412,9 +412,9 @@ func TestBuildProject_Custom_StringWorkflow_Go(t *testing.T) {
 
 	rootDir := t.TempDir()
 
-	if _, err := os.Create(filepath.Join(rootDir, "go.mod")); err != nil {
-		require.NoError(t, err)
-	}
+	file, err := os.Create(filepath.Join(rootDir, "go.mod"))
+	require.NoError(t, err)
+	assert.NoError(t, file.Close())
 
 	config := internal.Config{RootDirectory: rootDir, Workflow: "go"}
 	project, err := workflow.CreateProject(config, internal.Tools{
@@ -431,9 +431,9 @@ func TestBuildProject_CMake(t *testing.T) {
 
 	rootDir := t.TempDir()
 
-	if _, err := os.Create(filepath.Join(rootDir, "CMakeLists.txt")); err != nil {
-		require.NoError(t, err)
-	}
+	file, err := os.Create(filepath.Join(rootDir, "CMakeLists.txt"))
+	require.NoError(t, err)
+	assert.NoError(t, file.Close())
 
 	config := internal.Config{RootDirectory: rootDir}
 	project, err := workflow.CreateProject(config, internal.Tools{
@@ -452,9 +452,9 @@ func TestBuildProject_Go(t *testing.T) {
 
 	rootDir := t.TempDir()
 
-	if _, err := os.Create(filepath.Join(rootDir, "go.mod")); err != nil {
-		require.NoError(t, err)
-	}
+	file, err := os.Create(filepath.Join(rootDir, "go.mod"))
+	require.NoError(t, err)
+	assert.NoError(t, file.Close())
 
 	config := internal.Config{RootDirectory: rootDir}
 	project, err := workflow.CreateProject(config, internal.Tools{

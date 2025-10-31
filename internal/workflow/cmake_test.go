@@ -28,8 +28,9 @@ func TestCMakeType_Detect_CMakeLists(t *testing.T) {
 
 	dir := t.TempDir()
 
-	_, err := os.OpenFile(filepath.Join(dir, "CMakeLists.txt"), os.O_RDONLY|os.O_CREATE, 0600)
+	file, err := os.Create(filepath.Join(dir, "CMakeLists.txt"))
 	require.NoError(t, err)
+	assert.NoError(t, file.Close())
 
 	res := workflowType.Detect(dir)
 
@@ -74,8 +75,9 @@ func TestCMakeType_Project_TestAll(t *testing.T) {
 
 	dir := t.TempDir()
 
-	_, err := os.OpenFile(filepath.Join(dir, "CMakeLists.txt"), os.O_RDONLY|os.O_CREATE, 0600)
+	file, err := os.Create(filepath.Join(dir, "CMakeLists.txt"))
 	require.NoError(t, err)
+	assert.NoError(t, file.Close())
 
 	buildDir := filepath.Join(dir, "build")
 
@@ -112,8 +114,9 @@ func TestCMakeType_Project_TestAll_BuildFailed(t *testing.T) {
 
 	dir := t.TempDir()
 
-	_, err := os.OpenFile(filepath.Join(dir, "CMakeLists.txt"), os.O_RDONLY|os.O_CREATE, 0600)
+	file, err := os.Create(filepath.Join(dir, "CMakeLists.txt"))
 	require.NoError(t, err)
+	assert.NoError(t, file.Close())
 
 	buildDir := filepath.Join(dir, "build")
 
@@ -149,8 +152,9 @@ func TestCMakeProject_Project_Test(t *testing.T) {
 
 	dir := t.TempDir()
 
-	_, err := os.OpenFile(filepath.Join(dir, "CMakeLists.txt"), os.O_RDONLY|os.O_CREATE, 0600)
+	file, err := os.Create(filepath.Join(dir, "CMakeLists.txt"))
 	require.NoError(t, err)
+	assert.NoError(t, file.Close())
 
 	buildDir := filepath.Join(dir, "build")
 
@@ -188,8 +192,9 @@ func TestCMakeProject_Project_TestBuild_Failed(t *testing.T) {
 
 	dir := t.TempDir()
 
-	_, err := os.OpenFile(filepath.Join(dir, "CMakeLists.txt"), os.O_RDONLY|os.O_CREATE, 0600)
+	file, err := os.Create(filepath.Join(dir, "CMakeLists.txt"))
 	require.NoError(t, err)
+	assert.NoError(t, file.Close())
 
 	buildDir := filepath.Join(dir, "build")
 
