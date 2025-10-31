@@ -1,6 +1,7 @@
 package tool_test
 
 import (
+	"path/filepath"
 	"testing"
 
 	"cdt/internal"
@@ -15,7 +16,7 @@ func TestPHPUnit_DetectPHPUnit_Composer(t *testing.T) {
 	env := test.NewEnvironment(t)
 
 	// Composer installation
-	env.OnFindExecutable("vendor/bin/phpunit").
+	env.OnFindExecutable(filepath.Join("vendor", "bin", "phpunit")).
 		Return(env.NewExecutable("/bin/phpunit"), nil)
 
 	phpUnit := tool.DetectPHPUnit(t.Context(), tool.DetectOptions{Environment: env})
@@ -34,7 +35,7 @@ func TestPHPUnit_DetectPHPUnit_System(t *testing.T) {
 	env := test.NewEnvironment(t)
 
 	// Composer installation
-	env.OnFindExecutable("vendor/bin/phpunit").
+	env.OnFindExecutable(filepath.Join("vendor", "bin", "phpunit")).
 		Return(nil, nil)
 
 	// System installation
@@ -56,7 +57,7 @@ func TestPHPUnit_DetectPHPUnit_System(t *testing.T) {
 func TestPHPUnit_DetectPHPUnit_NotFound(t *testing.T) {
 	env := test.NewEnvironment(t)
 
-	env.OnFindExecutable("vendor/bin/phpunit").
+	env.OnFindExecutable(filepath.Join("vendor", "bin", "phpunit")).
 		Return(nil, nil)
 	env.OnFindExecutable("phpunit").
 		Return(nil, nil)

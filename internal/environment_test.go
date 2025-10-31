@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"os"
 	"path/filepath"
+	"runtime"
 	"testing"
 
 	"cdt/internal"
@@ -115,34 +116,54 @@ func TestEnvironment_SystemEnvironment_FindExecutable_NotFound(t *testing.T) {
 }
 
 func TestEnvironment_SystemEnvironment_FindExecutable(t *testing.T) {
-	executable, err := internal.SystemEnvironment.FindExecutable(t.Context(), "echo")
+	executableName := "echo" // nolint:goconst
+
+	if runtime.GOOS == "windows" { // nolint: goconst
+		executableName = "cmd.exe"
+	}
+
+	executable, err := internal.SystemEnvironment.FindExecutable(t.Context(), executableName)
 
 	require.NotNil(t, executable)
 	require.NoError(t, err)
 	assert.NotNil(t, executable.Runtime)
-	assert.Contains(t, executable.Path, "echo")
+	assert.Contains(t, executable.Path, executableName)
 }
 
 func TestEnvironment_SystemEnvironment_FindExecutable_WorkingDirectory(t *testing.T) {
+	executableName := "echo" // nolint:goconst
+
+	if runtime.GOOS == "windows" { // nolint: goconst
+		executableName += ".exe"
+	}
+
 	dir := t.TempDir()
 	binDir := filepath.Join(dir, "bin")
 	require.NoError(t, os.MkdirAll(binDir, os.ModePerm))
-	require.NoError(t, os.WriteFile(filepath.Join(binDir, "echo"), []byte(""), os.ModePerm))
+	require.NoError(t, os.WriteFile(filepath.Join(binDir, executableName), []byte(""), os.ModePerm))
 
 	t.Chdir(dir)
 
 	executable, err := internal.SystemEnvironment.FindExecutable(
 		t.Context(),
-		filepath.Join("bin", "echo"),
+		filepath.Join("bin", executableName),
 	)
 
 	require.NotNil(t, executable)
 	require.NoError(t, err)
 	assert.NotNil(t, executable.Runtime)
-	assert.Contains(t, executable.Path, "echo")
+	assert.Contains(t, executable.Path, executableName)
 }
 
 func TestEnvironment_SystemEnvironment_RunExecutable(t *testing.T) {
+	executableName := "echo"
+	args := []string{"test"}
+
+	if runtime.GOOS == "windows" { // nolint: goconst
+		executableName = "cmd.exe"
+		args = []string{"/c", "echo", "test"}
+	}
+
 	buffer := bytes.Buffer{}
 	options := internal.RunOptions{
 		Directory: ".",
@@ -150,7 +171,7 @@ func TestEnvironment_SystemEnvironment_RunExecutable(t *testing.T) {
 		Error:     nil,
 	}
 
-	err := internal.SystemEnvironment.RunExecutable(t.Context(), options, "echo", []string{"test"})
+	err := internal.SystemEnvironment.RunExecutable(t.Context(), options, executableName, args)
 	require.NoError(t, err)
-	assert.Equal(t, "test\n", buffer.String())
+	assert.Contains(t, buffer.String(), "test")
 }

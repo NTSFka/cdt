@@ -4,6 +4,7 @@ import (
 	"errors"
 	"os"
 	"path/filepath"
+	"runtime"
 	"testing"
 
 	"cdt/internal"
@@ -313,6 +314,11 @@ func TestDockerCompose_Environment_FindExecutable(t *testing.T) {
 }
 
 func TestDockerCompose_Environment_FindExecutable_WorkingDirectory(t *testing.T) {
+	// FIXME: path conversion based on docker mode
+	if runtime.GOOS == "windows" { // nolint: goconst
+		t.Skip("Problem with path conversion between Windows and docker")
+	}
+
 	dir := t.TempDir()
 	binDir := filepath.Join(dir, "bin")
 	require.NoError(t, os.MkdirAll(binDir, os.ModePerm))

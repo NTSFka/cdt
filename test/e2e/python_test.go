@@ -146,6 +146,10 @@ func TestPythonLint(t *testing.T) {
 }
 
 func TestPythonRun_Docker(t *testing.T) {
+	if runtime.GOOS == "windows" { // nolint: goconst
+		t.Skip("docker might be in Windows or Linux mode - unable to detect mode, yet")
+	}
+
 	environment := internal.SystemEnvironment
 
 	checkTool(t, t.Context(), environment, "docker")

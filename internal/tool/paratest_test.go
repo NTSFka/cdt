@@ -1,6 +1,7 @@
 package tool_test
 
 import (
+	"path/filepath"
 	"testing"
 
 	"cdt/internal"
@@ -15,7 +16,7 @@ func TestParaTest_DetectParaTest_Composer(t *testing.T) {
 	env := test.NewEnvironment(t)
 
 	// Composer installation
-	env.OnFindExecutable("vendor/bin/paratest").
+	env.OnFindExecutable(filepath.Join("vendor", "bin", "paratest")).
 		Return(env.NewExecutable("/bin/paratest"), nil)
 
 	paraTest := tool.DetectParaTest(t.Context(), tool.DetectOptions{Environment: env})
@@ -34,7 +35,7 @@ func TestParaTest_DetectParaTest_System(t *testing.T) {
 	env := test.NewEnvironment(t)
 
 	// Composer installation
-	env.OnFindExecutable("vendor/bin/paratest").
+	env.OnFindExecutable(filepath.Join("vendor", "bin", "paratest")).
 		Return(nil, nil)
 
 	// System installation
@@ -56,7 +57,7 @@ func TestParaTest_DetectParaTest_System(t *testing.T) {
 func TestParaTest_DetectParaTest_NotFound(t *testing.T) {
 	env := test.NewEnvironment(t)
 
-	env.OnFindExecutable("vendor/bin/paratest").
+	env.OnFindExecutable(filepath.Join("vendor", "bin", "paratest")).
 		Return(nil, nil)
 	env.OnFindExecutable("paratest").
 		Return(nil, nil)

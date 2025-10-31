@@ -1,6 +1,7 @@
 package tool_test
 
 import (
+	"path/filepath"
 	"testing"
 
 	"cdt/internal"
@@ -15,7 +16,7 @@ func TestPHPCSFixer_DetectPHPCSFixer_Composer(t *testing.T) {
 	env := test.NewEnvironment(t)
 
 	// Composer installation
-	env.OnFindExecutable("vendor/bin/php-cs-fixer").
+	env.OnFindExecutable(filepath.Join("vendor", "bin", "php-cs-fixer")).
 		Return(env.NewExecutable("/bin/php-cs-fixer"), nil)
 
 	phpcsFixer := tool.DetectPHPCSFixer(t.Context(), tool.DetectOptions{Environment: env})
@@ -34,7 +35,7 @@ func TestPHPCSFixer_DetectPHPCSFixer_System(t *testing.T) {
 	env := test.NewEnvironment(t)
 
 	// Composer installation
-	env.OnFindExecutable("vendor/bin/php-cs-fixer").
+	env.OnFindExecutable(filepath.Join("vendor", "bin", "php-cs-fixer")).
 		Return(nil, nil)
 
 	// System installation
@@ -56,7 +57,7 @@ func TestPHPCSFixer_DetectPHPCSFixer_System(t *testing.T) {
 func TestPHPCSFixer_DetectPHPCSFixer_NotFound(t *testing.T) {
 	env := test.NewEnvironment(t)
 
-	env.OnFindExecutable("vendor/bin/php-cs-fixer").
+	env.OnFindExecutable(filepath.Join("vendor", "bin", "php-cs-fixer")).
 		Return(nil, nil)
 	env.OnFindExecutable("php-cs-fixer").
 		Return(nil, nil)

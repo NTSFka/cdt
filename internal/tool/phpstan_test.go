@@ -1,6 +1,7 @@
 package tool_test
 
 import (
+	"path/filepath"
 	"testing"
 
 	"cdt/internal"
@@ -15,7 +16,7 @@ func TestPHPStan_DetectPHPStan_Composer(t *testing.T) {
 	env := test.NewEnvironment(t)
 
 	// Composer installation
-	env.OnFindExecutable("vendor/bin/phpstan").
+	env.OnFindExecutable(filepath.Join("vendor", "bin", "phpstan")).
 		Return(env.NewExecutable("/bin/phpstan"), nil)
 
 	phpStan := tool.DetectPHPStan(t.Context(), tool.DetectOptions{Environment: env})
@@ -34,7 +35,7 @@ func TestPHPStan_DetectPHPStan_System(t *testing.T) {
 	env := test.NewEnvironment(t)
 
 	// Composer installation
-	env.OnFindExecutable("vendor/bin/phpstan").
+	env.OnFindExecutable(filepath.Join("vendor", "bin", "phpstan")).
 		Return(nil, nil)
 
 	// System installation
@@ -56,7 +57,7 @@ func TestPHPStan_DetectPHPStan_System(t *testing.T) {
 func TestPHPStan_DetectPHPStan_NotFound(t *testing.T) {
 	env := test.NewEnvironment(t)
 
-	env.OnFindExecutable("vendor/bin/phpstan").
+	env.OnFindExecutable(filepath.Join("vendor", "bin", "phpstan")).
 		Return(nil, nil)
 	env.OnFindExecutable("phpstan").
 		Return(nil, nil)

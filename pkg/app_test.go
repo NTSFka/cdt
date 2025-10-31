@@ -5,6 +5,7 @@ import (
 	"errors"
 	"os"
 	"path/filepath"
+	"runtime"
 	"testing"
 
 	"cdt/internal"
@@ -299,6 +300,10 @@ project:
 }
 
 func TestApp_Run_ConfigFile_CustomPath_UnreadableFile(t *testing.T) {
+	if runtime.GOOS == "windows" { // nolint: goconst
+		t.Skip("Unable to test unreadable file on Windows")
+	}
+
 	app := pkg.NewApp(func(cfg internal.Config) (*internal.Context, error) {
 		return &internal.Context{}, nil
 	})
