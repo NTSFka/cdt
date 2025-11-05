@@ -6,6 +6,7 @@ version: 2
 before:
   hooks:
     - go mod tidy
+    - ./scripts/completions.sh
 
 builds:
   - env:
@@ -44,6 +45,20 @@ nfpms:
     description: >
       CDT — Common Developer Tool. A front-end tool that aims to simplify developer workflow. It unifies the interface
       for working with different types of projects and programming languages.
+
+    contents:
+      - src: ./.completions/cdt.bash
+        dst: /usr/share/bash-completion/completions/cdt
+        file_info:
+          mode: 0644
+      - src: ./.completions/cdt.fish
+        dst: /usr/share/fish/vendor_completions.d/cdt.fish
+        file_info:
+          mode: 0644
+      - src: ./.completions/cdt.zsh
+        dst: /usr/share/zsh/vendor-completions/_cdt
+        file_info:
+          mode: 0644
 
 changelog:
   disable: true
