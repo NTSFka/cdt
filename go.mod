@@ -9,12 +9,10 @@ require (
 	github.com/urfave/cli/v3 v3.4.1
 	golang.org/x/term v0.35.0
 	gopkg.in/yaml.v3 v3.0.1
-	gotest.tools/v3 v3.5.2
 )
 
 require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
-	github.com/google/go-cmp v0.7.0 // indirect
 	github.com/kr/pretty v0.3.1 // indirect
 	github.com/mattn/go-colorable v0.1.14 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect

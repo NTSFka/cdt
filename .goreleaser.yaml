@@ -1,0 +1,49 @@
+# yaml-language-server: $schema=https://goreleaser.com/static/schema.json
+# vim: set ts=2 sw=2 tw=0 fo=cnqoj
+
+version: 2
+
+before:
+  hooks:
+    - go mod tidy
+
+builds:
+  - env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X main.version={{.Version}}
+    goos:
+      - linux
+      - windows
+      - darwin
+
+archives:
+  - format: tar.gz
+    # this name template makes the OS and Arch compatible with the results of `uname`.
+    name_template: >-
+      {{ .ProjectName }}_
+      {{- title .Os }}_
+      {{- if eq .Arch "amd64" }}x86_64
+      {{- else if eq .Arch "386" }}i386
+      {{- else }}{{ .Arch }}{{ end }}
+      {{- if .Arm }}v{{ .Arm }}{{ end }}
+    # use zip for windows archives
+    format_overrides:
+      - goos: windows
+        format: zip
+
+nfpms:
+  - formats:
+      - apk
+      - deb
+      - rpm
+      - archlinux
+
+    maintainer: Jiří Fatka <ntsfka@pm.me>
+
+    description: >
+      CDT — Common Developer Tool. A front-end tool that aims to simplify developer workflow. It unifies the interface
+      for working with different types of projects and programming languages.
+
+changelog:
+  disable: true
