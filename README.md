@@ -131,9 +131,14 @@ The cdt can be installed using go tool:
 go install github.com/NTSFka/cdt
 ```
 
+### Pre-built binaries and packages
+
+The tool is available as a pre-built binary for Linux, macOS and Windows, see [the Releases](https://github.com/NTSFka/cdt/releases) section.
+
 ### Auto-completion
 
 The tool supports auto-completion for bash and zsh via [cli.urfave.org/v3](https://cli.urfave.org/v3/examples/completions/shell-completions/#default-auto-completion).
+Some released packages (DEB, RPM, APK, ...) contain auto-completion scripts so it works out of the box.
 
 ## Supported tools
 
