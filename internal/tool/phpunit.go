@@ -56,3 +56,28 @@ func (p *PHPUnit) TestPattern(
 ) error {
 	return p.RunForProject(ctx, options.ProjectInfo, append(options.ExtraArgs, pattern))
 }
+
+func (p *PHPUnit) CollectCoverageAll(
+	ctx context.Context,
+	options internal.ProjectCoverageCollectorOptions,
+) error {
+	return p.RunForProjectWithEnv(
+		ctx,
+		options.ProjectInfo,
+		[]string{"XDEBUG_MODE=coverage"},
+		append(options.ExtraArgs, "--coverage-text"),
+	)
+}
+
+func (p *PHPUnit) CollectCoveragePattern(
+	ctx context.Context,
+	options internal.ProjectCoverageCollectorOptions,
+	pattern string,
+) error {
+	return p.RunForProjectWithEnv(
+		ctx,
+		options.ProjectInfo,
+		[]string{"XDEBUG_MODE=coverage"},
+		append(options.ExtraArgs, "--coverage-text", pattern),
+	)
+}

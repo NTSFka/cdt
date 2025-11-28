@@ -128,3 +128,42 @@ func TestParaTest_ParaTest_Test(t *testing.T) {
 
 	exec.AssertExpectations(t)
 }
+
+func TestParaTest_ParaTest_CollectCoverageAll(t *testing.T) {
+	exec := test.NewExecutable(t)
+
+	phpUnit := tool.NewParaTest(exec.LazyExecutable("test"))
+
+	info := internal.ProjectInfo{Directory: "."}
+
+	exec.OnRun("test", []string{"--coverage-text"}).
+		Return(nil)
+
+	err := phpUnit.CollectCoverageAll(
+		t.Context(),
+		internal.ProjectCoverageCollectorOptions{ProjectInfo: info},
+	)
+	require.NoError(t, err)
+
+	exec.AssertExpectations(t)
+}
+
+func TestParaTest_ParaTest_CollectCoveragePattern(t *testing.T) {
+	exec := test.NewExecutable(t)
+
+	phpUnit := tool.NewParaTest(exec.LazyExecutable("test"))
+
+	info := internal.ProjectInfo{Directory: "."}
+
+	exec.OnRun("test", []string{"--coverage-text", "tests/*"}).
+		Return(nil)
+
+	err := phpUnit.CollectCoveragePattern(
+		t.Context(),
+		internal.ProjectCoverageCollectorOptions{ProjectInfo: info},
+		"tests/*",
+	)
+	require.NoError(t, err)
+
+	exec.AssertExpectations(t)
+}
