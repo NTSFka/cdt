@@ -149,6 +149,37 @@ func (f *TesterFallback) TestPattern(
 	})
 }
 
+type coverageCollectorTool interface {
+	internal.ProjectCoverageCollector
+	internal.Tool
+}
+
+// CoverageCollectorFallback run the first available coverage collector.
+type CoverageCollectorFallback []coverageCollectorTool
+
+func (f *CoverageCollectorFallback) Details() string {
+	return adaptorToolIds("fallback", *f)
+}
+
+func (f *CoverageCollectorFallback) CollectCoverageAll(
+	ctx context.Context,
+	options internal.ProjectCoverageCollectorOptions,
+) error {
+	return runFirstAvailable(*f, "coverage", func(tool coverageCollectorTool) error {
+		return tool.CollectCoverageAll(ctx, options)
+	})
+}
+
+func (f *CoverageCollectorFallback) CollectCoveragePattern(
+	ctx context.Context,
+	options internal.ProjectCoverageCollectorOptions,
+	pattern string,
+) error {
+	return runFirstAvailable(*f, "coverage", func(tool coverageCollectorTool) error {
+		return tool.CollectCoveragePattern(ctx, options, pattern)
+	})
+}
+
 type formatterTool interface {
 	internal.ProjectFormatter
 	internal.Tool
