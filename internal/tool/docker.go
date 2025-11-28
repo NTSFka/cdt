@@ -210,6 +210,12 @@ func (d *dockerEnvironment) RunExecutable(
 
 	internal.Assert(d.containerId != "", "container ID is not set")
 
+	var envArgs []string
+
+	for _, env := range options.Env {
+		envArgs = append(envArgs, "-e", env)
+	}
+
 	return internal.Trace(ctx, "docker.run", func() error {
 		opts := options
 		opts.Silent = true
@@ -217,9 +223,9 @@ func (d *dockerEnvironment) RunExecutable(
 		return d.docker.Run(
 			ctx,
 			opts,
-			append([]string{"exec", d.containerId, path}, args...),
+			append(append(append([]string{"exec"}, envArgs...), d.containerId, path), args...),
 		)
-	}, "container", d.containerId, "path", path, "args", args)
+	}, "container", d.containerId, "path", path, "args", args, "env", options.Env)
 }
 
 func (d *dockerEnvironment) runOutput(ctx context.Context, args []string) (string, error) {

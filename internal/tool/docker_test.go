@@ -535,6 +535,32 @@ func TestDocker_Environment_RunExecutable_Failed(t *testing.T) {
 	runMock.AssertExpectations(t)
 }
 
+func TestDocker_Environment_RunExecutable_Env(t *testing.T) {
+	runMock, env := dockerPrepare(t, "image18")
+
+	runMock.OnStart("image18", "33910ef9319e").
+		Return(nil)
+
+	err := env.Start(t.Context())
+	require.NoError(t, err)
+
+	// Is running
+	runMock.OnInspectResult("33910ef9319e", true).
+		Return(nil).
+		Once()
+
+	runMock.OnCall([]string{"exec", "-e", "VAR1=value1", "-e", "VAR2=value2", "33910ef9319e", "tool1", "arg1", "arg2"}).
+		Return(nil).
+		Once()
+
+	err = env.RunExecutable(t.Context(), internal.RunOptions{
+		Env: []string{"VAR1=value1", "VAR2=value2"},
+	}, "tool1", []string{"arg1", "arg2"})
+	require.NoError(t, err)
+
+	runMock.AssertExpectations(t)
+}
+
 func TestDocker_Environment_RunExecutable_AutoStart(t *testing.T) {
 	runMock, env := dockerPrepare(t, "image20")
 

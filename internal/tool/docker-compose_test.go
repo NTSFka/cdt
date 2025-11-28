@@ -447,6 +447,28 @@ func TestDockerCompose_Environment_RunExecutable_Failed(t *testing.T) {
 	runMock.AssertExpectations(t)
 }
 
+func TestDockerCompose_Environment_RunExecutable_Env(t *testing.T) {
+	runMock, env := dockerComposePrepare(t, "service16")
+
+	// Is running
+	runMock.OnState("service16", true).
+		Return(nil).
+		Once()
+
+	runMock.OnCall([]string{
+		"compose", "exec", "-e", "VAR1=value1", "-e", "VAR2=value2", "service16", "tool1", "arg1", "arg2",
+	}).
+		Return(nil).
+		Once()
+
+	err := env.RunExecutable(t.Context(), internal.RunOptions{
+		Env: []string{"VAR1=value1", "VAR2=value2"},
+	}, "tool1", []string{"arg1", "arg2"})
+	require.NoError(t, err)
+
+	runMock.AssertExpectations(t)
+}
+
 func TestDockerCompose_Environment_RunExecutable_AutoStart(t *testing.T) {
 	runMock, env := dockerComposePrepare(t, "service18")
 

@@ -182,6 +182,12 @@ func (d *dockerComposeEnvironment) RunExecutable(
 		return fmt.Errorf("docker compose start failed: %w", err)
 	}
 
+	var envArgs []string
+
+	for _, env := range options.Env {
+		envArgs = append(envArgs, "-e", env)
+	}
+
 	return internal.Trace(ctx, "docker-compose.run", func() error {
 		opts := options
 		opts.Silent = true
@@ -189,9 +195,12 @@ func (d *dockerComposeEnvironment) RunExecutable(
 		return d.dockerCompose.Run(
 			ctx,
 			opts,
-			append([]string{"compose", "exec", d.service, path}, args...),
+			append(
+				append(append([]string{"compose", "exec"}, envArgs...), d.service, path),
+				args...,
+			),
 		)
-	}, "path", path, "args", args)
+	}, "path", path, "args", args, "env", options.Env)
 }
 
 func (d *dockerComposeEnvironment) run(ctx context.Context, args []string) error {

@@ -194,6 +194,7 @@ func (s *systemEnvironment) RunExecutable(
 	command.Stdin = options.Input
 	command.Stdout = options.Output
 	command.Stderr = options.Error
+	command.Env = options.Env
 
 	return Trace(ctx, "system.run", func() error {
 		return command.Run()
