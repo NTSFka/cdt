@@ -161,6 +161,23 @@ func (t *ExecutableTool) RunForProject(ctx context.Context, info ProjectInfo, ar
 	return t.Run(ctx, options, args)
 }
 
+func (t *ExecutableTool) RunForProjectWithEnv(
+	ctx context.Context,
+	info ProjectInfo,
+	env []string,
+	args []string,
+) error {
+	options := RunOptions{
+		Directory: info.Directory,
+		Input:     os.Stdin,
+		Output:    os.Stdout,
+		Error:     os.Stderr,
+		Env:       append(os.Environ(), env...),
+	}
+
+	return t.Run(ctx, options, args)
+}
+
 // Tools is a container for available tools.
 type Tools []Tool
 
