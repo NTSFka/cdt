@@ -140,6 +140,32 @@ func (t *ProjectTester) TestPattern(
 	return t.Called(ctx, options, pattern).Error(0)
 }
 
+type ProjectCoverageCollector struct {
+	mock.Mock
+}
+
+func NewProjectCoverageCollector(t *testing.T) *ProjectCoverageCollector {
+	tester := ProjectCoverageCollector{}
+	tester.Test(t)
+
+	return &tester
+}
+
+func (t *ProjectCoverageCollector) CollectCoverageAll(
+	ctx context.Context,
+	options internal.ProjectCoverageCollectorOptions,
+) error {
+	return t.Called(ctx, options).Error(0)
+}
+
+func (t *ProjectCoverageCollector) CollectCoveragePattern(
+	ctx context.Context,
+	options internal.ProjectCoverageCollectorOptions,
+	pattern string,
+) error {
+	return t.Called(ctx, options, pattern).Error(0)
+}
+
 type ProjectRunner struct {
 	mock.Mock
 }

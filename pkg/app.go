@@ -74,6 +74,7 @@ func NewApp(buildContext func(config internal.Config) (*internal.Context, error)
 			command.NewExecCommand(),
 			command.NewDependencyCommand(),
 			command.NewWorkflowCommand(),
+			command.NewCoverageCommand(),
 		},
 		Before: func(ctx context.Context, cmd *cli.Command) (context.Context, error) {
 			if cmd.Bool("debug") {
