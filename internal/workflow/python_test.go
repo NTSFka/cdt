@@ -49,6 +49,7 @@ func TestPythonType_Create(t *testing.T) {
 		tool.NewRuff(test.LazyExecutable("ruff-test")),
 		tool.NewBandit(test.LazyExecutable("bandit-test")),
 		tool.NewBlack(test.LazyExecutable("black-test")),
+		tool.NewPythonCoverage(test.LazyExecutable("coverage-test"), nil),
 	}
 
 	project := workflowType.Create(workflow.Config{Directory: "dir1"}, tools)
@@ -60,4 +61,5 @@ func TestPythonType_Create(t *testing.T) {
 	assert.NotNil(t, project.Workflow.Linter)
 	assert.NotNil(t, project.Workflow.Formatter)
 	assert.NotNil(t, project.Workflow.Runner)
+	assert.NotNil(t, project.Workflow.CoverageCollector)
 }

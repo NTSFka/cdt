@@ -60,6 +60,7 @@ func InitTools(
 		DetectRuff(ctx, options),
 		DetectBandit(ctx, options),
 		DetectBlack(ctx, options),
+		DetectPythonCoverage(ctx, options),
 
 		// Other
 		DetectDocker(ctx, options),

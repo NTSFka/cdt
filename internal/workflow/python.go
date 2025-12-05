@@ -27,6 +27,7 @@ func (p *Python) Create(config Config, tools internal.Tools) internal.Project {
 	ruff := internal.GetTool[*tool.Ruff](tools)
 	bandit := internal.GetTool[*tool.Bandit](tools)
 	black := internal.GetTool[*tool.Black](tools)
+	coverage := internal.GetTool[*tool.PythonCoverage](tools)
 
 	workflow := internal.Workflow{
 		Name:              p.Id(),
@@ -34,6 +35,7 @@ func (p *Python) Create(config Config, tools internal.Tools) internal.Project {
 		Builder:           nil,
 		Runner:            python,
 		Tester:            pyTest,
+		CoverageCollector: coverage,
 		Formatter:         &FormatterFallback{ruff, black},
 		Linter:            &LinterList{pylint, flake, mypy, ruff, bandit},
 		DependencyManager: pip,
