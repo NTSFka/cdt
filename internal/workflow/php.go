@@ -31,6 +31,7 @@ func (p *PHP) Create(config Config, tools internal.Tools) internal.Project {
 		Builder:           nil,
 		Runner:            php,
 		Tester:            &TesterFallback{paratest, phpUnit},
+		CoverageCollector: &CoverageCollectorFallback{paratest, phpUnit},
 		Formatter:         phpCsFixer,
 		Linter:            phpStan,
 		DependencyManager: composer,

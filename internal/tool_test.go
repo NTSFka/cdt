@@ -5,6 +5,7 @@ import (
 	"cdt/internal/test"
 	"context"
 	"os"
+	"slices"
 	"testing"
 
 	"cdt/internal"
@@ -139,6 +140,45 @@ func TestTool_ExecutableTool_RunForProject(t *testing.T) {
 	}, "echo", []string{"arg1", "arg2"}).Return(nil)
 
 	err := tool.RunForProject(t.Context(), internal.ProjectInfo{}, []string{"arg1", "arg2"})
+	require.NoError(t, err)
+
+	runtime.AssertExpectations(t)
+}
+
+func TestTool_ExecutableTool_RunForProjectWithEnv(t *testing.T) {
+	runtime := &testExecutableRuntime{}
+	runtime.Test(t)
+	runtime.On("Id").Return("test")
+
+	tool := internal.MakeExecutableTool(
+		"id",
+		"",
+		"",
+		internal.Tags{},
+		func() (*internal.Executable, error) {
+			return &internal.Executable{Path: "echo", Runtime: runtime}, nil
+		},
+	)
+
+	runtime.On("RunExecutable", mock.Anything, mock.MatchedBy(func(options internal.RunOptions) bool {
+		if !slices.Contains(options.Env, "VAR1=value1") {
+			return false
+		}
+
+		if !slices.Contains(options.Env, "VAR2=value2") {
+			return false
+		}
+
+		return true
+	}), "echo", []string{"arg1", "arg2"}).
+		Return(nil)
+
+	err := tool.RunForProjectWithEnv(
+		t.Context(),
+		internal.ProjectInfo{},
+		[]string{"VAR1=value1", "VAR2=value2"},
+		[]string{"arg1", "arg2"},
+	)
 	require.NoError(t, err)
 
 	runtime.AssertExpectations(t)

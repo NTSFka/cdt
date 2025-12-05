@@ -50,6 +50,27 @@ type ProjectTester interface {
 	TestPattern(ctx context.Context, options ProjectTesterOptions, pattern string) error
 }
 
+// ProjectCoverageCollectorOptions are options for collecting coverage of a project.
+type ProjectCoverageCollectorOptions struct {
+	ProjectInfo
+
+	// ExtraArgs are extra arguments for the specific collector implementation
+	ExtraArgs []string
+}
+
+// A ProjectCoverageCollector allow coverage collecting for a project.
+type ProjectCoverageCollector interface {
+	// CollectCoverageAll runs all tests in the project and collects coverage
+	CollectCoverageAll(ctx context.Context, options ProjectCoverageCollectorOptions) error
+
+	// CollectCoveragePattern runs tests that match the pattern and collects coverage
+	CollectCoveragePattern(
+		ctx context.Context,
+		options ProjectCoverageCollectorOptions,
+		pattern string,
+	) error
+}
+
 // ProjectFormatterOptions are options for formatting a project.
 type ProjectFormatterOptions struct {
 	ProjectInfo
@@ -167,6 +188,9 @@ type Workflow struct {
 
 	// Tester stores a tester for the project
 	Tester ProjectTester
+
+	// CoverageCollector stores a coverage collector for the project
+	CoverageCollector ProjectCoverageCollector
 
 	// Formatter stores a formatter for the project
 	Formatter ProjectFormatter

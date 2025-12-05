@@ -17,6 +17,8 @@ type RunOptions struct {
 	Output io.Writer
 	// Error captures executable error output
 	Error io.Writer
+	// Env stores used environment variables, nil means use the current environment variables
+	Env []string
 	// Silent is a flag that disables cdt run info
 	Silent bool
 }

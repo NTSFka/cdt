@@ -119,7 +119,7 @@ func TestEnvironment_SystemEnvironment_FindExecutable(t *testing.T) {
 	executableName := "echo" // nolint:goconst
 
 	if runtime.GOOS == "windows" { // nolint: goconst
-		executableName = "cmd.exe"
+		executableName = "cmd.exe" // nolint: goconst
 	}
 
 	executable, err := internal.SystemEnvironment.FindExecutable(t.Context(), executableName)
@@ -160,7 +160,7 @@ func TestEnvironment_SystemEnvironment_RunExecutable(t *testing.T) {
 	args := []string{"test"}
 
 	if runtime.GOOS == "windows" { // nolint: goconst
-		executableName = "cmd.exe"
+		executableName = "cmd.exe" // nolint: goconst
 		args = []string{"/c", "echo", "test"}
 	}
 
@@ -169,6 +169,28 @@ func TestEnvironment_SystemEnvironment_RunExecutable(t *testing.T) {
 		Directory: ".",
 		Output:    &buffer,
 		Error:     nil,
+	}
+
+	err := internal.SystemEnvironment.RunExecutable(t.Context(), options, executableName, args)
+	require.NoError(t, err)
+	assert.Contains(t, buffer.String(), "test")
+}
+
+func TestEnvironment_SystemEnvironment_RunExecutable_Env(t *testing.T) {
+	executableName := "printenv"
+	args := []string{"MESSAGE"}
+
+	if runtime.GOOS == "windows" { // nolint: goconst
+		executableName = "cmd.exe" // nolint: goconst
+		args = []string{"/c", "echo", "%MESSAGE%"}
+	}
+
+	buffer := bytes.Buffer{}
+	options := internal.RunOptions{
+		Directory: ".",
+		Output:    &buffer,
+		Error:     nil,
+		Env:       []string{"MESSAGE=test"},
 	}
 
 	err := internal.SystemEnvironment.RunExecutable(t.Context(), options, executableName, args)

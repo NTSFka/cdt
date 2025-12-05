@@ -127,3 +127,42 @@ func TestPHPUnit_PHPUnit_Test(t *testing.T) {
 
 	exec.AssertExpectations(t)
 }
+
+func TestPHPUnit_PHPUnit_CollectCoverageAll(t *testing.T) {
+	exec := test.NewExecutable(t)
+
+	phpUnit := tool.NewPHPUnit(exec.LazyExecutable("test"))
+
+	info := internal.ProjectInfo{Directory: "."}
+
+	exec.OnRun("test", []string{"--coverage-text"}).
+		Return(nil)
+
+	err := phpUnit.CollectCoverageAll(
+		t.Context(),
+		internal.ProjectCoverageCollectorOptions{ProjectInfo: info},
+	)
+	require.NoError(t, err)
+
+	exec.AssertExpectations(t)
+}
+
+func TestPHPUnit_PHPUnit_CollectCoveragePattern(t *testing.T) {
+	exec := test.NewExecutable(t)
+
+	phpUnit := tool.NewPHPUnit(exec.LazyExecutable("test"))
+
+	info := internal.ProjectInfo{Directory: "."}
+
+	exec.OnRun("test", []string{"--coverage-text", "tests/*"}).
+		Return(nil)
+
+	err := phpUnit.CollectCoveragePattern(
+		t.Context(),
+		internal.ProjectCoverageCollectorOptions{ProjectInfo: info},
+		"tests/*",
+	)
+	require.NoError(t, err)
+
+	exec.AssertExpectations(t)
+}

@@ -51,6 +51,27 @@ func TestPhpTest(t *testing.T) {
 	require.Contains(t, buffer.String(), "OK")
 }
 
+func TestPhpCoverage(t *testing.T) {
+	environment := internal.SystemEnvironment
+
+	checkTool(t, t.Context(), environment, "php")
+
+	outputDir := t.TempDir()
+
+	// Install dependencies
+	var err error
+	err = runCdt(t.Context(), "-w", "php", "-r", "data/php", "-o", outputDir, "dep", "install")
+	require.NoError(t, err)
+
+	buffer := bytes.Buffer{}
+	err = runCdtOutput(t.Context(), os.Stdout, io.MultiWriter(os.Stderr, &buffer),
+		"-w", "php", "-r", "data/php", "-o", outputDir,
+		"coverage",
+	)
+	require.NoError(t, err)
+	require.Contains(t, buffer.String(), "OK")
+}
+
 func TestPhpFormat(t *testing.T) {
 	environment := internal.SystemEnvironment
 
