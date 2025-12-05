@@ -451,7 +451,7 @@ func TestCoverageCollectorFallback_CollectCoverageAll_Empty(t *testing.T) {
 
 	err := fallback.CollectCoverageAll(t.Context(), internal.ProjectCoverageCollectorOptions{})
 
-	require.EqualError(t, err, "no tester tool available: none")
+	require.EqualError(t, err, "no coverage tool available: none")
 }
 
 func TestCoverageCollectorFallback_CollectCoverageAll_NoAvailable(t *testing.T) {
@@ -462,7 +462,7 @@ func TestCoverageCollectorFallback_CollectCoverageAll_NoAvailable(t *testing.T) 
 
 	err := fallback.CollectCoverageAll(t.Context(), internal.ProjectCoverageCollectorOptions{})
 
-	require.EqualError(t, err, "no tester tool available: test1, test2")
+	require.EqualError(t, err, "no coverage tool available: test1, test2")
 
 	tool1.AssertExpectations(t)
 	tool2.AssertExpectations(t)
@@ -513,7 +513,7 @@ func TestCoverageCollectorFallback_CollectCoveragePattern_Empty(t *testing.T) {
 		"target1",
 	)
 
-	require.EqualError(t, err, "no tester tool available: none")
+	require.EqualError(t, err, "no coverage tool available: none")
 }
 
 func TestCoverageCollectorFallback_CollectCoveragePattern_NoAvailable(t *testing.T) {
@@ -528,7 +528,7 @@ func TestCoverageCollectorFallback_CollectCoveragePattern_NoAvailable(t *testing
 		"target1",
 	)
 
-	require.EqualError(t, err, "no tester tool available: test1, test2")
+	require.EqualError(t, err, "no coverage tool available: test1, test2")
 
 	tool1.AssertExpectations(t)
 	tool2.AssertExpectations(t)
