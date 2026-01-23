@@ -26,8 +26,15 @@ func indent() string {
 	return strings.Repeat(" ", traceIndent)
 }
 
-// Trace captures a function call by storing start and end.
-func Trace[R any](ctx context.Context, name string, function func() R, args ...any) R {
+// TraceHandle capture tracing start of some call and allowing to finish the trace later via Done().
+type TraceHandle struct {
+	name   string
+	logger *slog.Logger
+	start  time.Time
+}
+
+// TraceStart starts tracing of some call.
+func TraceStart(ctx context.Context, name string, args ...any) TraceHandle {
 	logger := slog.With(args...)
 
 	logger.DebugContext(ctx, indent()+"+ "+name)
@@ -36,11 +43,29 @@ func Trace[R any](ctx context.Context, name string, function func() R, args ...a
 
 	start := time.Now()
 
-	res := function()
+	return TraceHandle{
+		name:   name,
+		logger: logger,
+		start:  start,
+	}
+}
 
+func (t TraceHandle) Done(ctx context.Context, args ...any) {
 	traceIndent--
 
-	logger.DebugContext(ctx, indent()+"- "+name, "result", res, "duration", time.Since(start))
+	t.logger.DebugContext(
+		ctx,
+		indent()+"- "+t.name,
+		append(args, "duration", time.Since(t.start))...)
+}
+
+// Trace captures a function call by storing start and end.
+func Trace[R any](ctx context.Context, name string, function func() R, args ...any) R {
+	trace := TraceStart(ctx, name, args...)
+
+	res := function()
+
+	trace.Done(ctx, "result", res)
 
 	return res
 }
@@ -52,28 +77,11 @@ func TraceErr[R any](
 	function func() (R, error),
 	args ...any,
 ) (R, error) {
-	logger := slog.With(args...)
-
-	logger.DebugContext(ctx, indent()+"+ "+name)
-
-	traceIndent++
-
-	start := time.Now()
+	trace := TraceStart(ctx, name, args...)
 
 	res, err := function()
 
-	traceIndent--
-
-	logger.DebugContext(
-		ctx,
-		indent()+"- "+name,
-		"result",
-		res,
-		"error",
-		err,
-		"duration",
-		time.Since(start),
-	)
+	trace.Done(ctx, "result", res, "error", err)
 
 	return res, err
 }
