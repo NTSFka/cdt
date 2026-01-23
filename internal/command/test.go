@@ -1,11 +1,10 @@
 package command
 
 import (
+	"cdt/internal"
 	"context"
 	"errors"
 	"fmt"
-
-	"cdt/internal"
 
 	"github.com/urfave/cli/v3"
 )
@@ -19,6 +18,12 @@ func NewTestCommand() *cli.Command {
 			&cli.StringFlag{
 				Name:  "tool",
 				Usage: "Use specific test tool",
+			},
+			&cli.StringFlag{
+				Name:    "output",
+				Aliases: []string{"o"},
+				Usage: "The test report output format in form: <format>[:<filename>]. When <filename> is not " +
+					"specified the result is written to stdout. Available formats: raw, json, ctrf",
 			},
 		},
 		Arguments: []cli.Argument{
@@ -56,9 +61,15 @@ func testCommandAction(ctx context.Context, cmd *cli.Command) error {
 		return errors.New("project doesn't support testing")
 	}
 
+	outputOptions := ParseOptionOutput[internal.TestsReportFormat](
+		cmd.String("output"),
+		internal.TestsReportFormatRaw,
+	)
+
 	options := internal.ProjectTesterOptions{
 		ProjectInfo: cmdContext.Project.Info,
 		ExtraArgs:   cmd.Args().Tail(),
+		Output:      outputOptions,
 	}
 
 	var err error

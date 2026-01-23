@@ -2,6 +2,12 @@ package internal
 
 import "context"
 
+// OutputOptions specifies output options for various operations.
+type OutputOptions[T any] struct {
+	Format   T
+	Filename *string
+}
+
 // ProjectConfiguratorOptions are options for configuring a project.
 type ProjectConfiguratorOptions struct {
 	ProjectInfo
@@ -33,12 +39,24 @@ type ProjectBuilder interface {
 	BuildTargets(ctx context.Context, options ProjectBuilderOptions, targets []string) error
 }
 
+// TestsReportFormat specifies the format of the tests report.
+type TestsReportFormat string
+
+const (
+	TestsReportFormatRaw  TestsReportFormat = "raw"
+	TestsReportFormatJson TestsReportFormat = "json"
+	TestsReportFormatCtrf TestsReportFormat = "ctrf"
+)
+
 // ProjectTesterOptions are options for testing a project.
 type ProjectTesterOptions struct {
 	ProjectInfo
 
 	// ExtraArgs are extra arguments for the specific tester implementation
 	ExtraArgs []string
+
+	// Output specifies how the operation should produce output
+	Output OutputOptions[TestsReportFormat]
 }
 
 // A ProjectTester allow testing a project.
