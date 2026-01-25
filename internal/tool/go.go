@@ -2,12 +2,18 @@ package tool
 
 import (
 	"bytes"
+	"cdt/internal"
 	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
+	"os"
+	"runtime"
 
-	"cdt/internal"
+	"github.com/ctrf-io/go-ctrf-json-reporter/ctrf"
+	"github.com/ctrf-io/go-ctrf-json-reporter/reporter"
+	"golang.org/x/sync/errgroup"
 )
 
 const IdGo = "go"
@@ -120,7 +126,7 @@ func (g *Go) RunTarget(
 }
 
 func (g *Go) TestAll(ctx context.Context, options internal.ProjectTesterOptions) error {
-	return g.RunForProject(ctx, options.ProjectInfo, append(options.ExtraArgs, "test", "./..."))
+	return g.TestPattern(ctx, options, "./...")
 }
 
 func (g *Go) TestPattern(
@@ -128,7 +134,20 @@ func (g *Go) TestPattern(
 	options internal.ProjectTesterOptions,
 	pattern string,
 ) error {
-	return g.RunForProject(ctx, options.ProjectInfo, append(options.ExtraArgs, "test", pattern))
+	switch options.Output.Format {
+	case internal.TestsReportFormatDefault:
+		fallthrough
+	case internal.TestsReportFormatRaw:
+		return g.RunForProject(ctx, options.ProjectInfo, append(options.ExtraArgs, "test", pattern))
+
+	case internal.TestsReportFormatJson:
+		return g.testPatternJson(ctx, options, pattern)
+
+	case internal.TestsReportFormatCtrf:
+		return g.testPatternCtrf(ctx, options, pattern)
+	}
+
+	return fmt.Errorf("unknown report format: %s", options.Output.Format)
 }
 
 func (g *Go) FormatAll(ctx context.Context, options internal.ProjectFormatterOptions) error {
@@ -239,4 +258,136 @@ func (g *Go) AuditDependencies(
 	_ internal.ProjectDependencyManagerOptions,
 ) error {
 	return errors.New("not supported")
+}
+
+func (g *Go) testPatternJson(
+	ctx context.Context,
+	options internal.ProjectTesterOptions,
+	pattern string,
+) error {
+	var writer io.Writer = os.Stdout
+
+	if options.Output.Filename != nil {
+		file, err := os.OpenFile(*options.Output.Filename, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0644)
+
+		if err != nil {
+			return fmt.Errorf("failed to open output file: %w", err)
+		}
+
+		writer = file
+
+		defer func() {
+			_ = file.Close()
+		}()
+	}
+
+	runOptions := internal.RunOptions{
+		Directory: options.Directory,
+		Output:    writer,
+	}
+
+	return g.Run(
+		ctx,
+		runOptions,
+		append(options.ExtraArgs, "test", "-json", pattern),
+	)
+}
+
+func (g *Go) testPatternCtrfProcess(
+	reader io.Reader,
+	outputFilename *string,
+) error {
+	env := &ctrf.Environment{
+		AppName:    "cdt",
+		OSPlatform: runtime.GOOS,
+	}
+
+	report, err := reporter.ParseTestResults(reader, false, env)
+	if err != nil {
+		return fmt.Errorf("error parsing test results: %w", err)
+	}
+
+	if outputFilename != nil {
+		err = report.WriteFile(*outputFilename)
+	} else {
+		err = report.Write(os.Stdout, true)
+	}
+
+	if err != nil {
+		return fmt.Errorf("error writing the report to file: %w", err)
+	}
+
+	var buildFailed bool
+
+	if report.Results.Extra != nil {
+		extraMap, isMap := report.Results.Extra.(map[string]any)
+		if !isMap {
+			err = fmt.Errorf("expected a map, but got %T instead", report.Results.Extra)
+
+			return fmt.Errorf("error extracting report results: %w", err)
+		}
+
+		if _, ok := extraMap["buildFail"]; ok {
+			buildFailed = true
+		}
+
+		if _, ok := extraMap["FailedBuild"]; ok {
+			buildFailed = true
+		}
+	}
+
+	if report.Results.Summary.Failed > 0 {
+		buildFailed = true
+	}
+
+	if buildFailed {
+		return errors.New("build failed")
+	}
+
+	return nil
+}
+
+func (g *Go) testPatternCtrf(
+	ctx context.Context,
+	options internal.ProjectTesterOptions,
+	pattern string,
+) error {
+	// TODO: use Pipe from created process
+	reader, writer, err := os.Pipe()
+
+	if err != nil {
+		return fmt.Errorf("failed to create pipe: %w", err)
+	}
+
+	defer func() {
+		_ = reader.Close()
+	}()
+	defer func() {
+		_ = writer.Close()
+	}()
+
+	runOptions := internal.RunOptions{
+		Directory: options.Directory,
+		Input:     os.Stdin,
+		Output:    writer,
+		Error:     os.Stderr,
+	}
+
+	group, ctx := errgroup.WithContext(ctx)
+
+	group.Go(func() error {
+		return g.testPatternCtrfProcess(reader, options.Output.Filename)
+	})
+
+	group.Go(
+		func() error {
+			err := g.Run(ctx, runOptions, append(options.ExtraArgs, "test", "-json", pattern))
+
+			_ = writer.Close()
+
+			return err
+		},
+	)
+
+	return group.Wait()
 }

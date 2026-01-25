@@ -2,6 +2,8 @@ package tool_test
 
 import (
 	"errors"
+	"os"
+	"path/filepath"
 	"testing"
 
 	"cdt/internal"
@@ -351,6 +353,101 @@ func TestGo_Test_Failed(t *testing.T) {
 		"test1",
 	)
 	require.EqualError(t, err, "failed")
+
+	exec.AssertExpectations(t)
+}
+
+func TestGo_TestPattern_UnknownFormat(t *testing.T) {
+	exec := test.NewExecutable(t)
+
+	goTool := tool.NewGo(exec.LazyExecutable("go"))
+
+	info := internal.ProjectInfo{Directory: "."}
+
+	err := goTool.TestPattern(
+		t.Context(),
+		internal.ProjectTesterOptions{
+			ProjectInfo: info,
+			Output:      internal.OutputOptions[internal.TestsReportFormat]{Format: "test"},
+		},
+		"test1",
+	)
+	require.EqualError(t, err, "unknown report format: test")
+
+	exec.AssertExpectations(t)
+}
+
+func TestGo_TestPattern_FormatJson(t *testing.T) {
+	exec := test.NewExecutable(t)
+
+	goTool := tool.NewGo(exec.LazyExecutable("go"))
+
+	info := internal.ProjectInfo{Directory: "."}
+
+	exec.OnRunOutput("go", []string{"test", "-json", "test1"}, `
+		{"Time":"2026-01-25T15:57:17.480674482+01:00","Action":"start","Package":"t"}
+		{"Time":"2026-01-25T15:57:17.480691796+01:00","Action":"run","Package":"t","Test":"Test1"}
+		{"Time":"2026-01-25T15:57:17.480717611+01:00","Action":"pass","Package":"t","Test":"Test1","Elapsed":0}
+	`).
+		Return(nil)
+
+	tempDir := t.TempDir()
+	reportFilename := filepath.Join(tempDir, "report.json")
+
+	err := goTool.TestPattern(
+		t.Context(),
+		internal.ProjectTesterOptions{
+			ProjectInfo: info,
+			Output: internal.OutputOptions[internal.TestsReportFormat]{
+				Format:   internal.TestsReportFormatJson,
+				Filename: &reportFilename,
+			},
+		},
+		"test1",
+	)
+	require.NoError(t, err)
+
+	report, err := os.ReadFile(reportFilename)
+	require.NoError(t, err)
+	assert.NotEmpty(t, string(report))
+
+	exec.AssertExpectations(t)
+}
+
+func TestGo_TestPattern_FormatCtrf(t *testing.T) {
+	exec := test.NewExecutable(t)
+
+	goTool := tool.NewGo(exec.LazyExecutable("go"))
+
+	info := internal.ProjectInfo{Directory: "."}
+
+	exec.OnRunOutput("go", []string{"test", "-json", "test1"}, `
+		{"Time":"2026-01-25T15:57:17.480674482+01:00","Action":"start","Package":"t"}
+		{"Time":"2026-01-25T15:57:17.480691796+01:00","Action":"run","Package":"t","Test":"Test1"}
+		{"Time":"2026-01-25T15:57:17.480717611+01:00","Action":"pass","Package":"t","Test":"Test1","Elapsed":0}
+	`).
+		Return(nil)
+
+	tempDir := t.TempDir()
+	reportFilename := filepath.Join(tempDir, "report.json")
+
+	err := goTool.TestPattern(
+		t.Context(),
+		internal.ProjectTesterOptions{
+			ProjectInfo: info,
+			Output: internal.OutputOptions[internal.TestsReportFormat]{
+				Format:   internal.TestsReportFormatCtrf,
+				Filename: &reportFilename,
+			},
+		},
+		"test1",
+	)
+	require.NoError(t, err)
+
+	report, err := os.ReadFile(reportFilename)
+	require.NoError(t, err)
+
+	assert.Contains(t, string(report), `"Test1"`)
 
 	exec.AssertExpectations(t)
 }

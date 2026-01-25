@@ -43,9 +43,10 @@ type ProjectBuilder interface {
 type TestsReportFormat string
 
 const (
-	TestsReportFormatRaw  TestsReportFormat = "raw"
-	TestsReportFormatJson TestsReportFormat = "json"
-	TestsReportFormatCtrf TestsReportFormat = "ctrf"
+	TestsReportFormatDefault TestsReportFormat = ""
+	TestsReportFormatRaw     TestsReportFormat = "raw"
+	TestsReportFormatJson    TestsReportFormat = "json"
+	TestsReportFormatCtrf    TestsReportFormat = "ctrf"
 )
 
 // ProjectTesterOptions are options for testing a project.
