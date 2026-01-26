@@ -2,6 +2,7 @@ package tool
 
 import (
 	"context"
+	"fmt"
 
 	"cdt/internal"
 )
@@ -37,7 +38,7 @@ func NewPyTest(detect internal.ExecutableToolDetectFunc) *PyTest {
 }
 
 func (p *PyTest) TestAll(ctx context.Context, options internal.ProjectTesterOptions) error {
-	return p.RunForProject(ctx, options.ProjectInfo, options.ExtraArgs)
+	return p.runTests(ctx, options, nil)
 }
 
 func (p *PyTest) TestPattern(
@@ -45,5 +46,31 @@ func (p *PyTest) TestPattern(
 	options internal.ProjectTesterOptions,
 	pattern string,
 ) error {
-	return p.RunForProject(ctx, options.ProjectInfo, append(options.ExtraArgs, pattern))
+	return p.runTests(ctx, options, &pattern)
+}
+
+func (p *PyTest) runTests(
+	ctx context.Context,
+	options internal.ProjectTesterOptions,
+	pattern *string,
+) error {
+	// TODO: other report formats
+	switch options.Output.Format {
+	case internal.TestsReportFormatDefault:
+		fallthrough
+	case internal.TestsReportFormatRaw:
+		args := options.ExtraArgs
+
+		if pattern != nil {
+			args = append(args, *pattern)
+		}
+
+		return p.RunForProject(ctx, options.ProjectInfo, args)
+	case internal.TestsReportFormatJson:
+		break
+	case internal.TestsReportFormatCtrf:
+		break
+	}
+
+	return fmt.Errorf("unknown report format: %s", options.Output.Format)
 }

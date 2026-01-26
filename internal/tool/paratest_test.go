@@ -129,6 +129,26 @@ func TestParaTest_ParaTest_Test(t *testing.T) {
 	exec.AssertExpectations(t)
 }
 
+func TestParaTest_TestPattern_UnknownFormat(t *testing.T) {
+	exec := test.NewExecutable(t)
+
+	paraTest := tool.NewParaTest(exec.LazyExecutable("test"))
+
+	info := internal.ProjectInfo{Directory: "."}
+
+	err := paraTest.TestPattern(
+		t.Context(),
+		internal.ProjectTesterOptions{
+			ProjectInfo: info,
+			Output:      internal.OutputOptions[internal.TestsReportFormat]{Format: "test"},
+		},
+		"test1",
+	)
+	require.EqualError(t, err, "unknown report format: test")
+
+	exec.AssertExpectations(t)
+}
+
 func TestParaTest_ParaTest_CollectCoverageAll(t *testing.T) {
 	exec := test.NewExecutable(t)
 

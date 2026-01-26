@@ -100,3 +100,23 @@ func TestPyTest_PyTest_Test(t *testing.T) {
 
 	exec.AssertExpectations(t)
 }
+
+func TestPyTest_TestPattern_UnknownFormat(t *testing.T) {
+	exec := test.NewExecutable(t)
+
+	pyTest := tool.NewPyTest(exec.LazyExecutable("test"))
+
+	info := internal.ProjectInfo{Directory: "."}
+
+	err := pyTest.TestPattern(
+		t.Context(),
+		internal.ProjectTesterOptions{
+			ProjectInfo: info,
+			Output:      internal.OutputOptions[internal.TestsReportFormat]{Format: "test"},
+		},
+		"test1",
+	)
+	require.EqualError(t, err, "unknown report format: test")
+
+	exec.AssertExpectations(t)
+}

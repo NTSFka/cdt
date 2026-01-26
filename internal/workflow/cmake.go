@@ -69,11 +69,7 @@ func (t *cmakeTester) Details() string {
 }
 
 func (t *cmakeTester) TestAll(ctx context.Context, options internal.ProjectTesterOptions) error {
-	if err := t.cmakeTool.BuildAll(ctx, internal.ProjectBuilderOptions{ProjectInfo: options.ProjectInfo}); err != nil {
-		return fmt.Errorf("build failed: %w", err)
-	}
-
-	return t.ctestTool.RunForProject(ctx, options.ProjectInfo, options.ExtraArgs)
+	return t.runTests(ctx, options, nil)
 }
 
 func (t *cmakeTester) TestPattern(
@@ -81,13 +77,35 @@ func (t *cmakeTester) TestPattern(
 	options internal.ProjectTesterOptions,
 	pattern string,
 ) error {
+	return t.runTests(ctx, options, &pattern)
+}
+
+func (t *cmakeTester) runTests(
+	ctx context.Context,
+	options internal.ProjectTesterOptions,
+	pattern *string,
+) error {
 	if err := t.cmakeTool.BuildAll(ctx, internal.ProjectBuilderOptions{ProjectInfo: options.ProjectInfo}); err != nil {
 		return fmt.Errorf("build failed: %w", err)
 	}
 
-	return t.ctestTool.RunForProject(
-		ctx,
-		options.ProjectInfo,
-		append(options.ExtraArgs, "-R", pattern),
-	)
+	// TODO: other report formats
+	switch options.Output.Format {
+	case internal.TestsReportFormatDefault:
+		fallthrough
+	case internal.TestsReportFormatRaw:
+		args := options.ExtraArgs
+
+		if pattern != nil {
+			args = append(args, "-R", *pattern)
+		}
+
+		return t.ctestTool.RunForProject(ctx, options.ProjectInfo, args)
+	case internal.TestsReportFormatJson:
+		break
+	case internal.TestsReportFormatCtrf:
+		break
+	}
+
+	return fmt.Errorf("unknown report format: %s", options.Output.Format)
 }

@@ -128,6 +128,26 @@ func TestPHPUnit_PHPUnit_Test(t *testing.T) {
 	exec.AssertExpectations(t)
 }
 
+func TestPHPUnit_TestPattern_UnknownFormat(t *testing.T) {
+	exec := test.NewExecutable(t)
+
+	phpUnit := tool.NewPHPUnit(exec.LazyExecutable("test"))
+
+	info := internal.ProjectInfo{Directory: "."}
+
+	err := phpUnit.TestPattern(
+		t.Context(),
+		internal.ProjectTesterOptions{
+			ProjectInfo: info,
+			Output:      internal.OutputOptions[internal.TestsReportFormat]{Format: "test"},
+		},
+		"test1",
+	)
+	require.EqualError(t, err, "unknown report format: test")
+
+	exec.AssertExpectations(t)
+}
+
 func TestPHPUnit_PHPUnit_CollectCoverageAll(t *testing.T) {
 	exec := test.NewExecutable(t)
 
