@@ -101,11 +101,13 @@ func (t *cmakeTester) runTests(
 		}
 
 		return t.ctestTool.RunForProject(ctx, options.ProjectInfo, args)
+	case internal.TestsReportFormatEvents:
+		break
 	case internal.TestsReportFormatJson:
 		break
 	case internal.TestsReportFormatCtrf:
 		break
 	}
 
-	return fmt.Errorf("unknown report format: %s", options.Output.Format)
+	return fmt.Errorf("unsupported report format: %s", options.Output.Format)
 }

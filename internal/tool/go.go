@@ -140,6 +140,9 @@ func (g *Go) TestPattern(
 	case internal.TestsReportFormatRaw:
 		return g.RunForProject(ctx, options.ProjectInfo, append(options.ExtraArgs, "test", pattern))
 
+	case internal.TestsReportFormatEvents:
+		break
+
 	case internal.TestsReportFormatJson:
 		return g.testPatternJson(ctx, options, pattern)
 
@@ -147,7 +150,7 @@ func (g *Go) TestPattern(
 		return g.testPatternCtrf(ctx, options, pattern)
 	}
 
-	return fmt.Errorf("unknown report format: %s", options.Output.Format)
+	return fmt.Errorf("unsupported report format: %s", options.Output.Format)
 }
 
 func (g *Go) FormatAll(ctx context.Context, options internal.ProjectFormatterOptions) error {

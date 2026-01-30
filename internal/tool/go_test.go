@@ -357,7 +357,7 @@ func TestGo_Test_Failed(t *testing.T) {
 	exec.AssertExpectations(t)
 }
 
-func TestGo_TestPattern_UnknownFormat(t *testing.T) {
+func TestGo_TestPattern_UnsupportedFormat(t *testing.T) {
 	exec := test.NewExecutable(t)
 
 	goTool := tool.NewGo(exec.LazyExecutable("go"))
@@ -372,7 +372,7 @@ func TestGo_TestPattern_UnknownFormat(t *testing.T) {
 		},
 		"test1",
 	)
-	require.EqualError(t, err, "unknown report format: test")
+	require.EqualError(t, err, "unsupported report format: test")
 
 	exec.AssertExpectations(t)
 }

@@ -45,6 +45,7 @@ type TestsReportFormat string
 const (
 	TestsReportFormatDefault TestsReportFormat = ""
 	TestsReportFormatRaw     TestsReportFormat = "raw"
+	TestsReportFormatEvents  TestsReportFormat = "events"
 	TestsReportFormatJson    TestsReportFormat = "json"
 	TestsReportFormatCtrf    TestsReportFormat = "ctrf"
 )

@@ -101,7 +101,7 @@ func TestPyTest_PyTest_Test(t *testing.T) {
 	exec.AssertExpectations(t)
 }
 
-func TestPyTest_TestPattern_UnknownFormat(t *testing.T) {
+func TestPyTest_TestPattern_UnsupportedFormat(t *testing.T) {
 	exec := test.NewExecutable(t)
 
 	pyTest := tool.NewPyTest(exec.LazyExecutable("test"))
@@ -116,7 +116,7 @@ func TestPyTest_TestPattern_UnknownFormat(t *testing.T) {
 		},
 		"test1",
 	)
-	require.EqualError(t, err, "unknown report format: test")
+	require.EqualError(t, err, "unsupported report format: test")
 
 	exec.AssertExpectations(t)
 }

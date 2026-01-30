@@ -129,7 +129,7 @@ func TestParaTest_ParaTest_Test(t *testing.T) {
 	exec.AssertExpectations(t)
 }
 
-func TestParaTest_TestPattern_UnknownFormat(t *testing.T) {
+func TestParaTest_TestPattern_UnsupportedFormat(t *testing.T) {
 	exec := test.NewExecutable(t)
 
 	paraTest := tool.NewParaTest(exec.LazyExecutable("test"))
@@ -144,7 +144,7 @@ func TestParaTest_TestPattern_UnknownFormat(t *testing.T) {
 		},
 		"test1",
 	)
-	require.EqualError(t, err, "unknown report format: test")
+	require.EqualError(t, err, "unsupported report format: test")
 
 	exec.AssertExpectations(t)
 }
