@@ -139,15 +139,16 @@ func (g *Go) TestPattern(
 		fallthrough
 	case internal.TestsReportFormatRaw:
 		return g.RunForProject(ctx, options.ProjectInfo, append(options.ExtraArgs, "test", pattern))
-
-	case internal.TestsReportFormatEvents:
-		break
-
-	case internal.TestsReportFormatJson:
+	case internal.TestsReportFormatRawEvents:
 		return g.testPatternJson(ctx, options, pattern)
-
+	case internal.TestsReportFormatJson:
+		break
 	case internal.TestsReportFormatCtrf:
 		return g.testPatternCtrf(ctx, options, pattern)
+	case internal.TestsReportFormatJUnit:
+		break
+	case internal.TestsReportFormatTeamCity:
+		break
 	}
 
 	return fmt.Errorf("unsupported report format: %s", options.Output.Format)

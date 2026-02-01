@@ -129,22 +129,112 @@ func TestParaTest_ParaTest_Test(t *testing.T) {
 	exec.AssertExpectations(t)
 }
 
-func TestParaTest_TestPattern_UnsupportedFormat(t *testing.T) {
+func TestParaTest_TestPattern_FormatUnsupported(t *testing.T) {
 	exec := test.NewExecutable(t)
 
 	paraTest := tool.NewParaTest(exec.LazyExecutable("test"))
 
 	info := internal.ProjectInfo{Directory: "."}
+	data := []internal.TestsReportFormat{
+		"test",
+		internal.TestsReportFormatJson,
+		internal.TestsReportFormatCtrf,
+	}
+
+	for _, format := range data {
+		t.Run(string(format), func(t *testing.T) {
+			err := paraTest.TestPattern(
+				t.Context(),
+				internal.ProjectTesterOptions{
+					ProjectInfo: info,
+					Output:      internal.OutputOptions[internal.TestsReportFormat]{Format: format},
+				},
+				"test1",
+			)
+			require.EqualError(t, err, "unsupported report format: "+string(format))
+
+			exec.AssertExpectations(t)
+		})
+	}
+}
+
+func TestParaTest_TestPattern_FormatRawEvents(t *testing.T) {
+	exec := test.NewExecutable(t)
+
+	paraTest := tool.NewParaTest(exec.LazyExecutable("test"))
+
+	info := internal.ProjectInfo{Directory: "."}
+	reportFilename := "paratest-raw-events.txt"
+
+	exec.OnRun("test", []string{"test1", "--log-events-text", reportFilename}).
+		Return(nil)
 
 	err := paraTest.TestPattern(
 		t.Context(),
 		internal.ProjectTesterOptions{
 			ProjectInfo: info,
-			Output:      internal.OutputOptions[internal.TestsReportFormat]{Format: "test"},
+			Output: internal.OutputOptions[internal.TestsReportFormat]{
+				Format:   internal.TestsReportFormatRawEvents,
+				Filename: &reportFilename,
+			},
 		},
 		"test1",
 	)
-	require.EqualError(t, err, "unsupported report format: test")
+	require.NoError(t, err)
+
+	exec.AssertExpectations(t)
+}
+
+func TestParaTest_TestPattern_FormatJUnit(t *testing.T) {
+	exec := test.NewExecutable(t)
+
+	paraTest := tool.NewParaTest(exec.LazyExecutable("test"))
+
+	info := internal.ProjectInfo{Directory: "."}
+	reportFilename := "paratest-junit.xml"
+
+	exec.OnRun("test", []string{"test1", "--log-junit", reportFilename}).
+		Return(nil)
+
+	err := paraTest.TestPattern(
+		t.Context(),
+		internal.ProjectTesterOptions{
+			ProjectInfo: info,
+			Output: internal.OutputOptions[internal.TestsReportFormat]{
+				Format:   internal.TestsReportFormatJUnit,
+				Filename: &reportFilename,
+			},
+		},
+		"test1",
+	)
+	require.NoError(t, err)
+
+	exec.AssertExpectations(t)
+}
+
+func TestParaTest_TestPattern_FormatTeamCity(t *testing.T) {
+	exec := test.NewExecutable(t)
+
+	paraTest := tool.NewParaTest(exec.LazyExecutable("test"))
+
+	info := internal.ProjectInfo{Directory: "."}
+	reportFilename := "paratest-teamcity.xml"
+
+	exec.OnRun("test", []string{"test1", "--log-teamcity", reportFilename}).
+		Return(nil)
+
+	err := paraTest.TestPattern(
+		t.Context(),
+		internal.ProjectTesterOptions{
+			ProjectInfo: info,
+			Output: internal.OutputOptions[internal.TestsReportFormat]{
+				Format:   internal.TestsReportFormatTeamCity,
+				Filename: &reportFilename,
+			},
+		},
+		"test1",
+	)
+	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
 }

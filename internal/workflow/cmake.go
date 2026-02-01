@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"path/filepath"
+	"runtime"
 
 	"cdt/internal"
 	"cdt/internal/tool"
@@ -80,6 +81,7 @@ func (t *cmakeTester) TestPattern(
 	return t.runTests(ctx, options, &pattern)
 }
 
+// nolint: cyclop
 func (t *cmakeTester) runTests(
 	ctx context.Context,
 	options internal.ProjectTesterOptions,
@@ -89,23 +91,37 @@ func (t *cmakeTester) runTests(
 		return fmt.Errorf("build failed: %w", err)
 	}
 
+	args := options.ExtraArgs
+
+	if pattern != nil {
+		args = append(args, "-R", *pattern)
+	}
+
+	filename := internal.DefaultString(options.Output.Filename, "/dev/stdout")
+
 	// TODO: other report formats
 	switch options.Output.Format {
 	case internal.TestsReportFormatDefault:
 		fallthrough
 	case internal.TestsReportFormatRaw:
-		args := options.ExtraArgs
-
-		if pattern != nil {
-			args = append(args, "-R", *pattern)
-		}
-
 		return t.ctestTool.RunForProject(ctx, options.ProjectInfo, args)
-	case internal.TestsReportFormatEvents:
+	case internal.TestsReportFormatRawEvents:
 		break
 	case internal.TestsReportFormatJson:
 		break
 	case internal.TestsReportFormatCtrf:
+		break
+	case internal.TestsReportFormatJUnit:
+		if runtime.GOOS == "windows" && options.Output.Filename == nil {
+			return fmt.Errorf("output to stdout is not supported on Windows")
+		}
+
+		return t.ctestTool.RunForProject(
+			ctx,
+			options.ProjectInfo,
+			append(args, "--output-junit", filename),
+		)
+	case internal.TestsReportFormatTeamCity:
 		break
 	}
 

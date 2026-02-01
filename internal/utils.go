@@ -43,3 +43,12 @@ func DetectTermWidth(writer io.Writer) *int {
 
 	return nil
 }
+
+// DefaultString returns the default value if the string is nil.
+func DefaultString(s *string, def string) string {
+	if s == nil {
+		return def
+	}
+
+	return *s
+}

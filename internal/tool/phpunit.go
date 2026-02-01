@@ -88,24 +88,42 @@ func (p *PHPUnit) runTests(
 	options internal.ProjectTesterOptions,
 	pattern *string,
 ) error {
+	args := options.ExtraArgs
+
+	if pattern != nil {
+		args = append(args, *pattern)
+	}
+
+	filename := internal.DefaultString(options.Output.Filename, "php://stdout")
+
 	// TODO: other report formats
 	switch options.Output.Format {
 	case internal.TestsReportFormatDefault:
 		fallthrough
 	case internal.TestsReportFormatRaw:
-		args := options.ExtraArgs
-
-		if pattern != nil {
-			args = append(args, *pattern)
-		}
-
 		return p.RunForProject(ctx, options.ProjectInfo, args)
-	case internal.TestsReportFormatEvents:
-		break
+	case internal.TestsReportFormatRawEvents:
+		return p.RunForProject(
+			ctx,
+			options.ProjectInfo,
+			append(args, "--log-events-text", filename),
+		)
 	case internal.TestsReportFormatJson:
 		break
 	case internal.TestsReportFormatCtrf:
 		break
+	case internal.TestsReportFormatJUnit:
+		return p.RunForProject(
+			ctx,
+			options.ProjectInfo,
+			append(args, "--log-junit", filename),
+		)
+	case internal.TestsReportFormatTeamCity:
+		return p.RunForProject(
+			ctx,
+			options.ProjectInfo,
+			append(args, "--log-teamcity", filename),
+		)
 	}
 
 	return fmt.Errorf("unsupported report format: %s", options.Output.Format)

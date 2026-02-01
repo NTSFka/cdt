@@ -357,27 +357,39 @@ func TestGo_Test_Failed(t *testing.T) {
 	exec.AssertExpectations(t)
 }
 
-func TestGo_TestPattern_UnsupportedFormat(t *testing.T) {
+func TestGo_TestPattern_FormatUnsupported(t *testing.T) {
 	exec := test.NewExecutable(t)
 
 	goTool := tool.NewGo(exec.LazyExecutable("go"))
 
 	info := internal.ProjectInfo{Directory: "."}
 
-	err := goTool.TestPattern(
-		t.Context(),
-		internal.ProjectTesterOptions{
-			ProjectInfo: info,
-			Output:      internal.OutputOptions[internal.TestsReportFormat]{Format: "test"},
-		},
-		"test1",
-	)
-	require.EqualError(t, err, "unsupported report format: test")
+	data := []internal.TestsReportFormat{
+		"test",
+		internal.TestsReportFormatJson,
+		internal.TestsReportFormatJUnit,
+		internal.TestsReportFormatTeamCity,
+	}
 
-	exec.AssertExpectations(t)
+	for _, format := range data {
+		t.Run(string(format), func(t *testing.T) {
+			err := goTool.TestPattern(
+				t.Context(),
+				internal.ProjectTesterOptions{
+					ProjectInfo: info,
+					Output:      internal.OutputOptions[internal.TestsReportFormat]{Format: format},
+				},
+				"test1",
+			)
+
+			require.EqualError(t, err, "unsupported report format: "+string(format))
+
+			exec.AssertExpectations(t)
+		})
+	}
 }
 
-func TestGo_TestPattern_FormatJson(t *testing.T) {
+func TestGo_TestPattern_FormatRawEvents(t *testing.T) {
 	exec := test.NewExecutable(t)
 
 	goTool := tool.NewGo(exec.LazyExecutable("go"))
@@ -399,7 +411,7 @@ func TestGo_TestPattern_FormatJson(t *testing.T) {
 		internal.ProjectTesterOptions{
 			ProjectInfo: info,
 			Output: internal.OutputOptions[internal.TestsReportFormat]{
-				Format:   internal.TestsReportFormatJson,
+				Format:   internal.TestsReportFormatRawEvents,
 				Filename: &reportFilename,
 			},
 		},
