@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"path/filepath"
+	"runtime"
 
 	"cdt/internal"
 	"cdt/internal/tool"
@@ -69,11 +70,7 @@ func (t *cmakeTester) Details() string {
 }
 
 func (t *cmakeTester) TestAll(ctx context.Context, options internal.ProjectTesterOptions) error {
-	if err := t.cmakeTool.BuildAll(ctx, internal.ProjectBuilderOptions{ProjectInfo: options.ProjectInfo}); err != nil {
-		return fmt.Errorf("build failed: %w", err)
-	}
-
-	return t.ctestTool.RunForProject(ctx, options.ProjectInfo, options.ExtraArgs)
+	return t.runTests(ctx, options, nil)
 }
 
 func (t *cmakeTester) TestPattern(
@@ -81,13 +78,52 @@ func (t *cmakeTester) TestPattern(
 	options internal.ProjectTesterOptions,
 	pattern string,
 ) error {
+	return t.runTests(ctx, options, &pattern)
+}
+
+// nolint: cyclop
+func (t *cmakeTester) runTests(
+	ctx context.Context,
+	options internal.ProjectTesterOptions,
+	pattern *string,
+) error {
 	if err := t.cmakeTool.BuildAll(ctx, internal.ProjectBuilderOptions{ProjectInfo: options.ProjectInfo}); err != nil {
 		return fmt.Errorf("build failed: %w", err)
 	}
 
-	return t.ctestTool.RunForProject(
-		ctx,
-		options.ProjectInfo,
-		append(options.ExtraArgs, "-R", pattern),
-	)
+	args := options.ExtraArgs
+
+	if pattern != nil {
+		args = append(args, "-R", *pattern)
+	}
+
+	filename := internal.DefaultString(options.Output.Filename, "/dev/stdout")
+
+	// TODO: other report formats
+	switch options.Output.Format {
+	case internal.TestsReportFormatDefault:
+		fallthrough
+	case internal.TestsReportFormatRaw:
+		return t.ctestTool.RunForProject(ctx, options.ProjectInfo, args)
+	case internal.TestsReportFormatRawEvents:
+		break
+	case internal.TestsReportFormatJson:
+		break
+	case internal.TestsReportFormatCtrf:
+		break
+	case internal.TestsReportFormatJUnit:
+		if runtime.GOOS == "windows" && options.Output.Filename == nil {
+			return fmt.Errorf("output to stdout is not supported on Windows")
+		}
+
+		return t.ctestTool.RunForProject(
+			ctx,
+			options.ProjectInfo,
+			append(args, "--output-junit", filename),
+		)
+	case internal.TestsReportFormatTeamCity:
+		break
+	}
+
+	return fmt.Errorf("unsupported report format: %s", options.Output.Format)
 }

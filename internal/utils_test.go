@@ -57,3 +57,8 @@ func TestDetectTermWidth_StdOut(t *testing.T) {
 
 	assert.Nil(t, width)
 }
+
+func TestDefaultString(t *testing.T) {
+	assert.Equal(t, "default", internal.DefaultString(nil, "default"))
+	assert.Equal(t, "test", internal.DefaultString(internal.StrPtr("test"), "default"))
+}

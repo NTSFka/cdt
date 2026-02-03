@@ -50,6 +50,35 @@ func TestTest_TestAll_Success(t *testing.T) {
 	tester.AssertExpectations(t)
 }
 
+func TestTest_TestAll_CustomOutput_Raw(t *testing.T) {
+	tester := test.NewProjectTester(t)
+	tester.On("TestAll", mock.Anything, mock.MatchedBy(func(options internal.ProjectTesterOptions) bool {
+		return assert.Equal(t, internal.TestsReportFormatRaw, options.Output.Format) &&
+			assert.Nil(t, options.Output.Filename)
+	})).
+		Return(nil)
+
+	err := runTest(t.Context(), tester, "--output", "raw")
+
+	require.NoError(t, err)
+	tester.AssertExpectations(t)
+}
+
+func TestTest_TestAll_CustomOutput_Json(t *testing.T) {
+	tester := test.NewProjectTester(t)
+	tester.On("TestAll", mock.Anything, mock.MatchedBy(func(options internal.ProjectTesterOptions) bool {
+		return assert.Equal(t, internal.TestsReportFormatJson, options.Output.Format) &&
+			assert.NotNil(t, options.Output.Filename) &&
+			assert.Equal(t, "tests.json", *options.Output.Filename)
+	})).
+		Return(nil)
+
+	err := runTest(t.Context(), tester, "-o", "json:tests.json")
+
+	require.NoError(t, err)
+	tester.AssertExpectations(t)
+}
+
 func TestTest_TestAll_Failure(t *testing.T) {
 	tester := test.NewProjectTester(t)
 	tester.On("TestAll", mock.Anything, mock.Anything).

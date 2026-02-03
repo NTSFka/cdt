@@ -2,6 +2,7 @@ package tool
 
 import (
 	"context"
+	"fmt"
 	"path/filepath"
 
 	"cdt/internal"
@@ -46,7 +47,7 @@ func NewPHPUnit(detect internal.ExecutableToolDetectFunc) *PHPUnit {
 }
 
 func (p *PHPUnit) TestAll(ctx context.Context, options internal.ProjectTesterOptions) error {
-	return p.RunForProject(ctx, options.ProjectInfo, options.ExtraArgs)
+	return p.runTests(ctx, options, nil)
 }
 
 func (p *PHPUnit) TestPattern(
@@ -54,7 +55,7 @@ func (p *PHPUnit) TestPattern(
 	options internal.ProjectTesterOptions,
 	pattern string,
 ) error {
-	return p.RunForProject(ctx, options.ProjectInfo, append(options.ExtraArgs, pattern))
+	return p.runTests(ctx, options, &pattern)
 }
 
 func (p *PHPUnit) CollectCoverageAll(
@@ -80,4 +81,50 @@ func (p *PHPUnit) CollectCoveragePattern(
 		[]string{"XDEBUG_MODE=coverage"},
 		append(options.ExtraArgs, "--coverage-text", pattern),
 	)
+}
+
+func (p *PHPUnit) runTests(
+	ctx context.Context,
+	options internal.ProjectTesterOptions,
+	pattern *string,
+) error {
+	args := options.ExtraArgs
+
+	if pattern != nil {
+		args = append(args, *pattern)
+	}
+
+	filename := internal.DefaultString(options.Output.Filename, "php://stdout")
+
+	// TODO: other report formats
+	switch options.Output.Format {
+	case internal.TestsReportFormatDefault:
+		fallthrough
+	case internal.TestsReportFormatRaw:
+		return p.RunForProject(ctx, options.ProjectInfo, args)
+	case internal.TestsReportFormatRawEvents:
+		return p.RunForProject(
+			ctx,
+			options.ProjectInfo,
+			append(args, "--log-events-text", filename),
+		)
+	case internal.TestsReportFormatJson:
+		break
+	case internal.TestsReportFormatCtrf:
+		break
+	case internal.TestsReportFormatJUnit:
+		return p.RunForProject(
+			ctx,
+			options.ProjectInfo,
+			append(args, "--log-junit", filename),
+		)
+	case internal.TestsReportFormatTeamCity:
+		return p.RunForProject(
+			ctx,
+			options.ProjectInfo,
+			append(args, "--log-teamcity", filename),
+		)
+	}
+
+	return fmt.Errorf("unsupported report format: %s", options.Output.Format)
 }
