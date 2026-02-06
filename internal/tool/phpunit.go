@@ -46,16 +46,8 @@ func NewPHPUnit(detect internal.ExecutableToolDetectFunc) *PHPUnit {
 	}
 }
 
-func (p *PHPUnit) TestAll(ctx context.Context, options internal.ProjectTesterOptions) error {
-	return p.runTests(ctx, options, nil)
-}
-
-func (p *PHPUnit) TestPattern(
-	ctx context.Context,
-	options internal.ProjectTesterOptions,
-	pattern string,
-) error {
-	return p.runTests(ctx, options, &pattern)
+func (p *PHPUnit) RunTests(ctx context.Context, options internal.ProjectTesterOptions) error {
+	return p.runTests(ctx, options)
 }
 
 func (p *PHPUnit) CollectCoverage(
@@ -81,12 +73,11 @@ func (p *PHPUnit) CollectCoverage(
 func (p *PHPUnit) runTests(
 	ctx context.Context,
 	options internal.ProjectTesterOptions,
-	pattern *string,
 ) error {
 	args := options.ExtraArgs
 
-	if pattern != nil {
-		args = append(args, *pattern)
+	if options.Pattern != nil {
+		args = append(args, *options.Pattern)
 	}
 
 	filename := internal.DefaultString(options.Output.Filename, "php://stdout")

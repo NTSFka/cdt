@@ -65,7 +65,7 @@ func TestPyTest_DetectPyTest_Config(t *testing.T) {
 	env.AssertExpectations(t)
 }
 
-func TestPyTest_PyTest_TestAll(t *testing.T) {
+func TestPyTest_PyTest_RunTests(t *testing.T) {
 	exec := test.NewExecutable(t)
 
 	pyTest := tool.NewPyTest(exec.LazyExecutable("test"))
@@ -75,13 +75,13 @@ func TestPyTest_PyTest_TestAll(t *testing.T) {
 	exec.OnRun("test", []string{}).
 		Return(nil)
 
-	err := pyTest.TestAll(t.Context(), internal.ProjectTesterOptions{ProjectInfo: info})
+	err := pyTest.RunTests(t.Context(), internal.ProjectTesterOptions{ProjectInfo: info})
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
 }
 
-func TestPyTest_PyTest_Test(t *testing.T) {
+func TestPyTest_PyTest_RunTests_Pattern(t *testing.T) {
 	exec := test.NewExecutable(t)
 
 	pyTest := tool.NewPyTest(exec.LazyExecutable("test"))
@@ -91,17 +91,16 @@ func TestPyTest_PyTest_Test(t *testing.T) {
 	exec.OnRun("test", []string{"tests/*"}).
 		Return(nil)
 
-	err := pyTest.TestPattern(
+	err := pyTest.RunTests(
 		t.Context(),
-		internal.ProjectTesterOptions{ProjectInfo: info},
-		"tests/*",
+		internal.ProjectTesterOptions{ProjectInfo: info, Pattern: internal.StrPtr("tests/*")},
 	)
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
 }
 
-func TestPyTest_TestPattern_FormatUnsupported(t *testing.T) {
+func TestPyTest_RunTests_Pattern_FormatUnsupported(t *testing.T) {
 	exec := test.NewExecutable(t)
 
 	pyTest := tool.NewPyTest(exec.LazyExecutable("test"))
@@ -118,13 +117,13 @@ func TestPyTest_TestPattern_FormatUnsupported(t *testing.T) {
 
 	for _, format := range data {
 		t.Run(string(format), func(t *testing.T) {
-			err := pyTest.TestPattern(
+			err := pyTest.RunTests(
 				t.Context(),
 				internal.ProjectTesterOptions{
 					ProjectInfo: info,
 					Output:      internal.OutputOptions[internal.TestsReportFormat]{Format: format},
+					Pattern:     internal.StrPtr("test1"),
 				},
-				"test1",
 			)
 			require.EqualError(t, err, "unsupported report format: "+string(format))
 
@@ -133,7 +132,7 @@ func TestPyTest_TestPattern_FormatUnsupported(t *testing.T) {
 	}
 }
 
-func TestPyTest_TestPattern_FormatJUnit(t *testing.T) {
+func TestPyTest_RunTests_Pattern_FormatJUnit(t *testing.T) {
 	exec := test.NewExecutable(t)
 
 	pyTest := tool.NewPyTest(exec.LazyExecutable("test"))
@@ -144,7 +143,7 @@ func TestPyTest_TestPattern_FormatJUnit(t *testing.T) {
 	exec.OnRun("test", []string{"test1", "--junitxml=" + reportFilename}).
 		Return(nil)
 
-	err := pyTest.TestPattern(
+	err := pyTest.RunTests(
 		t.Context(),
 		internal.ProjectTesterOptions{
 			ProjectInfo: info,
@@ -152,8 +151,8 @@ func TestPyTest_TestPattern_FormatJUnit(t *testing.T) {
 				Format:   internal.TestsReportFormatJUnit,
 				Filename: &reportFilename,
 			},
+			Pattern: internal.StrPtr("test1"),
 		},
-		"test1",
 	)
 	require.NoError(t, err)
 

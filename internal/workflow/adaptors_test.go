@@ -22,7 +22,7 @@ func createConfiguratorTool(id string, executable *internal.Executable) *struct 
 	}{
 		internal.MakeExecutableTool(
 			id,
-			"TestPattern",
+			"runTests",
 			"",
 			internal.Tags{},
 			func() (*internal.Executable, error) {
@@ -294,21 +294,21 @@ func TestTesterFallback_Details(t *testing.T) {
 	assert.Equal(t, "fallback (test1, test2)", fallback.Details())
 }
 
-func TestTesterFallback_TestAll_Empty(t *testing.T) {
+func TestTesterFallback_RunTests_Empty(t *testing.T) {
 	fallback := &workflow.TesterFallback{}
 
-	err := fallback.TestAll(t.Context(), internal.ProjectTesterOptions{})
+	err := fallback.RunTests(t.Context(), internal.ProjectTesterOptions{})
 
 	require.EqualError(t, err, "no tester tool available: none")
 }
 
-func TestTesterFallback_TestAll_NoAvailable(t *testing.T) {
+func TestTesterFallback_RunTests_NoAvailable(t *testing.T) {
 	tool1 := createTesterTool("test1", nil)
 	tool2 := createTesterTool("test2", nil)
 
 	fallback := &workflow.TesterFallback{tool1, tool2}
 
-	err := fallback.TestAll(t.Context(), internal.ProjectTesterOptions{})
+	err := fallback.RunTests(t.Context(), internal.ProjectTesterOptions{})
 
 	require.EqualError(t, err, "no tester tool available: test1, test2")
 
@@ -316,7 +316,7 @@ func TestTesterFallback_TestAll_NoAvailable(t *testing.T) {
 	tool2.AssertExpectations(t)
 }
 
-func TestTesterFallback_TestAll_Available1(t *testing.T) {
+func TestTesterFallback_RunTests_Available1(t *testing.T) {
 	tool1 := createTesterTool("test1", &internal.Executable{Path: "test1"})
 	tool2 := createTesterTool("test2", nil)
 
@@ -324,9 +324,9 @@ func TestTesterFallback_TestAll_Available1(t *testing.T) {
 
 	tool1.Test(t)
 	tool2.Test(t)
-	tool1.On("TestAll", mock.Anything, mock.Anything).Return(nil)
+	tool1.On("RunTests", mock.Anything, mock.Anything).Return(nil)
 
-	err := fallback.TestAll(t.Context(), internal.ProjectTesterOptions{})
+	err := fallback.RunTests(t.Context(), internal.ProjectTesterOptions{})
 
 	require.NoError(t, err)
 
@@ -334,7 +334,7 @@ func TestTesterFallback_TestAll_Available1(t *testing.T) {
 	tool2.AssertExpectations(t)
 }
 
-func TestTesterFallback_TestAll_Available2(t *testing.T) {
+func TestTesterFallback_RunTests_Available2(t *testing.T) {
 	tool1 := createTesterTool("test1", nil)
 	tool2 := createTesterTool("test2", &internal.Executable{Path: "test1"})
 
@@ -342,67 +342,9 @@ func TestTesterFallback_TestAll_Available2(t *testing.T) {
 
 	tool1.Test(t)
 	tool2.Test(t)
-	tool2.On("TestAll", mock.Anything, mock.Anything).Return(nil)
+	tool2.On("RunTests", mock.Anything, mock.Anything).Return(nil)
 
-	err := fallback.TestAll(t.Context(), internal.ProjectTesterOptions{})
-
-	require.NoError(t, err)
-
-	tool1.AssertExpectations(t)
-	tool2.AssertExpectations(t)
-}
-
-func TestTesterFallback_Test_Empty(t *testing.T) {
-	fallback := &workflow.TesterFallback{}
-
-	err := fallback.TestPattern(t.Context(), internal.ProjectTesterOptions{}, "target1")
-
-	require.EqualError(t, err, "no tester tool available: none")
-}
-
-func TestTesterFallback_Test_NoAvailable(t *testing.T) {
-	tool1 := createTesterTool("test1", nil)
-	tool2 := createTesterTool("test2", nil)
-
-	fallback := &workflow.TesterFallback{tool1, tool2}
-
-	err := fallback.TestPattern(t.Context(), internal.ProjectTesterOptions{}, "target1")
-
-	require.EqualError(t, err, "no tester tool available: test1, test2")
-
-	tool1.AssertExpectations(t)
-	tool2.AssertExpectations(t)
-}
-
-func TestTesterFallback_Test_Available1(t *testing.T) {
-	tool1 := createTesterTool("test1", &internal.Executable{Path: "test1"})
-	tool2 := createTesterTool("test2", nil)
-
-	fallback := &workflow.TesterFallback{tool1, tool2}
-
-	tool1.Test(t)
-	tool2.Test(t)
-	tool1.On("TestPattern", mock.Anything, mock.Anything, "target1").Return(nil)
-
-	err := fallback.TestPattern(t.Context(), internal.ProjectTesterOptions{}, "target1")
-
-	require.NoError(t, err)
-
-	tool1.AssertExpectations(t)
-	tool2.AssertExpectations(t)
-}
-
-func TestTesterFallback_Test_Available2(t *testing.T) {
-	tool1 := createTesterTool("test1", nil)
-	tool2 := createTesterTool("test2", &internal.Executable{Path: "test1"})
-
-	fallback := &workflow.TesterFallback{tool1, tool2}
-
-	tool1.Test(t)
-	tool2.Test(t)
-	tool2.On("TestPattern", mock.Anything, mock.Anything, "target1").Return(nil)
-
-	err := fallback.TestPattern(t.Context(), internal.ProjectTesterOptions{}, "target1")
+	err := fallback.RunTests(t.Context(), internal.ProjectTesterOptions{})
 
 	require.NoError(t, err)
 

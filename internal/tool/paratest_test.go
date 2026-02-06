@@ -93,7 +93,7 @@ func TestParaTest_DetectParaTest_Config(t *testing.T) {
 	env.AssertExpectations(t)
 }
 
-func TestParaTest_ParaTest_TestAll(t *testing.T) {
+func TestParaTest_ParaTest_RunTests(t *testing.T) {
 	exec := test.NewExecutable(t)
 
 	paraTest := tool.NewParaTest(exec.LazyExecutable("test"))
@@ -103,13 +103,13 @@ func TestParaTest_ParaTest_TestAll(t *testing.T) {
 	exec.OnRun("test", []string{}).
 		Return(nil)
 
-	err := paraTest.TestAll(t.Context(), internal.ProjectTesterOptions{ProjectInfo: info})
+	err := paraTest.RunTests(t.Context(), internal.ProjectTesterOptions{ProjectInfo: info})
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
 }
 
-func TestParaTest_ParaTest_Test(t *testing.T) {
+func TestParaTest_ParaTest_RunTests_Pattern(t *testing.T) {
 	exec := test.NewExecutable(t)
 
 	paraTest := tool.NewParaTest(exec.LazyExecutable("test"))
@@ -119,17 +119,16 @@ func TestParaTest_ParaTest_Test(t *testing.T) {
 	exec.OnRun("test", []string{"tests/*"}).
 		Return(nil)
 
-	err := paraTest.TestPattern(
+	err := paraTest.RunTests(
 		t.Context(),
-		internal.ProjectTesterOptions{ProjectInfo: info},
-		"tests/*",
+		internal.ProjectTesterOptions{ProjectInfo: info, Pattern: internal.StrPtr("tests/*")},
 	)
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
 }
 
-func TestParaTest_TestPattern_FormatUnsupported(t *testing.T) {
+func TestParaTest_RunTests_Pattern_FormatUnsupported(t *testing.T) {
 	exec := test.NewExecutable(t)
 
 	paraTest := tool.NewParaTest(exec.LazyExecutable("test"))
@@ -143,13 +142,13 @@ func TestParaTest_TestPattern_FormatUnsupported(t *testing.T) {
 
 	for _, format := range data {
 		t.Run(string(format), func(t *testing.T) {
-			err := paraTest.TestPattern(
+			err := paraTest.RunTests(
 				t.Context(),
 				internal.ProjectTesterOptions{
 					ProjectInfo: info,
 					Output:      internal.OutputOptions[internal.TestsReportFormat]{Format: format},
+					Pattern:     internal.StrPtr("test1"),
 				},
-				"test1",
 			)
 			require.EqualError(t, err, "unsupported report format: "+string(format))
 
@@ -158,7 +157,7 @@ func TestParaTest_TestPattern_FormatUnsupported(t *testing.T) {
 	}
 }
 
-func TestParaTest_TestPattern_FormatRawEvents(t *testing.T) {
+func TestParaTest_RunTests_Pattern_FormatRawEvents(t *testing.T) {
 	exec := test.NewExecutable(t)
 
 	paraTest := tool.NewParaTest(exec.LazyExecutable("test"))
@@ -169,7 +168,7 @@ func TestParaTest_TestPattern_FormatRawEvents(t *testing.T) {
 	exec.OnRun("test", []string{"test1", "--log-events-text", reportFilename}).
 		Return(nil)
 
-	err := paraTest.TestPattern(
+	err := paraTest.RunTests(
 		t.Context(),
 		internal.ProjectTesterOptions{
 			ProjectInfo: info,
@@ -177,15 +176,15 @@ func TestParaTest_TestPattern_FormatRawEvents(t *testing.T) {
 				Format:   internal.TestsReportFormatRawEvents,
 				Filename: &reportFilename,
 			},
+			Pattern: internal.StrPtr("test1"),
 		},
-		"test1",
 	)
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
 }
 
-func TestParaTest_TestPattern_FormatJUnit(t *testing.T) {
+func TestParaTest_RunTests_Pattern_FormatJUnit(t *testing.T) {
 	exec := test.NewExecutable(t)
 
 	paraTest := tool.NewParaTest(exec.LazyExecutable("test"))
@@ -196,7 +195,7 @@ func TestParaTest_TestPattern_FormatJUnit(t *testing.T) {
 	exec.OnRun("test", []string{"test1", "--log-junit", reportFilename}).
 		Return(nil)
 
-	err := paraTest.TestPattern(
+	err := paraTest.RunTests(
 		t.Context(),
 		internal.ProjectTesterOptions{
 			ProjectInfo: info,
@@ -204,15 +203,15 @@ func TestParaTest_TestPattern_FormatJUnit(t *testing.T) {
 				Format:   internal.TestsReportFormatJUnit,
 				Filename: &reportFilename,
 			},
+			Pattern: internal.StrPtr("test1"),
 		},
-		"test1",
 	)
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
 }
 
-func TestParaTest_TestPattern_FormatTeamCity(t *testing.T) {
+func TestParaTest_RunTests_Pattern_FormatTeamCity(t *testing.T) {
 	exec := test.NewExecutable(t)
 
 	paraTest := tool.NewParaTest(exec.LazyExecutable("test"))
@@ -223,7 +222,7 @@ func TestParaTest_TestPattern_FormatTeamCity(t *testing.T) {
 	exec.OnRun("test", []string{"test1", "--log-teamcity", reportFilename}).
 		Return(nil)
 
-	err := paraTest.TestPattern(
+	err := paraTest.RunTests(
 		t.Context(),
 		internal.ProjectTesterOptions{
 			ProjectInfo: info,
@@ -231,8 +230,8 @@ func TestParaTest_TestPattern_FormatTeamCity(t *testing.T) {
 				Format:   internal.TestsReportFormatTeamCity,
 				Filename: &reportFilename,
 			},
+			Pattern: internal.StrPtr("test1"),
 		},
-		"test1",
 	)
 	require.NoError(t, err)
 

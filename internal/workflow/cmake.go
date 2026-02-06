@@ -69,32 +69,26 @@ func (t *cmakeTester) Details() string {
 	return "ctest"
 }
 
-func (t *cmakeTester) TestAll(ctx context.Context, options internal.ProjectTesterOptions) error {
-	return t.runTests(ctx, options, nil)
-}
-
-func (t *cmakeTester) TestPattern(
-	ctx context.Context,
-	options internal.ProjectTesterOptions,
-	pattern string,
-) error {
-	return t.runTests(ctx, options, &pattern)
+func (t *cmakeTester) RunTests(ctx context.Context, options internal.ProjectTesterOptions) error {
+	return t.runTests(ctx, options)
 }
 
 // nolint: cyclop
 func (t *cmakeTester) runTests(
 	ctx context.Context,
 	options internal.ProjectTesterOptions,
-	pattern *string,
 ) error {
-	if err := t.cmakeTool.BuildAll(ctx, internal.ProjectBuilderOptions{ProjectInfo: options.ProjectInfo}); err != nil {
+	if err := t.cmakeTool.BuildAll(
+		ctx,
+		internal.ProjectBuilderOptions{ProjectInfo: options.ProjectInfo},
+	); err != nil {
 		return fmt.Errorf("build failed: %w", err)
 	}
 
 	args := options.ExtraArgs
 
-	if pattern != nil {
-		args = append(args, "-R", *pattern)
+	if options.Pattern != nil {
+		args = append(args, "-R", *options.Pattern)
 	}
 
 	filename := internal.DefaultString(options.Output.Filename, "/dev/stdout")

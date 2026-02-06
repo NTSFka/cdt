@@ -38,28 +38,19 @@ func NewPyTest(detect internal.ExecutableToolDetectFunc) *PyTest {
 	}
 }
 
-func (p *PyTest) TestAll(ctx context.Context, options internal.ProjectTesterOptions) error {
-	return p.runTests(ctx, options, nil)
-}
-
-func (p *PyTest) TestPattern(
-	ctx context.Context,
-	options internal.ProjectTesterOptions,
-	pattern string,
-) error {
-	return p.runTests(ctx, options, &pattern)
+func (p *PyTest) RunTests(ctx context.Context, options internal.ProjectTesterOptions) error {
+	return p.runTests(ctx, options)
 }
 
 // nolint: cyclop
 func (p *PyTest) runTests(
 	ctx context.Context,
 	options internal.ProjectTesterOptions,
-	pattern *string,
 ) error {
 	args := options.ExtraArgs
 
-	if pattern != nil {
-		args = append(args, *pattern)
+	if options.Pattern != nil {
+		args = append(args, *options.Pattern)
 	}
 
 	filename := internal.DefaultString(options.Output.Filename, "/dev/stdout")

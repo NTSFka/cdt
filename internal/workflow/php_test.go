@@ -59,7 +59,7 @@ func TestPHPType_Create(t *testing.T) {
 	assert.NotNil(t, project.Workflow.Runner)
 }
 
-func TestPHPType_Project_TestAll_Paratest(t *testing.T) {
+func TestPHPType_Project_RunTests_Paratest(t *testing.T) {
 	workflowType := workflow.PHP{}
 	paratestMock := test.NewExecutable(t)
 	phpunitMock := test.NewExecutable(t)
@@ -80,7 +80,7 @@ func TestPHPType_Project_TestAll_Paratest(t *testing.T) {
 	require.NotNil(t, project.Workflow.Tester)
 	paratestMock.OnRunAnything("paratest-test").Return(nil)
 
-	err := project.Workflow.Tester.TestAll(
+	err := project.Workflow.Tester.RunTests(
 		t.Context(),
 		internal.ProjectTesterOptions{ProjectInfo: project.Info},
 	)
@@ -90,7 +90,7 @@ func TestPHPType_Project_TestAll_Paratest(t *testing.T) {
 	phpunitMock.AssertExpectations(t)
 }
 
-func TestPHPType_Project_TestAll_PHPUnit(t *testing.T) {
+func TestPHPType_Project_RunTests_PHPUnit(t *testing.T) {
 	workflowType := workflow.PHP{}
 	paratestMock := test.NewExecutable(t)
 	phpunitMock := test.NewExecutable(t)
@@ -111,7 +111,7 @@ func TestPHPType_Project_TestAll_PHPUnit(t *testing.T) {
 	require.NotNil(t, project.Workflow.Tester)
 	phpunitMock.OnRunAnything("phpunit-test").Return(nil)
 
-	err := project.Workflow.Tester.TestAll(
+	err := project.Workflow.Tester.RunTests(
 		t.Context(),
 		internal.ProjectTesterOptions{ProjectInfo: project.Info},
 	)
@@ -121,7 +121,7 @@ func TestPHPType_Project_TestAll_PHPUnit(t *testing.T) {
 	phpunitMock.AssertExpectations(t)
 }
 
-func TestPHPType_Project_Test_Paratest(t *testing.T) {
+func TestPHPType_Project_RunTests_Pattern_Paratest(t *testing.T) {
 	workflowType := workflow.PHP{}
 	paratestMock := test.NewExecutable(t)
 	phpunitMock := test.NewExecutable(t)
@@ -142,10 +142,12 @@ func TestPHPType_Project_Test_Paratest(t *testing.T) {
 	require.NotNil(t, project.Workflow.Tester)
 	paratestMock.OnRunAnything("paratest-test").Return(nil)
 
-	err := project.Workflow.Tester.TestPattern(
+	err := project.Workflow.Tester.RunTests(
 		t.Context(),
-		internal.ProjectTesterOptions{ProjectInfo: project.Info},
-		"my-test",
+		internal.ProjectTesterOptions{
+			ProjectInfo: project.Info,
+			Pattern:     internal.StrPtr("my-test"),
+		},
 	)
 	require.NoError(t, err)
 
@@ -153,7 +155,7 @@ func TestPHPType_Project_Test_Paratest(t *testing.T) {
 	phpunitMock.AssertExpectations(t)
 }
 
-func TestPHPType_Project_Test_PHPUnit(t *testing.T) {
+func TestPHPType_Project_RunTests_Pattern_PHPUnit(t *testing.T) {
 	workflowType := workflow.PHP{}
 	paratestMock := test.NewExecutable(t)
 	phpunitMock := test.NewExecutable(t)
@@ -174,10 +176,12 @@ func TestPHPType_Project_Test_PHPUnit(t *testing.T) {
 	require.NotNil(t, project.Workflow.Tester)
 	phpunitMock.OnRunAnything("phpunit-test").Return(nil)
 
-	err := project.Workflow.Tester.TestPattern(
+	err := project.Workflow.Tester.RunTests(
 		t.Context(),
-		internal.ProjectTesterOptions{ProjectInfo: project.Info},
-		"my-test",
+		internal.ProjectTesterOptions{
+			ProjectInfo: project.Info,
+			Pattern:     internal.StrPtr("my-test"),
+		},
 	)
 	require.NoError(t, err)
 

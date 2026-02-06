@@ -61,15 +61,15 @@ type ProjectTesterOptions struct {
 
 	// Output specifies how the operation should produce output
 	Output OutputOptions[TestsReportFormat]
+
+	// Pattern specifies a pattern for tests to run
+	Pattern *string
 }
 
 // A ProjectTester allow testing a project.
 type ProjectTester interface {
-	// TestAll runs all tests in the project
-	TestAll(ctx context.Context, options ProjectTesterOptions) error
-
-	// TestPattern runs tests that match the pattern
-	TestPattern(ctx context.Context, options ProjectTesterOptions, pattern string) error
+	// RunTests runs tests in the project
+	RunTests(ctx context.Context, options ProjectTesterOptions) error
 }
 
 // ProjectCoverageCollectorOptions are options for collecting coverage of a project.

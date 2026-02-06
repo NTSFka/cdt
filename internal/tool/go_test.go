@@ -285,7 +285,7 @@ func TestGo_RunTarget_Failed(t *testing.T) {
 	exec.AssertExpectations(t)
 }
 
-func TestGo_TestAll(t *testing.T) {
+func TestGo_RunTests(t *testing.T) {
 	exec := test.NewExecutable(t)
 
 	goTool := tool.NewGo(exec.LazyExecutable("go"))
@@ -295,13 +295,13 @@ func TestGo_TestAll(t *testing.T) {
 	exec.OnRun("go", []string{"test", "./..."}).
 		Return(nil)
 
-	err := goTool.TestAll(t.Context(), internal.ProjectTesterOptions{ProjectInfo: info})
+	err := goTool.RunTests(t.Context(), internal.ProjectTesterOptions{ProjectInfo: info})
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
 }
 
-func TestGo_TestAll_Failed(t *testing.T) {
+func TestGo_RunTests_Failed(t *testing.T) {
 	exec := test.NewExecutable(t)
 
 	goTool := tool.NewGo(exec.LazyExecutable("go"))
@@ -311,13 +311,13 @@ func TestGo_TestAll_Failed(t *testing.T) {
 	exec.OnRun("go", []string{"test", "./..."}).
 		Return(errors.New("failed"))
 
-	err := goTool.TestAll(t.Context(), internal.ProjectTesterOptions{ProjectInfo: info})
+	err := goTool.RunTests(t.Context(), internal.ProjectTesterOptions{ProjectInfo: info})
 	require.EqualError(t, err, "failed")
 
 	exec.AssertExpectations(t)
 }
 
-func TestGo_Test(t *testing.T) {
+func TestGo_RunTests_Pattern(t *testing.T) {
 	exec := test.NewExecutable(t)
 
 	goTool := tool.NewGo(exec.LazyExecutable("go"))
@@ -327,17 +327,16 @@ func TestGo_Test(t *testing.T) {
 	exec.OnRun("go", []string{"test", "test1"}).
 		Return(nil)
 
-	err := goTool.TestPattern(
+	err := goTool.RunTests(
 		t.Context(),
-		internal.ProjectTesterOptions{ProjectInfo: info},
-		"test1",
+		internal.ProjectTesterOptions{ProjectInfo: info, Pattern: internal.StrPtr("test1")},
 	)
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
 }
 
-func TestGo_Test_Failed(t *testing.T) {
+func TestGo_RunTests_Pattern_Failed(t *testing.T) {
 	exec := test.NewExecutable(t)
 
 	goTool := tool.NewGo(exec.LazyExecutable("go"))
@@ -347,49 +346,16 @@ func TestGo_Test_Failed(t *testing.T) {
 	exec.OnRun("go", []string{"test", "test1"}).
 		Return(errors.New("failed"))
 
-	err := goTool.TestPattern(
+	err := goTool.RunTests(
 		t.Context(),
-		internal.ProjectTesterOptions{ProjectInfo: info},
-		"test1",
+		internal.ProjectTesterOptions{ProjectInfo: info, Pattern: internal.StrPtr("test1")},
 	)
 	require.EqualError(t, err, "failed")
 
 	exec.AssertExpectations(t)
 }
 
-func TestGo_TestPattern_FormatUnsupported(t *testing.T) {
-	exec := test.NewExecutable(t)
-
-	goTool := tool.NewGo(exec.LazyExecutable("go"))
-
-	info := internal.ProjectInfo{Directory: "."}
-
-	data := []internal.TestsReportFormat{
-		"test",
-		internal.TestsReportFormatJson,
-		internal.TestsReportFormatJUnit,
-		internal.TestsReportFormatTeamCity,
-	}
-
-	for _, format := range data {
-		t.Run(string(format), func(t *testing.T) {
-			err := goTool.TestPattern(
-				t.Context(),
-				internal.ProjectTesterOptions{
-					ProjectInfo: info,
-					Output:      internal.OutputOptions[internal.TestsReportFormat]{Format: format},
-				},
-				"test1",
-			)
-
-			require.EqualError(t, err, "unsupported report format: "+string(format))
-
-			exec.AssertExpectations(t)
-		})
-	}
-}
-
-func TestGo_TestPattern_FormatRawEvents(t *testing.T) {
+func TestGo_RunTests_Pattern_FormatRawEvents(t *testing.T) {
 	exec := test.NewExecutable(t)
 
 	goTool := tool.NewGo(exec.LazyExecutable("go"))
@@ -406,7 +372,7 @@ func TestGo_TestPattern_FormatRawEvents(t *testing.T) {
 	tempDir := t.TempDir()
 	reportFilename := filepath.Join(tempDir, "report.json")
 
-	err := goTool.TestPattern(
+	err := goTool.RunTests(
 		t.Context(),
 		internal.ProjectTesterOptions{
 			ProjectInfo: info,
@@ -414,8 +380,8 @@ func TestGo_TestPattern_FormatRawEvents(t *testing.T) {
 				Format:   internal.TestsReportFormatRawEvents,
 				Filename: &reportFilename,
 			},
+			Pattern: internal.StrPtr("test1"),
 		},
-		"test1",
 	)
 	require.NoError(t, err)
 
@@ -426,7 +392,7 @@ func TestGo_TestPattern_FormatRawEvents(t *testing.T) {
 	exec.AssertExpectations(t)
 }
 
-func TestGo_TestPattern_FormatCtrf(t *testing.T) {
+func TestGo_RunTests_Pattern_FormatCtrf(t *testing.T) {
 	exec := test.NewExecutable(t)
 
 	goTool := tool.NewGo(exec.LazyExecutable("go"))
@@ -443,7 +409,7 @@ func TestGo_TestPattern_FormatCtrf(t *testing.T) {
 	tempDir := t.TempDir()
 	reportFilename := filepath.Join(tempDir, "report.json")
 
-	err := goTool.TestPattern(
+	err := goTool.RunTests(
 		t.Context(),
 		internal.ProjectTesterOptions{
 			ProjectInfo: info,
@@ -451,8 +417,8 @@ func TestGo_TestPattern_FormatCtrf(t *testing.T) {
 				Format:   internal.TestsReportFormatCtrf,
 				Filename: &reportFilename,
 			},
+			Pattern: internal.StrPtr("test1"),
 		},
-		"test1",
 	)
 	require.NoError(t, err)
 

@@ -39,9 +39,9 @@ func TestTest_CannotBeTested(t *testing.T) {
 	assert.Equal(t, "project doesn't support testing", err.Error())
 }
 
-func TestTest_TestAll_Success(t *testing.T) {
+func TestTest_RunTests_Success(t *testing.T) {
 	tester := test.NewProjectTester(t)
-	tester.On("TestAll", mock.Anything, mock.Anything).
+	tester.On("RunTests", mock.Anything, mock.Anything).
 		Return(nil)
 
 	err := runTest(t.Context(), tester)
@@ -50,9 +50,9 @@ func TestTest_TestAll_Success(t *testing.T) {
 	tester.AssertExpectations(t)
 }
 
-func TestTest_TestAll_CustomOutput_Raw(t *testing.T) {
+func TestTest_RunTests_CustomOutput_Raw(t *testing.T) {
 	tester := test.NewProjectTester(t)
-	tester.On("TestAll", mock.Anything, mock.MatchedBy(func(options internal.ProjectTesterOptions) bool {
+	tester.On("RunTests", mock.Anything, mock.MatchedBy(func(options internal.ProjectTesterOptions) bool {
 		return assert.Equal(t, internal.TestsReportFormatRaw, options.Output.Format) &&
 			assert.Nil(t, options.Output.Filename)
 	})).
@@ -64,9 +64,9 @@ func TestTest_TestAll_CustomOutput_Raw(t *testing.T) {
 	tester.AssertExpectations(t)
 }
 
-func TestTest_TestAll_CustomOutput_Json(t *testing.T) {
+func TestTest_RunTests_CustomOutput_Json(t *testing.T) {
 	tester := test.NewProjectTester(t)
-	tester.On("TestAll", mock.Anything, mock.MatchedBy(func(options internal.ProjectTesterOptions) bool {
+	tester.On("RunTests", mock.Anything, mock.MatchedBy(func(options internal.ProjectTesterOptions) bool {
 		return assert.Equal(t, internal.TestsReportFormatJson, options.Output.Format) &&
 			assert.NotNil(t, options.Output.Filename) &&
 			assert.Equal(t, "tests.json", *options.Output.Filename)
@@ -79,15 +79,51 @@ func TestTest_TestAll_CustomOutput_Json(t *testing.T) {
 	tester.AssertExpectations(t)
 }
 
-func TestTest_TestAll_Failure(t *testing.T) {
+func TestTest_RunTests_Failure(t *testing.T) {
 	tester := test.NewProjectTester(t)
-	tester.On("TestAll", mock.Anything, mock.Anything).
+	tester.On("RunTests", mock.Anything, mock.Anything).
 		Return(errors.New("failed"))
 
 	err := runTest(t.Context(), tester)
 
 	require.Error(t, err)
 	assert.Equal(t, "failed", err.Error())
+	tester.AssertExpectations(t)
+}
+
+func TestTest_RunTests_Pattern_Success(t *testing.T) {
+	tester := test.NewProjectTester(t)
+	tester.On(
+		"RunTests",
+		mock.Anything,
+		mock.MatchedBy(func(options internal.ProjectTesterOptions) bool {
+			return assert.NotNil(t, options.Pattern) && assert.Equal(t, "pattern", *options.Pattern)
+		}),
+	).
+		Return(nil)
+
+	err := runTest(t.Context(), tester, "pattern")
+
+	require.NoError(t, err)
+	tester.AssertExpectations(t)
+}
+
+func TestTest_RunTests_Pattern_Failure(t *testing.T) {
+	tester := test.NewProjectTester(t)
+	tester.On(
+		"RunTests",
+		mock.Anything,
+		mock.MatchedBy(func(options internal.ProjectTesterOptions) bool {
+			return assert.NotNil(t, options.Pattern) && assert.Equal(t, "pattern", *options.Pattern)
+		}),
+	).
+		Return(errors.New("failed"))
+
+	err := runTest(t.Context(), tester, "pattern")
+
+	require.Error(t, err)
+	assert.Equal(t, "failed", err.Error())
+
 	tester.AssertExpectations(t)
 }
 
@@ -109,7 +145,7 @@ func newTestTesterTool(t *testing.T) *testTesterTool {
 
 func TestTest_Tool_Success(t *testing.T) {
 	tester := newTestTesterTool(t)
-	tester.On("TestAll", mock.Anything, mock.Anything).
+	tester.On("RunTests", mock.Anything, mock.Anything).
 		Return(nil)
 
 	err := runTestTool(t.Context(), tester, "--tool", "tool1")
@@ -120,7 +156,7 @@ func TestTest_Tool_Success(t *testing.T) {
 
 func TestTest_Tool_Failed(t *testing.T) {
 	tester := newTestTesterTool(t)
-	tester.On("TestAll", mock.Anything, mock.Anything).
+	tester.On("RunTests", mock.Anything, mock.Anything).
 		Return(errors.New("failed"))
 
 	err := runTestTool(t.Context(), tester, "--tool", "tool1")
@@ -153,28 +189,4 @@ func TestTest_Tool_NotSupported(t *testing.T) {
 
 	require.Error(t, err)
 	assert.Equal(t, "tool 'tool1' doesn't support testing", err.Error())
-}
-
-func TestTest_TestTargets_Success(t *testing.T) {
-	tester := test.NewProjectTester(t)
-	tester.On("TestPattern", mock.Anything, mock.Anything, "pattern").
-		Return(nil)
-
-	err := runTest(t.Context(), tester, "pattern")
-
-	require.NoError(t, err)
-	tester.AssertExpectations(t)
-}
-
-func TestTest_TestTargets_Failure(t *testing.T) {
-	tester := test.NewProjectTester(t)
-	tester.On("TestPattern", mock.Anything, mock.Anything, "pattern").
-		Return(errors.New("failed"))
-
-	err := runTest(t.Context(), tester, "pattern")
-
-	require.Error(t, err)
-	assert.Equal(t, "failed", err.Error())
-
-	tester.AssertExpectations(t)
 }

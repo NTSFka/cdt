@@ -12,7 +12,7 @@ import (
 func NewTestCommand() *cli.Command {
 	return &cli.Command{
 		Name:   "test",
-		Usage:  "TestPattern the project",
+		Usage:  "Test the project",
 		Action: testCommandAction,
 		Flags: []cli.Flag{
 			&cli.StringFlag{
@@ -72,13 +72,11 @@ func testCommandAction(ctx context.Context, cmd *cli.Command) error {
 		Output:      outputOptions,
 	}
 
-	var err error
-
 	if pattern := cmd.StringArgs("pattern"); len(pattern) != 0 {
-		err = tester.TestPattern(ctx, options, pattern[0])
-	} else {
-		err = tester.TestAll(ctx, options)
+		options.Pattern = &pattern[0]
 	}
+
+	err := tester.RunTests(ctx, options)
 
 	if err != nil {
 		return fmt.Errorf("%w", err)

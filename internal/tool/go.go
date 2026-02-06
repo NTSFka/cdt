@@ -125,33 +125,12 @@ func (g *Go) RunTarget(
 	return g.RunForProject(ctx, options.ProjectInfo, append(options.ExtraArgs, "run", target))
 }
 
-func (g *Go) TestAll(ctx context.Context, options internal.ProjectTesterOptions) error {
-	return g.TestPattern(ctx, options, "./...")
-}
-
-func (g *Go) TestPattern(
-	ctx context.Context,
-	options internal.ProjectTesterOptions,
-	pattern string,
-) error {
-	switch options.Output.Format {
-	case internal.TestsReportFormatDefault:
-		fallthrough
-	case internal.TestsReportFormatRaw:
-		return g.RunForProject(ctx, options.ProjectInfo, append(options.ExtraArgs, "test", pattern))
-	case internal.TestsReportFormatRawEvents:
-		return g.testPatternJson(ctx, options, pattern)
-	case internal.TestsReportFormatJson:
-		break
-	case internal.TestsReportFormatCtrf:
-		return g.testPatternCtrf(ctx, options, pattern)
-	case internal.TestsReportFormatJUnit:
-		break
-	case internal.TestsReportFormatTeamCity:
-		break
+func (g *Go) RunTests(ctx context.Context, options internal.ProjectTesterOptions) error {
+	if options.Pattern != nil {
+		return g.runTests(ctx, options, *options.Pattern)
 	}
 
-	return fmt.Errorf("unsupported report format: %s", options.Output.Format)
+	return g.runTests(ctx, options, "./...")
 }
 
 func (g *Go) FormatAll(ctx context.Context, options internal.ProjectFormatterOptions) error {
@@ -262,6 +241,30 @@ func (g *Go) AuditDependencies(
 	_ internal.ProjectDependencyManagerOptions,
 ) error {
 	return errors.New("not supported")
+}
+func (g *Go) runTests(
+	ctx context.Context,
+	options internal.ProjectTesterOptions,
+	pattern string,
+) error {
+	switch options.Output.Format {
+	case internal.TestsReportFormatDefault:
+		fallthrough
+	case internal.TestsReportFormatRaw:
+		return g.RunForProject(ctx, options.ProjectInfo, append(options.ExtraArgs, "test", pattern))
+	case internal.TestsReportFormatRawEvents:
+		return g.testPatternJson(ctx, options, pattern)
+	case internal.TestsReportFormatJson:
+		break
+	case internal.TestsReportFormatCtrf:
+		return g.testPatternCtrf(ctx, options, pattern)
+	case internal.TestsReportFormatJUnit:
+		break
+	case internal.TestsReportFormatTeamCity:
+		break
+	}
+
+	return fmt.Errorf("unsupported report format: %s", options.Output.Format)
 }
 
 func (g *Go) testPatternJson(

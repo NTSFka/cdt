@@ -133,19 +133,12 @@ func (f *TesterFallback) Details() string {
 	return adaptorToolIds("fallback", *f)
 }
 
-func (f *TesterFallback) TestAll(ctx context.Context, options internal.ProjectTesterOptions) error {
-	return runFirstAvailable(*f, "tester", func(tool testerTool) error {
-		return tool.TestAll(ctx, options)
-	})
-}
-
-func (f *TesterFallback) TestPattern(
+func (f *TesterFallback) RunTests(
 	ctx context.Context,
 	options internal.ProjectTesterOptions,
-	pattern string,
 ) error {
 	return runFirstAvailable(*f, "tester", func(tool testerTool) error {
-		return tool.TestPattern(ctx, options, pattern)
+		return tool.RunTests(ctx, options)
 	})
 }
 

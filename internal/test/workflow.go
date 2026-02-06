@@ -128,16 +128,8 @@ func NewProjectTester(t *testing.T) *ProjectTester {
 	return &tester
 }
 
-func (t *ProjectTester) TestAll(ctx context.Context, options internal.ProjectTesterOptions) error {
+func (t *ProjectTester) RunTests(ctx context.Context, options internal.ProjectTesterOptions) error {
 	return t.Called(ctx, options).Error(0)
-}
-
-func (t *ProjectTester) TestPattern(
-	ctx context.Context,
-	options internal.ProjectTesterOptions,
-	pattern string,
-) error {
-	return t.Called(ctx, options, pattern).Error(0)
 }
 
 type ProjectCoverageCollector struct {

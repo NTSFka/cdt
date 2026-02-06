@@ -61,7 +61,7 @@ func TestCMakeType_Create_CustomBuildDirectory(t *testing.T) {
 	assert.NotNil(t, project.Workflow.Formatter)
 }
 
-func TestCMakeType_Project_TestAll(t *testing.T) {
+func TestCMakeType_Project_RunTests(t *testing.T) {
 	workflowType := workflow.CMake{}
 	cmakeMock := test.NewExecutable(t)
 	ctestMock := test.NewExecutable(t)
@@ -90,7 +90,7 @@ func TestCMakeType_Project_TestAll(t *testing.T) {
 	cmakeMock.OnRunAnything("cmake-test").Return(nil)
 	ctestMock.OnRun("ctest-test", []string{"--test-dir", buildDir}).Return(nil)
 
-	err = project.Workflow.Tester.TestAll(
+	err = project.Workflow.Tester.RunTests(
 		t.Context(),
 		internal.ProjectTesterOptions{ProjectInfo: project.Info},
 	)
@@ -100,7 +100,7 @@ func TestCMakeType_Project_TestAll(t *testing.T) {
 	ctestMock.AssertExpectations(t)
 }
 
-func TestCMakeType_Project_TestAll_BuildFailed(t *testing.T) {
+func TestCMakeType_Project_RunTests_BuildFailed(t *testing.T) {
 	workflowType := workflow.CMake{}
 	cmakeMock := test.NewExecutable(t)
 	ctestMock := test.NewExecutable(t)
@@ -128,7 +128,7 @@ func TestCMakeType_Project_TestAll_BuildFailed(t *testing.T) {
 	require.NotNil(t, project.Workflow.Tester)
 	cmakeMock.OnRunAnything("cmake-test").Return(errors.New("failed"))
 
-	err = project.Workflow.Tester.TestAll(
+	err = project.Workflow.Tester.RunTests(
 		t.Context(),
 		internal.ProjectTesterOptions{ProjectInfo: project.Info},
 	)
@@ -138,7 +138,7 @@ func TestCMakeType_Project_TestAll_BuildFailed(t *testing.T) {
 	ctestMock.AssertExpectations(t)
 }
 
-func TestCMakeProject_Project_Test(t *testing.T) {
+func TestCMakeProject_Project_RunTests_Pattern(t *testing.T) {
 	workflowType := workflow.CMake{}
 	cmakeMock := test.NewExecutable(t)
 	ctestMock := test.NewExecutable(t)
@@ -167,10 +167,12 @@ func TestCMakeProject_Project_Test(t *testing.T) {
 	cmakeMock.OnRunAnything("cmake-test").Return(nil)
 	ctestMock.OnRun("ctest-test", []string{"-R", "my-test", "--test-dir", buildDir}).Return(nil)
 
-	err = project.Workflow.Tester.TestPattern(
+	err = project.Workflow.Tester.RunTests(
 		t.Context(),
-		internal.ProjectTesterOptions{ProjectInfo: project.Info},
-		"my-test",
+		internal.ProjectTesterOptions{
+			ProjectInfo: project.Info,
+			Pattern:     internal.StrPtr("my-test"),
+		},
 	)
 	require.NoError(t, err)
 
@@ -178,7 +180,7 @@ func TestCMakeProject_Project_Test(t *testing.T) {
 	ctestMock.AssertExpectations(t)
 }
 
-func TestCMakeProject_Project_TestBuild_Failed(t *testing.T) {
+func TestCMakeProject_Project_RunTests_Pattern_Failed(t *testing.T) {
 	workflowType := workflow.CMake{}
 	cmakeMock := test.NewExecutable(t)
 	ctestMock := test.NewExecutable(t)
@@ -206,10 +208,12 @@ func TestCMakeProject_Project_TestBuild_Failed(t *testing.T) {
 	require.NotNil(t, project.Workflow.Tester)
 	cmakeMock.OnRunAnything("cmake-test").Return(errors.New("failed"))
 
-	err = project.Workflow.Tester.TestPattern(
+	err = project.Workflow.Tester.RunTests(
 		t.Context(),
-		internal.ProjectTesterOptions{ProjectInfo: project.Info},
-		"my-test",
+		internal.ProjectTesterOptions{
+			ProjectInfo: project.Info,
+			Pattern:     internal.StrPtr("my-test"),
+		},
 	)
 	require.EqualError(t, err, "build failed: failed")
 

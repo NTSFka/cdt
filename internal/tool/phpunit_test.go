@@ -92,7 +92,7 @@ func TestPHPUnit_DetectPHPUnit_Config(t *testing.T) {
 	env.AssertExpectations(t)
 }
 
-func TestPHPUnit_PHPUnit_TestAll(t *testing.T) {
+func TestPHPUnit_PHPUnit_RunTests(t *testing.T) {
 	exec := test.NewExecutable(t)
 
 	phpUnit := tool.NewPHPUnit(exec.LazyExecutable("test"))
@@ -102,13 +102,13 @@ func TestPHPUnit_PHPUnit_TestAll(t *testing.T) {
 	exec.OnRun("test", []string{}).
 		Return(nil)
 
-	err := phpUnit.TestAll(t.Context(), internal.ProjectTesterOptions{ProjectInfo: info})
+	err := phpUnit.RunTests(t.Context(), internal.ProjectTesterOptions{ProjectInfo: info})
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
 }
 
-func TestPHPUnit_PHPUnit_Test(t *testing.T) {
+func TestPHPUnit_PHPUnit_RunTests_Pattern(t *testing.T) {
 	exec := test.NewExecutable(t)
 
 	phpUnit := tool.NewPHPUnit(exec.LazyExecutable("test"))
@@ -118,17 +118,16 @@ func TestPHPUnit_PHPUnit_Test(t *testing.T) {
 	exec.OnRun("test", []string{"tests/*"}).
 		Return(nil)
 
-	err := phpUnit.TestPattern(
+	err := phpUnit.RunTests(
 		t.Context(),
-		internal.ProjectTesterOptions{ProjectInfo: info},
-		"tests/*",
+		internal.ProjectTesterOptions{ProjectInfo: info, Pattern: internal.StrPtr("tests/*")},
 	)
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
 }
 
-func TestPHPUnit_TestPattern_FormatUnsupported(t *testing.T) {
+func TestPHPUnit_RunTests_Pattern_FormatUnsupported(t *testing.T) {
 	exec := test.NewExecutable(t)
 
 	phpUnit := tool.NewPHPUnit(exec.LazyExecutable("test"))
@@ -142,13 +141,13 @@ func TestPHPUnit_TestPattern_FormatUnsupported(t *testing.T) {
 
 	for _, format := range data {
 		t.Run(string(format), func(t *testing.T) {
-			err := phpUnit.TestPattern(
+			err := phpUnit.RunTests(
 				t.Context(),
 				internal.ProjectTesterOptions{
 					ProjectInfo: info,
 					Output:      internal.OutputOptions[internal.TestsReportFormat]{Format: format},
+					Pattern:     internal.StrPtr("test1"),
 				},
-				"test1",
 			)
 			require.EqualError(t, err, "unsupported report format: "+string(format))
 
@@ -157,7 +156,7 @@ func TestPHPUnit_TestPattern_FormatUnsupported(t *testing.T) {
 	}
 }
 
-func TestPHPUnit_TestPattern_FormatRawEvents(t *testing.T) {
+func TestPHPUnit_RunTests_Pattern_FormatRawEvents(t *testing.T) {
 	exec := test.NewExecutable(t)
 
 	phpUnit := tool.NewPHPUnit(exec.LazyExecutable("test"))
@@ -168,7 +167,7 @@ func TestPHPUnit_TestPattern_FormatRawEvents(t *testing.T) {
 	exec.OnRun("test", []string{"test1", "--log-events-text", reportFilename}).
 		Return(nil)
 
-	err := phpUnit.TestPattern(
+	err := phpUnit.RunTests(
 		t.Context(),
 		internal.ProjectTesterOptions{
 			ProjectInfo: info,
@@ -176,15 +175,15 @@ func TestPHPUnit_TestPattern_FormatRawEvents(t *testing.T) {
 				Format:   internal.TestsReportFormatRawEvents,
 				Filename: &reportFilename,
 			},
+			Pattern: internal.StrPtr("test1"),
 		},
-		"test1",
 	)
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
 }
 
-func TestPHPUnit_TestPattern_FormatJUnit(t *testing.T) {
+func TestPHPUnit_RunTests_Pattern_FormatJUnit(t *testing.T) {
 	exec := test.NewExecutable(t)
 
 	phpUnit := tool.NewPHPUnit(exec.LazyExecutable("test"))
@@ -195,7 +194,7 @@ func TestPHPUnit_TestPattern_FormatJUnit(t *testing.T) {
 	exec.OnRun("test", []string{"test1", "--log-junit", reportFilename}).
 		Return(nil)
 
-	err := phpUnit.TestPattern(
+	err := phpUnit.RunTests(
 		t.Context(),
 		internal.ProjectTesterOptions{
 			ProjectInfo: info,
@@ -203,15 +202,15 @@ func TestPHPUnit_TestPattern_FormatJUnit(t *testing.T) {
 				Format:   internal.TestsReportFormatJUnit,
 				Filename: &reportFilename,
 			},
+			Pattern: internal.StrPtr("test1"),
 		},
-		"test1",
 	)
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
 }
 
-func TestPHPUnit_TestPattern_FormatTeamCity(t *testing.T) {
+func TestPHPUnit_RunTests_Pattern_FormatTeamCity(t *testing.T) {
 	exec := test.NewExecutable(t)
 
 	phpUnit := tool.NewPHPUnit(exec.LazyExecutable("test"))
@@ -222,7 +221,7 @@ func TestPHPUnit_TestPattern_FormatTeamCity(t *testing.T) {
 	exec.OnRun("test", []string{"test1", "--log-teamcity", reportFilename}).
 		Return(nil)
 
-	err := phpUnit.TestPattern(
+	err := phpUnit.RunTests(
 		t.Context(),
 		internal.ProjectTesterOptions{
 			ProjectInfo: info,
@@ -230,8 +229,8 @@ func TestPHPUnit_TestPattern_FormatTeamCity(t *testing.T) {
 				Format:   internal.TestsReportFormatTeamCity,
 				Filename: &reportFilename,
 			},
+			Pattern: internal.StrPtr("test1"),
 		},
-		"test1",
 	)
 	require.NoError(t, err)
 
