@@ -32,7 +32,11 @@ func FromConfig(config internal.ConfigWorkflow, tools internal.Tools) (*internal
 		Name: "custom",
 	}
 
-	if t, err := getTool[internal.ProjectConfigurator](config.Configure, tools, "configuration"); t != nil {
+	if t, err := getTool[internal.ProjectConfigurator](
+		config.Configure,
+		tools,
+		"configuration",
+	); t != nil {
 		workflow.Configurator = *t
 	} else if err != nil {
 		return nil, err

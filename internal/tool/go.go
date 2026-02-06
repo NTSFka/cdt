@@ -64,7 +64,11 @@ func (g *Go) Structure(
 	builder := bytes.Buffer{}
 	options := internal.RunOptions{Directory: info.Directory, Output: &builder, Error: nil}
 
-	if err := g.Run(ctx, options, []string{"list", "-json=ImportPath,GoFiles", "./..."}); err != nil {
+	if err := g.Run(
+		ctx,
+		options,
+		[]string{"list", "-json=ImportPath,GoFiles", "./..."},
+	); err != nil {
 		return nil, err
 	}
 

@@ -48,7 +48,10 @@ func (c *CMake) Structure(
 	ctx context.Context,
 	info internal.ProjectInfo,
 ) (*internal.ProjectStructure, error) {
-	if err := c.configureIfNeeded(ctx, internal.ProjectConfiguratorOptions{ProjectInfo: info}); err != nil {
+	if err := c.configureIfNeeded(
+		ctx,
+		internal.ProjectConfiguratorOptions{ProjectInfo: info},
+	); err != nil {
 		return nil, err
 	}
 

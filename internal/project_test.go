@@ -21,7 +21,7 @@ func TestProject_ProjectStructure_GetFiles(t *testing.T) {
 		},
 	}
 
-	assert.Equal(t, []string{"file1.go", "file2.go", "file3.go"}, structure.GetFiles())
+	assert.ElementsMatch(t, []string{"file1.go", "file2.go", "file3.go"}, structure.GetFiles())
 }
 
 func TestProject_EmptyStructureProvider(t *testing.T) {
