@@ -61,15 +61,11 @@ func buildCommandAction(ctx context.Context, cmd *cli.Command) error {
 		ExtraArgs:   cmd.Args().Tail(),
 	}
 
-	var err error
-
 	if targets := cmd.StringArgs("targets"); len(targets) > 0 {
-		err = builder.BuildTargets(ctx, options, targets)
-	} else {
-		err = builder.BuildAll(ctx, options)
+		options.Targets = &targets
 	}
 
-	if err != nil {
+	if err := builder.BuildTargets(ctx, options); err != nil {
 		return fmt.Errorf("%w", err)
 	}
 

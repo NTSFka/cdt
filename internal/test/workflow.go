@@ -38,19 +38,11 @@ func NewProjectBuilder(t *testing.T) *ProjectBuilder {
 	return &builder
 }
 
-func (t *ProjectBuilder) BuildAll(
+func (t *ProjectBuilder) BuildTargets(
 	ctx context.Context,
 	options internal.ProjectBuilderOptions,
 ) error {
 	return t.Called(ctx, options).Error(0)
-}
-
-func (t *ProjectBuilder) BuildTargets(
-	ctx context.Context,
-	options internal.ProjectBuilderOptions,
-	targets []string,
-) error {
-	return t.Called(ctx, options, targets).Error(0)
 }
 
 type ProjectFormatter struct {

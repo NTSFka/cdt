@@ -133,7 +133,7 @@ func TestGo_Structure_InvalidJson(t *testing.T) {
 	exec.AssertExpectations(t)
 }
 
-func TestGo_BuildAll(t *testing.T) {
+func TestGo_BuildTargets_All(t *testing.T) {
 	exec := test.NewExecutable(t)
 
 	goTool := tool.NewGo(exec.LazyExecutable("go"))
@@ -143,13 +143,13 @@ func TestGo_BuildAll(t *testing.T) {
 	exec.OnRun("go", []string{"build"}).
 		Return(nil)
 
-	err := goTool.BuildAll(t.Context(), internal.ProjectBuilderOptions{ProjectInfo: info})
+	err := goTool.BuildTargets(t.Context(), internal.ProjectBuilderOptions{ProjectInfo: info})
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
 }
 
-func TestGo_BuildAll_Failed(t *testing.T) {
+func TestGo_BuildTargets_All_Failed(t *testing.T) {
 	exec := test.NewExecutable(t)
 
 	goTool := tool.NewGo(exec.LazyExecutable("go"))
@@ -159,13 +159,13 @@ func TestGo_BuildAll_Failed(t *testing.T) {
 	exec.OnRun("go", []string{"build"}).
 		Return(errors.New("failed"))
 
-	err := goTool.BuildAll(t.Context(), internal.ProjectBuilderOptions{ProjectInfo: info})
+	err := goTool.BuildTargets(t.Context(), internal.ProjectBuilderOptions{ProjectInfo: info})
 	require.EqualError(t, err, "failed")
 
 	exec.AssertExpectations(t)
 }
 
-func TestGo_BuildAll_OutputDirectory(t *testing.T) {
+func TestGo_BuildTargets_All_OutputDirectory(t *testing.T) {
 	exec := test.NewExecutable(t)
 
 	goTool := tool.NewGo(exec.LazyExecutable("go"))
@@ -177,7 +177,7 @@ func TestGo_BuildAll_OutputDirectory(t *testing.T) {
 	exec.OnRun("go", []string{"build", "-o", outputDir}).
 		Return(nil)
 
-	err := goTool.BuildAll(t.Context(), internal.ProjectBuilderOptions{ProjectInfo: info})
+	err := goTool.BuildTargets(t.Context(), internal.ProjectBuilderOptions{ProjectInfo: info})
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -195,8 +195,7 @@ func TestGo_BuildTargets(t *testing.T) {
 
 	err := goTool.BuildTargets(
 		t.Context(),
-		internal.ProjectBuilderOptions{ProjectInfo: info},
-		[]string{"target1", "target2"},
+		internal.ProjectBuilderOptions{ProjectInfo: info, Targets: &[]string{"target1", "target2"}},
 	)
 	require.NoError(t, err)
 
@@ -215,8 +214,7 @@ func TestGo_BuildTargets_Failed(t *testing.T) {
 
 	err := goTool.BuildTargets(
 		t.Context(),
-		internal.ProjectBuilderOptions{ProjectInfo: info},
-		[]string{"target1", "target2"},
+		internal.ProjectBuilderOptions{ProjectInfo: info, Targets: &[]string{"target1", "target2"}},
 	)
 	require.EqualError(t, err, "failed")
 
@@ -237,8 +235,7 @@ func TestGo_BuildTargets_OutputDirectory(t *testing.T) {
 
 	err := goTool.BuildTargets(
 		t.Context(),
-		internal.ProjectBuilderOptions{ProjectInfo: info},
-		[]string{"target1", "target2"},
+		internal.ProjectBuilderOptions{ProjectInfo: info, Targets: &[]string{"target1", "target2"}},
 	)
 	require.NoError(t, err)
 

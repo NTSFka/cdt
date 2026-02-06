@@ -102,22 +102,12 @@ func (f *BuilderFallback) Details() string {
 	return adaptorToolIds("fallback", *f)
 }
 
-func (f *BuilderFallback) BuildAll(
-	ctx context.Context,
-	options internal.ProjectBuilderOptions,
-) error {
-	return runFirstAvailable(*f, "builder", func(tool builderTool) error {
-		return tool.BuildAll(ctx, options)
-	})
-}
-
 func (f *BuilderFallback) BuildTargets(
 	ctx context.Context,
 	options internal.ProjectBuilderOptions,
-	targets []string,
 ) error {
 	return runFirstAvailable(*f, "builder", func(tool builderTool) error {
-		return tool.BuildTargets(ctx, options, targets)
+		return tool.BuildTargets(ctx, options)
 	})
 }
 

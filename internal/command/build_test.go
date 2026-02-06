@@ -39,9 +39,9 @@ func TestBuild_NotSupported(t *testing.T) {
 	assert.Equal(t, "project doesn't support building", err.Error())
 }
 
-func TestBuild_BuildAll_Success(t *testing.T) {
+func TestBuild_BuildTargets_All_Success(t *testing.T) {
 	builder := test.NewProjectBuilder(t)
-	builder.On("BuildAll", mock.Anything, mock.Anything).
+	builder.On("BuildTargets", mock.Anything, mock.Anything).
 		Return(nil)
 
 	err := runBuild(t.Context(), builder)
@@ -50,9 +50,9 @@ func TestBuild_BuildAll_Success(t *testing.T) {
 	builder.AssertExpectations(t)
 }
 
-func TestBuild_BuildAll_Failure(t *testing.T) {
+func TestBuild_BuildTargets_All_Failure(t *testing.T) {
 	builder := test.NewProjectBuilder(t)
-	builder.On("BuildAll", mock.Anything, mock.Anything).
+	builder.On("BuildTargets", mock.Anything, mock.Anything).
 		Return(errors.New("failed"))
 
 	err := runBuild(t.Context(), builder)
@@ -80,7 +80,7 @@ func newTestBuilderTool(t *testing.T) *testBuilderTool {
 
 func TestBuild_Tool_Success(t *testing.T) {
 	builder := newTestBuilderTool(t)
-	builder.On("BuildAll", mock.Anything, mock.Anything).
+	builder.On("BuildTargets", mock.Anything, mock.Anything).
 		Return(nil)
 
 	err := runBuildTool(t.Context(), builder, "--tool", "tool1")
@@ -91,7 +91,7 @@ func TestBuild_Tool_Success(t *testing.T) {
 
 func TestBuild_Tool_Failed(t *testing.T) {
 	builder := newTestBuilderTool(t)
-	builder.On("BuildAll", mock.Anything, mock.Anything).
+	builder.On("BuildTargets", mock.Anything, mock.Anything).
 		Return(errors.New("failed"))
 
 	err := runBuildTool(t.Context(), builder, "--tool", "tool1")
@@ -129,7 +129,14 @@ func TestBuild_Tool_NotSupported(t *testing.T) {
 func TestBuild_BuildTargets_Success(t *testing.T) {
 	builder := test.NewProjectBuilder(t)
 
-	builder.On("BuildTargets", mock.Anything, mock.Anything, []string{"target1", "target2"}).
+	builder.On(
+		"BuildTargets",
+		mock.Anything,
+		mock.MatchedBy(func(opts internal.ProjectBuilderOptions) bool {
+			return assert.NotNil(t, opts.Targets) &&
+				assert.ElementsMatch(t, *opts.Targets, []string{"target1", "target2"})
+		}),
+	).
 		Return(nil)
 
 	err := runBuild(t.Context(), builder, "target1", "target2")
@@ -141,7 +148,7 @@ func TestBuild_BuildTargets_Success(t *testing.T) {
 func TestBuild_BuildTargets_Failure(t *testing.T) {
 	builder := test.NewProjectBuilder(t)
 
-	builder.On("BuildTargets", mock.Anything, mock.Anything, []string{"target1", "target2"}).
+	builder.On("BuildTargets", mock.Anything, mock.Anything).
 		Return(errors.New("failed"))
 
 	err := runBuild(t.Context(), builder, "target1", "target2")

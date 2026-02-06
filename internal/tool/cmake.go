@@ -94,27 +94,14 @@ func (c *CMake) Configure(ctx context.Context, options internal.ProjectConfigura
 	return c.RunForProject(ctx, options.ProjectInfo, callArgs)
 }
 
-func (c *CMake) BuildAll(ctx context.Context, options internal.ProjectBuilderOptions) error {
-	if err := c.configureIfNeeded(ctx, internal.ProjectConfiguratorOptions{ProjectInfo: options.ProjectInfo}); err != nil {
-		return err
-	}
-
-	if options.OutputDirectory == nil {
-		return internal.ErrNoOutputDirectory
-	}
-
-	callArgs := []string{"--build", *options.OutputDirectory}
-	callArgs = append(callArgs, options.ExtraArgs...)
-
-	return c.RunForProject(ctx, options.ProjectInfo, callArgs)
-}
-
 func (c *CMake) BuildTargets(
 	ctx context.Context,
 	options internal.ProjectBuilderOptions,
-	targets []string,
 ) error {
-	if err := c.configureIfNeeded(ctx, internal.ProjectConfiguratorOptions{ProjectInfo: options.ProjectInfo}); err != nil {
+	if err := c.configureIfNeeded(
+		ctx,
+		internal.ProjectConfiguratorOptions{ProjectInfo: options.ProjectInfo},
+	); err != nil {
 		return err
 	}
 
@@ -122,12 +109,16 @@ func (c *CMake) BuildTargets(
 		return internal.ErrNoOutputDirectory
 	}
 
-	callArgs := []string{"--build", *options.OutputDirectory}
-	callArgs = append(callArgs, "--target")
-	callArgs = append(callArgs, targets...)
-	callArgs = append(callArgs, options.ExtraArgs...)
+	args := []string{"--build", *options.OutputDirectory}
 
-	return c.RunForProject(ctx, options.ProjectInfo, callArgs)
+	if options.Targets != nil && len(*options.Targets) > 0 {
+		args = append(args, "--target")
+		args = append(args, *options.Targets...)
+	}
+
+	args = append(args, options.ExtraArgs...)
+
+	return c.RunForProject(ctx, options.ProjectInfo, args)
 }
 
 func (c *CMake) RunTarget(
@@ -135,9 +126,12 @@ func (c *CMake) RunTarget(
 	options internal.ProjectRunnerOptions,
 	target string,
 ) error {
-	buildOptions := internal.ProjectBuilderOptions{ProjectInfo: options.ProjectInfo}
+	buildOptions := internal.ProjectBuilderOptions{
+		ProjectInfo: options.ProjectInfo,
+		Targets:     &[]string{target},
+	}
 
-	if err := c.BuildTargets(ctx, buildOptions, []string{target}); err != nil {
+	if err := c.BuildTargets(ctx, buildOptions); err != nil {
 		return err
 	}
 

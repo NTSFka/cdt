@@ -78,7 +78,7 @@ func (t *cmakeTester) runTests(
 	ctx context.Context,
 	options internal.ProjectTesterOptions,
 ) error {
-	if err := t.cmakeTool.BuildAll(
+	if err := t.cmakeTool.BuildTargets(
 		ctx,
 		internal.ProjectBuilderOptions{ProjectInfo: options.ProjectInfo},
 	); err != nil {

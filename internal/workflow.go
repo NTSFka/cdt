@@ -28,15 +28,15 @@ type ProjectBuilderOptions struct {
 
 	// ExtraArgs are extra arguments for the specific builder implementation
 	ExtraArgs []string
+
+	// Targets specify targets to build
+	Targets *[]string
 }
 
 // A ProjectBuilder allow building a project.
 type ProjectBuilder interface {
-	// BuildAll builds all targets in the project
-	BuildAll(ctx context.Context, options ProjectBuilderOptions) error
-
-	// BuildTargets builds specific targets in the project
-	BuildTargets(ctx context.Context, options ProjectBuilderOptions, targets []string) error
+	// BuildTargets builds targets in the project
+	BuildTargets(ctx context.Context, options ProjectBuilderOptions) error
 }
 
 // TestsReportFormat specifies the format of the tests report.
