@@ -65,25 +65,14 @@ func formatCommandAction(ctx context.Context, cmd *cli.Command) error {
 	options := internal.ProjectFormatterOptions{
 		ProjectInfo: cmdContext.Project.Info,
 		ExtraArgs:   cmd.Args().Tail(),
+		CheckOnly:   cmd.Bool("check"),
 	}
 
-	var err error
-
-	if cmd.Bool("check") { // nolint: nestif
-		if files := cmd.StringArgs("files"); len(files) > 0 {
-			err = formatter.FormatCheckFiles(ctx, options, files)
-		} else {
-			err = formatter.FormatCheckAll(ctx, options)
-		}
-	} else {
-		if files := cmd.StringArgs("files"); len(files) > 0 {
-			err = formatter.FormatFiles(ctx, options, files)
-		} else {
-			err = formatter.FormatAll(ctx, options)
-		}
+	if files := cmd.StringArgs("files"); len(files) > 0 {
+		options.Filenames = &files
 	}
 
-	if err != nil {
+	if err := formatter.FormatFiles(ctx, options); err != nil {
 		return fmt.Errorf("%w", err)
 	}
 

@@ -65,7 +65,7 @@ func TestBlack_DetectBandit_Config(t *testing.T) {
 	env.AssertExpectations(t)
 }
 
-func TestBlack_Black_FormatAll(t *testing.T) {
+func TestBlack_Black_FormatFiles_All(t *testing.T) {
 	exec := test.NewExecutable(t)
 
 	black := tool.NewBlack(exec.LazyExecutable("format"))
@@ -75,7 +75,7 @@ func TestBlack_Black_FormatAll(t *testing.T) {
 	exec.OnRun("format", []string{"."}).
 		Return(nil)
 
-	err := black.FormatAll(t.Context(), internal.ProjectFormatterOptions{ProjectInfo: info})
+	err := black.FormatFiles(t.Context(), internal.ProjectFormatterOptions{ProjectInfo: info})
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -93,15 +93,14 @@ func TestBlack_Black_FormatFiles(t *testing.T) {
 
 	err := black.FormatFiles(
 		t.Context(),
-		internal.ProjectFormatterOptions{ProjectInfo: info},
-		[]string{"tests/*"},
+		internal.ProjectFormatterOptions{ProjectInfo: info, Filenames: &[]string{"tests/*"}},
 	)
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
 }
 
-func TestBlack_Black_FormatCheckAll(t *testing.T) {
+func TestBlack_Black_FormatFiles_CheckAll(t *testing.T) {
 	exec := test.NewExecutable(t)
 
 	black := tool.NewBlack(exec.LazyExecutable("format"))
@@ -111,13 +110,16 @@ func TestBlack_Black_FormatCheckAll(t *testing.T) {
 	exec.OnRun("format", []string{"--check", "."}).
 		Return(nil)
 
-	err := black.FormatCheckAll(t.Context(), internal.ProjectFormatterOptions{ProjectInfo: info})
+	err := black.FormatFiles(
+		t.Context(),
+		internal.ProjectFormatterOptions{ProjectInfo: info, CheckOnly: true},
+	)
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
 }
 
-func TestBlack_Black_FormatCheckFiles(t *testing.T) {
+func TestBlack_Black_FormatFiles_Check(t *testing.T) {
 	exec := test.NewExecutable(t)
 
 	black := tool.NewBlack(exec.LazyExecutable("format"))
@@ -127,10 +129,13 @@ func TestBlack_Black_FormatCheckFiles(t *testing.T) {
 	exec.OnRun("format", []string{"--check", "tests/*", "/path/to/file.py"}).
 		Return(nil)
 
-	err := black.FormatCheckFiles(
+	err := black.FormatFiles(
 		t.Context(),
-		internal.ProjectFormatterOptions{ProjectInfo: info},
-		[]string{"tests/*", "/path/to/file.py"},
+		internal.ProjectFormatterOptions{
+			ProjectInfo: info,
+			CheckOnly:   true,
+			Filenames:   &[]string{"tests/*", "/path/to/file.py"},
+		},
 	)
 	require.NoError(t, err)
 

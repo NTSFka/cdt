@@ -54,42 +54,21 @@ func (r *Ruff) LintFiles(
 	)
 }
 
-func (r *Ruff) FormatAll(ctx context.Context, options internal.ProjectFormatterOptions) error {
-	return r.RunForProject(
-		ctx,
-		options.ProjectInfo,
-		append([]string{"format"}, options.ExtraArgs...),
-	)
-}
-
 func (r *Ruff) FormatFiles(
 	ctx context.Context,
 	options internal.ProjectFormatterOptions,
-	filenames []string,
 ) error {
-	return r.RunForProject(
-		ctx,
-		options.ProjectInfo,
-		append(append([]string{"format"}, options.ExtraArgs...), filenames...),
-	)
-}
+	args := []string{"format"}
 
-func (r *Ruff) FormatCheckAll(ctx context.Context, options internal.ProjectFormatterOptions) error {
-	return r.RunForProject(
-		ctx,
-		options.ProjectInfo,
-		append([]string{"format", "--check"}, options.ExtraArgs...),
-	)
-}
+	if options.CheckOnly {
+		args = append(args, "--check")
+	}
 
-func (r *Ruff) FormatCheckFiles(
-	ctx context.Context,
-	options internal.ProjectFormatterOptions,
-	filenames []string,
-) error {
-	return r.RunForProject(
-		ctx,
-		options.ProjectInfo,
-		append(append([]string{"format", "--check"}, options.ExtraArgs...), filenames...),
-	)
+	args = append(args, options.ExtraArgs...)
+
+	if options.Filenames != nil {
+		args = append(args, *options.Filenames...)
+	}
+
+	return r.RunForProject(ctx, options.ProjectInfo, args)
 }

@@ -430,7 +430,7 @@ func TestGo_RunTests_Pattern_FormatCtrf(t *testing.T) {
 	exec.AssertExpectations(t)
 }
 
-func TestGo_FormatAll(t *testing.T) {
+func TestGo_FormatFiles_All(t *testing.T) {
 	exec := test.NewExecutable(t)
 
 	goTool := tool.NewGo(exec.LazyExecutable("go"))
@@ -440,13 +440,13 @@ func TestGo_FormatAll(t *testing.T) {
 	exec.OnRun("go", []string{"fmt", "./..."}).
 		Return(nil)
 
-	err := goTool.FormatAll(t.Context(), internal.ProjectFormatterOptions{ProjectInfo: info})
+	err := goTool.FormatFiles(t.Context(), internal.ProjectFormatterOptions{ProjectInfo: info})
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
 }
 
-func TestGo_FormatAll_Failed(t *testing.T) {
+func TestGo_FormatFiles_All_Failed(t *testing.T) {
 	exec := test.NewExecutable(t)
 
 	goTool := tool.NewGo(exec.LazyExecutable("go"))
@@ -456,7 +456,7 @@ func TestGo_FormatAll_Failed(t *testing.T) {
 	exec.OnRun("go", []string{"fmt", "./..."}).
 		Return(errors.New("failed"))
 
-	err := goTool.FormatAll(t.Context(), internal.ProjectFormatterOptions{ProjectInfo: info})
+	err := goTool.FormatFiles(t.Context(), internal.ProjectFormatterOptions{ProjectInfo: info})
 	require.EqualError(t, err, "failed")
 
 	exec.AssertExpectations(t)
@@ -474,8 +474,7 @@ func TestGo_FormatFiles(t *testing.T) {
 
 	err := goTool.FormatFiles(
 		t.Context(),
-		internal.ProjectFormatterOptions{ProjectInfo: info},
-		[]string{"file1"},
+		internal.ProjectFormatterOptions{ProjectInfo: info, Filenames: &[]string{"file1"}},
 	)
 	require.NoError(t, err)
 
@@ -494,38 +493,43 @@ func TestGo_FormatFiles_Failed(t *testing.T) {
 
 	err := goTool.FormatFiles(
 		t.Context(),
-		internal.ProjectFormatterOptions{ProjectInfo: info},
-		[]string{"file1"},
+		internal.ProjectFormatterOptions{ProjectInfo: info, Filenames: &[]string{"file1"}},
 	)
 	require.EqualError(t, err, "failed")
 
 	exec.AssertExpectations(t)
 }
 
-func TestGo_FormatCheckAll(t *testing.T) {
+func TestGo_FormatFiles_CheckAll(t *testing.T) {
 	exec := test.NewExecutable(t)
 
 	goTool := tool.NewGo(exec.LazyExecutable("go"))
 
 	info := internal.ProjectInfo{Directory: "."}
 
-	err := goTool.FormatCheckAll(t.Context(), internal.ProjectFormatterOptions{ProjectInfo: info})
+	err := goTool.FormatFiles(
+		t.Context(),
+		internal.ProjectFormatterOptions{ProjectInfo: info, CheckOnly: true},
+	)
 	require.EqualError(t, err, "go fmt doesn't support check mode")
 
 	exec.AssertExpectations(t)
 }
 
-func TestGo_FormatCheckFiles(t *testing.T) {
+func TestGo_FormatFilesFiles_Check(t *testing.T) {
 	exec := test.NewExecutable(t)
 
 	goTool := tool.NewGo(exec.LazyExecutable("go"))
 
 	info := internal.ProjectInfo{Directory: "."}
 
-	err := goTool.FormatCheckFiles(
+	err := goTool.FormatFiles(
 		t.Context(),
-		internal.ProjectFormatterOptions{ProjectInfo: info},
-		[]string{"file1"},
+		internal.ProjectFormatterOptions{
+			ProjectInfo: info,
+			CheckOnly:   true,
+			Filenames:   &[]string{"file1"},
+		},
 	)
 	require.EqualError(t, err, "go fmt doesn't support check mode")
 

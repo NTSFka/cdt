@@ -34,37 +34,23 @@ func NewBlack(detect internal.ExecutableToolDetectFunc) *Black {
 	}
 }
 
-func (b *Black) FormatAll(ctx context.Context, options internal.ProjectFormatterOptions) error {
-	return b.RunForProject(ctx, options.ProjectInfo, append(options.ExtraArgs, "."))
-}
-
 func (b *Black) FormatFiles(
 	ctx context.Context,
 	options internal.ProjectFormatterOptions,
-	filenames []string,
 ) error {
-	return b.RunForProject(ctx, options.ProjectInfo, append(options.ExtraArgs, filenames...))
-}
+	var args []string
 
-func (b *Black) FormatCheckAll(
-	ctx context.Context,
-	options internal.ProjectFormatterOptions,
-) error {
-	return b.RunForProject(
-		ctx,
-		options.ProjectInfo,
-		append([]string{"--check", "."}, options.ExtraArgs...),
-	)
-}
+	if options.CheckOnly {
+		args = append(args, "--check")
+	}
 
-func (b *Black) FormatCheckFiles(
-	ctx context.Context,
-	options internal.ProjectFormatterOptions,
-	filenames []string,
-) error {
-	return b.RunForProject(
-		ctx,
-		options.ProjectInfo,
-		append(append([]string{"--check"}, options.ExtraArgs...), filenames...),
-	)
+	args = append(args, options.ExtraArgs...)
+
+	if options.Filenames != nil {
+		args = append(args, *options.Filenames...)
+	} else {
+		args = append(args, ".")
+	}
+
+	return b.RunForProject(ctx, options.ProjectInfo, args)
 }

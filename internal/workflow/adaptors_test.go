@@ -482,68 +482,10 @@ func TestFormatterFallback_Details(t *testing.T) {
 	assert.Equal(t, "fallback (test1, test2)", fallback.Details())
 }
 
-func TestFormatterFallback_FormatAll_Empty(t *testing.T) {
-	fallback := &workflow.FormatterFallback{}
-
-	err := fallback.FormatAll(t.Context(), internal.ProjectFormatterOptions{})
-
-	require.EqualError(t, err, "no formatter tool available: none")
-}
-
-func TestFormatterFallback_FormatAll_NoAvailable(t *testing.T) {
-	tool1 := createFormatterTool("test1", nil)
-	tool2 := createFormatterTool("test2", nil)
-
-	fallback := &workflow.FormatterFallback{tool1, tool2}
-
-	err := fallback.FormatAll(t.Context(), internal.ProjectFormatterOptions{})
-
-	require.EqualError(t, err, "no formatter tool available: test1, test2")
-
-	tool1.AssertExpectations(t)
-	tool2.AssertExpectations(t)
-}
-
-func TestFormatterFallback_FormatAll_Available1(t *testing.T) {
-	tool1 := createFormatterTool("test1", &internal.Executable{Path: "test1"})
-	tool2 := createFormatterTool("test2", nil)
-
-	fallback := &workflow.FormatterFallback{tool1, tool2}
-
-	tool1.Test(t)
-	tool2.Test(t)
-	tool1.On("FormatAll", mock.Anything, mock.Anything).Return(nil)
-
-	err := fallback.FormatAll(t.Context(), internal.ProjectFormatterOptions{})
-
-	require.NoError(t, err)
-
-	tool1.AssertExpectations(t)
-	tool2.AssertExpectations(t)
-}
-
-func TestFormatterFallback_FormatAll_Available2(t *testing.T) {
-	tool1 := createFormatterTool("test1", nil)
-	tool2 := createFormatterTool("test2", &internal.Executable{Path: "test1"})
-
-	fallback := &workflow.FormatterFallback{tool1, tool2}
-
-	tool1.Test(t)
-	tool2.Test(t)
-	tool2.On("FormatAll", mock.Anything, mock.Anything).Return(nil)
-
-	err := fallback.FormatAll(t.Context(), internal.ProjectFormatterOptions{})
-
-	require.NoError(t, err)
-
-	tool1.AssertExpectations(t)
-	tool2.AssertExpectations(t)
-}
-
 func TestFormatterFallback_FormatFiles_Empty(t *testing.T) {
 	fallback := &workflow.FormatterFallback{}
 
-	err := fallback.FormatFiles(t.Context(), internal.ProjectFormatterOptions{}, []string{"file1"})
+	err := fallback.FormatFiles(t.Context(), internal.ProjectFormatterOptions{})
 
 	require.EqualError(t, err, "no formatter tool available: none")
 }
@@ -554,7 +496,7 @@ func TestFormatterFallback_FormatFiles_NoAvailable(t *testing.T) {
 
 	fallback := &workflow.FormatterFallback{tool1, tool2}
 
-	err := fallback.FormatFiles(t.Context(), internal.ProjectFormatterOptions{}, []string{"file1"})
+	err := fallback.FormatFiles(t.Context(), internal.ProjectFormatterOptions{})
 
 	require.EqualError(t, err, "no formatter tool available: test1, test2")
 
@@ -570,9 +512,15 @@ func TestFormatterFallback_FormatFiles_Available1(t *testing.T) {
 
 	tool1.Test(t)
 	tool2.Test(t)
-	tool1.On("FormatFiles", mock.Anything, mock.Anything, []string{"file1"}).Return(nil)
+	tool1.On(
+		"FormatFiles",
+		mock.Anything, mock.MatchedBy(func(opts internal.ProjectFormatterOptions) bool {
+			return true
+		}),
+	).
+		Return(nil)
 
-	err := fallback.FormatFiles(t.Context(), internal.ProjectFormatterOptions{}, []string{"file1"})
+	err := fallback.FormatFiles(t.Context(), internal.ProjectFormatterOptions{})
 
 	require.NoError(t, err)
 
@@ -588,141 +536,16 @@ func TestFormatterFallback_FormatFiles_Available2(t *testing.T) {
 
 	tool1.Test(t)
 	tool2.Test(t)
-	tool2.On("FormatFiles", mock.Anything, mock.Anything, []string{"file1"}).Return(nil)
+	tool2.On(
+		"FormatFiles",
+		mock.Anything,
+		mock.MatchedBy(func(opts internal.ProjectFormatterOptions) bool {
+			return true
+		}),
+	).
+		Return(nil)
 
-	err := fallback.FormatFiles(t.Context(), internal.ProjectFormatterOptions{}, []string{"file1"})
-
-	require.NoError(t, err)
-
-	tool1.AssertExpectations(t)
-	tool2.AssertExpectations(t)
-}
-
-func TestFormatterFallback_FormatCheckAll_Empty(t *testing.T) {
-	fallback := &workflow.FormatterFallback{}
-
-	err := fallback.FormatCheckAll(t.Context(), internal.ProjectFormatterOptions{})
-
-	require.EqualError(t, err, "no formatter tool available: none")
-}
-
-func TestFormatterFallback_FormatCheckAll_NoAvailable(t *testing.T) {
-	tool1 := createFormatterTool("test1", nil)
-	tool2 := createFormatterTool("test2", nil)
-
-	fallback := &workflow.FormatterFallback{tool1, tool2}
-
-	err := fallback.FormatCheckAll(t.Context(), internal.ProjectFormatterOptions{})
-
-	require.EqualError(t, err, "no formatter tool available: test1, test2")
-
-	tool1.AssertExpectations(t)
-	tool2.AssertExpectations(t)
-}
-
-func TestFormatterFallback_FormatCheckAll_Available1(t *testing.T) {
-	tool1 := createFormatterTool("test1", &internal.Executable{Path: "test1"})
-	tool2 := createFormatterTool("test2", nil)
-
-	fallback := &workflow.FormatterFallback{tool1, tool2}
-
-	tool1.Test(t)
-	tool2.Test(t)
-	tool1.On("FormatCheckAll", mock.Anything, mock.Anything).Return(nil)
-
-	err := fallback.FormatCheckAll(t.Context(), internal.ProjectFormatterOptions{})
-
-	require.NoError(t, err)
-
-	tool1.AssertExpectations(t)
-	tool2.AssertExpectations(t)
-}
-
-func TestFormatterFallback_FormatCheckAll_Available2(t *testing.T) {
-	tool1 := createFormatterTool("test1", nil)
-	tool2 := createFormatterTool("test2", &internal.Executable{Path: "test1"})
-
-	fallback := &workflow.FormatterFallback{tool1, tool2}
-
-	tool1.Test(t)
-	tool2.Test(t)
-	tool2.On("FormatCheckAll", mock.Anything, mock.Anything).Return(nil)
-
-	err := fallback.FormatCheckAll(t.Context(), internal.ProjectFormatterOptions{})
-
-	require.NoError(t, err)
-
-	tool1.AssertExpectations(t)
-	tool2.AssertExpectations(t)
-}
-
-func TestFormatterFallback_FormatCheckFiles_Empty(t *testing.T) {
-	fallback := &workflow.FormatterFallback{}
-
-	err := fallback.FormatCheckFiles(
-		t.Context(),
-		internal.ProjectFormatterOptions{},
-		[]string{"file1"},
-	)
-
-	require.EqualError(t, err, "no formatter tool available: none")
-}
-
-func TestFormatterFallback_FormatCheckFiles_NoAvailable(t *testing.T) {
-	tool1 := createFormatterTool("test1", nil)
-	tool2 := createFormatterTool("test2", nil)
-
-	fallback := &workflow.FormatterFallback{tool1, tool2}
-
-	err := fallback.FormatCheckFiles(
-		t.Context(),
-		internal.ProjectFormatterOptions{},
-		[]string{"file1"},
-	)
-
-	require.EqualError(t, err, "no formatter tool available: test1, test2")
-
-	tool1.AssertExpectations(t)
-	tool2.AssertExpectations(t)
-}
-
-func TestFormatterFallback_FormatCheckFiles_Available1(t *testing.T) {
-	tool1 := createFormatterTool("test1", &internal.Executable{Path: "test1"})
-	tool2 := createFormatterTool("test2", nil)
-
-	fallback := &workflow.FormatterFallback{tool1, tool2}
-
-	tool1.Test(t)
-	tool2.Test(t)
-	tool1.On("FormatCheckFiles", mock.Anything, mock.Anything, []string{"file1"}).Return(nil)
-
-	err := fallback.FormatCheckFiles(
-		t.Context(),
-		internal.ProjectFormatterOptions{},
-		[]string{"file1"},
-	)
-
-	require.NoError(t, err)
-
-	tool1.AssertExpectations(t)
-	tool2.AssertExpectations(t)
-}
-
-func TestFormatterFallback_FormatCheckFiles_Available2(t *testing.T) {
-	tool1 := createFormatterTool("test1", nil)
-	tool2 := createFormatterTool("test2", &internal.Executable{Path: "test1"})
-
-	fallback := &workflow.FormatterFallback{tool1, tool2}
-
-	tool1.Test(t)
-	tool2.Test(t)
-	tool2.On("FormatCheckFiles", mock.Anything, mock.Anything, []string{"file1"}).Return(nil)
-
-	err := fallback.FormatCheckFiles(
-		t.Context(),
-		internal.ProjectFormatterOptions{},
-		[]string{"file1"},
-	)
+	err := fallback.FormatFiles(t.Context(), internal.ProjectFormatterOptions{})
 
 	require.NoError(t, err)
 

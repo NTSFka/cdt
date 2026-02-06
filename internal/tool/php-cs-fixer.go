@@ -47,44 +47,19 @@ func NewPHPCSFixer(detect internal.ExecutableToolDetectFunc) *PHPCSFixer {
 	}
 }
 
-func (p *PHPCSFixer) FormatAll(
-	ctx context.Context,
-	options internal.ProjectFormatterOptions,
-) error {
-	return p.RunForProject(ctx, options.ProjectInfo, append([]string{"fix"}, options.ExtraArgs...))
-}
-
 func (p *PHPCSFixer) FormatFiles(
 	ctx context.Context,
 	options internal.ProjectFormatterOptions,
-	filenames []string,
 ) error {
-	return p.RunForProject(
-		ctx,
-		options.ProjectInfo,
-		append(append([]string{"fix"}, options.ExtraArgs...), filenames...),
-	)
-}
+	args := append([]string{"fix"}, options.ExtraArgs...)
 
-func (p *PHPCSFixer) FormatCheckAll(
-	ctx context.Context,
-	options internal.ProjectFormatterOptions,
-) error {
-	return p.RunForProject(
-		ctx,
-		options.ProjectInfo,
-		append([]string{"fix", "--dry-run"}, options.ExtraArgs...),
-	)
-}
+	if options.CheckOnly {
+		args = append(args, "--dry-run")
+	}
 
-func (p *PHPCSFixer) FormatCheckFiles(
-	ctx context.Context,
-	options internal.ProjectFormatterOptions,
-	filenames []string,
-) error {
-	return p.RunForProject(
-		ctx,
-		options.ProjectInfo,
-		append(append([]string{"fix", "--dry-run"}, options.ExtraArgs...), filenames...),
-	)
+	if options.Filenames != nil && len(*options.Filenames) > 0 {
+		args = append(args, *options.Filenames...)
+	}
+
+	return p.RunForProject(ctx, options.ProjectInfo, args)
 }

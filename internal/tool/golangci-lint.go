@@ -55,48 +55,19 @@ func (l *GolangCILint) LintFiles(
 	)
 }
 
-func (l *GolangCILint) FormatAll(
-	ctx context.Context,
-	options internal.ProjectFormatterOptions,
-) error {
-	return l.RunForProject(
-		ctx,
-		options.ProjectInfo,
-		append(options.ExtraArgs, "fmt"),
-	)
-}
-
 func (l *GolangCILint) FormatFiles(
 	ctx context.Context,
 	options internal.ProjectFormatterOptions,
-	filenames []string,
 ) error {
-	return l.RunForProject(
-		ctx,
-		options.ProjectInfo,
-		append(append(options.ExtraArgs, "fmt"), filenames...),
-	)
-}
+	args := append([]string{"fmt"}, options.ExtraArgs...)
 
-func (l *GolangCILint) FormatCheckAll(
-	ctx context.Context,
-	options internal.ProjectFormatterOptions,
-) error {
-	return l.RunForProject(
-		ctx,
-		options.ProjectInfo,
-		append(options.ExtraArgs, "fmt", "--diff"),
-	)
-}
+	if options.CheckOnly {
+		args = append(args, "--diff")
+	}
 
-func (l *GolangCILint) FormatCheckFiles(
-	ctx context.Context,
-	options internal.ProjectFormatterOptions,
-	filenames []string,
-) error {
-	return l.RunForProject(
-		ctx,
-		options.ProjectInfo,
-		append(append(options.ExtraArgs, "fmt", "--diff"), filenames...),
-	)
+	if options.Filenames != nil {
+		args = append(args, *options.Filenames...)
+	}
+
+	return l.RunForProject(ctx, options.ProjectInfo, args)
 }

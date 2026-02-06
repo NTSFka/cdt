@@ -42,56 +42,33 @@ func NewClangFormat(detect internal.ExecutableToolDetectFunc) *ClangFormat {
 	}
 }
 
-// FormatAll formats all files in the project.
-func (c *ClangFormat) FormatAll(
-	ctx context.Context,
-	options internal.ProjectFormatterOptions,
-) error {
-	structure, err := options.Structure(ctx)
-
-	if err != nil {
-		return fmt.Errorf("failed to obtain project structure: %w", err)
-	}
-
-	toolArgs := c.buildArgs(options.Directory, []string{"-i"}, structure.GetFiles())
-
-	return c.RunForProject(ctx, options.ProjectInfo, append(toolArgs, options.ExtraArgs...))
-}
-
 // FormatFiles formats a file in the project.
 func (c *ClangFormat) FormatFiles(
 	ctx context.Context,
 	options internal.ProjectFormatterOptions,
-	filenames []string,
 ) error {
-	toolArgs := c.buildArgs(options.Directory, []string{"-i"}, filenames)
+	var args []string
 
-	return c.RunForProject(ctx, options.ProjectInfo, append(toolArgs, options.ExtraArgs...))
-}
-
-// FormatCheckAll checks all files if some needs formatting.
-func (c *ClangFormat) FormatCheckAll(
-	ctx context.Context,
-	options internal.ProjectFormatterOptions,
-) error {
-	structure, err := options.Structure(ctx)
-
-	if err != nil {
-		return fmt.Errorf("failed to obtain project structure: %w", err)
+	if options.CheckOnly {
+		args = append(args, "--dry-run")
+	} else {
+		args = append(args, "-i")
 	}
 
-	toolArgs := c.buildArgs(options.Directory, []string{"--dry-run"}, structure.GetFiles())
+	var filenames []string
+	if options.Filenames != nil {
+		filenames = *options.Filenames
+	} else {
+		structure, err := options.Structure(ctx)
 
-	return c.RunForProject(ctx, options.ProjectInfo, append(toolArgs, options.ExtraArgs...))
-}
+		if err != nil {
+			return fmt.Errorf("failed to obtain project structure: %w", err)
+		}
 
-// FormatCheckFiles checks a file if it needs formatting.
-func (c *ClangFormat) FormatCheckFiles(
-	ctx context.Context,
-	options internal.ProjectFormatterOptions,
-	filenames []string,
-) error {
-	toolArgs := c.buildArgs(options.Directory, []string{"--dry-run"}, filenames)
+		filenames = structure.GetFiles()
+	}
+
+	toolArgs := c.buildArgs(options.Directory, args, filenames)
 
 	return c.RunForProject(ctx, options.ProjectInfo, append(toolArgs, options.ExtraArgs...))
 }

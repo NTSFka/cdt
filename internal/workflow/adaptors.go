@@ -175,41 +175,12 @@ func (f *FormatterFallback) Details() string {
 	return adaptorToolIds("fallback", *f)
 }
 
-func (f *FormatterFallback) FormatAll(
-	ctx context.Context,
-	options internal.ProjectFormatterOptions,
-) error {
-	return runFirstAvailable(*f, "formatter", func(tool formatterTool) error {
-		return tool.FormatAll(ctx, options)
-	})
-}
-
 func (f *FormatterFallback) FormatFiles(
 	ctx context.Context,
 	options internal.ProjectFormatterOptions,
-	filenames []string,
 ) error {
 	return runFirstAvailable(*f, "formatter", func(tool formatterTool) error {
-		return tool.FormatFiles(ctx, options, filenames)
-	})
-}
-
-func (f *FormatterFallback) FormatCheckAll(
-	ctx context.Context,
-	options internal.ProjectFormatterOptions,
-) error {
-	return runFirstAvailable(*f, "formatter", func(tool formatterTool) error {
-		return tool.FormatCheckAll(ctx, options)
-	})
-}
-
-func (f *FormatterFallback) FormatCheckFiles(
-	ctx context.Context,
-	options internal.ProjectFormatterOptions,
-	filenames []string,
-) error {
-	return runFirstAvailable(*f, "formatter", func(tool formatterTool) error {
-		return tool.FormatCheckFiles(ctx, options, filenames)
+		return tool.FormatFiles(ctx, options)
 	})
 }
 

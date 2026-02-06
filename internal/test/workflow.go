@@ -64,34 +64,11 @@ func NewProjectFormatter(t *testing.T) *ProjectFormatter {
 	return &formatter
 }
 
-func (t *ProjectFormatter) FormatAll(
-	ctx context.Context,
-	options internal.ProjectFormatterOptions,
-) error {
-	return t.Called(ctx, options).Error(0)
-}
-
 func (t *ProjectFormatter) FormatFiles(
 	ctx context.Context,
 	options internal.ProjectFormatterOptions,
-	filenames []string,
-) error {
-	return t.Called(ctx, options, filenames).Error(0)
-}
-
-func (t *ProjectFormatter) FormatCheckAll(
-	ctx context.Context,
-	options internal.ProjectFormatterOptions,
 ) error {
 	return t.Called(ctx, options).Error(0)
-}
-
-func (t *ProjectFormatter) FormatCheckFiles(
-	ctx context.Context,
-	options internal.ProjectFormatterOptions,
-	filenames []string,
-) error {
-	return t.Called(ctx, options, filenames).Error(0)
 }
 
 type ProjectLinter struct {

@@ -95,21 +95,18 @@ type ProjectFormatterOptions struct {
 
 	// ExtraArgs are extra arguments for the specific formatter implementation
 	ExtraArgs []string
+
+	// CheckOnly specifies if only check should be performed
+	CheckOnly bool
+
+	// Filenames specify filenames to format
+	Filenames *[]string
 }
 
 // A ProjectFormatter allow formatting files of a project.
 type ProjectFormatter interface {
-	// FormatAll formates all files in the project
-	FormatAll(ctx context.Context, options ProjectFormatterOptions) error
-
-	// FormatFiles formates specified files in the project
-	FormatFiles(ctx context.Context, options ProjectFormatterOptions, filenames []string) error
-
-	// FormatCheckAll check if all files in the project are formatted
-	FormatCheckAll(ctx context.Context, options ProjectFormatterOptions) error
-
-	// FormatCheckFiles check if all specified files in the project are formatted
-	FormatCheckFiles(ctx context.Context, options ProjectFormatterOptions, filenames []string) error
+	// FormatFiles formates files in the project
+	FormatFiles(ctx context.Context, options ProjectFormatterOptions) error
 }
 
 // ProjectLinterOptions are options for linting a project.

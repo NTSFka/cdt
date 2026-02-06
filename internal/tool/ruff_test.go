@@ -101,7 +101,7 @@ func TestRuff_Ruff_Lint(t *testing.T) {
 	exec.AssertExpectations(t)
 }
 
-func TestRuff_Ruff_FormatAll(t *testing.T) {
+func TestRuff_Ruff_FormatFiles_All(t *testing.T) {
 	exec := test.NewExecutable(t)
 
 	ruff := tool.NewRuff(exec.LazyExecutable("format"))
@@ -111,7 +111,7 @@ func TestRuff_Ruff_FormatAll(t *testing.T) {
 	exec.OnRun("format", []string{"format"}).
 		Return(nil)
 
-	err := ruff.FormatAll(t.Context(), internal.ProjectFormatterOptions{ProjectInfo: info})
+	err := ruff.FormatFiles(t.Context(), internal.ProjectFormatterOptions{ProjectInfo: info})
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -129,15 +129,14 @@ func TestRuff_Ruff_FormatFiles(t *testing.T) {
 
 	err := ruff.FormatFiles(
 		t.Context(),
-		internal.ProjectFormatterOptions{ProjectInfo: info},
-		[]string{"tests/*"},
+		internal.ProjectFormatterOptions{ProjectInfo: info, Filenames: &[]string{"tests/*"}},
 	)
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
 }
 
-func TestRuff_Ruff_FormatCheckAll(t *testing.T) {
+func TestRuff_Ruff_FormatFiles_CheckAll(t *testing.T) {
 	exec := test.NewExecutable(t)
 
 	ruff := tool.NewRuff(exec.LazyExecutable("format"))
@@ -147,13 +146,16 @@ func TestRuff_Ruff_FormatCheckAll(t *testing.T) {
 	exec.OnRun("format", []string{"format", "--check"}).
 		Return(nil)
 
-	err := ruff.FormatCheckAll(t.Context(), internal.ProjectFormatterOptions{ProjectInfo: info})
+	err := ruff.FormatFiles(
+		t.Context(),
+		internal.ProjectFormatterOptions{ProjectInfo: info, CheckOnly: true},
+	)
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
 }
 
-func TestRuff_Ruff_FormatCheckFiles(t *testing.T) {
+func TestRuff_Ruff_FormatFiles_Check(t *testing.T) {
 	exec := test.NewExecutable(t)
 
 	ruff := tool.NewRuff(exec.LazyExecutable("format"))
@@ -163,10 +165,13 @@ func TestRuff_Ruff_FormatCheckFiles(t *testing.T) {
 	exec.OnRun("format", []string{"format", "--check", "tests/*", "/path/to/file.py"}).
 		Return(nil)
 
-	err := ruff.FormatCheckFiles(
+	err := ruff.FormatFiles(
 		t.Context(),
-		internal.ProjectFormatterOptions{ProjectInfo: info},
-		[]string{"tests/*", "/path/to/file.py"},
+		internal.ProjectFormatterOptions{
+			ProjectInfo: info,
+			CheckOnly:   true,
+			Filenames:   &[]string{"tests/*", "/path/to/file.py"},
+		},
 	)
 	require.NoError(t, err)
 

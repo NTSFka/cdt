@@ -93,7 +93,7 @@ func TestPHPCSFixer_DetectPHPCSFixer_Config(t *testing.T) {
 	env.AssertExpectations(t)
 }
 
-func TestPHPCSFixer_PHPCSFixer_FormatAll(t *testing.T) {
+func TestPHPCSFixer_PHPCSFixer_FormatFiles_All(t *testing.T) {
 	exec := test.NewExecutable(t)
 
 	phpcsFixer := tool.NewPHPCSFixer(exec.LazyExecutable("format"))
@@ -103,7 +103,7 @@ func TestPHPCSFixer_PHPCSFixer_FormatAll(t *testing.T) {
 	exec.OnRun("format", []string{"fix"}).
 		Return(nil)
 
-	err := phpcsFixer.FormatAll(t.Context(), internal.ProjectFormatterOptions{ProjectInfo: info})
+	err := phpcsFixer.FormatFiles(t.Context(), internal.ProjectFormatterOptions{ProjectInfo: info})
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -121,15 +121,14 @@ func TestPHPCSFixer_PHPCSFixer_FormatFiles(t *testing.T) {
 
 	err := phpcsFixer.FormatFiles(
 		t.Context(),
-		internal.ProjectFormatterOptions{ProjectInfo: info},
-		[]string{"tests/*"},
+		internal.ProjectFormatterOptions{ProjectInfo: info, Filenames: &[]string{"tests/*"}},
 	)
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
 }
 
-func TestPHPCSFixer_PHPCSFixer_FormatCheckAll(t *testing.T) {
+func TestPHPCSFixer_PHPCSFixer_FormatFiles_CheckAll(t *testing.T) {
 	exec := test.NewExecutable(t)
 
 	phpcsFixer := tool.NewPHPCSFixer(exec.LazyExecutable("format"))
@@ -139,16 +138,16 @@ func TestPHPCSFixer_PHPCSFixer_FormatCheckAll(t *testing.T) {
 	exec.OnRun("format", []string{"fix", "--dry-run"}).
 		Return(nil)
 
-	err := phpcsFixer.FormatCheckAll(
+	err := phpcsFixer.FormatFiles(
 		t.Context(),
-		internal.ProjectFormatterOptions{ProjectInfo: info},
+		internal.ProjectFormatterOptions{ProjectInfo: info, CheckOnly: true},
 	)
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
 }
 
-func TestPHPCSFixer_PHPCSFixer_FormatCheckFiles(t *testing.T) {
+func TestPHPCSFixer_PHPCSFixer_FormatFiles_Check(t *testing.T) {
 	exec := test.NewExecutable(t)
 
 	phpcsFixer := tool.NewPHPCSFixer(exec.LazyExecutable("format"))
@@ -158,10 +157,13 @@ func TestPHPCSFixer_PHPCSFixer_FormatCheckFiles(t *testing.T) {
 	exec.OnRun("format", []string{"fix", "--dry-run", "tests/*", "/path/to/file.php"}).
 		Return(nil)
 
-	err := phpcsFixer.FormatCheckFiles(
+	err := phpcsFixer.FormatFiles(
 		t.Context(),
-		internal.ProjectFormatterOptions{ProjectInfo: info},
-		[]string{"tests/*", "/path/to/file.php"},
+		internal.ProjectFormatterOptions{
+			ProjectInfo: info,
+			CheckOnly:   true,
+			Filenames:   &[]string{"tests/*", "/path/to/file.php"},
+		},
 	)
 	require.NoError(t, err)
 
