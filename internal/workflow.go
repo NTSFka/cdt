@@ -115,15 +115,15 @@ type ProjectLinterOptions struct {
 
 	// ExtraArgs are extra arguments for the specific linter implementation
 	ExtraArgs []string
+
+	// Filenames specify filenames to lint
+	Filenames *[]string
 }
 
 // A ProjectLinter allow linting files of a project.
 type ProjectLinter interface {
-	// LintAll lints all project files
-	LintAll(ctx context.Context, options ProjectLinterOptions) error
-
-	// LintFiles perform linting on specified files
-	LintFiles(ctx context.Context, options ProjectLinterOptions, filenames []string) error
+	// LintFiles perform linting on files
+	LintFiles(ctx context.Context, options ProjectLinterOptions) error
 }
 
 // ProjectRunnerOptions are options for running a target in the project.

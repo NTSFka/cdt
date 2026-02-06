@@ -41,33 +41,25 @@ func NewClangTidy(detect internal.ExecutableToolDetectFunc) *ClangTidy {
 	}
 }
 
-func (c *ClangTidy) LintAll(ctx context.Context, options internal.ProjectLinterOptions) error {
-	structure, err := options.Structure(ctx)
-
-	if err != nil {
-		return fmt.Errorf("failed to obtain project structure: %w", err)
-	}
-
-	if options.OutputDirectory == nil {
-		return internal.ErrNoOutputDirectory
-	}
-
-	toolArgs := c.buildArgs(options.Directory, *options.OutputDirectory, structure.GetFiles())
-
-	return c.ExecutableTool.RunForProject(
-		ctx,
-		options.ProjectInfo,
-		append(toolArgs, options.ExtraArgs...),
-	)
-}
-
 func (c *ClangTidy) LintFiles(
 	ctx context.Context,
 	options internal.ProjectLinterOptions,
-	filenames []string,
 ) error {
 	if options.OutputDirectory == nil {
 		return internal.ErrNoOutputDirectory
+	}
+
+	var filenames []string
+	if options.Filenames != nil && len(*options.Filenames) > 0 {
+		filenames = *options.Filenames
+	} else {
+		structure, err := options.Structure(ctx)
+
+		if err != nil {
+			return fmt.Errorf("failed to obtain project structure: %w", err)
+		}
+
+		filenames = structure.GetFiles()
 	}
 
 	toolArgs := c.buildArgs(options.Directory, *options.OutputDirectory, filenames)

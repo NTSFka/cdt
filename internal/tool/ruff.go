@@ -34,24 +34,17 @@ func NewRuff(detect internal.ExecutableToolDetectFunc) *Ruff {
 	}
 }
 
-func (r *Ruff) LintAll(ctx context.Context, options internal.ProjectLinterOptions) error {
-	return r.RunForProject(
-		ctx,
-		options.ProjectInfo,
-		append([]string{"check"}, options.ExtraArgs...),
-	)
-}
-
 func (r *Ruff) LintFiles(
 	ctx context.Context,
 	options internal.ProjectLinterOptions,
-	filenames []string,
 ) error {
-	return r.RunForProject(
-		ctx,
-		options.ProjectInfo,
-		append(append([]string{"check"}, options.ExtraArgs...), filenames...),
-	)
+	args := append([]string{"check"}, options.ExtraArgs...)
+
+	if options.Filenames != nil && len(*options.Filenames) > 0 {
+		args = append(args, *options.Filenames...)
+	}
+
+	return r.RunForProject(ctx, options.ProjectInfo, args)
 }
 
 func (r *Ruff) FormatFiles(

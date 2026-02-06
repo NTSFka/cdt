@@ -589,68 +589,13 @@ func TestLinterFallback_Details(t *testing.T) {
 	assert.Equal(t, "fallback (test1, test2)", fallback.Details())
 }
 
-func TestLinterFallback_LintAll_Empty(t *testing.T) {
-	fallback := &workflow.LinterFallback{}
-
-	err := fallback.LintAll(t.Context(), internal.ProjectLinterOptions{})
-
-	require.EqualError(t, err, "no linter tool available: none")
-}
-
-func TestLinterFallback_LintAll_NoAvailable(t *testing.T) {
-	tool1 := createLinterTool("test1", nil)
-	tool2 := createLinterTool("test2", nil)
-
-	fallback := &workflow.LinterFallback{tool1, tool2}
-
-	err := fallback.LintAll(t.Context(), internal.ProjectLinterOptions{})
-
-	require.EqualError(t, err, "no linter tool available: test1, test2")
-
-	tool1.AssertExpectations(t)
-	tool2.AssertExpectations(t)
-}
-
-func TestLinterFallback_LintAll_Available1(t *testing.T) {
-	tool1 := createLinterTool("test1", &internal.Executable{Path: "test1"})
-	tool2 := createLinterTool("test2", nil)
-
-	fallback := &workflow.LinterFallback{tool1, tool2}
-
-	tool1.Test(t)
-	tool2.Test(t)
-	tool1.On("LintAll", mock.Anything, mock.Anything).Return(nil)
-
-	err := fallback.LintAll(t.Context(), internal.ProjectLinterOptions{})
-
-	require.NoError(t, err)
-
-	tool1.AssertExpectations(t)
-	tool2.AssertExpectations(t)
-}
-
-func TestLinterFallback_LintAll_Available2(t *testing.T) {
-	tool1 := createLinterTool("test1", nil)
-	tool2 := createLinterTool("test2", &internal.Executable{Path: "test1"})
-
-	fallback := &workflow.LinterFallback{tool1, tool2}
-
-	tool1.Test(t)
-	tool2.Test(t)
-	tool2.On("LintAll", mock.Anything, mock.Anything).Return(nil)
-
-	err := fallback.LintAll(t.Context(), internal.ProjectLinterOptions{})
-
-	require.NoError(t, err)
-
-	tool1.AssertExpectations(t)
-	tool2.AssertExpectations(t)
-}
-
 func TestLinterFallback_LintFiles_Empty(t *testing.T) {
 	fallback := &workflow.LinterFallback{}
 
-	err := fallback.LintFiles(t.Context(), internal.ProjectLinterOptions{}, []string{"file1"})
+	err := fallback.LintFiles(
+		t.Context(),
+		internal.ProjectLinterOptions{Filenames: &[]string{"file1"}},
+	)
 
 	require.EqualError(t, err, "no linter tool available: none")
 }
@@ -661,7 +606,10 @@ func TestLinterFallback_LintFiles_NoAvailable(t *testing.T) {
 
 	fallback := &workflow.LinterFallback{tool1, tool2}
 
-	err := fallback.LintFiles(t.Context(), internal.ProjectLinterOptions{}, []string{"file1"})
+	err := fallback.LintFiles(
+		t.Context(),
+		internal.ProjectLinterOptions{Filenames: &[]string{"file1"}},
+	)
 
 	require.EqualError(t, err, "no linter tool available: test1, test2")
 
@@ -677,9 +625,20 @@ func TestLinterFallback_LintFiles_Available1(t *testing.T) {
 
 	tool1.Test(t)
 	tool2.Test(t)
-	tool1.On("LintFiles", mock.Anything, mock.Anything, []string{"file1"}).Return(nil)
+	tool1.On(
+		"LintFiles",
+		mock.Anything,
+		mock.MatchedBy(func(opts internal.ProjectLinterOptions) bool {
+			return assert.NotNil(t, opts.Filenames) &&
+				assert.Equal(t, []string{"file1"}, *opts.Filenames)
+		}),
+	).
+		Return(nil)
 
-	err := fallback.LintFiles(t.Context(), internal.ProjectLinterOptions{}, []string{"file1"})
+	err := fallback.LintFiles(
+		t.Context(),
+		internal.ProjectLinterOptions{Filenames: &[]string{"file1"}},
+	)
 
 	require.NoError(t, err)
 
@@ -695,9 +654,19 @@ func TestLinterFallback_LintFiles_Available2(t *testing.T) {
 
 	tool1.Test(t)
 	tool2.Test(t)
-	tool2.On("LintFiles", mock.Anything, mock.Anything, []string{"file1"}).Return(nil)
+	tool2.On(
+		"LintFiles",
+		mock.Anything,
+		mock.MatchedBy(func(opts internal.ProjectLinterOptions) bool {
+			return assert.NotNil(t, opts.Filenames) &&
+				assert.ElementsMatch(t, []string{"file1"}, *opts.Filenames)
+		}),
+	).Return(nil)
 
-	err := fallback.LintFiles(t.Context(), internal.ProjectLinterOptions{}, []string{"file1"})
+	err := fallback.LintFiles(
+		t.Context(),
+		internal.ProjectLinterOptions{Filenames: &[]string{"file1"}},
+	)
 
 	require.NoError(t, err)
 
@@ -720,69 +689,10 @@ func TestLinterList_Details(t *testing.T) {
 	assert.Equal(t, "list (test1, test2)", list.Details())
 }
 
-func TestLinterList_LintAll_Empty(t *testing.T) {
-	list := &workflow.LinterList{}
-
-	err := list.LintAll(t.Context(), internal.ProjectLinterOptions{})
-
-	require.EqualError(t, err, "no linter tool available: none")
-}
-
-func TestLinterList_LintAll_NoAvailable(t *testing.T) {
-	tool1 := createLinterTool("test1", nil)
-	tool2 := createLinterTool("test2", nil)
-
-	list := &workflow.LinterList{tool1, tool2}
-
-	err := list.LintAll(t.Context(), internal.ProjectLinterOptions{})
-
-	require.EqualError(t, err, "no linter tool available: test1, test2")
-
-	tool1.AssertExpectations(t)
-	tool2.AssertExpectations(t)
-}
-
-func TestLinterList_LintAll_Available1(t *testing.T) {
-	tool1 := createLinterTool("test1", &internal.Executable{Path: "test1"})
-	tool2 := createLinterTool("test2", nil)
-
-	list := &workflow.LinterList{tool1, tool2}
-
-	tool1.Test(t)
-	tool2.Test(t)
-	tool1.On("LintAll", mock.Anything, mock.Anything).Return(nil)
-
-	err := list.LintAll(t.Context(), internal.ProjectLinterOptions{})
-
-	require.NoError(t, err)
-
-	tool1.AssertExpectations(t)
-	tool2.AssertExpectations(t)
-}
-
-func TestLinterList_LintAll_Available2(t *testing.T) {
-	tool1 := createLinterTool("test1", &internal.Executable{Path: "test1"})
-	tool2 := createLinterTool("test2", &internal.Executable{Path: "test1"})
-
-	list := &workflow.LinterList{tool1, tool2}
-
-	tool1.Test(t)
-	tool2.Test(t)
-	tool1.On("LintAll", mock.Anything, mock.Anything).Return(nil)
-	tool2.On("LintAll", mock.Anything, mock.Anything).Return(nil)
-
-	err := list.LintAll(t.Context(), internal.ProjectLinterOptions{})
-
-	require.NoError(t, err)
-
-	tool1.AssertExpectations(t)
-	tool2.AssertExpectations(t)
-}
-
 func TestLinterList_LintFiles_Empty(t *testing.T) {
 	list := &workflow.LinterList{}
 
-	err := list.LintFiles(t.Context(), internal.ProjectLinterOptions{}, []string{"file1"})
+	err := list.LintFiles(t.Context(), internal.ProjectLinterOptions{Filenames: &[]string{"file1"}})
 
 	require.EqualError(t, err, "no linter tool available: none")
 }
@@ -793,7 +703,7 @@ func TestLinterList_LintFiles_NoAvailable(t *testing.T) {
 
 	list := &workflow.LinterList{tool1, tool2}
 
-	err := list.LintFiles(t.Context(), internal.ProjectLinterOptions{}, []string{"file1"})
+	err := list.LintFiles(t.Context(), internal.ProjectLinterOptions{Filenames: &[]string{"file1"}})
 
 	require.EqualError(t, err, "no linter tool available: test1, test2")
 
@@ -809,9 +719,17 @@ func TestLinterList_LintFiles_Available1(t *testing.T) {
 
 	tool1.Test(t)
 	tool2.Test(t)
-	tool1.On("LintFiles", mock.Anything, mock.Anything, []string{"file1"}).Return(nil)
+	tool1.On(
+		"LintFiles",
+		mock.Anything,
+		mock.MatchedBy(func(opts internal.ProjectLinterOptions) bool {
+			return assert.NotNil(t, opts.Filenames) &&
+				assert.ElementsMatch(t, []string{"file1"}, *opts.Filenames)
+		}),
+	).
+		Return(nil)
 
-	err := list.LintFiles(t.Context(), internal.ProjectLinterOptions{}, []string{"file1"})
+	err := list.LintFiles(t.Context(), internal.ProjectLinterOptions{Filenames: &[]string{"file1"}})
 
 	require.NoError(t, err)
 
@@ -827,10 +745,28 @@ func TestLinterList_LintFiles_Available2(t *testing.T) {
 
 	tool1.Test(t)
 	tool2.Test(t)
-	tool1.On("LintFiles", mock.Anything, mock.Anything, []string{"file1"}).Return(nil)
-	tool2.On("LintFiles", mock.Anything, mock.Anything, []string{"file1"}).Return(nil)
 
-	err := list.LintFiles(t.Context(), internal.ProjectLinterOptions{}, []string{"file1"})
+	tool1.On(
+		"LintFiles",
+		mock.Anything,
+		mock.MatchedBy(func(opts internal.ProjectLinterOptions) bool {
+			return assert.NotNil(t, opts.Filenames) &&
+				assert.Equal(t, []string{"file1"}, *opts.Filenames)
+		}),
+	).
+		Return(nil)
+
+	tool2.On(
+		"LintFiles",
+		mock.Anything,
+		mock.MatchedBy(func(opts internal.ProjectLinterOptions) bool {
+			return assert.NotNil(t, opts.Filenames) &&
+				assert.Equal(t, []string{"file1"}, *opts.Filenames)
+		}),
+	).
+		Return(nil)
+
+	err := list.LintFiles(t.Context(), internal.ProjectLinterOptions{Filenames: &[]string{"file1"}})
 
 	require.NoError(t, err)
 

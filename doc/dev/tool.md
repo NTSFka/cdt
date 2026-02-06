@@ -55,11 +55,7 @@ func NewMyTool(detect func() *internal.Executable) *MyTool {
 
 // Tool support linting
 
-func (t *MyTool) LintAll(ctx context.Context, options internal.ProjectLinterOptions) error {
-	return t.RunForProject(ctx, options.ProjectInfo, append([]string{"*"}, options.ExtraArgs...))
-}
-
-func (t *MyTool) LintFiles(ctx context.Context, options internal.ProjectLinterOptions, filenames []string) error {
-	return t.RunForProject(ctx, options.ProjectInfo, append(options.ExtraArgs, filenames...))
+func (t *MyTool) LintFiles(ctx context.Context, options internal.ProjectLinterOptions) error {
+	return t.RunForProject(ctx, options.ProjectInfo, append(options.ExtraArgs, *options.Filenames...))
 }
 ```

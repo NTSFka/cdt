@@ -65,7 +65,7 @@ func TestRuff_DetectRuff_Config(t *testing.T) {
 	env.AssertExpectations(t)
 }
 
-func TestRuff_Ruff_LintAll(t *testing.T) {
+func TestRuff_Ruff_LintFiles_All(t *testing.T) {
 	exec := test.NewExecutable(t)
 
 	ruff := tool.NewRuff(exec.LazyExecutable("lint"))
@@ -75,7 +75,7 @@ func TestRuff_Ruff_LintAll(t *testing.T) {
 	exec.OnRun("lint", []string{"check"}).
 		Return(nil)
 
-	err := ruff.LintAll(t.Context(), internal.ProjectLinterOptions{ProjectInfo: info})
+	err := ruff.LintFiles(t.Context(), internal.ProjectLinterOptions{ProjectInfo: info})
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -93,8 +93,10 @@ func TestRuff_Ruff_Lint(t *testing.T) {
 
 	err := ruff.LintFiles(
 		t.Context(),
-		internal.ProjectLinterOptions{ProjectInfo: info},
-		[]string{"file.py", "/path/to/file2.py"},
+		internal.ProjectLinterOptions{
+			ProjectInfo: info,
+			Filenames:   &[]string{"file.py", "/path/to/file2.py"},
+		},
 	)
 	require.NoError(t, err)
 

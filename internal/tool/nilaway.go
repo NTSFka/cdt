@@ -36,14 +36,17 @@ func DetectNilAway(
 	})
 }
 
-func (c *NilAway) LintAll(ctx context.Context, options internal.ProjectLinterOptions) error {
-	return c.RunForProject(ctx, options.ProjectInfo, append(options.ExtraArgs, "./..."))
-}
-
 func (c *NilAway) LintFiles(
 	ctx context.Context,
 	options internal.ProjectLinterOptions,
-	modules []string,
 ) error {
-	return c.RunForProject(ctx, options.ProjectInfo, append(options.ExtraArgs, modules...))
+	args := options.ExtraArgs
+
+	if options.Filenames != nil && len(*options.Filenames) > 0 {
+		args = append(args, *options.Filenames...)
+	} else {
+		args = append(args, "./...")
+	}
+
+	return c.RunForProject(ctx, options.ProjectInfo, args)
 }

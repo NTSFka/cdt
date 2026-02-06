@@ -39,9 +39,11 @@ func TestLint_Lint_CannotBeLinted(t *testing.T) {
 	assert.Equal(t, "project doesn't support linting", err.Error())
 }
 
-func TestLint_LintAll_Success(t *testing.T) {
+func TestLint_LintFiles_All_Success(t *testing.T) {
 	linter := test.NewProjectLinter(t)
-	linter.On("LintAll", mock.Anything, mock.Anything).
+	linter.On("LintFiles", mock.Anything, mock.MatchedBy(func(options internal.ProjectLinterOptions) bool {
+		return assert.Nil(t, options.Filenames)
+	})).
 		Return(nil)
 
 	err := runLint(t.Context(), linter)
@@ -50,9 +52,9 @@ func TestLint_LintAll_Success(t *testing.T) {
 	linter.AssertExpectations(t)
 }
 
-func TestLint_LintAll_Failure(t *testing.T) {
+func TestLint_LintFiles_All_Failure(t *testing.T) {
 	linter := test.NewProjectLinter(t)
-	linter.On("LintAll", mock.Anything, mock.Anything).
+	linter.On("LintFiles", mock.Anything, mock.Anything).
 		Return(errors.New("failed"))
 
 	err := runLint(t.Context(), linter)
@@ -80,7 +82,7 @@ func newTestLinterTool(t *testing.T) *testLinterTool {
 
 func TestLint_Tool_Success(t *testing.T) {
 	linter := newTestLinterTool(t)
-	linter.On("LintAll", mock.Anything, mock.Anything).
+	linter.On("LintFiles", mock.Anything, mock.Anything).
 		Return(nil)
 
 	err := runLintTool(t.Context(), linter, "--tool", "tool1")
@@ -91,7 +93,7 @@ func TestLint_Tool_Success(t *testing.T) {
 
 func TestLint_Tool_Failed(t *testing.T) {
 	linter := newTestLinterTool(t)
-	linter.On("LintAll", mock.Anything, mock.Anything).
+	linter.On("LintFiles", mock.Anything, mock.Anything).
 		Return(errors.New("failed"))
 
 	err := runLintTool(t.Context(), linter, "--tool", "tool1")
@@ -128,7 +130,14 @@ func TestLint_Tool_NotSupported(t *testing.T) {
 
 func TestLint_LintFiles_Success(t *testing.T) {
 	linter := test.NewProjectLinter(t)
-	linter.On("LintFiles", mock.Anything, mock.Anything, []string{"file1", "file2"}).
+	linter.On(
+		"LintFiles",
+		mock.Anything,
+		mock.MatchedBy(func(opts internal.ProjectLinterOptions) bool {
+			return assert.NotNil(t, opts.Filenames) &&
+				assert.ElementsMatch(t, []string{"file1", "file2"}, *opts.Filenames)
+		}),
+	).
 		Return(nil)
 
 	err := runLint(t.Context(), linter, "file1", "file2")
@@ -139,7 +148,14 @@ func TestLint_LintFiles_Success(t *testing.T) {
 
 func TestLint_LintFiles_Failure(t *testing.T) {
 	linter := test.NewProjectLinter(t)
-	linter.On("LintFiles", mock.Anything, mock.Anything, []string{"file1", "file2"}).
+	linter.On(
+		"LintFiles",
+		mock.Anything,
+		mock.MatchedBy(func(opts internal.ProjectLinterOptions) bool {
+			return assert.NotNil(t, opts.Filenames) &&
+				assert.ElementsMatch(t, []string{"file1", "file2"}, *opts.Filenames)
+		}),
+	).
 		Return(errors.New("failed"))
 
 	err := runLint(t.Context(), linter, "file1", "file2")

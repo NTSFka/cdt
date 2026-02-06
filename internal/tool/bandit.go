@@ -34,14 +34,17 @@ func NewBandit(detect internal.ExecutableToolDetectFunc) *Bandit {
 	}
 }
 
-func (b *Bandit) LintAll(ctx context.Context, options internal.ProjectLinterOptions) error {
-	return b.RunForProject(ctx, options.ProjectInfo, append([]string{"*"}, options.ExtraArgs...))
-}
-
 func (b *Bandit) LintFiles(
 	ctx context.Context,
 	options internal.ProjectLinterOptions,
-	filenames []string,
 ) error {
-	return b.RunForProject(ctx, options.ProjectInfo, append(options.ExtraArgs, filenames...))
+	args := options.ExtraArgs
+
+	if options.Filenames != nil && len(*options.Filenames) > 0 {
+		args = append(args, *options.Filenames...)
+	} else {
+		args = append(args, "*")
+	}
+
+	return b.RunForProject(ctx, options.ProjectInfo, args)
 }

@@ -34,14 +34,17 @@ func NewPylint(detect internal.ExecutableToolDetectFunc) *Pylint {
 	}
 }
 
-func (p *Pylint) LintAll(ctx context.Context, options internal.ProjectLinterOptions) error {
-	return p.RunForProject(ctx, options.ProjectInfo, append([]string{"*"}, options.ExtraArgs...))
-}
-
 func (p *Pylint) LintFiles(
 	ctx context.Context,
 	options internal.ProjectLinterOptions,
-	filenames []string,
 ) error {
-	return p.RunForProject(ctx, options.ProjectInfo, append(options.ExtraArgs, filenames...))
+	args := options.ExtraArgs
+
+	if options.Filenames != nil && len(*options.Filenames) > 0 {
+		args = append(args, *options.Filenames...)
+	} else {
+		args = append(args, "*")
+	}
+
+	return p.RunForProject(ctx, options.ProjectInfo, args)
 }

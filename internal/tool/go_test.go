@@ -536,7 +536,7 @@ func TestGo_FormatFilesFiles_Check(t *testing.T) {
 	exec.AssertExpectations(t)
 }
 
-func TestGo_Go_LintAll(t *testing.T) {
+func TestGo_Go_LintFiles_All(t *testing.T) {
 	exec := test.NewExecutable(t)
 
 	goTool := tool.NewGo(exec.LazyExecutable("lint"))
@@ -546,7 +546,7 @@ func TestGo_Go_LintAll(t *testing.T) {
 	exec.OnRun("lint", []string{"vet", "./..."}).
 		Return(nil)
 
-	err := goTool.LintAll(t.Context(), internal.ProjectLinterOptions{ProjectInfo: info})
+	err := goTool.LintFiles(t.Context(), internal.ProjectLinterOptions{ProjectInfo: info})
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -564,8 +564,7 @@ func TestGo_Go_Lint(t *testing.T) {
 
 	err := goTool.LintFiles(
 		t.Context(),
-		internal.ProjectLinterOptions{ProjectInfo: info},
-		[]string{"mod1"},
+		internal.ProjectLinterOptions{ProjectInfo: info, Filenames: &[]string{"mod1"}},
 	)
 	require.NoError(t, err)
 

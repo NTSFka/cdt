@@ -34,14 +34,15 @@ func NewFlake8(detect internal.ExecutableToolDetectFunc) *Flake8 {
 	}
 }
 
-func (p *Flake8) LintAll(ctx context.Context, options internal.ProjectLinterOptions) error {
-	return p.RunForProject(ctx, options.ProjectInfo, options.ExtraArgs)
-}
-
 func (p *Flake8) LintFiles(
 	ctx context.Context,
 	options internal.ProjectLinterOptions,
-	filenames []string,
 ) error {
-	return p.RunForProject(ctx, options.ProjectInfo, append(options.ExtraArgs, filenames...))
+	args := options.ExtraArgs
+
+	if options.Filenames != nil && len(*options.Filenames) > 0 {
+		args = append(args, *options.Filenames...)
+	}
+
+	return p.RunForProject(ctx, options.ProjectInfo, args)
 }

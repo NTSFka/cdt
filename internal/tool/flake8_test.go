@@ -65,7 +65,7 @@ func TestFlake8_DetectFlake8_Config(t *testing.T) {
 	env.AssertExpectations(t)
 }
 
-func TestFlake8_Flake8_LintAll(t *testing.T) {
+func TestFlake8_Flake8_LintFiles_All(t *testing.T) {
 	exec := test.NewExecutable(t)
 
 	flake8 := tool.NewFlake8(exec.LazyExecutable("lint"))
@@ -75,7 +75,7 @@ func TestFlake8_Flake8_LintAll(t *testing.T) {
 	exec.OnRun("lint", []string{}).
 		Return(nil)
 
-	err := flake8.LintAll(t.Context(), internal.ProjectLinterOptions{ProjectInfo: info})
+	err := flake8.LintFiles(t.Context(), internal.ProjectLinterOptions{ProjectInfo: info})
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -93,8 +93,10 @@ func TestFlake8_Flake8_Lint(t *testing.T) {
 
 	err := flake8.LintFiles(
 		t.Context(),
-		internal.ProjectLinterOptions{ProjectInfo: info},
-		[]string{"file.py", "/path/to/file2.py"},
+		internal.ProjectLinterOptions{
+			ProjectInfo: info,
+			Filenames:   &[]string{"file.py", "/path/to/file2.py"},
+		},
 	)
 	require.NoError(t, err)
 

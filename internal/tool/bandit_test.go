@@ -65,7 +65,7 @@ func TestBandit_DetectBandit_Config(t *testing.T) {
 	env.AssertExpectations(t)
 }
 
-func TestBandit_Bandit_LintAll(t *testing.T) {
+func TestBandit_Bandit_LintFiles_All(t *testing.T) {
 	exec := test.NewExecutable(t)
 
 	bandit := tool.NewBandit(exec.LazyExecutable("lint"))
@@ -75,7 +75,7 @@ func TestBandit_Bandit_LintAll(t *testing.T) {
 	exec.OnRun("lint", []string{"*"}).
 		Return(nil)
 
-	err := bandit.LintAll(t.Context(), internal.ProjectLinterOptions{ProjectInfo: info})
+	err := bandit.LintFiles(t.Context(), internal.ProjectLinterOptions{ProjectInfo: info})
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -93,8 +93,10 @@ func TestBandit_Bandit_Lint(t *testing.T) {
 
 	err := bandit.LintFiles(
 		t.Context(),
-		internal.ProjectLinterOptions{ProjectInfo: info},
-		[]string{"file.py", "/path/to/file2.py"},
+		internal.ProjectLinterOptions{
+			ProjectInfo: info,
+			Filenames:   &[]string{"file.py", "/path/to/file2.py"},
+		},
 	)
 	require.NoError(t, err)
 

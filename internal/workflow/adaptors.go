@@ -196,19 +196,12 @@ func (f *LinterList) Details() string {
 	return adaptorToolIds("list", *f)
 }
 
-func (f *LinterList) LintAll(ctx context.Context, options internal.ProjectLinterOptions) error {
-	return runAllAvailable(*f, "linter", func(tool linterTool) error {
-		return tool.LintAll(ctx, options)
-	})
-}
-
 func (f *LinterList) LintFiles(
 	ctx context.Context,
 	options internal.ProjectLinterOptions,
-	filenames []string,
 ) error {
 	return runAllAvailable(*f, "linter", func(tool linterTool) error {
-		return tool.LintFiles(ctx, options, filenames)
+		return tool.LintFiles(ctx, options)
 	})
 }
 
@@ -219,19 +212,12 @@ func (f *LinterFallback) Details() string {
 	return adaptorToolIds("fallback", *f)
 }
 
-func (f *LinterFallback) LintAll(ctx context.Context, options internal.ProjectLinterOptions) error {
-	return runFirstAvailable(*f, "linter", func(tool linterTool) error {
-		return tool.LintAll(ctx, options)
-	})
-}
-
 func (f *LinterFallback) LintFiles(
 	ctx context.Context,
 	options internal.ProjectLinterOptions,
-	filenames []string,
 ) error {
 	return runFirstAvailable(*f, "linter", func(tool linterTool) error {
-		return tool.LintFiles(ctx, options, filenames)
+		return tool.LintFiles(ctx, options)
 	})
 }
 

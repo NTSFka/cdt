@@ -61,14 +61,11 @@ func lintCommandAction(ctx context.Context, cmd *cli.Command) error {
 		ExtraArgs:   cmd.Args().Tail(),
 	}
 
-	var err error
 	if files := cmd.StringArgs("files"); len(files) > 0 {
-		err = linter.LintFiles(ctx, options, files)
-	} else {
-		err = linter.LintAll(ctx, options)
+		options.Filenames = &files
 	}
 
-	if err != nil {
+	if err := linter.LintFiles(ctx, options); err != nil {
 		return fmt.Errorf("%w", err)
 	}
 

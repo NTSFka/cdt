@@ -93,7 +93,7 @@ func TestPHPStan_DetectPHPStan_Config(t *testing.T) {
 	env.AssertExpectations(t)
 }
 
-func TestPHPStan_PHPStan_LintAll(t *testing.T) {
+func TestPHPStan_PHPStan_LintFiles_All(t *testing.T) {
 	exec := test.NewExecutable(t)
 
 	phpStan := tool.NewPHPStan(exec.LazyExecutable("lint"))
@@ -103,7 +103,7 @@ func TestPHPStan_PHPStan_LintAll(t *testing.T) {
 	exec.OnRun("lint", []string{"analyse"}).
 		Return(nil)
 
-	err := phpStan.LintAll(t.Context(), internal.ProjectLinterOptions{ProjectInfo: info})
+	err := phpStan.LintFiles(t.Context(), internal.ProjectLinterOptions{ProjectInfo: info})
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -121,8 +121,10 @@ func TestPHPStan_PHPStan_Lint(t *testing.T) {
 
 	err := phpStan.LintFiles(
 		t.Context(),
-		internal.ProjectLinterOptions{ProjectInfo: info},
-		[]string{"file.php", "/path/to/file2.php"},
+		internal.ProjectLinterOptions{
+			ProjectInfo: info,
+			Filenames:   &[]string{"file.php", "/path/to/file2.php"},
+		},
 	)
 	require.NoError(t, err)
 

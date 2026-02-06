@@ -39,20 +39,17 @@ func DetectGolangCILint(
 	})
 }
 
-func (l *GolangCILint) LintAll(ctx context.Context, options internal.ProjectLinterOptions) error {
-	return l.RunForProject(ctx, options.ProjectInfo, append(options.ExtraArgs, "run"))
-}
-
 func (l *GolangCILint) LintFiles(
 	ctx context.Context,
 	options internal.ProjectLinterOptions,
-	filenames []string,
 ) error {
-	return l.RunForProject(
-		ctx,
-		options.ProjectInfo,
-		append(append(options.ExtraArgs, "run"), filenames...),
-	)
+	args := append([]string{"run"}, options.ExtraArgs...)
+
+	if options.Filenames != nil && len(*options.Filenames) > 0 {
+		args = append(args, *options.Filenames...)
+	}
+
+	return l.RunForProject(ctx, options.ProjectInfo, args)
 }
 
 func (l *GolangCILint) FormatFiles(

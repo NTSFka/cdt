@@ -65,7 +65,7 @@ func TestPylint_DetectPylint_Config(t *testing.T) {
 	env.AssertExpectations(t)
 }
 
-func TestPylint_Pylint_LintAll(t *testing.T) {
+func TestPylint_Pylint_LintFiles_All(t *testing.T) {
 	exec := test.NewExecutable(t)
 
 	pylint := tool.NewPylint(exec.LazyExecutable("lint"))
@@ -75,7 +75,7 @@ func TestPylint_Pylint_LintAll(t *testing.T) {
 	exec.OnRun("lint", []string{"*"}).
 		Return(nil)
 
-	err := pylint.LintAll(t.Context(), internal.ProjectLinterOptions{ProjectInfo: info})
+	err := pylint.LintFiles(t.Context(), internal.ProjectLinterOptions{ProjectInfo: info})
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -93,8 +93,10 @@ func TestPylint_Pylint_Lint(t *testing.T) {
 
 	err := pylint.LintFiles(
 		t.Context(),
-		internal.ProjectLinterOptions{ProjectInfo: info},
-		[]string{"file.py", "/path/to/file2.py"},
+		internal.ProjectLinterOptions{
+			ProjectInfo: info,
+			Filenames:   &[]string{"file.py", "/path/to/file2.py"},
+		},
 	)
 	require.NoError(t, err)
 

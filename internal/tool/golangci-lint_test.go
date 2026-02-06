@@ -63,7 +63,7 @@ func TestGolangCILint_DetectGolangCILint_Config(t *testing.T) {
 	env.AssertExpectations(t)
 }
 
-func TestGolangCILint_GolangCILint_LintAll(t *testing.T) {
+func TestGolangCILint_GolangCILint_LintFiles_All(t *testing.T) {
 	exec := test.NewExecutable(t)
 
 	golangCILint := tool.NewGolangCILint(exec.LazyExecutable("lint"))
@@ -73,7 +73,7 @@ func TestGolangCILint_GolangCILint_LintAll(t *testing.T) {
 	exec.OnRun("lint", []string{"run"}).
 		Return(nil)
 
-	err := golangCILint.LintAll(t.Context(), internal.ProjectLinterOptions{ProjectInfo: info})
+	err := golangCILint.LintFiles(t.Context(), internal.ProjectLinterOptions{ProjectInfo: info})
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -91,8 +91,7 @@ func TestGolangCILint_GolangCILint_Lint(t *testing.T) {
 
 	err := golangCILint.LintFiles(
 		t.Context(),
-		internal.ProjectLinterOptions{ProjectInfo: info},
-		[]string{"mod1"},
+		internal.ProjectLinterOptions{ProjectInfo: info, Filenames: &[]string{"mod1"}},
 	)
 	require.NoError(t, err)
 

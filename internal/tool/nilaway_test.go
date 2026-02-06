@@ -62,7 +62,7 @@ func TestNilAway_DetectNilAway_Config(t *testing.T) {
 	env.AssertExpectations(t)
 }
 
-func TestNilAway_NilAway_LintAll(t *testing.T) {
+func TestNilAway_NilAway_LintFiles_All(t *testing.T) {
 	exec := test.NewExecutable(t)
 
 	nilAway := tool.NewNilAway(exec.LazyExecutable("lint"))
@@ -72,7 +72,7 @@ func TestNilAway_NilAway_LintAll(t *testing.T) {
 	exec.OnRun("lint", []string{"./..."}).
 		Return(nil)
 
-	err := nilAway.LintAll(t.Context(), internal.ProjectLinterOptions{ProjectInfo: info})
+	err := nilAway.LintFiles(t.Context(), internal.ProjectLinterOptions{ProjectInfo: info})
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
@@ -90,8 +90,7 @@ func TestNilAway_NilAway_Lint(t *testing.T) {
 
 	err := nilAway.LintFiles(
 		t.Context(),
-		internal.ProjectLinterOptions{ProjectInfo: info},
-		[]string{"mod1"},
+		internal.ProjectLinterOptions{ProjectInfo: info, Filenames: &[]string{"mod1"}},
 	)
 	require.NoError(t, err)
 

@@ -156,20 +156,19 @@ func (g *Go) FormatFiles(
 	)
 }
 
-func (g *Go) LintAll(ctx context.Context, options internal.ProjectLinterOptions) error {
-	return g.RunForProject(ctx, options.ProjectInfo, append(options.ExtraArgs, "vet", "./..."))
-}
-
 func (g *Go) LintFiles(
 	ctx context.Context,
 	options internal.ProjectLinterOptions,
-	filenames []string,
 ) error {
-	return g.RunForProject(
-		ctx,
-		options.ProjectInfo,
-		append(append(options.ExtraArgs, "vet"), filenames...),
-	)
+	args := append([]string{"vet"}, options.ExtraArgs...)
+
+	if options.Filenames != nil && len(*options.Filenames) > 0 {
+		args = append(args, *options.Filenames...)
+	} else {
+		args = append(args, "./...")
+	}
+
+	return g.RunForProject(ctx, options.ProjectInfo, args)
 }
 
 func (g *Go) AddDependencies(

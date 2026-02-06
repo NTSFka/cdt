@@ -34,14 +34,17 @@ func NewMyPy(detect internal.ExecutableToolDetectFunc) *MyPy {
 	}
 }
 
-func (m *MyPy) LintAll(ctx context.Context, options internal.ProjectLinterOptions) error {
-	return m.RunForProject(ctx, options.ProjectInfo, append([]string{"*.py"}, options.ExtraArgs...))
-}
-
 func (m *MyPy) LintFiles(
 	ctx context.Context,
 	options internal.ProjectLinterOptions,
-	filenames []string,
 ) error {
-	return m.RunForProject(ctx, options.ProjectInfo, append(options.ExtraArgs, filenames...))
+	args := options.ExtraArgs
+
+	if options.Filenames != nil && len(*options.Filenames) > 0 {
+		args = append(args, *options.Filenames...)
+	} else {
+		args = append(args, "*.py")
+	}
+
+	return m.RunForProject(ctx, options.ProjectInfo, args)
 }

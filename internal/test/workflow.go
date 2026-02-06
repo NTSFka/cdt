@@ -82,16 +82,11 @@ func NewProjectLinter(t *testing.T) *ProjectLinter {
 	return &linter
 }
 
-func (t *ProjectLinter) LintAll(ctx context.Context, options internal.ProjectLinterOptions) error {
-	return t.Called(ctx, options).Error(0)
-}
-
 func (t *ProjectLinter) LintFiles(
 	ctx context.Context,
 	options internal.ProjectLinterOptions,
-	filenames []string,
 ) error {
-	return t.Called(ctx, options, filenames).Error(0)
+	return t.Called(ctx, options).Error(0)
 }
 
 type ProjectTester struct {

@@ -44,22 +44,15 @@ func NewPHPStan(detect internal.ExecutableToolDetectFunc) *PHPStan {
 	}
 }
 
-func (p *PHPStan) LintAll(ctx context.Context, options internal.ProjectLinterOptions) error {
-	return p.RunForProject(
-		ctx,
-		options.ProjectInfo,
-		append([]string{"analyse"}, options.ExtraArgs...),
-	)
-}
-
 func (p *PHPStan) LintFiles(
 	ctx context.Context,
 	options internal.ProjectLinterOptions,
-	filenames []string,
 ) error {
-	return p.RunForProject(
-		ctx,
-		options.ProjectInfo,
-		append(append([]string{"analyse"}, options.ExtraArgs...), filenames...),
-	)
+	args := append([]string{"analyse"}, options.ExtraArgs...)
+
+	if options.Filenames != nil && len(*options.Filenames) > 0 {
+		args = append(args, *options.Filenames...)
+	}
+
+	return p.RunForProject(ctx, options.ProjectInfo, args)
 }
