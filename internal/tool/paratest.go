@@ -58,28 +58,23 @@ func (p *ParaTest) TestPattern(
 	return p.runTests(ctx, options, &pattern)
 }
 
-func (p *ParaTest) CollectCoverageAll(
+func (p *ParaTest) CollectCoverage(
 	ctx context.Context,
 	options internal.ProjectCoverageCollectorOptions,
 ) error {
-	return p.RunForProjectWithEnv(
-		ctx,
-		options.ProjectInfo,
-		[]string{"XDEBUG_MODE=coverage"},
-		append(options.ExtraArgs, "--coverage-text"),
-	)
-}
+	args := options.ExtraArgs
 
-func (p *ParaTest) CollectCoveragePattern(
-	ctx context.Context,
-	options internal.ProjectCoverageCollectorOptions,
-	pattern string,
-) error {
+	args = append(args, "--coverage-text")
+
+	if options.Pattern != nil {
+		args = append(args, *options.Pattern)
+	}
+
 	return p.RunForProjectWithEnv(
 		ctx,
 		options.ProjectInfo,
 		[]string{"XDEBUG_MODE=coverage"},
-		append(options.ExtraArgs, "--coverage-text", pattern),
+		args,
 	)
 }
 

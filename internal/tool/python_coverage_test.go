@@ -112,7 +112,7 @@ func TestPythonCoverage_DetectPythonCoverage_DetectRunModule_Pytest(t *testing.T
 	env.AssertExpectations(t)
 }
 
-func TestPythonCoverage_PythonCoverage_CollectCoverageAll(t *testing.T) {
+func TestPythonCoverage_PythonCoverage_CollectCoverage(t *testing.T) {
 	exec := test.NewExecutable(t)
 
 	coverage := tool.NewPythonCoverage(exec.LazyExecutable("test"), func() string {
@@ -127,7 +127,7 @@ func TestPythonCoverage_PythonCoverage_CollectCoverageAll(t *testing.T) {
 	exec.OnRun("test", []string{"report"}).
 		Return(nil)
 
-	err := coverage.CollectCoverageAll(
+	err := coverage.CollectCoverage(
 		t.Context(),
 		internal.ProjectCoverageCollectorOptions{ProjectInfo: info},
 	)
@@ -136,7 +136,7 @@ func TestPythonCoverage_PythonCoverage_CollectCoverageAll(t *testing.T) {
 	exec.AssertExpectations(t)
 }
 
-func TestPythonCoverage_PythonCoverage_CollectCoverageAll_FailCollection(t *testing.T) {
+func TestPythonCoverage_PythonCoverage_CollectCoverage_FailCollection(t *testing.T) {
 	exec := test.NewExecutable(t)
 
 	coverage := tool.NewPythonCoverage(exec.LazyExecutable("test"), func() string {
@@ -148,7 +148,7 @@ func TestPythonCoverage_PythonCoverage_CollectCoverageAll_FailCollection(t *test
 	exec.OnRun("test", []string{"run", "-m", "my-test"}).
 		Return(errors.New("failed"))
 
-	err := coverage.CollectCoverageAll(
+	err := coverage.CollectCoverage(
 		t.Context(),
 		internal.ProjectCoverageCollectorOptions{ProjectInfo: info},
 	)
@@ -157,7 +157,7 @@ func TestPythonCoverage_PythonCoverage_CollectCoverageAll_FailCollection(t *test
 	exec.AssertExpectations(t)
 }
 
-func TestPythonCoverage_PythonCoverage_CollectCoveragePattern(t *testing.T) {
+func TestPythonCoverage_PythonCoverage_CollectCoverage_Pattern(t *testing.T) {
 	exec := test.NewExecutable(t)
 
 	coverage := tool.NewPythonCoverage(exec.LazyExecutable("test"), nil)
@@ -170,17 +170,19 @@ func TestPythonCoverage_PythonCoverage_CollectCoveragePattern(t *testing.T) {
 	exec.OnRun("test", []string{"report"}).
 		Return(nil)
 
-	err := coverage.CollectCoveragePattern(
+	err := coverage.CollectCoverage(
 		t.Context(),
-		internal.ProjectCoverageCollectorOptions{ProjectInfo: info},
-		"tests/*",
+		internal.ProjectCoverageCollectorOptions{
+			ProjectInfo: info,
+			Pattern:     internal.StrPtr("tests/*"),
+		},
 	)
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
 }
 
-func TestPythonCoverage_PythonCoverage_CollectCoveragePattern_FailedCollection(t *testing.T) {
+func TestPythonCoverage_PythonCoverage_CollectCoverage_Pattern_FailedCollection(t *testing.T) {
 	exec := test.NewExecutable(t)
 
 	coverage := tool.NewPythonCoverage(exec.LazyExecutable("test"), nil)
@@ -190,10 +192,12 @@ func TestPythonCoverage_PythonCoverage_CollectCoveragePattern_FailedCollection(t
 	exec.OnRun("test", []string{"run", "-m", "unittest", "tests/*"}).
 		Return(errors.New("failed"))
 
-	err := coverage.CollectCoveragePattern(
+	err := coverage.CollectCoverage(
 		t.Context(),
-		internal.ProjectCoverageCollectorOptions{ProjectInfo: info},
-		"tests/*",
+		internal.ProjectCoverageCollectorOptions{
+			ProjectInfo: info,
+			Pattern:     internal.StrPtr("tests/*"),
+		},
 	)
 	require.EqualError(t, err, "failed")
 

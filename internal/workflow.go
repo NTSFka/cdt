@@ -78,19 +78,15 @@ type ProjectCoverageCollectorOptions struct {
 
 	// ExtraArgs are extra arguments for the specific collector implementation
 	ExtraArgs []string
+
+	// Pattern specifies a pattern for tests to collect coverage from
+	Pattern *string
 }
 
 // A ProjectCoverageCollector allow coverage collecting for a project.
 type ProjectCoverageCollector interface {
-	// CollectCoverageAll runs all tests in the project and collects coverage
-	CollectCoverageAll(ctx context.Context, options ProjectCoverageCollectorOptions) error
-
-	// CollectCoveragePattern runs tests that match the pattern and collects coverage
-	CollectCoveragePattern(
-		ctx context.Context,
-		options ProjectCoverageCollectorOptions,
-		pattern string,
-	) error
+	// CollectCoverage runs tests in the project and collects coverage
+	CollectCoverage(ctx context.Context, options ProjectCoverageCollectorOptions) error
 }
 
 // ProjectFormatterOptions are options for formatting a project.

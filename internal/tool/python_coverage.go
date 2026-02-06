@@ -59,36 +59,20 @@ func (p *PythonCoverage) DetectRunModule() string {
 	return p.detectRunModule()
 }
 
-func (p *PythonCoverage) CollectCoverageAll(
+func (p *PythonCoverage) CollectCoverage(
 	ctx context.Context,
 	options internal.ProjectCoverageCollectorOptions,
 ) error {
-	err := p.RunForProject(
-		ctx,
-		options.ProjectInfo,
-		[]string{"run", "-m", p.detectRunModule()},
-	)
+	args := []string{"run", "-m", p.detectRunModule()}
 
-	if err != nil {
-		return err
+	if options.Pattern != nil {
+		args = append(args, *options.Pattern)
 	}
 
-	return p.RunForProject(
-		ctx,
-		options.ProjectInfo,
-		append([]string{"report"}, options.ExtraArgs...),
-	)
-}
-
-func (p *PythonCoverage) CollectCoveragePattern(
-	ctx context.Context,
-	options internal.ProjectCoverageCollectorOptions,
-	pattern string,
-) error {
 	err := p.RunForProject(
 		ctx,
 		options.ProjectInfo,
-		append([]string{"run", "-m", p.detectRunModule()}, pattern),
+		args,
 	)
 
 	if err != nil {

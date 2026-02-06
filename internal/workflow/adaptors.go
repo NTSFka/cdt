@@ -161,22 +161,12 @@ func (f *CoverageCollectorFallback) Details() string {
 	return adaptorToolIds("fallback", *f)
 }
 
-func (f *CoverageCollectorFallback) CollectCoverageAll(
+func (f *CoverageCollectorFallback) CollectCoverage(
 	ctx context.Context,
 	options internal.ProjectCoverageCollectorOptions,
 ) error {
 	return runFirstAvailable(*f, "coverage", func(tool coverageCollectorTool) error {
-		return tool.CollectCoverageAll(ctx, options)
-	})
-}
-
-func (f *CoverageCollectorFallback) CollectCoveragePattern(
-	ctx context.Context,
-	options internal.ProjectCoverageCollectorOptions,
-	pattern string,
-) error {
-	return runFirstAvailable(*f, "coverage", func(tool coverageCollectorTool) error {
-		return tool.CollectCoveragePattern(ctx, options, pattern)
+		return tool.CollectCoverage(ctx, options)
 	})
 }
 

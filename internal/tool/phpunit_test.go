@@ -238,7 +238,7 @@ func TestPHPUnit_TestPattern_FormatTeamCity(t *testing.T) {
 	exec.AssertExpectations(t)
 }
 
-func TestPHPUnit_PHPUnit_CollectCoverageAll(t *testing.T) {
+func TestPHPUnit_PHPUnit_CollectCoverage(t *testing.T) {
 	exec := test.NewExecutable(t)
 
 	phpUnit := tool.NewPHPUnit(exec.LazyExecutable("test"))
@@ -248,7 +248,7 @@ func TestPHPUnit_PHPUnit_CollectCoverageAll(t *testing.T) {
 	exec.OnRun("test", []string{"--coverage-text"}).
 		Return(nil)
 
-	err := phpUnit.CollectCoverageAll(
+	err := phpUnit.CollectCoverage(
 		t.Context(),
 		internal.ProjectCoverageCollectorOptions{ProjectInfo: info},
 	)
@@ -257,7 +257,7 @@ func TestPHPUnit_PHPUnit_CollectCoverageAll(t *testing.T) {
 	exec.AssertExpectations(t)
 }
 
-func TestPHPUnit_PHPUnit_CollectCoveragePattern(t *testing.T) {
+func TestPHPUnit_PHPUnit_CollectCoverage_Pattern(t *testing.T) {
 	exec := test.NewExecutable(t)
 
 	phpUnit := tool.NewPHPUnit(exec.LazyExecutable("test"))
@@ -267,10 +267,12 @@ func TestPHPUnit_PHPUnit_CollectCoveragePattern(t *testing.T) {
 	exec.OnRun("test", []string{"--coverage-text", "tests/*"}).
 		Return(nil)
 
-	err := phpUnit.CollectCoveragePattern(
+	err := phpUnit.CollectCoverage(
 		t.Context(),
-		internal.ProjectCoverageCollectorOptions{ProjectInfo: info},
-		"tests/*",
+		internal.ProjectCoverageCollectorOptions{
+			ProjectInfo: info,
+			Pattern:     internal.StrPtr("tests/*"),
+		},
 	)
 	require.NoError(t, err)
 

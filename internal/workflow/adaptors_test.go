@@ -446,21 +446,21 @@ func TestCoverageCollectorFallback_Details(t *testing.T) {
 	assert.Equal(t, "fallback (test1, test2)", fallback.Details())
 }
 
-func TestCoverageCollectorFallback_CollectCoverageAll_Empty(t *testing.T) {
+func TestCoverageCollectorFallback_CollectCoverage_Empty(t *testing.T) {
 	fallback := &workflow.CoverageCollectorFallback{}
 
-	err := fallback.CollectCoverageAll(t.Context(), internal.ProjectCoverageCollectorOptions{})
+	err := fallback.CollectCoverage(t.Context(), internal.ProjectCoverageCollectorOptions{})
 
 	require.EqualError(t, err, "no coverage tool available: none")
 }
 
-func TestCoverageCollectorFallback_CollectCoverageAll_NoAvailable(t *testing.T) {
+func TestCoverageCollectorFallback_CollectCoverage_NoAvailable(t *testing.T) {
 	tool1 := createCoverageCollectorTool("test1", nil)
 	tool2 := createCoverageCollectorTool("test2", nil)
 
 	fallback := &workflow.CoverageCollectorFallback{tool1, tool2}
 
-	err := fallback.CollectCoverageAll(t.Context(), internal.ProjectCoverageCollectorOptions{})
+	err := fallback.CollectCoverage(t.Context(), internal.ProjectCoverageCollectorOptions{})
 
 	require.EqualError(t, err, "no coverage tool available: test1, test2")
 
@@ -468,7 +468,7 @@ func TestCoverageCollectorFallback_CollectCoverageAll_NoAvailable(t *testing.T) 
 	tool2.AssertExpectations(t)
 }
 
-func TestCoverageCollectorFallback_CollectCoverageAll_Available1(t *testing.T) {
+func TestCoverageCollectorFallback_CollectCoverage_Available1(t *testing.T) {
 	tool1 := createCoverageCollectorTool("test1", &internal.Executable{Path: "test1"})
 	tool2 := createCoverageCollectorTool("test2", nil)
 
@@ -476,9 +476,9 @@ func TestCoverageCollectorFallback_CollectCoverageAll_Available1(t *testing.T) {
 
 	tool1.Test(t)
 	tool2.Test(t)
-	tool1.On("CollectCoverageAll", mock.Anything, mock.Anything).Return(nil)
+	tool1.On("CollectCoverage", mock.Anything, mock.Anything).Return(nil)
 
-	err := fallback.CollectCoverageAll(t.Context(), internal.ProjectCoverageCollectorOptions{})
+	err := fallback.CollectCoverage(t.Context(), internal.ProjectCoverageCollectorOptions{})
 
 	require.NoError(t, err)
 
@@ -486,7 +486,7 @@ func TestCoverageCollectorFallback_CollectCoverageAll_Available1(t *testing.T) {
 	tool2.AssertExpectations(t)
 }
 
-func TestCoverageCollectorFallback_CollectCoverageAll_Available2(t *testing.T) {
+func TestCoverageCollectorFallback_CollectCoverage_Available2(t *testing.T) {
 	tool1 := createCoverageCollectorTool("test1", nil)
 	tool2 := createCoverageCollectorTool("test2", &internal.Executable{Path: "test1"})
 
@@ -494,83 +494,9 @@ func TestCoverageCollectorFallback_CollectCoverageAll_Available2(t *testing.T) {
 
 	tool1.Test(t)
 	tool2.Test(t)
-	tool2.On("CollectCoverageAll", mock.Anything, mock.Anything).Return(nil)
+	tool2.On("CollectCoverage", mock.Anything, mock.Anything).Return(nil)
 
-	err := fallback.CollectCoverageAll(t.Context(), internal.ProjectCoverageCollectorOptions{})
-
-	require.NoError(t, err)
-
-	tool1.AssertExpectations(t)
-	tool2.AssertExpectations(t)
-}
-
-func TestCoverageCollectorFallback_CollectCoveragePattern_Empty(t *testing.T) {
-	fallback := &workflow.CoverageCollectorFallback{}
-
-	err := fallback.CollectCoveragePattern(
-		t.Context(),
-		internal.ProjectCoverageCollectorOptions{},
-		"target1",
-	)
-
-	require.EqualError(t, err, "no coverage tool available: none")
-}
-
-func TestCoverageCollectorFallback_CollectCoveragePattern_NoAvailable(t *testing.T) {
-	tool1 := createCoverageCollectorTool("test1", nil)
-	tool2 := createCoverageCollectorTool("test2", nil)
-
-	fallback := &workflow.CoverageCollectorFallback{tool1, tool2}
-
-	err := fallback.CollectCoveragePattern(
-		t.Context(),
-		internal.ProjectCoverageCollectorOptions{},
-		"target1",
-	)
-
-	require.EqualError(t, err, "no coverage tool available: test1, test2")
-
-	tool1.AssertExpectations(t)
-	tool2.AssertExpectations(t)
-}
-
-func TestCoverageCollectorFallback_CollectCoveragePattern_Available1(t *testing.T) {
-	tool1 := createCoverageCollectorTool("test1", &internal.Executable{Path: "test1"})
-	tool2 := createCoverageCollectorTool("test2", nil)
-
-	fallback := &workflow.CoverageCollectorFallback{tool1, tool2}
-
-	tool1.Test(t)
-	tool2.Test(t)
-	tool1.On("CollectCoveragePattern", mock.Anything, mock.Anything, "target1").Return(nil)
-
-	err := fallback.CollectCoveragePattern(
-		t.Context(),
-		internal.ProjectCoverageCollectorOptions{},
-		"target1",
-	)
-
-	require.NoError(t, err)
-
-	tool1.AssertExpectations(t)
-	tool2.AssertExpectations(t)
-}
-
-func TestCoverageCollectorFallback_CollectCoveragePattern_Available2(t *testing.T) {
-	tool1 := createCoverageCollectorTool("test1", nil)
-	tool2 := createCoverageCollectorTool("test2", &internal.Executable{Path: "test1"})
-
-	fallback := &workflow.CoverageCollectorFallback{tool1, tool2}
-
-	tool1.Test(t)
-	tool2.Test(t)
-	tool2.On("CollectCoveragePattern", mock.Anything, mock.Anything, "target1").Return(nil)
-
-	err := fallback.CollectCoveragePattern(
-		t.Context(),
-		internal.ProjectCoverageCollectorOptions{},
-		"target1",
-	)
+	err := fallback.CollectCoverage(t.Context(), internal.ProjectCoverageCollectorOptions{})
 
 	require.NoError(t, err)
 

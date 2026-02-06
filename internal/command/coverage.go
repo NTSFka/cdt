@@ -62,13 +62,11 @@ func coverageCommandAction(ctx context.Context, cmd *cli.Command) error {
 		ExtraArgs:   cmd.Args().Tail(),
 	}
 
-	var err error
-
 	if pattern := cmd.StringArgs("pattern"); len(pattern) != 0 {
-		err = collector.CollectCoveragePattern(ctx, options, pattern[0])
-	} else {
-		err = collector.CollectCoverageAll(ctx, options)
+		options.Pattern = &pattern[0]
 	}
+
+	err := collector.CollectCoverage(ctx, options)
 
 	if err != nil {
 		return fmt.Errorf("%w", err)

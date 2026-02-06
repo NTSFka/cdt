@@ -239,7 +239,7 @@ func TestParaTest_TestPattern_FormatTeamCity(t *testing.T) {
 	exec.AssertExpectations(t)
 }
 
-func TestParaTest_ParaTest_CollectCoverageAll(t *testing.T) {
+func TestParaTest_ParaTest_CollectCoverage(t *testing.T) {
 	exec := test.NewExecutable(t)
 
 	phpUnit := tool.NewParaTest(exec.LazyExecutable("test"))
@@ -249,7 +249,7 @@ func TestParaTest_ParaTest_CollectCoverageAll(t *testing.T) {
 	exec.OnRun("test", []string{"--coverage-text"}).
 		Return(nil)
 
-	err := phpUnit.CollectCoverageAll(
+	err := phpUnit.CollectCoverage(
 		t.Context(),
 		internal.ProjectCoverageCollectorOptions{ProjectInfo: info},
 	)
@@ -258,7 +258,7 @@ func TestParaTest_ParaTest_CollectCoverageAll(t *testing.T) {
 	exec.AssertExpectations(t)
 }
 
-func TestParaTest_ParaTest_CollectCoveragePattern(t *testing.T) {
+func TestParaTest_ParaTest_CollectCoverage_Pattern(t *testing.T) {
 	exec := test.NewExecutable(t)
 
 	phpUnit := tool.NewParaTest(exec.LazyExecutable("test"))
@@ -268,10 +268,12 @@ func TestParaTest_ParaTest_CollectCoveragePattern(t *testing.T) {
 	exec.OnRun("test", []string{"--coverage-text", "tests/*"}).
 		Return(nil)
 
-	err := phpUnit.CollectCoveragePattern(
+	err := phpUnit.CollectCoverage(
 		t.Context(),
-		internal.ProjectCoverageCollectorOptions{ProjectInfo: info},
-		"tests/*",
+		internal.ProjectCoverageCollectorOptions{
+			ProjectInfo: info,
+			Pattern:     internal.StrPtr("tests/*"),
+		},
 	)
 	require.NoError(t, err)
 

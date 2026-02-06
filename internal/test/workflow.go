@@ -151,19 +151,11 @@ func NewProjectCoverageCollector(t *testing.T) *ProjectCoverageCollector {
 	return &tester
 }
 
-func (t *ProjectCoverageCollector) CollectCoverageAll(
+func (t *ProjectCoverageCollector) CollectCoverage(
 	ctx context.Context,
 	options internal.ProjectCoverageCollectorOptions,
 ) error {
 	return t.Called(ctx, options).Error(0)
-}
-
-func (t *ProjectCoverageCollector) CollectCoveragePattern(
-	ctx context.Context,
-	options internal.ProjectCoverageCollectorOptions,
-	pattern string,
-) error {
-	return t.Called(ctx, options, pattern).Error(0)
 }
 
 type ProjectRunner struct {
