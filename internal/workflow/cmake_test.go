@@ -220,3 +220,125 @@ func TestCMakeProject_Project_RunTests_Pattern_Failed(t *testing.T) {
 	cmakeMock.AssertExpectations(t)
 	ctestMock.AssertExpectations(t)
 }
+
+func TestCMakeType_Project_RunTests_FormatUnsupported(t *testing.T) {
+	workflowType := workflow.CMake{}
+	cmakeMock := test.NewExecutable(t)
+	ctestMock := test.NewExecutable(t)
+
+	tools := internal.Tools{
+		tool.NewCMake(cmakeMock.LazyExecutable("cmake-test")),
+		tool.NewCTest(ctestMock.LazyExecutable("ctest-test")),
+		tool.NewClangFormat(test.LazyExecutableNil),
+		tool.NewClangTidy(test.LazyExecutableNil),
+	}
+
+	dir := t.TempDir()
+
+	file, err := os.Create(filepath.Join(dir, "CMakeLists.txt"))
+	require.NoError(t, err)
+	assert.NoError(t, file.Close())
+
+	buildDir := filepath.Join(dir, "build")
+
+	project := workflowType.Create(
+		workflow.Config{Directory: dir, OutputDirectory: &buildDir},
+		tools,
+	)
+
+	require.NotNil(t, project.Workflow.Tester)
+	cmakeMock.OnRunAnything("cmake-test").Return(nil)
+
+	data := []internal.TestsReportFormat{
+		"test",
+		internal.TestsReportFormatJson,
+		internal.TestsReportFormatCtrf,
+		internal.TestsReportFormatTeamCity,
+		internal.TestsReportFormatRawEvents,
+	}
+
+	for _, format := range data {
+		t.Run(string(format), func(t *testing.T) {
+			ctestMock.OnRun("ctest-test", []string{"--test-dir", buildDir}).Return(nil)
+
+			err = project.Workflow.Tester.RunTests(
+				t.Context(),
+				internal.ProjectTesterOptions{
+					ProjectInfo: project.Info,
+					Output: internal.OutputOptions[internal.TestsReportFormat]{
+						Format: format,
+					},
+				},
+			)
+			require.EqualError(t, err, "unsupported report format: "+string(format))
+		})
+	}
+
+	cmakeMock.AssertExpectations(t)
+	ctestMock.AssertExpectations(t)
+}
+
+// nolint: funlen
+func TestCMakeType_Project_RunTests_FormatSupported(t *testing.T) {
+	workflowType := workflow.CMake{}
+	cmakeMock := test.NewExecutable(t)
+	ctestMock := test.NewExecutable(t)
+
+	tools := internal.Tools{
+		tool.NewCMake(cmakeMock.LazyExecutable("cmake-test")),
+		tool.NewCTest(ctestMock.LazyExecutable("ctest-test")),
+		tool.NewClangFormat(test.LazyExecutableNil),
+		tool.NewClangTidy(test.LazyExecutableNil),
+	}
+
+	dir := t.TempDir()
+
+	file, err := os.Create(filepath.Join(dir, "CMakeLists.txt"))
+	require.NoError(t, err)
+	assert.NoError(t, file.Close())
+
+	buildDir := filepath.Join(dir, "build")
+
+	project := workflowType.Create(
+		workflow.Config{Directory: dir, OutputDirectory: &buildDir},
+		tools,
+	)
+
+	require.NotNil(t, project.Workflow.Tester)
+	cmakeMock.OnRunAnything("cmake-test").Return(nil)
+
+	data := []struct {
+		Format   internal.TestsReportFormat
+		Filename *string
+		Args     []string
+	}{
+		{
+			Format:   internal.TestsReportFormatJUnit,
+			Filename: internal.StrPtr("junit.xml"),
+			Args:     []string{"--output-junit", "junit.xml"},
+		},
+	}
+
+	for _, values := range data {
+		t.Run(string(values.Format), func(t *testing.T) {
+			ctestMock.OnRun("ctest-test", append(values.Args, "--test-dir", buildDir)).
+				Return(nil)
+
+			err = project.Workflow.Tester.RunTests(
+				t.Context(),
+				internal.ProjectTesterOptions{
+					ProjectInfo: project.Info,
+					Output: internal.OutputOptions[internal.TestsReportFormat]{
+						Format:   values.Format,
+						Filename: values.Filename,
+					},
+				},
+			)
+
+			require.NoError(t, err)
+		})
+	}
+
+	cmakeMock.AssertExpectations(t)
+	ctestMock.AssertExpectations(t)
+}

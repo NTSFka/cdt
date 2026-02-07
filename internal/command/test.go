@@ -76,9 +76,7 @@ func testCommandAction(ctx context.Context, cmd *cli.Command) error {
 		options.Pattern = &pattern[0]
 	}
 
-	err := tester.RunTests(ctx, options)
-
-	if err != nil {
+	if err := tester.RunTests(ctx, options); err != nil {
 		return fmt.Errorf("%w", err)
 	}
 

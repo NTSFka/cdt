@@ -39,14 +39,6 @@ func NewPyTest(detect internal.ExecutableToolDetectFunc) *PyTest {
 }
 
 func (p *PyTest) RunTests(ctx context.Context, options internal.ProjectTesterOptions) error {
-	return p.runTests(ctx, options)
-}
-
-// nolint: cyclop
-func (p *PyTest) runTests(
-	ctx context.Context,
-	options internal.ProjectTesterOptions,
-) error {
 	args := options.ExtraArgs
 
 	if options.Pattern != nil {
@@ -55,34 +47,21 @@ func (p *PyTest) runTests(
 
 	filename := internal.DefaultString(options.Output.Filename, "/dev/stdout")
 
-	// TODO: other report formats
+	// nolint: exhaustive
 	switch options.Output.Format {
 	case internal.TestsReportFormatDefault:
 		fallthrough
 	case internal.TestsReportFormatRaw:
-		return p.RunForProject(ctx, options.ProjectInfo, args)
-	case internal.TestsReportFormatRawEvents:
-		break
-	case internal.TestsReportFormatJson:
-		break
-	case internal.TestsReportFormatCtrf:
 		break
 	case internal.TestsReportFormatJUnit:
 		if runtime.GOOS == "windows" && options.Output.Filename == nil {
 			return fmt.Errorf("output to stdout is not supported on Windows")
 		}
 
-		return p.RunForProject(
-			ctx,
-			options.ProjectInfo,
-			append(
-				args,
-				"--junitxml="+filename,
-			),
-		)
-	case internal.TestsReportFormatTeamCity:
-		break
+		args = append(args, "--junitxml="+filename)
+	default:
+		return fmt.Errorf("unsupported report format: %s", options.Output.Format)
 	}
 
-	return fmt.Errorf("unsupported report format: %s", options.Output.Format)
+	return p.RunForProject(ctx, options.ProjectInfo, args)
 }

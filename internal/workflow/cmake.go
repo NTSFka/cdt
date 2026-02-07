@@ -70,14 +70,6 @@ func (t *cmakeTester) Details() string {
 }
 
 func (t *cmakeTester) RunTests(ctx context.Context, options internal.ProjectTesterOptions) error {
-	return t.runTests(ctx, options)
-}
-
-// nolint: cyclop
-func (t *cmakeTester) runTests(
-	ctx context.Context,
-	options internal.ProjectTesterOptions,
-) error {
 	if err := t.cmakeTool.BuildTargets(
 		ctx,
 		internal.ProjectBuilderOptions{ProjectInfo: options.ProjectInfo},
@@ -93,31 +85,21 @@ func (t *cmakeTester) runTests(
 
 	filename := internal.DefaultString(options.Output.Filename, "/dev/stdout")
 
-	// TODO: other report formats
+	// nolint: exhaustive
 	switch options.Output.Format {
 	case internal.TestsReportFormatDefault:
 		fallthrough
 	case internal.TestsReportFormatRaw:
-		return t.ctestTool.RunForProject(ctx, options.ProjectInfo, args)
-	case internal.TestsReportFormatRawEvents:
-		break
-	case internal.TestsReportFormatJson:
-		break
-	case internal.TestsReportFormatCtrf:
 		break
 	case internal.TestsReportFormatJUnit:
 		if runtime.GOOS == "windows" && options.Output.Filename == nil {
 			return fmt.Errorf("output to stdout is not supported on Windows")
 		}
 
-		return t.ctestTool.RunForProject(
-			ctx,
-			options.ProjectInfo,
-			append(args, "--output-junit", filename),
-		)
-	case internal.TestsReportFormatTeamCity:
-		break
+		args = append(args, "--output-junit", filename)
+	default:
+		return fmt.Errorf("unsupported report format: %s", options.Output.Format)
 	}
 
-	return fmt.Errorf("unsupported report format: %s", options.Output.Format)
+	return t.ctestTool.RunForProject(ctx, options.ProjectInfo, args)
 }

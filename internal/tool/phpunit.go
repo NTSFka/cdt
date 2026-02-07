@@ -47,8 +47,30 @@ func NewPHPUnit(detect internal.ExecutableToolDetectFunc) *PHPUnit {
 }
 
 func (p *PHPUnit) RunTests(ctx context.Context, options internal.ProjectTesterOptions) error {
-	// TODO: inline
-	return p.runTests(ctx, options)
+	args := options.ExtraArgs
+
+	if options.Pattern != nil {
+		args = append(args, *options.Pattern)
+	}
+
+	filename := internal.DefaultString(options.Output.Filename, "php://stdout")
+
+	// nolint: exhaustive
+	switch options.Output.Format {
+	case internal.TestsReportFormatDefault:
+		fallthrough
+	case internal.TestsReportFormatRaw:
+	case internal.TestsReportFormatRawEvents:
+		args = append(args, "--log-events-text", filename)
+	case internal.TestsReportFormatJUnit:
+		args = append(args, "--log-junit", filename)
+	case internal.TestsReportFormatTeamCity:
+		args = append(args, "--log-teamcity", filename)
+	default:
+		return fmt.Errorf("unsupported report format: %s", options.Output.Format)
+	}
+
+	return p.RunForProject(ctx, options.ProjectInfo, args)
 }
 
 func (p *PHPUnit) CollectCoverage(
@@ -87,49 +109,4 @@ func (p *PHPUnit) CollectCoverage(
 		[]string{"XDEBUG_MODE=coverage"},
 		args,
 	)
-}
-
-func (p *PHPUnit) runTests(
-	ctx context.Context,
-	options internal.ProjectTesterOptions,
-) error {
-	args := options.ExtraArgs
-
-	if options.Pattern != nil {
-		args = append(args, *options.Pattern)
-	}
-
-	filename := internal.DefaultString(options.Output.Filename, "php://stdout")
-
-	// TODO: other report formats
-	switch options.Output.Format {
-	case internal.TestsReportFormatDefault:
-		fallthrough
-	case internal.TestsReportFormatRaw:
-		return p.RunForProject(ctx, options.ProjectInfo, args)
-	case internal.TestsReportFormatRawEvents:
-		return p.RunForProject(
-			ctx,
-			options.ProjectInfo,
-			append(args, "--log-events-text", filename),
-		)
-	case internal.TestsReportFormatJson:
-		break
-	case internal.TestsReportFormatCtrf:
-		break
-	case internal.TestsReportFormatJUnit:
-		return p.RunForProject(
-			ctx,
-			options.ProjectInfo,
-			append(args, "--log-junit", filename),
-		)
-	case internal.TestsReportFormatTeamCity:
-		return p.RunForProject(
-			ctx,
-			options.ProjectInfo,
-			append(args, "--log-teamcity", filename),
-		)
-	}
-
-	return fmt.Errorf("unsupported report format: %s", options.Output.Format)
 }
