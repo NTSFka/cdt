@@ -278,3 +278,92 @@ func TestParaTest_ParaTest_CollectCoverage_Pattern(t *testing.T) {
 
 	exec.AssertExpectations(t)
 }
+
+func TestParaTest_CollectCoverage_FormatUnsupported(t *testing.T) {
+	exec := test.NewExecutable(t)
+
+	paraTest := tool.NewParaTest(exec.LazyExecutable("test"))
+
+	info := internal.ProjectInfo{Directory: "."}
+	data := []internal.CoverageReportFormat{
+		"test",
+		internal.CoverageReportFormatJson,
+	}
+
+	for _, format := range data {
+		t.Run(string(format), func(t *testing.T) {
+			err := paraTest.CollectCoverage(
+				t.Context(),
+				internal.ProjectCoverageCollectorOptions{
+					ProjectInfo: info,
+					Output: internal.OutputOptions[internal.CoverageReportFormat]{
+						Format: format,
+					},
+					Pattern: internal.StrPtr("test1"),
+				},
+			)
+			require.EqualError(t, err, "unsupported coverage report format: "+string(format))
+
+			exec.AssertExpectations(t)
+		})
+	}
+}
+
+func TestParaTest_CollectCoverage_FormatSupported(t *testing.T) {
+	exec := test.NewExecutable(t)
+
+	paraTest := tool.NewParaTest(exec.LazyExecutable("test"))
+
+	info := internal.ProjectInfo{Directory: "."}
+	data := []struct {
+		Format   internal.CoverageReportFormat
+		Filename *string
+		Args     []string
+	}{
+		{
+			Format: internal.CoverageReportFormatRaw,
+			Args:   []string{"--coverage-text"},
+		},
+		{
+			Format:   internal.CoverageReportFormatCobertura,
+			Filename: internal.StrPtr("cobertura.xml"),
+			Args:     []string{"--coverage-cobertura", "cobertura.xml"},
+		},
+		{
+			Format:   internal.CoverageReportFormatCrap4j,
+			Filename: internal.StrPtr("crap4j.xml"),
+			Args:     []string{"--coverage-crap4j", "crap4j.xml"},
+		},
+		{
+			Format:   internal.CoverageReportFormatHtml,
+			Filename: internal.StrPtr("coverage.html"),
+			Args:     []string{"--coverage-html", "coverage.html"},
+		},
+		{
+			Format:   internal.CoverageReportFormatXml,
+			Filename: internal.StrPtr("coverage.xml"),
+			Args:     []string{"--coverage-xml", "coverage.xml"},
+		},
+	}
+
+	for _, values := range data {
+		t.Run(string(values.Format), func(t *testing.T) {
+			exec.OnRun("test", values.Args).
+				Return(nil)
+
+			err := paraTest.CollectCoverage(
+				t.Context(),
+				internal.ProjectCoverageCollectorOptions{
+					ProjectInfo: info,
+					Output: internal.OutputOptions[internal.CoverageReportFormat]{
+						Format:   values.Format,
+						Filename: values.Filename,
+					},
+				},
+			)
+			require.NoError(t, err)
+
+			exec.AssertExpectations(t)
+		})
+	}
+}

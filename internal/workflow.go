@@ -72,12 +72,29 @@ type ProjectTester interface {
 	RunTests(ctx context.Context, options ProjectTesterOptions) error
 }
 
+// CoverageReportFormat specifies the format of the coverage report.
+type CoverageReportFormat string
+
+const (
+	CoverageReportFormatDefault   CoverageReportFormat = ""
+	CoverageReportFormatRaw       CoverageReportFormat = "raw"
+	CoverageReportFormatCobertura CoverageReportFormat = "cobertura"
+	CoverageReportFormatCrap4j    CoverageReportFormat = "crap4j"
+	CoverageReportFormatHtml      CoverageReportFormat = "html"
+	CoverageReportFormatXml       CoverageReportFormat = "xml"
+	CoverageReportFormatJson      CoverageReportFormat = "json"
+	CoverageReportFormatLcov      CoverageReportFormat = "lcov"
+)
+
 // ProjectCoverageCollectorOptions are options for collecting coverage of a project.
 type ProjectCoverageCollectorOptions struct {
 	ProjectInfo
 
 	// ExtraArgs are extra arguments for the specific collector implementation
 	ExtraArgs []string
+
+	// Output specifies how the operation should produce output
+	Output OutputOptions[CoverageReportFormat]
 
 	// Pattern specifies a pattern for tests to collect coverage from
 	Pattern *string

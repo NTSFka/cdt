@@ -203,3 +203,100 @@ func TestPythonCoverage_PythonCoverage_CollectCoverage_Pattern_FailedCollection(
 
 	exec.AssertExpectations(t)
 }
+
+func TestPythonCoverage_CollectCoverage_FormatUnsupported(t *testing.T) {
+	exec := test.NewExecutable(t)
+
+	coverage := tool.NewPythonCoverage(exec.LazyExecutable("test"), nil)
+
+	exec.OnRun("test", []string{"run", "-m", "unittest", "tests/*"}).
+		Return(nil)
+
+	info := internal.ProjectInfo{Directory: "."}
+	data := []internal.CoverageReportFormat{
+		"test",
+		internal.CoverageReportFormatCobertura,
+		internal.CoverageReportFormatCrap4j,
+	}
+
+	for _, format := range data {
+		t.Run(string(format), func(t *testing.T) {
+			err := coverage.CollectCoverage(
+				t.Context(),
+				internal.ProjectCoverageCollectorOptions{
+					ProjectInfo: info,
+					Output: internal.OutputOptions[internal.CoverageReportFormat]{
+						Format: format,
+					},
+					Pattern: internal.StrPtr("tests/*"),
+				},
+			)
+			require.EqualError(t, err, "unsupported coverage report format: "+string(format))
+
+			exec.AssertExpectations(t)
+		})
+	}
+}
+
+func TestPythonCoverage_CollectCoverage_FormatSupported(t *testing.T) {
+	exec := test.NewExecutable(t)
+
+	coverage := tool.NewPythonCoverage(exec.LazyExecutable("test"), nil)
+
+	exec.OnRun("test", []string{"run", "-m", "unittest", "tests/*"}).
+		Return(nil)
+
+	info := internal.ProjectInfo{Directory: "."}
+	data := []struct {
+		Format   internal.CoverageReportFormat
+		Filename *string
+		Args     []string
+	}{
+		{
+			Format: internal.CoverageReportFormatRaw,
+			Args:   []string{"report"},
+		},
+		{
+			Format:   internal.CoverageReportFormatHtml,
+			Filename: internal.StrPtr("coverage.html"),
+			Args:     []string{"html", "coverage.html"},
+		},
+		{
+			Format:   internal.CoverageReportFormatXml,
+			Filename: internal.StrPtr("coverage.xml"),
+			Args:     []string{"xml", "coverage.xml"},
+		},
+		{
+			Format:   internal.CoverageReportFormatJson,
+			Filename: internal.StrPtr("coverage.json"),
+			Args:     []string{"json", "coverage.json"},
+		},
+		{
+			Format:   internal.CoverageReportFormatLcov,
+			Filename: internal.StrPtr("coverage.lcov"),
+			Args:     []string{"lcov", "coverage.lcov"},
+		},
+	}
+
+	for _, values := range data {
+		t.Run(string(values.Format), func(t *testing.T) {
+			exec.OnRun("test", values.Args).
+				Return(nil)
+
+			err := coverage.CollectCoverage(
+				t.Context(),
+				internal.ProjectCoverageCollectorOptions{
+					ProjectInfo: info,
+					Output: internal.OutputOptions[internal.CoverageReportFormat]{
+						Format:   values.Format,
+						Filename: values.Filename,
+					},
+					Pattern: internal.StrPtr("tests/*"),
+				},
+			)
+			require.NoError(t, err)
+
+			exec.AssertExpectations(t)
+		})
+	}
+}

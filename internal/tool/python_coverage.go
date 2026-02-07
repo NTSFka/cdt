@@ -3,6 +3,7 @@ package tool
 import (
 	"cdt/internal"
 	"context"
+	"fmt"
 )
 
 const IdPythonCoverage = "python-coverage"
@@ -69,19 +70,34 @@ func (p *PythonCoverage) CollectCoverage(
 		args = append(args, *options.Pattern)
 	}
 
-	err := p.RunForProject(
-		ctx,
-		options.ProjectInfo,
-		args,
-	)
+	filename := internal.DefaultString(options.Output.Filename, "php://stdout")
 
-	if err != nil {
+	var reportArgs []string
+
+	// nolint: exhaustive
+	switch options.Output.Format {
+	case internal.CoverageReportFormatDefault:
+		fallthrough
+	case internal.CoverageReportFormatRaw:
+		reportArgs = append(reportArgs, "report")
+	case internal.CoverageReportFormatHtml:
+		reportArgs = append(reportArgs, "html", filename)
+	case internal.CoverageReportFormatXml:
+		reportArgs = append(reportArgs, "xml", filename)
+	case internal.CoverageReportFormatJson:
+		reportArgs = append(reportArgs, "json", filename)
+	case internal.CoverageReportFormatLcov:
+		reportArgs = append(reportArgs, "lcov", filename)
+	default:
+		return fmt.Errorf("unsupported coverage report format: %s", options.Output.Format)
+	}
+
+	reportArgs = append(reportArgs, options.ExtraArgs...)
+
+	// Collect coverage
+	if err := p.RunForProject(ctx, options.ProjectInfo, args); err != nil {
 		return err
 	}
 
-	return p.RunForProject(
-		ctx,
-		options.ProjectInfo,
-		append([]string{"report"}, options.ExtraArgs...),
-	)
+	return p.RunForProject(ctx, options.ProjectInfo, reportArgs)
 }

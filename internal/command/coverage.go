@@ -21,6 +21,11 @@ func NewCoverageCommand() *cli.Command {
 				Name:  "tool",
 				Usage: "Use specific test tool",
 			},
+			&cli.StringFlag{
+				Name:    "output",
+				Aliases: []string{"o"},
+				Usage:   "The coverage report output format in form: <format>[:<filename/directory>]",
+			},
 		},
 		Arguments: []cli.Argument{
 			&cli.StringArgs{
@@ -57,9 +62,15 @@ func coverageCommandAction(ctx context.Context, cmd *cli.Command) error {
 		return errors.New("project doesn't support coverage collection")
 	}
 
+	outputOptions := ParseOptionOutput[internal.CoverageReportFormat](
+		cmd.String("output"),
+		internal.CoverageReportFormatRaw,
+	)
+
 	options := internal.ProjectCoverageCollectorOptions{
 		ProjectInfo: cmdContext.Project.Info,
 		ExtraArgs:   cmd.Args().Tail(),
+		Output:      outputOptions,
 	}
 
 	if pattern := cmd.StringArgs("pattern"); len(pattern) != 0 {

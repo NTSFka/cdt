@@ -47,6 +47,7 @@ func NewParaTest(detect internal.ExecutableToolDetectFunc) *ParaTest {
 }
 
 func (p *ParaTest) RunTests(ctx context.Context, options internal.ProjectTesterOptions) error {
+	// TODO: inline
 	return p.runTests(ctx, options)
 }
 
@@ -56,7 +57,25 @@ func (p *ParaTest) CollectCoverage(
 ) error {
 	args := options.ExtraArgs
 
-	args = append(args, "--coverage-text")
+	filename := internal.DefaultString(options.Output.Filename, "php://stdout")
+
+	// nolint: exhaustive
+	switch options.Output.Format {
+	case internal.CoverageReportFormatDefault:
+		fallthrough
+	case internal.CoverageReportFormatRaw:
+		args = append(args, "--coverage-text")
+	case internal.CoverageReportFormatCobertura:
+		args = append(args, "--coverage-cobertura", filename)
+	case internal.CoverageReportFormatCrap4j:
+		args = append(args, "--coverage-crap4j", filename)
+	case internal.CoverageReportFormatHtml:
+		args = append(args, "--coverage-html", filename)
+	case internal.CoverageReportFormatXml:
+		args = append(args, "--coverage-xml", filename)
+	default:
+		return fmt.Errorf("unsupported coverage report format: %s", options.Output.Format)
+	}
 
 	if options.Pattern != nil {
 		args = append(args, *options.Pattern)

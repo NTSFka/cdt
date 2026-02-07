@@ -83,6 +83,43 @@ func TestCoverage_CollectCoverage_Pattern_Success(t *testing.T) {
 	collector.AssertExpectations(t)
 }
 
+func TestCoverage_CollectCoverage_CustomOutput_Raw(t *testing.T) {
+	collector := test.NewProjectCoverageCollector(t)
+	collector.On(
+		"CollectCoverage",
+		mock.Anything,
+		mock.MatchedBy(func(options internal.ProjectCoverageCollectorOptions) bool {
+			return assert.Equal(t, internal.CoverageReportFormatRaw, options.Output.Format) &&
+				assert.Nil(t, options.Output.Filename)
+		}),
+	).
+		Return(nil)
+
+	err := runCoverage(t.Context(), collector, "--output", "raw")
+
+	require.NoError(t, err)
+	collector.AssertExpectations(t)
+}
+
+func TestCoverage_CollectCoverage_CustomOutput_Json(t *testing.T) {
+	collector := test.NewProjectCoverageCollector(t)
+	collector.On(
+		"CollectCoverage",
+		mock.Anything,
+		mock.MatchedBy(func(options internal.ProjectCoverageCollectorOptions) bool {
+			return assert.Equal(t, internal.CoverageReportFormatJson, options.Output.Format) &&
+				assert.NotNil(t, options.Output.Filename) &&
+				assert.Equal(t, "coverage.json", *options.Output.Filename)
+		}),
+	).
+		Return(nil)
+
+	err := runCoverage(t.Context(), collector, "-o", "json:coverage.json")
+
+	require.NoError(t, err)
+	collector.AssertExpectations(t)
+}
+
 type testCoverageCollectorTool struct {
 	internal.ExecutableTool
 	test.ProjectCoverageCollector
