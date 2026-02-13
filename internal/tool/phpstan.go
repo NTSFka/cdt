@@ -3,6 +3,7 @@ package tool
 import (
 	"cdt/internal"
 	"context"
+	"fmt"
 	"path/filepath"
 )
 
@@ -52,6 +53,16 @@ func (p *PHPStan) LintFiles(
 
 	if options.Filenames != nil && len(*options.Filenames) > 0 {
 		args = append(args, *options.Filenames...)
+	}
+
+	// nolint: exhaustive
+	switch options.Output.Format {
+	case internal.LintReportFormatDefault:
+		fallthrough
+	case internal.LintReportFormatRaw:
+		break
+	default:
+		return fmt.Errorf("unsupported report format: %s", options.Output.Format)
 	}
 
 	return p.RunForProject(ctx, options.ProjectInfo, args)
