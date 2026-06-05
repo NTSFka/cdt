@@ -2,6 +2,7 @@ package tool
 
 import (
 	"context"
+	"fmt"
 
 	"cdt/internal"
 )
@@ -45,4 +46,29 @@ func (p *PHP) RunTarget(
 		options.ProjectInfo,
 		append([]string{"-f", target}, options.ExtraArgs...),
 	)
+}
+
+func (p *PHP) LintFiles(
+	ctx context.Context,
+	options internal.ProjectLinterOptions,
+) error {
+	args := append([]string{"-l"}, options.ExtraArgs...)
+
+	if options.Filenames != nil && len(*options.Filenames) > 0 {
+		args = append(args, *options.Filenames...)
+	} else {
+		return fmt.Errorf("no files to lint")
+	}
+
+	// nolint: exhaustive
+	switch options.Output.Format {
+	case internal.LintReportFormatDefault:
+		fallthrough
+	case internal.LintReportFormatRaw:
+		break
+	default:
+		return fmt.Errorf("unsupported report format: %s", options.Output.Format)
+	}
+
+	return p.RunForProject(ctx, options.ProjectInfo, args)
 }
