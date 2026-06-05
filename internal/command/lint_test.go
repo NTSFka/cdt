@@ -165,3 +165,31 @@ func TestLint_LintFiles_Failure(t *testing.T) {
 
 	linter.AssertExpectations(t)
 }
+func TestLint_LintFiles_CustomOutput_Raw(t *testing.T) {
+	linter := test.NewProjectLinter(t)
+	linter.On("LintFiles", mock.Anything, mock.MatchedBy(func(options internal.ProjectLinterOptions) bool {
+		return assert.Equal(t, internal.LintReportFormatRaw, options.Output.Format) &&
+			assert.Nil(t, options.Output.Filename)
+	})).
+		Return(nil)
+
+	err := runLint(t.Context(), linter, "--output", "raw")
+
+	require.NoError(t, err)
+	linter.AssertExpectations(t)
+}
+
+func TestLint_LintFiles_CustomOutput_Json(t *testing.T) {
+	linter := test.NewProjectLinter(t)
+	linter.On("LintFiles", mock.Anything, mock.MatchedBy(func(options internal.ProjectLinterOptions) bool {
+		return assert.Equal(t, internal.LintReportFormatJson, options.Output.Format) &&
+			assert.NotNil(t, options.Output.Filename) &&
+			assert.Equal(t, "lint.json", *options.Output.Filename)
+	})).
+		Return(nil)
+
+	err := runLint(t.Context(), linter, "-o", "json:lint.json")
+
+	require.NoError(t, err)
+	linter.AssertExpectations(t)
+}

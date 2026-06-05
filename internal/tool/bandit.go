@@ -3,6 +3,7 @@ package tool
 import (
 	"cdt/internal"
 	"context"
+	"fmt"
 )
 
 const IdBandit = "bandit"
@@ -44,6 +45,16 @@ func (b *Bandit) LintFiles(
 		args = append(args, *options.Filenames...)
 	} else {
 		args = append(args, "*")
+	}
+
+	// nolint: exhaustive
+	switch options.Output.Format {
+	case internal.LintReportFormatDefault:
+		fallthrough
+	case internal.LintReportFormatRaw:
+		break
+	default:
+		return fmt.Errorf("unsupported report format: %s", options.Output.Format)
 	}
 
 	return b.RunForProject(ctx, options.ProjectInfo, args)

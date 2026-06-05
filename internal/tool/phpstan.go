@@ -3,6 +3,7 @@ package tool
 import (
 	"cdt/internal"
 	"context"
+	"fmt"
 	"path/filepath"
 )
 
@@ -44,6 +45,7 @@ func NewPHPStan(detect internal.ExecutableToolDetectFunc) *PHPStan {
 	}
 }
 
+// nolint: cyclop
 func (p *PHPStan) LintFiles(
 	ctx context.Context,
 	options internal.ProjectLinterOptions,
@@ -52,6 +54,26 @@ func (p *PHPStan) LintFiles(
 
 	if options.Filenames != nil && len(*options.Filenames) > 0 {
 		args = append(args, *options.Filenames...)
+	}
+
+	// nolint: exhaustive
+	switch options.Output.Format {
+	case internal.LintReportFormatDefault:
+		fallthrough
+	case internal.LintReportFormatRaw:
+		break
+	case internal.LintReportFormatJson:
+		args = append(args, "--error-format=json")
+	case internal.LintReportFormatJUnit:
+		args = append(args, "--error-format=junit")
+	case internal.LintReportFormatGitHub:
+		args = append(args, "--error-format=github")
+	case internal.LintReportFormatGitLab:
+		args = append(args, "--error-format=gitlab")
+	case internal.LintReportFormatTeamCity:
+		args = append(args, "--error-format=teamcity")
+	default:
+		return fmt.Errorf("unsupported report format: %s", options.Output.Format)
 	}
 
 	return p.RunForProject(ctx, options.ProjectInfo, args)

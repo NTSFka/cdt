@@ -2,6 +2,7 @@ package tool
 
 import (
 	"context"
+	"fmt"
 
 	"cdt/internal"
 )
@@ -46,6 +47,16 @@ func (c *NilAway) LintFiles(
 		args = append(args, *options.Filenames...)
 	} else {
 		args = append(args, "./...")
+	}
+
+	// nolint: exhaustive
+	switch options.Output.Format {
+	case internal.LintReportFormatDefault:
+		fallthrough
+	case internal.LintReportFormatRaw:
+		break
+	default:
+		return fmt.Errorf("unsupported report format: %s", options.Output.Format)
 	}
 
 	return c.RunForProject(ctx, options.ProjectInfo, args)

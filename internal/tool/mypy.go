@@ -3,6 +3,7 @@ package tool
 import (
 	"cdt/internal"
 	"context"
+	"fmt"
 )
 
 const IdMyPy = "mypy"
@@ -44,6 +45,16 @@ func (m *MyPy) LintFiles(
 		args = append(args, *options.Filenames...)
 	} else {
 		args = append(args, "*.py")
+	}
+
+	// nolint: exhaustive
+	switch options.Output.Format {
+	case internal.LintReportFormatDefault:
+		fallthrough
+	case internal.LintReportFormatRaw:
+		break
+	default:
+		return fmt.Errorf("unsupported report format: %s", options.Output.Format)
 	}
 
 	return m.RunForProject(ctx, options.ProjectInfo, args)

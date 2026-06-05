@@ -79,7 +79,7 @@ func TestGolangCILint_GolangCILint_LintFiles_All(t *testing.T) {
 	exec.AssertExpectations(t)
 }
 
-func TestGolangCILint_GolangCILint_Lint(t *testing.T) {
+func TestGolangCILint_GolangCILint_LintFiles(t *testing.T) {
 	exec := test.NewExecutable(t)
 
 	golangCILint := tool.NewGolangCILint(exec.LazyExecutable("lint"))
@@ -96,6 +96,66 @@ func TestGolangCILint_GolangCILint_Lint(t *testing.T) {
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
+}
+
+func TestGolangCILint_GolangCILint_LintFiles_OutputFormat_Raw(t *testing.T) {
+	exec := test.NewExecutable(t)
+
+	golangCILint := tool.NewGolangCILint(exec.LazyExecutable("lint"))
+
+	info := internal.ProjectInfo{Directory: "."}
+
+	exec.OnRun("lint", []string{"run"}).
+		Return(nil)
+
+	err := golangCILint.LintFiles(
+		t.Context(),
+		internal.ProjectLinterOptions{
+			ProjectInfo: info,
+			Output: internal.OutputOptions[internal.LintReportFormat]{
+				Format: internal.LintReportFormatRaw,
+			},
+		},
+	)
+	require.NoError(t, err)
+
+	exec.AssertExpectations(t)
+}
+
+func TestGolangCILint_GolangCILint_LintFiles_OutputFormat_Unsupported(t *testing.T) {
+	dataSet := []struct {
+		Format internal.LintReportFormat
+	}{
+		{internal.LintReportFormatJson},
+		{internal.LintReportFormatJUnit},
+		{internal.LintReportFormatGitHub},
+		{internal.LintReportFormatGitLab},
+		{internal.LintReportFormatTeamCity},
+		{"test-unsupported"},
+	}
+
+	for _, data := range dataSet {
+		t.Run(string(data.Format), func(t *testing.T) {
+			exec := test.NewExecutable(t)
+
+			golangCILint := tool.NewGolangCILint(exec.LazyExecutable("lint"))
+
+			info := internal.ProjectInfo{Directory: "."}
+
+			err := golangCILint.LintFiles(
+				t.Context(),
+				internal.ProjectLinterOptions{
+					ProjectInfo: info,
+					Output: internal.OutputOptions[internal.LintReportFormat]{
+						Format: data.Format,
+					},
+				},
+			)
+			require.EqualError(t, err, "unsupported report format: "+string(data.Format))
+
+			exec.AssertExpectations(t)
+		})
+	}
 }
 
 func TestGolangCILint_FormatFiles_All(t *testing.T) {

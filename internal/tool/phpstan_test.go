@@ -109,7 +109,7 @@ func TestPHPStan_PHPStan_LintFiles_All(t *testing.T) {
 	exec.AssertExpectations(t)
 }
 
-func TestPHPStan_PHPStan_Lint(t *testing.T) {
+func TestPHPStan_PHPStan_LintFiles(t *testing.T) {
 	exec := test.NewExecutable(t)
 
 	phpStan := tool.NewPHPStan(exec.LazyExecutable("lint"))
@@ -129,4 +129,155 @@ func TestPHPStan_PHPStan_Lint(t *testing.T) {
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
+}
+
+func TestPHPStan_PHPStan_LintFiles_OutputFormat_Json(t *testing.T) {
+	exec := test.NewExecutable(t)
+
+	phpStan := tool.NewPHPStan(exec.LazyExecutable("lint"))
+
+	info := internal.ProjectInfo{Directory: "."}
+
+	exec.OnRun("lint", []string{"analyse", "--error-format=json"}).
+		Return(nil)
+
+	err := phpStan.LintFiles(
+		t.Context(),
+		internal.ProjectLinterOptions{
+			ProjectInfo: info,
+			Output: internal.OutputOptions[internal.LintReportFormat]{
+				Format: internal.LintReportFormatJson,
+			},
+		},
+	)
+	require.NoError(t, err)
+
+	exec.AssertExpectations(t)
+}
+
+func TestPHPStan_PHPStan_LintFiles_OutputFormat_JUnit(t *testing.T) {
+	exec := test.NewExecutable(t)
+
+	phpStan := tool.NewPHPStan(exec.LazyExecutable("lint"))
+
+	info := internal.ProjectInfo{Directory: "."}
+
+	exec.OnRun("lint", []string{"analyse", "--error-format=junit"}).
+		Return(nil)
+
+	err := phpStan.LintFiles(
+		t.Context(),
+		internal.ProjectLinterOptions{
+			ProjectInfo: info,
+			Output: internal.OutputOptions[internal.LintReportFormat]{
+				Format: internal.LintReportFormatJUnit,
+			},
+		},
+	)
+	require.NoError(t, err)
+
+	exec.AssertExpectations(t)
+}
+
+func TestPHPStan_PHPStan_LintFiles_OutputFormat_GitHub(t *testing.T) {
+	exec := test.NewExecutable(t)
+
+	phpStan := tool.NewPHPStan(exec.LazyExecutable("lint"))
+
+	info := internal.ProjectInfo{Directory: "."}
+
+	exec.OnRun("lint", []string{"analyse", "--error-format=github"}).
+		Return(nil)
+
+	err := phpStan.LintFiles(
+		t.Context(),
+		internal.ProjectLinterOptions{
+			ProjectInfo: info,
+			Output: internal.OutputOptions[internal.LintReportFormat]{
+				Format: internal.LintReportFormatGitHub,
+			},
+		},
+	)
+	require.NoError(t, err)
+
+	exec.AssertExpectations(t)
+}
+
+func TestPHPStan_PHPStan_LintFiles_OutputFormat_GitLab(t *testing.T) {
+	exec := test.NewExecutable(t)
+
+	phpStan := tool.NewPHPStan(exec.LazyExecutable("lint"))
+
+	info := internal.ProjectInfo{Directory: "."}
+
+	exec.OnRun("lint", []string{"analyse", "--error-format=gitlab"}).
+		Return(nil)
+
+	err := phpStan.LintFiles(
+		t.Context(),
+		internal.ProjectLinterOptions{
+			ProjectInfo: info,
+			Output: internal.OutputOptions[internal.LintReportFormat]{
+				Format: internal.LintReportFormatGitLab,
+			},
+		},
+	)
+	require.NoError(t, err)
+
+	exec.AssertExpectations(t)
+}
+
+func TestPHPStan_PHPStan_LintFiles_OutputFormat_TeamCity(t *testing.T) {
+	exec := test.NewExecutable(t)
+
+	phpStan := tool.NewPHPStan(exec.LazyExecutable("lint"))
+
+	info := internal.ProjectInfo{Directory: "."}
+
+	exec.OnRun("lint", []string{"analyse", "--error-format=teamcity"}).
+		Return(nil)
+
+	err := phpStan.LintFiles(
+		t.Context(),
+		internal.ProjectLinterOptions{
+			ProjectInfo: info,
+			Output: internal.OutputOptions[internal.LintReportFormat]{
+				Format: internal.LintReportFormatTeamCity,
+			},
+		},
+	)
+	require.NoError(t, err)
+
+	exec.AssertExpectations(t)
+}
+
+func TestPHPStan_PHPStan_LintFiles_OutputFormat_Unsupported(t *testing.T) {
+	dataSet := []struct {
+		Format internal.LintReportFormat
+	}{
+		{"test-unsupported"},
+	}
+
+	for _, data := range dataSet {
+		t.Run(string(data.Format), func(t *testing.T) {
+			exec := test.NewExecutable(t)
+
+			phpStan := tool.NewPHPStan(exec.LazyExecutable("lint"))
+
+			info := internal.ProjectInfo{Directory: "."}
+
+			err := phpStan.LintFiles(
+				t.Context(),
+				internal.ProjectLinterOptions{
+					ProjectInfo: info,
+					Output: internal.OutputOptions[internal.LintReportFormat]{
+						Format: data.Format,
+					},
+				},
+			)
+			require.EqualError(t, err, "unsupported report format: "+string(data.Format))
+
+			exec.AssertExpectations(t)
+		})
+	}
 }

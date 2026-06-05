@@ -126,12 +126,28 @@ type ProjectFormatter interface {
 	FormatFiles(ctx context.Context, options ProjectFormatterOptions) error
 }
 
+// LintReportFormat specifies the format of the lint report.
+type LintReportFormat string
+
+const (
+	LintReportFormatDefault  LintReportFormat = ""
+	LintReportFormatRaw      LintReportFormat = "raw"
+	LintReportFormatJson     LintReportFormat = "json"
+	LintReportFormatJUnit    LintReportFormat = "junit"
+	LintReportFormatGitHub   LintReportFormat = "github"
+	LintReportFormatGitLab   LintReportFormat = "gitlab"
+	LintReportFormatTeamCity LintReportFormat = "teamcity"
+)
+
 // ProjectLinterOptions are options for linting a project.
 type ProjectLinterOptions struct {
 	ProjectInfo
 
 	// ExtraArgs are extra arguments for the specific linter implementation
 	ExtraArgs []string
+
+	// Output specifies how the operation should produce output
+	Output OutputOptions[LintReportFormat]
 
 	// Filenames specify filenames to lint
 	Filenames *[]string

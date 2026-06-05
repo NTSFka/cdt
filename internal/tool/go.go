@@ -176,6 +176,16 @@ func (g *Go) LintFiles(
 		args = append(args, "./...")
 	}
 
+	// nolint: exhaustive
+	switch options.Output.Format {
+	case internal.LintReportFormatDefault:
+		fallthrough
+	case internal.LintReportFormatRaw:
+		break
+	default:
+		return fmt.Errorf("unsupported report format: %s", options.Output.Format)
+	}
+
 	return g.RunForProject(ctx, options.ProjectInfo, args)
 }
 

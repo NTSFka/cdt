@@ -251,6 +251,93 @@ func TestClangTidy_LintFiles_CustomConfig(t *testing.T) {
 	exec.AssertExpectations(t)
 }
 
+func TestClangTidy_ClangTidy_LintFiles_OutputFormat_Raw(t *testing.T) {
+	exec := test.NewExecutable(t)
+
+	clangTidy := tool.NewClangTidy(exec.LazyExecutable("clang-tidy"))
+
+	info := internal.ProjectInfo{
+		Directory:       t.TempDir(),
+		OutputDirectory: internal.StrPtr("build"),
+		StructureProvider: &internal.FixedProjectStructureProvider{
+			ProjectStructure: internal.ProjectStructure{
+				Targets: map[string]internal.ProjectTarget{
+					"target1": {
+						Files: []string{"file1.go", "file2.go"},
+					},
+				},
+			},
+		},
+	}
+
+	exec.OnRun("clang-tidy", []string{
+		"-p", *info.OutputDirectory,
+		"file1.go",
+		"file2.go",
+	}).
+		Return(nil)
+
+	err := clangTidy.LintFiles(
+		t.Context(),
+		internal.ProjectLinterOptions{
+			ProjectInfo: info,
+			Output: internal.OutputOptions[internal.LintReportFormat]{
+				Format: internal.LintReportFormatRaw,
+			},
+		},
+	)
+	require.NoError(t, err)
+
+	exec.AssertExpectations(t)
+}
+
+func TestClangTidy_ClangTidy_LintFiles_OutputFormat_Unsupported(t *testing.T) {
+	dataSet := []struct {
+		Format internal.LintReportFormat
+	}{
+		{internal.LintReportFormatJson},
+		{internal.LintReportFormatJUnit},
+		{internal.LintReportFormatGitHub},
+		{internal.LintReportFormatGitLab},
+		{internal.LintReportFormatTeamCity},
+		{"test-unsupported"},
+	}
+
+	for _, data := range dataSet {
+		t.Run(string(data.Format), func(t *testing.T) {
+			exec := test.NewExecutable(t)
+
+			clangTidy := tool.NewClangTidy(exec.LazyExecutable("clang-tidy"))
+
+			info := internal.ProjectInfo{
+				Directory:       t.TempDir(),
+				OutputDirectory: internal.StrPtr("build"),
+				StructureProvider: &internal.FixedProjectStructureProvider{
+					ProjectStructure: internal.ProjectStructure{
+						Targets: map[string]internal.ProjectTarget{
+							"target1": {
+								Files: []string{"file1.go", "file2.go"},
+							},
+						},
+					},
+				},
+			}
+
+			err := clangTidy.LintFiles(
+				t.Context(),
+				internal.ProjectLinterOptions{
+					ProjectInfo: info,
+					Output: internal.OutputOptions[internal.LintReportFormat]{
+						Format: data.Format,
+					},
+				},
+			)
+			require.EqualError(t, err, "unsupported report format: "+string(data.Format))
+
+			exec.AssertExpectations(t)
+		})
+	}
+}
 func TestClangTidy_Run(t *testing.T) {
 	exec := test.NewExecutable(t)
 

@@ -20,6 +20,11 @@ func NewLintCommand() *cli.Command {
 				Name:  "tool",
 				Usage: "Use specific linter tool",
 			},
+			&cli.StringFlag{
+				Name:    "output",
+				Aliases: []string{"o"},
+				Usage:   "The lint report output format in form: <format>[:<filename>].",
+			},
 		},
 		Arguments: []cli.Argument{
 			&cli.StringArgs{
@@ -56,9 +61,15 @@ func lintCommandAction(ctx context.Context, cmd *cli.Command) error {
 		return errors.New("project doesn't support linting")
 	}
 
+	outputOptions := ParseOptionOutput[internal.LintReportFormat](
+		cmd.String("output"),
+		internal.LintReportFormatDefault,
+	)
+
 	options := internal.ProjectLinterOptions{
 		ProjectInfo: cmdContext.Project.Info,
 		ExtraArgs:   cmd.Args().Tail(),
+		Output:      outputOptions,
 	}
 
 	if files := cmd.StringArgs("files"); len(files) > 0 {
