@@ -254,7 +254,6 @@ func (g *Go) testPatternJson(
 
 	if options.Output.Filename != nil {
 		file, err := os.OpenFile(*options.Output.Filename, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0644)
-
 		if err != nil {
 			return fmt.Errorf("failed to open output file: %w", err)
 		}
@@ -339,7 +338,6 @@ func (g *Go) testPatternCtrf(
 ) error {
 	// TODO: use Pipe from created process
 	reader, writer, err := os.Pipe()
-
 	if err != nil {
 		return fmt.Errorf("failed to create pipe: %w", err)
 	}

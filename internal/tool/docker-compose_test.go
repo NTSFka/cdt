@@ -456,7 +456,16 @@ func TestDockerCompose_Environment_RunExecutable_Env(t *testing.T) {
 		Once()
 
 	runMock.OnCall([]string{
-		"compose", "exec", "-e", "VAR1=value1", "-e", "VAR2=value2", "service16", "tool1", "arg1", "arg2",
+		"compose",
+		"exec",
+		"-e",
+		"VAR1=value1",
+		"-e",
+		"VAR2=value2",
+		"service16",
+		"tool1",
+		"arg1",
+		"arg2",
 	}).
 		Return(nil).
 		Once()

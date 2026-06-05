@@ -102,7 +102,6 @@ func (d *dockerEnvironment) Start(ctx context.Context) error {
 			// FIXME: only linux
 			"/bin/bash", "-c", "trap : TERM INT; sleep infinity & wait",
 		})
-
 		if err == nil {
 			d.containerId = output
 		}
@@ -119,7 +118,6 @@ func (d *dockerEnvironment) IsRunning(ctx context.Context) bool {
 
 	return internal.Trace(ctx, "docker.is_running", func() bool {
 		output, err := d.runOutput(ctx, []string{"inspect", "--format", "json", d.containerId})
-
 		if err != nil {
 			return false
 		}
@@ -186,7 +184,6 @@ func (d *dockerEnvironment) FindExecutable(
 		}
 
 		output, err := d.runOutput(ctx, []string{"exec", d.containerId, "which", name})
-
 		if err != nil {
 			return nil, nil // nolint: nilerr
 		}
@@ -230,6 +227,7 @@ func (d *dockerEnvironment) RunExecutable(
 
 func (d *dockerEnvironment) runOutput(ctx context.Context, args []string) (string, error) {
 	output := bytes.Buffer{}
+
 	err := d.docker.Run(
 		ctx,
 		internal.RunOptions{
@@ -240,7 +238,6 @@ func (d *dockerEnvironment) runOutput(ctx context.Context, args []string) (strin
 		},
 		args,
 	)
-
 	if err != nil {
 		return "", fmt.Errorf("docker run failed: %w", err)
 	}

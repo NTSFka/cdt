@@ -16,7 +16,6 @@ import (
 
 func createGoModFile(dir string) error {
 	file, err := os.Create(filepath.Join(dir, "go.mod"))
-
 	if err != nil {
 		return err
 	}

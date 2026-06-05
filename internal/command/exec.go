@@ -45,7 +45,6 @@ func execCommandAction(ctx context.Context, cmd *cli.Command) error {
 	}
 
 	err := cmdContext.Environment.RunExecutable(ctx, options, command, cmd.StringArgs("args"))
-
 	if err != nil {
 		return fmt.Errorf("command failed: %w", err)
 	}

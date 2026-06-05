@@ -38,8 +38,7 @@ func TestPhpTest(t *testing.T) {
 	outputDir := t.TempDir()
 
 	// Install dependencies
-	var err error
-	err = runCdt(t.Context(), "-w", "php", "-r", "data/php", "-o", outputDir, "dep", "install")
+	err := runCdt(t.Context(), "-w", "php", "-r", "data/php", "-o", outputDir, "dep", "install")
 	require.NoError(t, err)
 
 	buffer := bytes.Buffer{}
@@ -59,8 +58,7 @@ func TestPhpCoverage(t *testing.T) {
 	outputDir := t.TempDir()
 
 	// Install dependencies
-	var err error
-	err = runCdt(t.Context(), "-w", "php", "-r", "data/php", "-o", outputDir, "dep", "install")
+	err := runCdt(t.Context(), "-w", "php", "-r", "data/php", "-o", outputDir, "dep", "install")
 	require.NoError(t, err)
 
 	buffer := bytes.Buffer{}
@@ -80,8 +78,7 @@ func TestPhpFormat(t *testing.T) {
 	outputDir := t.TempDir()
 
 	// Install dependencies
-	var err error
-	err = runCdt(t.Context(), "-w", "php", "-r", "data/php", "-o", outputDir, "dep", "install")
+	err := runCdt(t.Context(), "-w", "php", "-r", "data/php", "-o", outputDir, "dep", "install")
 	require.NoError(t, err)
 
 	buffer := bytes.Buffer{}
@@ -100,8 +97,7 @@ func TestPhpLint(t *testing.T) {
 	outputDir := t.TempDir()
 
 	// Install dependencies
-	var err error
-	err = runCdt(t.Context(), "-w", "php", "-r", "data/php", "-o", outputDir, "dep", "install")
+	err := runCdt(t.Context(), "-w", "php", "-r", "data/php", "-o", outputDir, "dep", "install")
 	require.NoError(t, err)
 
 	buffer := bytes.Buffer{}
@@ -146,8 +142,7 @@ func TestPhpTest_Docker(t *testing.T) {
 	outputDir := t.TempDir()
 
 	// Install dependencies
-	var err error
-	err = runCdt(t.Context(), "-w", "php", "-r", "data/php", "-o", outputDir, "dep", "install")
+	err := runCdt(t.Context(), "-w", "php", "-r", "data/php", "-o", outputDir, "dep", "install")
 	require.NoError(t, err)
 
 	buffer := bytes.Buffer{}
@@ -171,8 +166,7 @@ func TestPhpFormat_Docker(t *testing.T) {
 	outputDir := t.TempDir()
 
 	// Install dependencies
-	var err error
-	err = runCdt(t.Context(), "-w", "php", "-r", "data/php", "-o", outputDir, "dep", "install")
+	err := runCdt(t.Context(), "-w", "php", "-r", "data/php", "-o", outputDir, "dep", "install")
 	require.NoError(t, err)
 
 	buffer := bytes.Buffer{}
@@ -195,8 +189,7 @@ func TestPhpLint_Docker(t *testing.T) {
 	outputDir := t.TempDir()
 
 	// Install dependencies
-	var err error
-	err = runCdt(t.Context(), "-w", "php", "-r", "data/php", "-o", outputDir, "dep", "install")
+	err := runCdt(t.Context(), "-w", "php", "-r", "data/php", "-o", outputDir, "dep", "install")
 	require.NoError(t, err)
 
 	buffer := bytes.Buffer{}

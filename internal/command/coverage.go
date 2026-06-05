@@ -78,7 +78,6 @@ func coverageCommandAction(ctx context.Context, cmd *cli.Command) error {
 	}
 
 	err := collector.CollectCoverage(ctx, options)
-
 	if err != nil {
 		return fmt.Errorf("%w", err)
 	}

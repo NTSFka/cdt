@@ -102,8 +102,8 @@ func NewDependencyCommand() *cli.Command {
 
 func dependencyAddCommandAction(ctx context.Context, cmd *cli.Command) error {
 	cmdContext := ctx.Value("context").(internal.Context)
-	manager, err := getDependencyManager(cmdContext, cmd)
 
+	manager, err := getDependencyManager(cmdContext, cmd)
 	if err != nil {
 		return err
 	}
@@ -125,8 +125,8 @@ func dependencyAddCommandAction(ctx context.Context, cmd *cli.Command) error {
 
 func dependencyRemoveCommandAction(ctx context.Context, cmd *cli.Command) error {
 	cmdContext := ctx.Value("context").(internal.Context)
-	manager, err := getDependencyManager(cmdContext, cmd)
 
+	manager, err := getDependencyManager(cmdContext, cmd)
 	if err != nil {
 		return err
 	}
@@ -148,8 +148,8 @@ func dependencyRemoveCommandAction(ctx context.Context, cmd *cli.Command) error 
 
 func dependencyUpdateCommandAction(ctx context.Context, cmd *cli.Command) error {
 	cmdContext := ctx.Value("context").(internal.Context)
-	manager, err := getDependencyManager(cmdContext, cmd)
 
+	manager, err := getDependencyManager(cmdContext, cmd)
 	if err != nil {
 		return err
 	}
@@ -170,8 +170,8 @@ func dependencyUpdateCommandAction(ctx context.Context, cmd *cli.Command) error 
 
 func dependencyFetchCommandAction(ctx context.Context, cmd *cli.Command) error {
 	cmdContext := ctx.Value("context").(internal.Context)
-	manager, err := getDependencyManager(cmdContext, cmd)
 
+	manager, err := getDependencyManager(cmdContext, cmd)
 	if err != nil {
 		return err
 	}
@@ -192,8 +192,8 @@ func dependencyFetchCommandAction(ctx context.Context, cmd *cli.Command) error {
 
 func dependencyListCommandAction(ctx context.Context, cmd *cli.Command) error {
 	cmdContext := ctx.Value("context").(internal.Context)
-	manager, err := getDependencyManager(cmdContext, cmd)
 
+	manager, err := getDependencyManager(cmdContext, cmd)
 	if err != nil {
 		return err
 	}
@@ -212,8 +212,8 @@ func dependencyListCommandAction(ctx context.Context, cmd *cli.Command) error {
 
 func dependencyAuditCommandAction(ctx context.Context, cmd *cli.Command) error {
 	cmdContext := ctx.Value("context").(internal.Context)
-	manager, err := getDependencyManager(cmdContext, cmd)
 
+	manager, err := getDependencyManager(cmdContext, cmd)
 	if err != nil {
 		return err
 	}

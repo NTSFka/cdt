@@ -87,7 +87,6 @@ func buildContext(ctx context.Context, config internal.Config) (*internal.Contex
 	)
 
 	env, err := initEnvironment(config.RootDirectory, config.Environment, environmentProviders)
-
 	if err != nil {
 		return nil, err
 	}
@@ -99,7 +98,6 @@ func buildContext(ctx context.Context, config internal.Config) (*internal.Contex
 	})
 
 	project, err := workflow.CreateProject(config, tools)
-
 	if err != nil {
 		return nil, err
 	}

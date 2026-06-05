@@ -61,8 +61,7 @@ func TestPythonTest(t *testing.T) {
 	outputDir := t.TempDir()
 
 	// Install dependencies
-	var err error
-	err = runCdt(t.Context(),
+	err := runCdt(t.Context(),
 		"-e", "pyenv:"+envDir,
 		"-w", "python", "-r", "data/python", "-o", outputDir,
 		"dep", "add", "pytest",
@@ -95,8 +94,7 @@ func TestPythonFormat(t *testing.T) {
 	outputDir := t.TempDir()
 
 	// Install dependencies
-	var err error
-	err = runCdt(t.Context(),
+	err := runCdt(t.Context(),
 		"-e", "pyenv:"+envDir,
 		"-w", "python", "-r", "data/python", "-o", outputDir,
 		"dep", "add", "black",
@@ -128,8 +126,7 @@ func TestPythonLint(t *testing.T) {
 	outputDir := t.TempDir()
 
 	// Install dependencies
-	var err error
-	err = runCdt(t.Context(),
+	err := runCdt(t.Context(),
 		"-e", "pyenv:"+envDir,
 		"-w", "python", "-r", "data/python", "-o", outputDir,
 		"dep", "add", "pylint",
@@ -178,8 +175,7 @@ func TestPythonTest_Docker(t *testing.T) {
 	outputDir := t.TempDir()
 
 	// Install dependencies
-	var err error
-	err = runCdt(t.Context(),
+	err := runCdt(t.Context(),
 		"-e", "d:"+dockerImage(),
 		"-w", "python", "-r", "data/python", "-o", outputDir,
 		"dep", "add", "pytest",
@@ -209,8 +205,7 @@ func TestPythonFormat_Docker(t *testing.T) {
 	outputDir := t.TempDir()
 
 	// Install dependencies
-	var err error
-	err = runCdt(t.Context(),
+	err := runCdt(t.Context(),
 		"-e", "pyenv:"+envDir,
 		"-w", "python", "-r", "data/python", "-o", outputDir,
 		"dep", "add", "black",
@@ -239,8 +234,7 @@ func TestPythonLint_Docker(t *testing.T) {
 	outputDir := t.TempDir()
 
 	// Install dependencies
-	var err error
-	err = runCdt(t.Context(),
+	err := runCdt(t.Context(),
 		"-e", "d:"+dockerImage(),
 		"-w", "python", "-r", "data/python", "-o", outputDir,
 		"dep", "add", "pylint",

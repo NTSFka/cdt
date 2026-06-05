@@ -89,6 +89,7 @@ func (c *CMake) Configure(ctx context.Context, options internal.ProjectConfigura
 	}
 
 	var callArgs []string
+
 	callArgs = append(callArgs, "-DCMAKE_EXPORT_COMPILE_COMMANDS=ON")
 	callArgs = append(callArgs, "-S", ".")
 	callArgs = append(callArgs, "-B", *options.OutputDirectory)

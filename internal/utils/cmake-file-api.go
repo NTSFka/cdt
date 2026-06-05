@@ -92,7 +92,6 @@ func convertTargetType(targetType string) string {
 // Reply returns query reply after cmake run.
 func (c *CmakeFileApi) Reply() (*Reply, error) {
 	indices, err := filepath.Glob(filepath.Join(c.GetReplyDirectory(), "index-*.json"))
-
 	if err != nil {
 		return nil, err
 	}

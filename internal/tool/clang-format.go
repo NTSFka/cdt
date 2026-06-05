@@ -60,7 +60,6 @@ func (c *ClangFormat) FormatFiles(
 		filenames = *options.Filenames
 	} else {
 		structure, err := options.Structure(ctx)
-
 		if err != nil {
 			return fmt.Errorf("failed to obtain project structure: %w", err)
 		}

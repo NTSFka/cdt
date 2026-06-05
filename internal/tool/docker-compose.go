@@ -98,7 +98,6 @@ func (d *dockerComposeEnvironment) Start(ctx context.Context) error {
 func (d *dockerComposeEnvironment) IsRunning(ctx context.Context) bool {
 	return internal.Trace(ctx, "docker-compose.is_running", func() bool {
 		output, err := d.runOutput(ctx, []string{"ps", "--format", "json", d.service})
-
 		if err != nil {
 			return false
 		}
@@ -155,7 +154,6 @@ func (d *dockerComposeEnvironment) FindExecutable(
 			}
 
 			output, err := d.runOutput(ctx, []string{"exec", d.service, "which", name})
-
 			if err != nil {
 				return nil, nil // nolint: nilerr
 			}
@@ -219,12 +217,12 @@ func (d *dockerComposeEnvironment) run(ctx context.Context, args []string) error
 
 func (d *dockerComposeEnvironment) runOutput(ctx context.Context, args []string) (string, error) {
 	output := bytes.Buffer{}
+
 	err := d.dockerCompose.Run(
 		ctx,
 		internal.RunOptions{Directory: d.directory, Output: &output, Silent: true},
 		append([]string{"compose"}, args...),
 	)
-
 	if err != nil {
 		return "", err
 	}

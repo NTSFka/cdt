@@ -55,5 +55,6 @@ func TestMain(m *testing.M) {
 
 	// Cleanup
 	_ = os.Remove(BinaryName)
+
 	os.Exit(code)
 }

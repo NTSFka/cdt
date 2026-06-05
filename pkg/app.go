@@ -82,13 +82,11 @@ func NewApp(buildContext func(config internal.Config) (*internal.Context, error)
 			}
 
 			config, err := createConfig(cmd)
-
 			if err != nil {
 				return nil, err
 			}
 
 			cmdContext, err := buildContext(*config)
-
 			if err != nil {
 				return nil, err
 			}

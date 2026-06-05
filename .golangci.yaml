@@ -38,7 +38,7 @@ linters:
     #- godox
     - goheader
     - gomoddirectives
-    - gomodguard
+    - gomodguard_v2
     - goprintffuncname
     - grouper
     - iface
@@ -76,12 +76,20 @@ linters:
     - wastedassign
     - whitespace
     #- wrapcheck
-    - wsl
+    - wsl_v5
 
   settings:
     goconst:
+      ignore-tests: true
       ignore-string-values:
-        - "test"
+        - "tool"
+        - "files"
+        - "list"
+        - "dependencies"
+        - "exec"
+        - "compose"
+        - "run"
+        - "install"
 
     varnamelen:
       ignore-names:

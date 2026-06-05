@@ -19,6 +19,7 @@ func setupLogger(t *testing.T) *bytes.Buffer {
 	logger := slog.New(slog.NewTextHandler(buf, opts))
 
 	oldLogger := slog.Default()
+
 	slog.SetDefault(logger)
 
 	t.Cleanup(func() {

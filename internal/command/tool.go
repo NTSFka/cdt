@@ -84,7 +84,6 @@ func toolCommandRunAction(ctx context.Context, cmd *cli.Command) error {
 		}
 
 		err := tool.Run(ctx, options, cmd.Args().Slice())
-
 		if err != nil {
 			return fmt.Errorf("tool '%s' failed: %w", toolId, err)
 		}
