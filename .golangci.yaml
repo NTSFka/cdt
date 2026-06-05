@@ -90,6 +90,7 @@ linters:
         - "compose"
         - "run"
         - "install"
+        - "output"
 
     varnamelen:
       ignore-names:
