@@ -14,8 +14,8 @@ jobs:
           - windows
           - macOS
         go-version:
-          - 1.24
           - 1.25
+          - 1.26
     name: 'Setup ${{ matrix.go-version }} on ${{ matrix.platform }}'
     runs-on: ${{ matrix.platform }}-latest
     steps:
