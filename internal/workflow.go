@@ -130,9 +130,13 @@ type ProjectFormatter interface {
 type LintReportFormat string
 
 const (
-	LintReportFormatDefault LintReportFormat = ""
-	LintReportFormatRaw     LintReportFormat = "raw"
-	LintReportFormatJson    LintReportFormat = "json"
+	LintReportFormatDefault  LintReportFormat = ""
+	LintReportFormatRaw      LintReportFormat = "raw"
+	LintReportFormatJson     LintReportFormat = "json"
+	LintReportFormatJUnit    LintReportFormat = "junit"
+	LintReportFormatGitHub   LintReportFormat = "github"
+	LintReportFormatGitLab   LintReportFormat = "gitlab"
+	LintReportFormatTeamCity LintReportFormat = "teamcity"
 )
 
 // ProjectLinterOptions are options for linting a project.

@@ -81,7 +81,7 @@ func TestRuff_Ruff_LintFiles_All(t *testing.T) {
 	exec.AssertExpectations(t)
 }
 
-func TestRuff_Ruff_Lint(t *testing.T) {
+func TestRuff_Ruff_LintFiles(t *testing.T) {
 	exec := test.NewExecutable(t)
 
 	ruff := tool.NewRuff(exec.LazyExecutable("lint"))
@@ -103,6 +103,65 @@ func TestRuff_Ruff_Lint(t *testing.T) {
 	exec.AssertExpectations(t)
 }
 
+func TestRuff_Ruff_LintFiles_OutputFormat_Raw(t *testing.T) {
+	exec := test.NewExecutable(t)
+
+	linter := tool.NewRuff(exec.LazyExecutable("lint"))
+
+	info := internal.ProjectInfo{Directory: "."}
+
+	exec.OnRun("lint", []string{"check"}).
+		Return(nil)
+
+	err := linter.LintFiles(
+		t.Context(),
+		internal.ProjectLinterOptions{
+			ProjectInfo: info,
+			Output: internal.OutputOptions[internal.LintReportFormat]{
+				Format: internal.LintReportFormatRaw,
+			},
+		},
+	)
+	require.NoError(t, err)
+
+	exec.AssertExpectations(t)
+}
+
+func TestRuff_Ruff_LintFiles_OutputFormat_Unsupported(t *testing.T) {
+	dataSet := []struct {
+		Format internal.LintReportFormat
+	}{
+		{internal.LintReportFormatJson},
+		{internal.LintReportFormatJUnit},
+		{internal.LintReportFormatGitHub},
+		{internal.LintReportFormatGitLab},
+		{internal.LintReportFormatTeamCity},
+		{"test-unsupported"},
+	}
+
+	for _, data := range dataSet {
+		t.Run(string(data.Format), func(t *testing.T) {
+			exec := test.NewExecutable(t)
+
+			linter := tool.NewRuff(exec.LazyExecutable("lint"))
+
+			info := internal.ProjectInfo{Directory: "."}
+
+			err := linter.LintFiles(
+				t.Context(),
+				internal.ProjectLinterOptions{
+					ProjectInfo: info,
+					Output: internal.OutputOptions[internal.LintReportFormat]{
+						Format: data.Format,
+					},
+				},
+			)
+			require.EqualError(t, err, "unsupported report format: "+string(data.Format))
+
+			exec.AssertExpectations(t)
+		})
+	}
+}
 func TestRuff_Ruff_FormatFiles_All(t *testing.T) {
 	exec := test.NewExecutable(t)
 
