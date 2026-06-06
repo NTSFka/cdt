@@ -162,3 +162,14 @@ func TestFlake8_Flake8_LintFiles_OutputFormat_Unsupported(t *testing.T) {
 		})
 	}
 }
+
+func TestFlake8_Flake8_LintFiles_OutputFile(t *testing.T) {
+	runTestLintFilesOutputFile(
+		t,
+		func(executable func() (*internal.Executable, error)) internal.ProjectLinter {
+			return tool.NewFlake8(executable)
+		},
+		[]string{},
+		nil,
+	)
+}

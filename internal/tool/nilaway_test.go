@@ -156,3 +156,14 @@ func TestNilAway_NilAway_LintFiles_OutputFormat_Unsupported(t *testing.T) {
 		})
 	}
 }
+
+func TestNilAway_NilAway_LintFiles_OutputFile(t *testing.T) {
+	runTestLintFilesOutputFile(
+		t,
+		func(executable func() (*internal.Executable, error)) internal.ProjectLinter {
+			return tool.NewNilAway(executable)
+		},
+		[]string{"./..."},
+		nil,
+	)
+}

@@ -55,5 +55,9 @@ func (p *Flake8) LintFiles(
 		return fmt.Errorf("unsupported report format: %s", options.Output.Format)
 	}
 
+	if options.Output.Filename != nil {
+		return p.RunForProjectWithOutput(ctx, options.ProjectInfo, *options.Output.Filename, args)
+	}
+
 	return p.RunForProject(ctx, options.ProjectInfo, args)
 }

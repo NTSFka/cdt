@@ -162,6 +162,18 @@ func TestRuff_Ruff_LintFiles_OutputFormat_Unsupported(t *testing.T) {
 		})
 	}
 }
+
+func TestRuff_Ruff_LintFiles_OutputFile(t *testing.T) {
+	runTestLintFilesOutputFile(
+		t,
+		func(executable func() (*internal.Executable, error)) internal.ProjectLinter {
+			return tool.NewRuff(executable)
+		},
+		[]string{"check"},
+		nil,
+	)
+}
+
 func TestRuff_Ruff_FormatFiles_All(t *testing.T) {
 	exec := test.NewExecutable(t)
 

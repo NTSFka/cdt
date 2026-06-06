@@ -61,7 +61,10 @@ func (c *ClangTidy) LintFiles(
 		filenames = structure.GetFiles()
 	}
 
-	toolArgs := c.buildArgs(options.Directory, *options.OutputDirectory, filenames)
+	args := append(
+		c.buildArgs(options.Directory, *options.OutputDirectory, filenames),
+		options.ExtraArgs...,
+	)
 
 	// nolint: exhaustive
 	switch options.Output.Format {
@@ -73,11 +76,11 @@ func (c *ClangTidy) LintFiles(
 		return fmt.Errorf("unsupported report format: %s", options.Output.Format)
 	}
 
-	return c.ExecutableTool.RunForProject(
-		ctx,
-		options.ProjectInfo,
-		append(toolArgs, options.ExtraArgs...),
-	)
+	if options.Output.Filename != nil {
+		return c.RunForProjectWithOutput(ctx, options.ProjectInfo, *options.Output.Filename, args)
+	}
+
+	return c.ExecutableTool.RunForProject(ctx, options.ProjectInfo, args)
 }
 
 func (c *ClangTidy) RunForProject(

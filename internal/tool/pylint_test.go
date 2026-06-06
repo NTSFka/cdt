@@ -81,7 +81,7 @@ func TestPylint_Pylint_LintFiles_All(t *testing.T) {
 	exec.AssertExpectations(t)
 }
 
-func TestPylint_Pylint_Lint(t *testing.T) {
+func TestPylint_Pylint_LintFiles(t *testing.T) {
 	exec := test.NewExecutable(t)
 
 	pylint := tool.NewPylint(exec.LazyExecutable("lint"))
@@ -101,4 +101,15 @@ func TestPylint_Pylint_Lint(t *testing.T) {
 	require.NoError(t, err)
 
 	exec.AssertExpectations(t)
+}
+
+func TestPylint_Pylint_LintFiles_OutputFile(t *testing.T) {
+	runTestLintFilesOutputFile(
+		t,
+		func(executable func() (*internal.Executable, error)) internal.ProjectLinter {
+			return tool.NewPylint(executable)
+		},
+		[]string{"*"},
+		nil,
+	)
 }

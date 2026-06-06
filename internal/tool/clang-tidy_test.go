@@ -78,7 +78,7 @@ func TestClangTidy_LintFiles_All(t *testing.T) {
 			ProjectStructure: internal.ProjectStructure{
 				Targets: map[string]internal.ProjectTarget{
 					"target1": {
-						Files: []string{"file1.go", "file2.go"},
+						Files: []string{"file1.c", "file2.c"},
 					},
 				},
 			},
@@ -87,8 +87,8 @@ func TestClangTidy_LintFiles_All(t *testing.T) {
 
 	exec.OnRun("clang-tidy", []string{
 		"-p", *info.OutputDirectory,
-		"file1.go",
-		"file2.go",
+		"file1.c",
+		"file2.c",
 	}).
 		Return(nil)
 
@@ -110,7 +110,7 @@ func TestClangTidy_LintFiles_All_Failed(t *testing.T) {
 			ProjectStructure: internal.ProjectStructure{
 				Targets: map[string]internal.ProjectTarget{
 					"target1": {
-						Files: []string{"file1.go", "file2.go"},
+						Files: []string{"file1.c", "file2.c"},
 					},
 				},
 			},
@@ -119,8 +119,8 @@ func TestClangTidy_LintFiles_All_Failed(t *testing.T) {
 
 	exec.OnRun("clang-tidy", []string{
 		"-p", *info.OutputDirectory,
-		"file1.go",
-		"file2.go",
+		"file1.c",
+		"file2.c",
 	}).
 		Return(errors.New("failed"))
 
@@ -142,7 +142,7 @@ func TestClangTidy_LintFiles_All_CustomConfig(t *testing.T) {
 			ProjectStructure: internal.ProjectStructure{
 				Targets: map[string]internal.ProjectTarget{
 					"target1": {
-						Files: []string{"file1.go", "file2.go"},
+						Files: []string{"file1.c", "file2.c"},
 					},
 				},
 			},
@@ -156,8 +156,8 @@ func TestClangTidy_LintFiles_All_CustomConfig(t *testing.T) {
 	exec.OnRun("clang-tidy", []string{
 		fmt.Sprintf("--config-file=%v", filepath.Join(info.Directory, ".clang-tidy")),
 		"-p", *info.OutputDirectory,
-		"file1.go",
-		"file2.go",
+		"file1.c",
+		"file2.c",
 	}).
 		Return(nil)
 
@@ -179,8 +179,8 @@ func TestClangTidy_LintFiles(t *testing.T) {
 
 	exec.OnRun("clang-tidy", []string{
 		"-p", *info.OutputDirectory,
-		"file1.go",
-		filepath.Join(info.Directory, "file3.go"),
+		"file1.c",
+		filepath.Join(info.Directory, "file3.c"),
 	}).
 		Return(nil)
 
@@ -188,7 +188,7 @@ func TestClangTidy_LintFiles(t *testing.T) {
 		t.Context(),
 		internal.ProjectLinterOptions{
 			ProjectInfo: info,
-			Filenames:   &[]string{"file1.go", filepath.Join(info.Directory, "file3.go")},
+			Filenames:   &[]string{"file1.c", filepath.Join(info.Directory, "file3.c")},
 		},
 	)
 	require.NoError(t, err)
@@ -208,13 +208,13 @@ func TestClangTidy_LintFiles_Failed(t *testing.T) {
 
 	exec.OnRun("clang-tidy", []string{
 		"-p", *info.OutputDirectory,
-		"file1.go",
+		"file1.c",
 	}).
 		Return(errors.New("failed"))
 
 	err := clangTidy.LintFiles(
 		t.Context(),
-		internal.ProjectLinterOptions{ProjectInfo: info, Filenames: &[]string{"file1.go"}},
+		internal.ProjectLinterOptions{ProjectInfo: info, Filenames: &[]string{"file1.c"}},
 	)
 	require.EqualError(t, err, "failed")
 
@@ -238,13 +238,13 @@ func TestClangTidy_LintFiles_CustomConfig(t *testing.T) {
 	exec.OnRun("clang-tidy", []string{
 		fmt.Sprintf("--config-file=%v", filepath.Join(info.Directory, ".clang-tidy")),
 		"-p", *info.OutputDirectory,
-		"file1.go",
+		"file1.c",
 	}).
 		Return(nil)
 
 	err = clangTidy.LintFiles(
 		t.Context(),
-		internal.ProjectLinterOptions{ProjectInfo: info, Filenames: &[]string{"file1.go"}},
+		internal.ProjectLinterOptions{ProjectInfo: info, Filenames: &[]string{"file1.c"}},
 	)
 	require.NoError(t, err)
 
@@ -263,7 +263,7 @@ func TestClangTidy_ClangTidy_LintFiles_OutputFormat_Raw(t *testing.T) {
 			ProjectStructure: internal.ProjectStructure{
 				Targets: map[string]internal.ProjectTarget{
 					"target1": {
-						Files: []string{"file1.go", "file2.go"},
+						Files: []string{"file1.c", "file2.c"},
 					},
 				},
 			},
@@ -272,8 +272,8 @@ func TestClangTidy_ClangTidy_LintFiles_OutputFormat_Raw(t *testing.T) {
 
 	exec.OnRun("clang-tidy", []string{
 		"-p", *info.OutputDirectory,
-		"file1.go",
-		"file2.go",
+		"file1.c",
+		"file2.c",
 	}).
 		Return(nil)
 
@@ -316,7 +316,7 @@ func TestClangTidy_ClangTidy_LintFiles_OutputFormat_Unsupported(t *testing.T) {
 					ProjectStructure: internal.ProjectStructure{
 						Targets: map[string]internal.ProjectTarget{
 							"target1": {
-								Files: []string{"file1.go", "file2.go"},
+								Files: []string{"file1.c", "file2.c"},
 							},
 						},
 					},
@@ -338,6 +338,54 @@ func TestClangTidy_ClangTidy_LintFiles_OutputFormat_Unsupported(t *testing.T) {
 		})
 	}
 }
+
+func TestClangTidy_ClangTidy_LintFiles_OutputFile(t *testing.T) {
+	exec := test.NewExecutable(t)
+
+	linter := tool.NewClangTidy(exec.LazyExecutable("lint"))
+
+	info := internal.ProjectInfo{
+		Directory:       t.TempDir(),
+		OutputDirectory: internal.StrPtr("build"),
+		StructureProvider: &internal.FixedProjectStructureProvider{
+			ProjectStructure: internal.ProjectStructure{
+				Targets: map[string]internal.ProjectTarget{
+					"target1": {
+						Files: []string{"file1.c", "file2.c"},
+					},
+				},
+			},
+		},
+	}
+
+	exec.OnRunOutput("lint", []string{
+		"-p", *info.OutputDirectory,
+		"file1.c",
+		"file2.c",
+	}, "ok").
+		Return(nil)
+
+	outputFilename := t.TempDir() + "/report.txt"
+
+	err := linter.LintFiles(
+		t.Context(),
+		internal.ProjectLinterOptions{
+			ProjectInfo: info,
+			Output: internal.OutputOptions[internal.LintReportFormat]{
+				Filename: &outputFilename,
+			},
+		},
+	)
+	require.NoError(t, err)
+	require.FileExists(t, outputFilename)
+
+	outputContent, err := os.ReadFile(outputFilename)
+	require.NoError(t, err)
+	assert.Equal(t, "ok", string(outputContent))
+
+	exec.AssertExpectations(t)
+}
+
 func TestClangTidy_Run(t *testing.T) {
 	exec := test.NewExecutable(t)
 

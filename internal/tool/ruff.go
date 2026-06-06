@@ -55,6 +55,10 @@ func (r *Ruff) LintFiles(
 		return fmt.Errorf("unsupported report format: %s", options.Output.Format)
 	}
 
+	if options.Output.Filename != nil {
+		return r.RunForProjectWithOutput(ctx, options.ProjectInfo, *options.Output.Filename, args)
+	}
+
 	return r.RunForProject(ctx, options.ProjectInfo, args)
 }
 

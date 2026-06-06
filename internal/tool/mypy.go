@@ -57,5 +57,9 @@ func (m *MyPy) LintFiles(
 		return fmt.Errorf("unsupported report format: %s", options.Output.Format)
 	}
 
+	if options.Output.Filename != nil {
+		return m.RunForProjectWithOutput(ctx, options.ProjectInfo, *options.Output.Filename, args)
+	}
+
 	return m.RunForProject(ctx, options.ProjectInfo, args)
 }

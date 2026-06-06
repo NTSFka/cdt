@@ -627,6 +627,18 @@ func TestGo_Go_LintFiles_OutputFormat_Unsupported(t *testing.T) {
 		})
 	}
 }
+
+func TestGo_Go_LintFiles_OutputFile(t *testing.T) {
+	runTestLintFilesOutputFile(
+		t,
+		func(executable func() (*internal.Executable, error)) internal.ProjectLinter {
+			return tool.NewGo(executable)
+		},
+		[]string{"vet", "./..."},
+		nil,
+	)
+}
+
 func TestGo_Go_AddDependencies(t *testing.T) {
 	exec := test.NewExecutable(t)
 

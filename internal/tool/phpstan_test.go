@@ -281,3 +281,14 @@ func TestPHPStan_PHPStan_LintFiles_OutputFormat_Unsupported(t *testing.T) {
 		})
 	}
 }
+
+func TestPHPStan_PHPStan_LintFiles_OutputFile(t *testing.T) {
+	runTestLintFilesOutputFile(
+		t,
+		func(executable func() (*internal.Executable, error)) internal.ProjectLinter {
+			return tool.NewPHPStan(executable)
+		},
+		[]string{"analyse"},
+		nil,
+	)
+}

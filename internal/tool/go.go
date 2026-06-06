@@ -186,6 +186,10 @@ func (g *Go) LintFiles(
 		return fmt.Errorf("unsupported report format: %s", options.Output.Format)
 	}
 
+	if options.Output.Filename != nil {
+		return g.RunForProjectWithOutput(ctx, options.ProjectInfo, *options.Output.Filename, args)
+	}
+
 	return g.RunForProject(ctx, options.ProjectInfo, args)
 }
 

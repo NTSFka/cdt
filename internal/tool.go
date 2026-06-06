@@ -161,6 +161,31 @@ func (t *ExecutableTool) RunForProject(ctx context.Context, info ProjectInfo, ar
 	return t.Run(ctx, options, args)
 }
 
+// RunForProjectWithOutput runs the tool for the project with a path to an output file.
+func (t *ExecutableTool) RunForProjectWithOutput(
+	ctx context.Context,
+	info ProjectInfo,
+	filename string,
+	args []string,
+) error {
+	file, err := os.OpenFile(filename, os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		return fmt.Errorf("failed to create output file: %w", err)
+	}
+	defer func() {
+		_ = file.Close()
+	}()
+
+	options := RunOptions{
+		Directory: info.Directory,
+		Input:     os.Stdin,
+		Output:    file,
+		Error:     os.Stderr,
+	}
+
+	return t.Run(ctx, options, args)
+}
+
 func (t *ExecutableTool) RunForProjectWithEnv(
 	ctx context.Context,
 	info ProjectInfo,

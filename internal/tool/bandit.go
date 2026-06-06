@@ -57,5 +57,9 @@ func (b *Bandit) LintFiles(
 		return fmt.Errorf("unsupported report format: %s", options.Output.Format)
 	}
 
+	if options.Output.Filename != nil {
+		return b.RunForProjectWithOutput(ctx, options.ProjectInfo, *options.Output.Filename, args)
+	}
+
 	return b.RunForProject(ctx, options.ProjectInfo, args)
 }

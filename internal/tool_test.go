@@ -145,6 +145,69 @@ func TestTool_ExecutableTool_RunForProject(t *testing.T) {
 	runtime.AssertExpectations(t)
 }
 
+func TestTool_ExecutableTool_RunForProjectWithOutput(t *testing.T) {
+	runtime := &testExecutableRuntime{}
+	runtime.Test(t)
+	runtime.On("Id").Return("test")
+
+	tool := internal.MakeExecutableTool(
+		"id",
+		"",
+		"",
+		internal.Tags{},
+		func() (*internal.Executable, error) {
+			return &internal.Executable{Path: "echo", Runtime: runtime}, nil
+		},
+	)
+
+	outputFilename := t.TempDir() + "/output.txt"
+
+	runtime.On("RunExecutable", mock.Anything, mock.MatchedBy(func(options internal.RunOptions) bool {
+		require.IsType(t, &os.File{}, options.Output)
+		assert.Equal(t, outputFilename, options.Output.(*os.File).Name())
+
+		return true
+	}), "echo", []string{"arg1", "arg2"}).
+		Return(nil)
+
+	err := tool.RunForProjectWithOutput(
+		t.Context(),
+		internal.ProjectInfo{},
+		outputFilename,
+		[]string{"arg1", "arg2"},
+	)
+	require.NoError(t, err)
+
+	runtime.AssertExpectations(t)
+}
+
+func TestTool_ExecutableTool_RunForProjectWithOutput_FileFailed(t *testing.T) {
+	runtime := &testExecutableRuntime{}
+	runtime.Test(t)
+
+	tool := internal.MakeExecutableTool(
+		"id",
+		"",
+		"",
+		internal.Tags{},
+		func() (*internal.Executable, error) {
+			return &internal.Executable{Path: "echo", Runtime: runtime}, nil
+		},
+	)
+
+	outputFilename := t.TempDir() + "/non-existent-directory/output.txt"
+
+	err := tool.RunForProjectWithOutput(
+		t.Context(),
+		internal.ProjectInfo{},
+		outputFilename,
+		[]string{"arg1", "arg2"},
+	)
+	require.ErrorContains(t, err, "failed to create output file")
+
+	runtime.AssertExpectations(t)
+}
+
 func TestTool_ExecutableTool_RunForProjectWithEnv(t *testing.T) {
 	runtime := &testExecutableRuntime{}
 	runtime.Test(t)

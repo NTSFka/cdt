@@ -59,5 +59,9 @@ func (c *NilAway) LintFiles(
 		return fmt.Errorf("unsupported report format: %s", options.Output.Format)
 	}
 
+	if options.Output.Filename != nil {
+		return c.RunForProjectWithOutput(ctx, options.ProjectInfo, *options.Output.Filename, args)
+	}
+
 	return c.RunForProject(ctx, options.ProjectInfo, args)
 }

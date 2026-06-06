@@ -1,10 +1,9 @@
 package tool
 
 import (
+	"cdt/internal"
 	"context"
 	"fmt"
-
-	"cdt/internal"
 )
 
 const IdPHP = "php"
@@ -68,6 +67,10 @@ func (p *PHP) LintFiles(
 		break
 	default:
 		return fmt.Errorf("unsupported report format: %s", options.Output.Format)
+	}
+
+	if options.Output.Filename != nil {
+		return p.RunForProjectWithOutput(ctx, options.ProjectInfo, *options.Output.Filename, args)
 	}
 
 	return p.RunForProject(ctx, options.ProjectInfo, args)

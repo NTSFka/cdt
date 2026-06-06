@@ -162,3 +162,14 @@ func TestBandit_Bandit_LintFiles_OutputFormat_Unsupported(t *testing.T) {
 		})
 	}
 }
+
+func TestBandit_Bandit_LintFiles_OutputFile(t *testing.T) {
+	runTestLintFilesOutputFile(
+		t,
+		func(executable func() (*internal.Executable, error)) internal.ProjectLinter {
+			return tool.NewBandit(executable)
+		},
+		[]string{"*"},
+		nil,
+	)
+}

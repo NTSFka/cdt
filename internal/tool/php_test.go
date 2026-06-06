@@ -194,3 +194,14 @@ func TestPHP_PHP_LintFiles_OutputFormat_Unsupported(t *testing.T) {
 		})
 	}
 }
+
+func TestPHP_PHP_LintFiles_OutputFile(t *testing.T) {
+	runTestLintFilesOutputFile(
+		t,
+		func(executable func() (*internal.Executable, error)) internal.ProjectLinter {
+			return tool.NewPHP(executable)
+		},
+		[]string{"-l", "file.php", "/path/to/file2.php"},
+		&[]string{"file.php", "/path/to/file2.php"},
+	)
+}

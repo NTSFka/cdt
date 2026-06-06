@@ -162,3 +162,14 @@ func TestMyPy_MyPy_LintFiles_OutputFormat_Unsupported(t *testing.T) {
 		})
 	}
 }
+
+func TestMyPy_MyPy_LintFiles_OutputFile(t *testing.T) {
+	runTestLintFilesOutputFile(
+		t,
+		func(executable func() (*internal.Executable, error)) internal.ProjectLinter {
+			return tool.NewMyPy(executable)
+		},
+		[]string{"*.py"},
+		nil,
+	)
+}

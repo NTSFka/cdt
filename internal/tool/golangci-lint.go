@@ -60,6 +60,10 @@ func (l *GolangCILint) LintFiles(
 		return fmt.Errorf("unsupported report format: %s", options.Output.Format)
 	}
 
+	if options.Output.Filename != nil {
+		return l.RunForProjectWithOutput(ctx, options.ProjectInfo, *options.Output.Filename, args)
+	}
+
 	return l.RunForProject(ctx, options.ProjectInfo, args)
 }
 

@@ -158,6 +158,17 @@ func TestGolangCILint_GolangCILint_LintFiles_OutputFormat_Unsupported(t *testing
 	}
 }
 
+func TestGolangCILint_GolangCILint_LintFiles_OutputFile(t *testing.T) {
+	runTestLintFilesOutputFile(
+		t,
+		func(executable func() (*internal.Executable, error)) internal.ProjectLinter {
+			return tool.NewGolangCILint(executable)
+		},
+		[]string{"run"},
+		nil,
+	)
+}
+
 func TestGolangCILint_FormatFiles_All(t *testing.T) {
 	exec := test.NewExecutable(t)
 
