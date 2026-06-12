@@ -40,34 +40,27 @@ func DetectGolangCILint(
 	})
 }
 
-func (l *GolangCILint) LintFiles(
+func (g *GolangCILint) LintFiles(
 	ctx context.Context,
 	options internal.ProjectLinterOptions,
 ) error {
 	args := append([]string{"run"}, options.ExtraArgs...)
+	args = appendFiles(args, options.Filenames, nil)
 
-	if options.Filenames != nil && len(*options.Filenames) > 0 {
-		args = append(args, *options.Filenames...)
-	}
-
-	// nolint: exhaustive
-	switch options.Output.Format {
-	case internal.LintReportFormatDefault:
-		fallthrough
-	case internal.LintReportFormatRaw:
-		break
-	default:
-		return fmt.Errorf("unsupported report format: %s", options.Output.Format)
+	if a, err := g.argsBuildLintOutputFormat(options.Output.Format); err == nil {
+		args = append(args, a...)
+	} else {
+		return err
 	}
 
 	if options.Output.Filename != nil {
-		return l.RunForProjectWithOutput(ctx, options.ProjectInfo, *options.Output.Filename, args)
+		return g.RunForProjectWithOutput(ctx, options.ProjectInfo, *options.Output.Filename, args)
 	}
 
-	return l.RunForProject(ctx, options.ProjectInfo, args)
+	return g.RunForProject(ctx, options.ProjectInfo, args)
 }
 
-func (l *GolangCILint) FormatFiles(
+func (g *GolangCILint) FormatFiles(
 	ctx context.Context,
 	options internal.ProjectFormatterOptions,
 ) error {
@@ -81,5 +74,23 @@ func (l *GolangCILint) FormatFiles(
 		args = append(args, *options.Filenames...)
 	}
 
-	return l.RunForProject(ctx, options.ProjectInfo, args)
+	return g.RunForProject(ctx, options.ProjectInfo, args)
+}
+
+func (g *GolangCILint) argsBuildLintOutputFormat(
+	format internal.LintReportFormat,
+) ([]string, error) {
+	var args []string
+
+	// nolint: exhaustive
+	switch format {
+	case internal.LintReportFormatDefault:
+		fallthrough
+	case internal.LintReportFormatRaw:
+		break
+	default:
+		return nil, fmt.Errorf("unsupported report format: %s", format)
+	}
+
+	return args, nil
 }

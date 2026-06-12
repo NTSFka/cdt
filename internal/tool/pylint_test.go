@@ -1,6 +1,7 @@
 package tool_test
 
 import (
+	"context"
 	"testing"
 
 	"cdt/internal"
@@ -8,108 +9,97 @@ import (
 	"cdt/internal/tool"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 )
 
 func TestPylint_DetectPylint(t *testing.T) {
-	env := test.NewEnvironment(t)
+	pylint := test.RunDetectToolLastFound(t, pylintDetect, []string{"pylint"})
 
-	env.OnFindExecutable("pylint").
-		Return(env.NewExecutable("/bin/pylint"), nil)
-
-	pylint := tool.DetectPylint(t.Context(), tool.DetectOptions{Environment: env})
-	assert.NotNil(t, pylint)
-	assert.Equal(t, "pylint", pylint.Id())
-	assert.True(t, pylint.IsAvailable())
-
-	if executable := pylint.Executable(); assert.NotNil(t, executable) {
-		assert.Equal(t, "/bin/pylint", executable.Path)
-	}
-
-	env.AssertExpectations(t)
+	assert.Equal(t, tool.IdPylint, pylint.Id())
 }
 
 func TestPylint_DetectPylint_NotFound(t *testing.T) {
-	env := test.NewEnvironment(t)
+	pylint := test.RunDetectToolNotFound(t, pylintDetect, []string{"pylint"})
 
-	env.OnFindExecutable("pylint").
-		Return(nil, nil)
-
-	pylint := tool.DetectPylint(t.Context(), tool.DetectOptions{Environment: env})
-	assert.NotNil(t, pylint)
-	assert.Equal(t, "pylint", pylint.Id())
-	assert.False(t, pylint.IsAvailable())
-	assert.Nil(t, pylint.Executable())
-
-	env.AssertExpectations(t)
+	assert.Equal(t, tool.IdPylint, pylint.Id())
 }
 
 func TestPylint_DetectPylint_Config(t *testing.T) {
-	env := test.NewEnvironment(t)
+	pylint := test.RunDetectToolConfig(t, pylintDetect, "pylint")
 
-	env.OnFindExecutable("pylint4").
-		Return(env.NewExecutable("/bin/pylint"), nil)
-
-	pylint := tool.DetectPylint(t.Context(), tool.DetectOptions{
-		Environment: env,
-		ToolsPaths:  map[string]string{"pylint": "pylint4"},
-	})
-	assert.NotNil(t, pylint)
-	assert.Equal(t, "pylint", pylint.Id())
-	assert.True(t, pylint.IsAvailable())
-
-	if executable := pylint.Executable(); assert.NotNil(t, executable) {
-		assert.Equal(t, "/bin/pylint", executable.Path)
-	}
-
-	env.AssertExpectations(t)
+	assert.Equal(t, tool.IdPylint, pylint.Id())
 }
 
 func TestPylint_Pylint_LintFiles_All(t *testing.T) {
-	exec := test.NewExecutable(t)
-
-	pylint := tool.NewPylint(exec.LazyExecutable("lint"))
-
-	info := internal.ProjectInfo{Directory: "."}
-
-	exec.OnRun("lint", []string{"*"}).
-		Return(nil)
-
-	err := pylint.LintFiles(t.Context(), internal.ProjectLinterOptions{ProjectInfo: info})
-	require.NoError(t, err)
-
-	exec.AssertExpectations(t)
+	test.RunLintFilesSuccess(t, pylintBuildLinter, internal.ProjectLinterOptions{}, []string{"*"})
 }
 
 func TestPylint_Pylint_LintFiles(t *testing.T) {
-	exec := test.NewExecutable(t)
-
-	pylint := tool.NewPylint(exec.LazyExecutable("lint"))
-
-	info := internal.ProjectInfo{Directory: "."}
-
-	exec.OnRun("lint", []string{"file.py", "/path/to/file2.py"}).
-		Return(nil)
-
-	err := pylint.LintFiles(
-		t.Context(),
+	test.RunLintFilesSuccess(
+		t,
+		pylintBuildLinter,
 		internal.ProjectLinterOptions{
-			ProjectInfo: info,
-			Filenames:   &[]string{"file.py", "/path/to/file2.py"},
+			Filenames: &[]string{"file.py", "/path/to/file2.py"},
 		},
+		[]string{"file.py", "/path/to/file2.py"},
 	)
-	require.NoError(t, err)
+}
 
-	exec.AssertExpectations(t)
+func TestPylint_Pylint_LintFiles_OutputFormat(t *testing.T) {
+	dataSet := []struct {
+		format internal.LintReportFormat
+		args   []string
+	}{
+		{internal.LintReportFormatRaw, []string{}},
+	}
+
+	for _, data := range dataSet {
+		t.Run(string(data.format), func(t *testing.T) {
+			test.RunLintFilesOutputFormatCheck(
+				t,
+				pylintBuildLinter,
+				data.format,
+				append([]string{"*"}, data.args...),
+				nil,
+			)
+		})
+	}
+}
+
+func TestPylint_Pylint_LintFiles_OutputFormat_Unsupported(t *testing.T) {
+	formats := []internal.LintReportFormat{
+		internal.LintReportFormatJson,
+		internal.LintReportFormatJUnit,
+		internal.LintReportFormatGitHub,
+		internal.LintReportFormatGitLab,
+		internal.LintReportFormatTeamCity,
+		"test-unsupported",
+	}
+
+	for _, format := range formats {
+		t.Run(string(format), func(t *testing.T) {
+			test.RunLintFilesOutputFormatUnsupported(
+				t,
+				pylintBuildLinter,
+				format,
+				nil,
+			)
+		})
+	}
 }
 
 func TestPylint_Pylint_LintFiles_OutputFile(t *testing.T) {
-	runTestLintFilesOutputFile(
+	test.RunLintFilesOutputFile(
 		t,
-		func(executable func() (*internal.Executable, error)) internal.ProjectLinter {
-			return tool.NewPylint(executable)
-		},
+		pylintBuildLinter,
 		[]string{"*"},
 		nil,
 	)
+}
+
+func pylintDetect(ctx context.Context, options tool.DetectOptions) internal.Tool {
+	return tool.DetectPylint(ctx, options)
+}
+
+func pylintBuildLinter(executable func() (*internal.Executable, error)) internal.ProjectLinter {
+	return tool.NewPylint(executable)
 }

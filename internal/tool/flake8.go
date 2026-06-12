@@ -35,29 +35,37 @@ func NewFlake8(detect internal.ExecutableToolDetectFunc) *Flake8 {
 	}
 }
 
-func (p *Flake8) LintFiles(
+func (f *Flake8) LintFiles(
 	ctx context.Context,
 	options internal.ProjectLinterOptions,
 ) error {
-	args := options.ExtraArgs
+	args := appendFiles(options.ExtraArgs, options.Filenames, nil)
 
-	if options.Filenames != nil && len(*options.Filenames) > 0 {
-		args = append(args, *options.Filenames...)
+	if a, err := f.argsBuildLintOutputFormat(options.Output.Format); err == nil {
+		args = append(args, a...)
+	} else {
+		return err
 	}
 
+	if options.Output.Filename != nil {
+		return f.RunForProjectWithOutput(ctx, options.ProjectInfo, *options.Output.Filename, args)
+	}
+
+	return f.RunForProject(ctx, options.ProjectInfo, args)
+}
+
+func (f *Flake8) argsBuildLintOutputFormat(format internal.LintReportFormat) ([]string, error) {
+	var args []string
+
 	// nolint: exhaustive
-	switch options.Output.Format {
+	switch format {
 	case internal.LintReportFormatDefault:
 		fallthrough
 	case internal.LintReportFormatRaw:
 		break
 	default:
-		return fmt.Errorf("unsupported report format: %s", options.Output.Format)
+		return nil, fmt.Errorf("unsupported report format: %s", format)
 	}
 
-	if options.Output.Filename != nil {
-		return p.RunForProjectWithOutput(ctx, options.ProjectInfo, *options.Output.Filename, args)
-	}
-
-	return p.RunForProject(ctx, options.ProjectInfo, args)
+	return args, nil
 }

@@ -66,14 +66,10 @@ func (c *ClangTidy) LintFiles(
 		options.ExtraArgs...,
 	)
 
-	// nolint: exhaustive
-	switch options.Output.Format {
-	case internal.LintReportFormatDefault:
-		fallthrough
-	case internal.LintReportFormatRaw:
-		break
-	default:
-		return fmt.Errorf("unsupported report format: %s", options.Output.Format)
+	if a, err := c.argsBuildLintOutputFormat(options.Output.Format); err == nil {
+		args = append(args, a...)
+	} else {
+		return err
 	}
 
 	if options.Output.Filename != nil {
@@ -111,4 +107,20 @@ func (c *ClangTidy) buildArgs(
 	args = append(args, "-p", buildDirectory)
 
 	return append(args, paths...)
+}
+
+func (c *ClangTidy) argsBuildLintOutputFormat(format internal.LintReportFormat) ([]string, error) {
+	var args []string
+
+	// nolint: exhaustive
+	switch format {
+	case internal.LintReportFormatDefault:
+		fallthrough
+	case internal.LintReportFormatRaw:
+		break
+	default:
+		return nil, fmt.Errorf("unsupported report format: %s", format)
+	}
+
+	return args, nil
 }

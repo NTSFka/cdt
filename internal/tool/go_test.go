@@ -1,6 +1,7 @@
 package tool_test
 
 import (
+	"context"
 	"errors"
 	"os"
 	"path/filepath"
@@ -15,54 +16,21 @@ import (
 )
 
 func TestGo_DetectGo(t *testing.T) {
-	env := test.NewEnvironment(t)
-	env.OnFindExecutable("go").
-		Return(env.NewExecutable("/bin/go"), nil)
+	goTool := test.RunDetectToolLastFound(t, goDetect, []string{"go"})
 
-	goTool := tool.DetectGo(t.Context(), tool.DetectOptions{Environment: env})
-	assert.NotNil(t, goTool)
-	assert.Equal(t, "go", goTool.Id())
-	assert.True(t, goTool.IsAvailable())
-
-	if executable := goTool.Executable(); assert.NotNil(t, executable) {
-		assert.Equal(t, "/bin/go", executable.Path)
-	}
-
-	env.AssertExpectations(t)
+	assert.Equal(t, tool.IdGo, goTool.Id())
 }
 
 func TestGo_DetectGo_NotFound(t *testing.T) {
-	env := test.NewEnvironment(t)
-	env.OnFindExecutable("go").
-		Return(nil, nil)
+	goTool := test.RunDetectToolNotFound(t, goDetect, []string{"go"})
 
-	goTool := tool.DetectGo(t.Context(), tool.DetectOptions{Environment: env})
-	assert.NotNil(t, goTool)
-	assert.Equal(t, "go", goTool.Id())
-	assert.False(t, goTool.IsAvailable())
-	assert.Nil(t, goTool.Executable())
-
-	env.AssertExpectations(t)
+	assert.Equal(t, tool.IdGo, goTool.Id())
 }
 
 func TestGo_DetectGo_Config(t *testing.T) {
-	env := test.NewEnvironment(t)
-	env.OnFindExecutable("go-1").
-		Return(env.NewExecutable("/bin/go"), nil)
+	goTool := test.RunDetectToolConfig(t, goDetect, "go")
 
-	goTool := tool.DetectGo(t.Context(), tool.DetectOptions{
-		Environment: env,
-		ToolsPaths:  map[string]string{"go": "go-1"},
-	})
-	assert.NotNil(t, goTool)
-	assert.Equal(t, "go", goTool.Id())
-	assert.True(t, goTool.IsAvailable())
-
-	if executable := goTool.Executable(); assert.NotNil(t, executable) {
-		assert.Equal(t, "/bin/go", executable.Path)
-	}
-
-	env.AssertExpectations(t)
+	assert.Equal(t, tool.IdGo, goTool.Id())
 }
 
 func TestGo_Structure(t *testing.T) {
@@ -534,109 +502,63 @@ func TestGo_FormatFilesFiles_Check(t *testing.T) {
 }
 
 func TestGo_Go_LintFiles_All(t *testing.T) {
-	exec := test.NewExecutable(t)
-
-	goTool := tool.NewGo(exec.LazyExecutable("lint"))
-
-	info := internal.ProjectInfo{Directory: "."}
-
-	exec.OnRun("lint", []string{"vet", "./..."}).
-		Return(nil)
-
-	err := goTool.LintFiles(t.Context(), internal.ProjectLinterOptions{ProjectInfo: info})
-	require.NoError(t, err)
-
-	exec.AssertExpectations(t)
+	test.RunLintFilesSuccess(
+		t,
+		goBuildLinter,
+		internal.ProjectLinterOptions{},
+		[]string{"vet", "./..."},
+	)
 }
 
 func TestGo_Go_LintFiles(t *testing.T) {
-	exec := test.NewExecutable(t)
-
-	goTool := tool.NewGo(exec.LazyExecutable("lint"))
-
-	info := internal.ProjectInfo{Directory: "."}
-
-	exec.OnRun("lint", []string{"vet", "mod1"}).
-		Return(nil)
-
-	err := goTool.LintFiles(
-		t.Context(),
-		internal.ProjectLinterOptions{ProjectInfo: info, Filenames: &[]string{"mod1"}},
+	test.RunLintFilesSuccess(
+		t,
+		goBuildLinter,
+		internal.ProjectLinterOptions{Filenames: &[]string{"mod1"}},
+		[]string{"vet", "mod1"},
 	)
-	require.NoError(t, err)
-
-	exec.AssertExpectations(t)
 }
 
-func TestGo_Go_LintFiles_OutputFormat_Raw(t *testing.T) {
-	exec := test.NewExecutable(t)
-
-	linter := tool.NewGo(exec.LazyExecutable("lint"))
-
-	info := internal.ProjectInfo{Directory: "."}
-
-	exec.OnRun("lint", []string{"vet", "./..."}).
-		Return(nil)
-
-	err := linter.LintFiles(
-		t.Context(),
-		internal.ProjectLinterOptions{
-			ProjectInfo: info,
-			Output: internal.OutputOptions[internal.LintReportFormat]{
-				Format: internal.LintReportFormatRaw,
-			},
-		},
-	)
-	require.NoError(t, err)
-
-	exec.AssertExpectations(t)
-}
-
-func TestGo_Go_LintFiles_OutputFormat_Unsupported(t *testing.T) {
+func TestGo_Go_LintFiles_OutputFormat(t *testing.T) {
 	dataSet := []struct {
-		Format internal.LintReportFormat
+		format internal.LintReportFormat
+		args   []string
 	}{
-		{internal.LintReportFormatJson},
-		{internal.LintReportFormatJUnit},
-		{internal.LintReportFormatGitHub},
-		{internal.LintReportFormatGitLab},
-		{internal.LintReportFormatTeamCity},
-		{"test-unsupported"},
+		{internal.LintReportFormatRaw, []string{}},
 	}
 
 	for _, data := range dataSet {
-		t.Run(string(data.Format), func(t *testing.T) {
-			exec := test.NewExecutable(t)
-
-			linter := tool.NewGo(exec.LazyExecutable("lint"))
-
-			info := internal.ProjectInfo{Directory: "."}
-
-			err := linter.LintFiles(
-				t.Context(),
-				internal.ProjectLinterOptions{
-					ProjectInfo: info,
-					Output: internal.OutputOptions[internal.LintReportFormat]{
-						Format: data.Format,
-					},
-				},
+		t.Run(string(data.format), func(t *testing.T) {
+			test.RunLintFilesOutputFormatCheck(
+				t,
+				goBuildLinter,
+				data.format,
+				append([]string{"vet", "./..."}, data.args...),
+				nil,
 			)
-			require.EqualError(t, err, "unsupported report format: "+string(data.Format))
+		})
+	}
+}
 
-			exec.AssertExpectations(t)
+func TestGo_Go_LintFiles_OutputFormat_Unsupported(t *testing.T) {
+	dataSet := []internal.LintReportFormat{
+		internal.LintReportFormatJson,
+		internal.LintReportFormatJUnit,
+		internal.LintReportFormatGitHub,
+		internal.LintReportFormatGitLab,
+		internal.LintReportFormatTeamCity,
+		"test-unsupported",
+	}
+
+	for _, format := range dataSet {
+		t.Run(string(format), func(t *testing.T) {
+			test.RunLintFilesOutputFormatUnsupported(t, goBuildLinter, format, nil)
 		})
 	}
 }
 
 func TestGo_Go_LintFiles_OutputFile(t *testing.T) {
-	runTestLintFilesOutputFile(
-		t,
-		func(executable func() (*internal.Executable, error)) internal.ProjectLinter {
-			return tool.NewGo(executable)
-		},
-		[]string{"vet", "./..."},
-		nil,
-	)
+	test.RunLintFilesOutputFile(t, goBuildLinter, []string{"vet", "./..."}, nil)
 }
 
 func TestGo_Go_AddDependencies(t *testing.T) {
@@ -757,4 +679,12 @@ func TestGo_Go_AuditDependencies(t *testing.T) {
 	require.EqualError(t, err, "not supported")
 
 	exec.AssertExpectations(t)
+}
+
+func goDetect(ctx context.Context, options tool.DetectOptions) internal.Tool {
+	return tool.DetectGo(ctx, options)
+}
+
+func goBuildLinter(executable func() (*internal.Executable, error)) internal.ProjectLinter {
+	return tool.NewGo(executable)
 }

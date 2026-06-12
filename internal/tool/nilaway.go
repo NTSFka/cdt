@@ -41,22 +41,12 @@ func (c *NilAway) LintFiles(
 	ctx context.Context,
 	options internal.ProjectLinterOptions,
 ) error {
-	args := options.ExtraArgs
+	args := appendFiles(options.ExtraArgs, options.Filenames, internal.StrPtr("./..."))
 
-	if options.Filenames != nil && len(*options.Filenames) > 0 {
-		args = append(args, *options.Filenames...)
+	if a, err := c.argsBuildLintOutputFormat(options.Output.Format); err == nil {
+		args = append(args, a...)
 	} else {
-		args = append(args, "./...")
-	}
-
-	// nolint: exhaustive
-	switch options.Output.Format {
-	case internal.LintReportFormatDefault:
-		fallthrough
-	case internal.LintReportFormatRaw:
-		break
-	default:
-		return fmt.Errorf("unsupported report format: %s", options.Output.Format)
+		return err
 	}
 
 	if options.Output.Filename != nil {
@@ -64,4 +54,20 @@ func (c *NilAway) LintFiles(
 	}
 
 	return c.RunForProject(ctx, options.ProjectInfo, args)
+}
+
+func (c *NilAway) argsBuildLintOutputFormat(format internal.LintReportFormat) ([]string, error) {
+	var args []string
+
+	// nolint: exhaustive
+	switch format {
+	case internal.LintReportFormatDefault:
+		fallthrough
+	case internal.LintReportFormatRaw:
+		break
+	default:
+		return nil, fmt.Errorf("unsupported report format: %s", format)
+	}
+
+	return args, nil
 }
