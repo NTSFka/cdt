@@ -258,7 +258,7 @@ func TestGolangCILint_FormatFiles_Check_Failed(t *testing.T) {
 	exec.AssertExpectations(t)
 }
 
-func golangCILintDetect(ctx context.Context, options tool.DetectOptions) internal.Tool {
+func golangCILintDetect(ctx context.Context, options internal.DetectOptions) internal.Tool {
 	return tool.DetectGolangCILint(ctx, options)
 }
 

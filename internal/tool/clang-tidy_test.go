@@ -320,7 +320,7 @@ func TestClangTidy_Run_Failed(t *testing.T) {
 	exec.AssertExpectations(t)
 }
 
-func clangTidyDetect(ctx context.Context, options tool.DetectOptions) internal.Tool {
+func clangTidyDetect(ctx context.Context, options internal.DetectOptions) internal.Tool {
 	return tool.DetectClangTidy(ctx, options)
 }
 

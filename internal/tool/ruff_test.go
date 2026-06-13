@@ -165,7 +165,7 @@ func TestRuff_Ruff_FormatFiles_Check(t *testing.T) {
 	exec.AssertExpectations(t)
 }
 
-func ruffDetect(ctx context.Context, options tool.DetectOptions) internal.Tool {
+func ruffDetect(ctx context.Context, options internal.DetectOptions) internal.Tool {
 	return tool.DetectRuff(ctx, options)
 }
 

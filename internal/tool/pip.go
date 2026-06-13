@@ -16,7 +16,7 @@ type Pip struct {
 // DetectPip create a tool for pip.
 func DetectPip(
 	ctx context.Context,
-	options DetectOptions,
+	options internal.DetectOptions,
 ) *Pip {
 	if path, ok := options.ToolsPaths[IdPip]; ok {
 		return NewPip(func() (*internal.Executable, error) {

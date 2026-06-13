@@ -15,7 +15,7 @@ type PHPCSFixer struct {
 // DetectPHPCSFixer create a tool for php-cs-fixer.
 func DetectPHPCSFixer(
 	ctx context.Context,
-	options DetectOptions,
+	options internal.DetectOptions,
 ) *PHPCSFixer {
 	if path, ok := options.ToolsPaths[IdPHPCSFixer]; ok {
 		return NewPHPCSFixer(func() (*internal.Executable, error) {

@@ -30,7 +30,7 @@ func NewNilAway(detect internal.ExecutableToolDetectFunc) *NilAway {
 // DetectNilAway create nilaway tool can be used in the project.
 func DetectNilAway(
 	ctx context.Context,
-	options DetectOptions,
+	options internal.DetectOptions,
 ) *NilAway {
 	return NewNilAway(func() (*internal.Executable, error) {
 		return options.Environment.FindExecutable(ctx, options.GetToolPath(IdNilAway, "nilaway"))

@@ -15,7 +15,7 @@ type Bandit struct {
 // DetectBandit create a tool for bandit.
 func DetectBandit(
 	ctx context.Context,
-	options DetectOptions,
+	options internal.DetectOptions,
 ) *Bandit {
 	return NewBandit(func() (*internal.Executable, error) {
 		return options.Environment.FindExecutable(ctx, options.GetToolPath(IdBandit, "bandit"))

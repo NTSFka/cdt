@@ -2,7 +2,6 @@ package test
 
 import (
 	"cdt/internal"
-	"cdt/internal/tool"
 	"context"
 	"os"
 	"testing"
@@ -12,7 +11,7 @@ import (
 )
 
 // ToolDetector is a function that tries to detect a tool.
-type ToolDetector func(context.Context, tool.DetectOptions) internal.Tool
+type ToolDetector func(context.Context, internal.DetectOptions) internal.Tool
 
 // RunDetectTool run a test that verifies function for detecting a tool.
 //
@@ -31,7 +30,7 @@ func RunDetectTool(
 
 	envMockSetup(env)
 
-	detectedTool := detector(t.Context(), tool.DetectOptions{
+	detectedTool := detector(t.Context(), internal.DetectOptions{
 		Environment: env,
 		ToolsPaths:  toolPaths,
 	})

@@ -17,7 +17,7 @@ type ParaTest struct {
 // DetectParaTest create a tool for paratest.
 func DetectParaTest(
 	ctx context.Context,
-	options DetectOptions,
+	options internal.DetectOptions,
 ) *ParaTest {
 	if path, ok := options.ToolsPaths[IdParaTest]; ok {
 		return NewParaTest(func() (*internal.Executable, error) {

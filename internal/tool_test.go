@@ -481,3 +481,21 @@ func TestTool_PrintTable(t *testing.T) {
 
 	assert.NotEmpty(t, output.String())
 }
+
+func TestTool_GetToolPath_NotFound(t *testing.T) {
+	options := internal.DetectOptions{}
+
+	path := options.GetToolPath("tool1", "default-tool")
+	assert.Equal(t, "default-tool", path)
+}
+
+func TestTool_GetToolPath_Found(t *testing.T) {
+	options := internal.DetectOptions{
+		ToolsPaths: map[string]string{
+			"tool1": "tool1-path",
+		},
+	}
+
+	path := options.GetToolPath("tool1", "default-tool")
+	assert.Equal(t, "tool1-path", path)
+}

@@ -16,7 +16,7 @@ type Composer struct {
 // DetectComposer create a tool for composer.
 func DetectComposer(
 	ctx context.Context,
-	options DetectOptions,
+	options internal.DetectOptions,
 ) *Composer {
 	if path, ok := options.ToolsPaths[IdComposer]; ok {
 		return NewComposer(func() (*internal.Executable, error) {

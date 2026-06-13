@@ -89,7 +89,7 @@ func TestFlake8_Flake8_LintFiles_OutputFile(t *testing.T) {
 	test.RunLintFilesOutputFile(t, flake8BuildLinter, []string{}, nil)
 }
 
-func flake8Detect(ctx context.Context, options tool.DetectOptions) internal.Tool {
+func flake8Detect(ctx context.Context, options internal.DetectOptions) internal.Tool {
 	return tool.DetectFlake8(ctx, options)
 }
 

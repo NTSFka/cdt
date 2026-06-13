@@ -18,7 +18,7 @@ type ClangTidy struct {
 // DetectClangTidy create a tool for clang-tidy.
 func DetectClangTidy(
 	ctx context.Context,
-	options DetectOptions,
+	options internal.DetectOptions,
 ) *ClangTidy {
 	return NewClangTidy(func() (*internal.Executable, error) {
 		return options.Environment.FindExecutable(

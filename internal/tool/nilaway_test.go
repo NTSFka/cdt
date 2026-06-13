@@ -94,7 +94,7 @@ func TestNilAway_NilAway_LintFiles_OutputFile(t *testing.T) {
 	)
 }
 
-func nilAwayDetect(ctx context.Context, options tool.DetectOptions) internal.Tool {
+func nilAwayDetect(ctx context.Context, options internal.DetectOptions) internal.Tool {
 	return tool.DetectNilAway(ctx, options)
 }
 

@@ -19,7 +19,7 @@ func TestPHPUnit_DetectPHPUnit_Composer(t *testing.T) {
 	env.OnFindExecutable(filepath.Join("vendor", "bin", "phpunit")).
 		Return(env.NewExecutable("/bin/phpunit"), nil)
 
-	phpUnit := tool.DetectPHPUnit(t.Context(), tool.DetectOptions{Environment: env})
+	phpUnit := tool.DetectPHPUnit(t.Context(), internal.DetectOptions{Environment: env})
 	assert.NotNil(t, phpUnit)
 	assert.Equal(t, "phpunit", phpUnit.Id())
 	assert.True(t, phpUnit.IsAvailable())
@@ -42,7 +42,7 @@ func TestPHPUnit_DetectPHPUnit_System(t *testing.T) {
 	env.OnFindExecutable("phpunit").
 		Return(env.NewExecutable("/bin/phpunit"), nil)
 
-	phpUnit := tool.DetectPHPUnit(t.Context(), tool.DetectOptions{Environment: env})
+	phpUnit := tool.DetectPHPUnit(t.Context(), internal.DetectOptions{Environment: env})
 	assert.NotNil(t, phpUnit)
 	assert.Equal(t, "phpunit", phpUnit.Id())
 	assert.True(t, phpUnit.IsAvailable())
@@ -62,7 +62,7 @@ func TestPHPUnit_DetectPHPUnit_NotFound(t *testing.T) {
 	env.OnFindExecutable("phpunit").
 		Return(nil, nil)
 
-	phpUnit := tool.DetectPHPUnit(t.Context(), tool.DetectOptions{Environment: env})
+	phpUnit := tool.DetectPHPUnit(t.Context(), internal.DetectOptions{Environment: env})
 	assert.NotNil(t, phpUnit)
 	assert.Equal(t, "phpunit", phpUnit.Id())
 	assert.False(t, phpUnit.IsAvailable())
@@ -77,7 +77,7 @@ func TestPHPUnit_DetectPHPUnit_Config(t *testing.T) {
 	env.OnFindExecutable("phpunit-12").
 		Return(env.NewExecutable("/bin/phpunit"), nil)
 
-	phpUnit := tool.DetectPHPUnit(t.Context(), tool.DetectOptions{
+	phpUnit := tool.DetectPHPUnit(t.Context(), internal.DetectOptions{
 		Environment: env,
 		ToolsPaths:  map[string]string{"phpunit": "phpunit-12"},
 	})

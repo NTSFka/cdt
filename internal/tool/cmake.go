@@ -37,7 +37,7 @@ func NewCMake(detect internal.ExecutableToolDetectFunc) *CMake {
 // DetectCMake create cmake tool can be used in the project.
 func DetectCMake(
 	ctx context.Context,
-	options DetectOptions,
+	options internal.DetectOptions,
 ) *CMake {
 	return NewCMake(func() (*internal.Executable, error) {
 		return options.Environment.FindExecutable(ctx, options.GetToolPath(IdCMake, "cmake"))

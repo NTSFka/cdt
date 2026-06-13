@@ -135,7 +135,7 @@ func TestPHP_PHP_LintFiles_OutputFile(t *testing.T) {
 	)
 }
 
-func phpDetect(ctx context.Context, options tool.DetectOptions) internal.Tool {
+func phpDetect(ctx context.Context, options internal.DetectOptions) internal.Tool {
 	return tool.DetectPHP(ctx, options)
 }
 

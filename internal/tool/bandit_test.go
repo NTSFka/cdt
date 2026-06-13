@@ -80,7 +80,7 @@ func TestBandit_Bandit_LintFiles_OutputFile(t *testing.T) {
 	test.RunLintFilesOutputFile(t, banditBuilder, []string{"*"}, nil)
 }
 
-func banditDetect(ctx context.Context, options tool.DetectOptions) internal.Tool {
+func banditDetect(ctx context.Context, options internal.DetectOptions) internal.Tool {
 	return tool.DetectBandit(ctx, options)
 }
 

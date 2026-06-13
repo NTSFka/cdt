@@ -96,7 +96,7 @@ func TestPylint_Pylint_LintFiles_OutputFile(t *testing.T) {
 	)
 }
 
-func pylintDetect(ctx context.Context, options tool.DetectOptions) internal.Tool {
+func pylintDetect(ctx context.Context, options internal.DetectOptions) internal.Tool {
 	return tool.DetectPylint(ctx, options)
 }
 

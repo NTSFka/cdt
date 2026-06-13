@@ -15,7 +15,7 @@ type Ruff struct {
 // DetectRuff create a tool for ruff.
 func DetectRuff(
 	ctx context.Context,
-	options DetectOptions,
+	options internal.DetectOptions,
 ) *Ruff {
 	return NewRuff(func() (*internal.Executable, error) {
 		return options.Environment.FindExecutable(ctx, options.GetToolPath(IdRuff, "ruff"))

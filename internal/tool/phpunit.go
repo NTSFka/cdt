@@ -17,7 +17,7 @@ type PHPUnit struct {
 // DetectPHPUnit create a tool for phpunit.
 func DetectPHPUnit(
 	ctx context.Context,
-	options DetectOptions,
+	options internal.DetectOptions,
 ) *PHPUnit {
 	if path, ok := options.ToolsPaths[IdPHPUnit]; ok {
 		return NewPHPUnit(func() (*internal.Executable, error) {

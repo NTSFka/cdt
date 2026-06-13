@@ -128,7 +128,7 @@ func TestPHPStan_PHPStan_LintFiles_OutputFile(t *testing.T) {
 	)
 }
 
-func phpStanDetect(ctx context.Context, options tool.DetectOptions) internal.Tool {
+func phpStanDetect(ctx context.Context, options internal.DetectOptions) internal.Tool {
 	return tool.DetectPHPStan(ctx, options)
 }
 

@@ -15,7 +15,7 @@ type PHP struct {
 // DetectPHP create a tool for php.
 func DetectPHP(
 	ctx context.Context,
-	options DetectOptions,
+	options internal.DetectOptions,
 ) *PHP {
 	return NewPHP(func() (*internal.Executable, error) {
 		return options.Environment.FindExecutable(ctx, options.GetToolPath(IdPHP, "php"))

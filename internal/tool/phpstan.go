@@ -16,7 +16,7 @@ type PHPStan struct {
 // DetectPHPStan create a tool for phpstan.
 func DetectPHPStan(
 	ctx context.Context,
-	options DetectOptions,
+	options internal.DetectOptions,
 ) *PHPStan {
 	if path, ok := options.ToolsPaths[IdPHPStan]; ok {
 		return NewPHPStan(func() (*internal.Executable, error) {

@@ -681,7 +681,7 @@ func TestGo_Go_AuditDependencies(t *testing.T) {
 	exec.AssertExpectations(t)
 }
 
-func goDetect(ctx context.Context, options tool.DetectOptions) internal.Tool {
+func goDetect(ctx context.Context, options internal.DetectOptions) internal.Tool {
 	return tool.DetectGo(ctx, options)
 }
 

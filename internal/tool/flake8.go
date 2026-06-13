@@ -15,7 +15,7 @@ type Flake8 struct {
 // DetectFlake8 create a tool for flake8.
 func DetectFlake8(
 	ctx context.Context,
-	options DetectOptions,
+	options internal.DetectOptions,
 ) *Flake8 {
 	return NewFlake8(func() (*internal.Executable, error) {
 		return options.Environment.FindExecutable(ctx, options.GetToolPath(IdFlake8, "flake8"))

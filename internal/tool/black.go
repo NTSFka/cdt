@@ -14,7 +14,7 @@ type Black struct {
 // DetectBlack create a tool for black.
 func DetectBlack(
 	ctx context.Context,
-	options DetectOptions,
+	options internal.DetectOptions,
 ) *Black {
 	return NewBlack(func() (*internal.Executable, error) {
 		return options.Environment.FindExecutable(ctx, options.GetToolPath(IdBlack, "black"))

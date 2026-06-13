@@ -18,7 +18,7 @@ func TestPythonCoverage_DetectPythonCoverage(t *testing.T) {
 	env.OnFindExecutable("coverage").
 		Return(env.NewExecutable("/bin/coverage"), nil)
 
-	coverage := tool.DetectPythonCoverage(t.Context(), tool.DetectOptions{Environment: env})
+	coverage := tool.DetectPythonCoverage(t.Context(), internal.DetectOptions{Environment: env})
 	assert.NotNil(t, coverage)
 	assert.Equal(t, "python-coverage", coverage.Id())
 	assert.True(t, coverage.IsAvailable())
@@ -36,7 +36,7 @@ func TestPythonCoverage_DetectPythonCoverage_NotFound(t *testing.T) {
 	env.OnFindExecutable("coverage").
 		Return(nil, nil)
 
-	coverage := tool.DetectPythonCoverage(t.Context(), tool.DetectOptions{Environment: env})
+	coverage := tool.DetectPythonCoverage(t.Context(), internal.DetectOptions{Environment: env})
 	assert.NotNil(t, coverage)
 	assert.Equal(t, "python-coverage", coverage.Id())
 	assert.False(t, coverage.IsAvailable())
@@ -51,7 +51,7 @@ func TestPythonCoverage_DetectPythonCoverage_Config(t *testing.T) {
 	env.OnFindExecutable("coverage2").
 		Return(env.NewExecutable("/bin/coverage"), nil)
 
-	coverage := tool.DetectPythonCoverage(t.Context(), tool.DetectOptions{
+	coverage := tool.DetectPythonCoverage(t.Context(), internal.DetectOptions{
 		Environment: env,
 		ToolsPaths:  map[string]string{tool.IdPythonCoverage: "coverage2"},
 	})
@@ -72,7 +72,7 @@ func TestPythonCoverage_DetectPythonCoverage_DetectRunModule_Default(t *testing.
 	env.OnFindExecutable("coverage").
 		Return(env.NewExecutable("/bin/coverage"), nil)
 
-	coverage := tool.DetectPythonCoverage(t.Context(), tool.DetectOptions{Environment: env})
+	coverage := tool.DetectPythonCoverage(t.Context(), internal.DetectOptions{Environment: env})
 	assert.NotNil(t, coverage)
 	assert.Equal(t, "python-coverage", coverage.Id())
 	assert.True(t, coverage.IsAvailable())
@@ -95,7 +95,7 @@ func TestPythonCoverage_DetectPythonCoverage_DetectRunModule_Pytest(t *testing.T
 	env.OnFindExecutable("coverage").
 		Return(env.NewExecutable("/bin/coverage"), nil)
 
-	coverage := tool.DetectPythonCoverage(t.Context(), tool.DetectOptions{Environment: env})
+	coverage := tool.DetectPythonCoverage(t.Context(), internal.DetectOptions{Environment: env})
 	assert.NotNil(t, coverage)
 	assert.Equal(t, "python-coverage", coverage.Id())
 	assert.True(t, coverage.IsAvailable())

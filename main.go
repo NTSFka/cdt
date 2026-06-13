@@ -9,7 +9,6 @@ import (
 	"strings"
 
 	"cdt/internal"
-	"cdt/internal/tool"
 	"cdt/internal/workflow"
 	"cdt/pkg"
 )
@@ -77,9 +76,9 @@ func initEnvironment(
 }
 
 func buildContext(ctx context.Context, config internal.Config) (*internal.Context, error) {
-	environmentProviders := tool.InitEnvironmentProviders(
+	environmentProviders := pkg.InitEnvironmentProviders(
 		ctx,
-		tool.DetectOptions{
+		internal.DetectOptions{
 			ProjectDirectory: config.RootDirectory,
 			Environment:      internal.SystemEnvironment,
 			ToolsPaths:       config.Tools,
@@ -91,7 +90,7 @@ func buildContext(ctx context.Context, config internal.Config) (*internal.Contex
 		return nil, err
 	}
 
-	tools := tool.InitTools(ctx, tool.DetectOptions{
+	tools := pkg.InitTools(ctx, internal.DetectOptions{
 		ProjectDirectory: config.RootDirectory,
 		Environment:      env,
 		ToolsPaths:       config.Tools,

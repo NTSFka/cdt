@@ -324,3 +324,22 @@ func DetectExecutableChain(
 		return nil, nil
 	}
 }
+
+// DetectOptions is a set of options for tool(s) detection.
+type DetectOptions struct {
+	// ProjectDirectory is a path to the project directory.
+	ProjectDirectory string
+	// Environment is an environment where tools should be look for.
+	Environment Environment
+	// ToolsPaths is a mapping of tool IDs to executable paths.
+	ToolsPaths map[string]string
+}
+
+// GetToolPath returns a tool executable path by its ID.
+func (c DetectOptions) GetToolPath(id string, def string) string {
+	if path, ok := c.ToolsPaths[id]; ok {
+		return path
+	}
+
+	return def
+}

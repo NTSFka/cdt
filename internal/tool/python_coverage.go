@@ -16,7 +16,7 @@ type PythonCoverage struct {
 // DetectPythonCoverage create a tool for python coverage.
 func DetectPythonCoverage(
 	ctx context.Context,
-	options DetectOptions,
+	options internal.DetectOptions,
 ) *PythonCoverage {
 	return NewPythonCoverage(func() (*internal.Executable, error) {
 		return options.Environment.FindExecutable(

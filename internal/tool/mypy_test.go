@@ -89,7 +89,7 @@ func TestMyPy_MyPy_LintFiles_OutputFile(t *testing.T) {
 	test.RunLintFilesOutputFile(t, myPyBuildLinter, []string{"*.py"}, nil)
 }
 
-func myPyDetect(ctx context.Context, options tool.DetectOptions) internal.Tool {
+func myPyDetect(ctx context.Context, options internal.DetectOptions) internal.Tool {
 	return tool.DetectMyPy(ctx, options)
 }
 

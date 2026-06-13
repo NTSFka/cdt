@@ -15,7 +15,7 @@ type MyPy struct {
 // DetectMyPy create a tool for mypy.
 func DetectMyPy(
 	ctx context.Context,
-	options DetectOptions,
+	options internal.DetectOptions,
 ) *MyPy {
 	return NewMyPy(func() (*internal.Executable, error) {
 		return options.Environment.FindExecutable(ctx, options.GetToolPath(IdMyPy, "mypy"))

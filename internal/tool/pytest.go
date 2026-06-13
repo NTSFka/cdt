@@ -17,7 +17,7 @@ type PyTest struct {
 // DetectPyTest create a tool for pytest.
 func DetectPyTest(
 	ctx context.Context,
-	options DetectOptions,
+	options internal.DetectOptions,
 ) *PyTest {
 	return NewPyTest(func() (*internal.Executable, error) {
 		return options.Environment.FindExecutable(ctx, options.GetToolPath(IdPyTest, "pytest"))
