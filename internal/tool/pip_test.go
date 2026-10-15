@@ -1,6 +1,7 @@
 package tool_test
 
 import (
+	"context"
 	"testing"
 
 	"cdt/internal"
@@ -12,198 +13,97 @@ import (
 )
 
 func TestPip_DetectPip_Pip(t *testing.T) {
-	env := test.NewEnvironment(t)
+	pip := test.RunDetectToolLastFound(t, pipDetect, []string{"pip"})
 
-	env.OnFindExecutable("pip").
-		Return(env.NewExecutable("/bin/pip"), nil)
-
-	pip := tool.DetectPip(t.Context(), internal.DetectOptions{Environment: env})
-	assert.NotNil(t, pip)
-	assert.Equal(t, "pip", pip.Id())
-	assert.True(t, pip.IsAvailable())
-
-	if executable := pip.Executable(); assert.NotNil(t, executable) {
-		assert.Equal(t, "/bin/pip", executable.Path)
-	}
-
-	env.AssertExpectations(t)
+	assert.Equal(t, tool.IdPip, pip.Id())
 }
 
 func TestPip_DetectPip_System(t *testing.T) {
-	env := test.NewEnvironment(t)
+	pip := test.RunDetectToolLastFound(t, pipDetect, []string{"pip", "pip3"})
 
-	env.OnFindExecutable("pip").
-		Return(nil, nil)
-
-	env.OnFindExecutable("pip3").
-		Return(env.NewExecutable("/bin/pip"), nil)
-
-	pip := tool.DetectPip(t.Context(), internal.DetectOptions{Environment: env})
-	assert.NotNil(t, pip)
-	assert.Equal(t, "pip", pip.Id())
-	assert.True(t, pip.IsAvailable())
-
-	if executable := pip.Executable(); assert.NotNil(t, executable) {
-		assert.Equal(t, "/bin/pip", executable.Path)
-	}
-
-	env.AssertExpectations(t)
+	assert.Equal(t, tool.IdPip, pip.Id())
 }
 
 func TestPip_DetectPip_NotFound(t *testing.T) {
-	env := test.NewEnvironment(t)
+	pip := test.RunDetectToolNotFound(t, pipDetect, []string{"pip", "pip3"})
 
-	env.OnFindExecutable("pip").
-		Return(nil, nil)
-	env.OnFindExecutable("pip3").
-		Return(nil, nil)
-
-	pip := tool.DetectPip(t.Context(), internal.DetectOptions{Environment: env})
-	assert.NotNil(t, pip)
-	assert.Equal(t, "pip", pip.Id())
-	assert.False(t, pip.IsAvailable())
-	assert.Nil(t, pip.Executable())
-
-	env.AssertExpectations(t)
+	assert.Equal(t, tool.IdPip, pip.Id())
 }
 
 func TestPip_DetectPip_Config(t *testing.T) {
-	env := test.NewEnvironment(t)
+	pip := test.RunDetectToolConfig(t, pipDetect, "pip")
 
-	env.OnFindExecutable("pip3").
-		Return(env.NewExecutable("/bin/pip"), nil)
-
-	pip := tool.DetectPip(t.Context(), internal.DetectOptions{
-		Environment: env,
-		ToolsPaths:  map[string]string{"pip": "pip3"},
-	})
-	assert.NotNil(t, pip)
-	assert.Equal(t, "pip", pip.Id())
-	assert.True(t, pip.IsAvailable())
-
-	if executable := pip.Executable(); assert.NotNil(t, executable) {
-		assert.Equal(t, "/bin/pip", executable.Path)
-	}
-
-	env.AssertExpectations(t)
+	assert.Equal(t, tool.IdPip, pip.Id())
 }
 
 func TestPip_Pip_AddDependencies(t *testing.T) {
-	exec := test.NewExecutable(t)
-
-	pip := tool.NewPip(exec.LazyExecutable("pip"))
-
-	info := internal.ProjectInfo{Directory: "."}
-
-	exec.OnRun("pip", []string{"install", "dep1"}).
-		Return(nil)
-
-	err := pip.AddDependencies(
-		t.Context(),
-		internal.ProjectDependencyManagerOptions{ProjectInfo: info},
+	test.InvokeAddDependenciesSuccess(
+		t,
+		pipDependencyManager,
+		internal.ProjectDependencyManagerOptions{},
 		[]string{"dep1"},
 		false,
+		[]string{"install", "dep1"},
 	)
-	require.NoError(t, err)
-
-	exec.AssertExpectations(t)
 }
 
 func TestPip_Pip_RemoveDependencies(t *testing.T) {
-	exec := test.NewExecutable(t)
-
-	pip := tool.NewPip(exec.LazyExecutable("pip"))
-
-	info := internal.ProjectInfo{Directory: "."}
-
-	exec.OnRun("pip", []string{"uninstall", "dep1"}).
-		Return(nil)
-
-	err := pip.RemoveDependencies(
-		t.Context(),
-		internal.ProjectDependencyManagerOptions{ProjectInfo: info},
+	test.InvokeRemoveDependenciesSuccess(
+		t,
+		pipDependencyManager,
+		internal.ProjectDependencyManagerOptions{},
 		[]string{"dep1"},
 		false,
+		[]string{"uninstall", "dep1"},
 	)
-	require.NoError(t, err)
-
-	exec.AssertExpectations(t)
 }
 
 func TestPip_Pip_UpdateDependencies(t *testing.T) {
-	exec := test.NewExecutable(t)
-
-	pip := tool.NewPip(exec.LazyExecutable("pip"))
-
-	info := internal.ProjectInfo{Directory: "."}
-
-	exec.OnRun("pip", []string{"install", "--upgrade", "dep1"}).
-		Return(nil)
-
-	err := pip.UpdateDependencies(
-		t.Context(),
-		internal.ProjectDependencyManagerOptions{ProjectInfo: info},
+	test.InvokeUpdateDependenciesSuccess(
+		t,
+		pipDependencyManager,
+		internal.ProjectDependencyManagerOptions{},
 		[]string{"dep1"},
+		[]string{"install", "--upgrade", "dep1"},
 	)
-	require.NoError(t, err)
-
-	exec.AssertExpectations(t)
 }
 
 func TestPip_Pip_FetchDependencies(t *testing.T) {
-	exec := test.NewExecutable(t)
-
-	pip := tool.NewPip(exec.LazyExecutable("pip"))
-
-	info := internal.ProjectInfo{Directory: "."}
-
-	exec.OnRun("pip", []string{"install", "-r", "requirements.txt"}).
-		Return(nil)
-
-	err := pip.FetchDependencies(
-		t.Context(),
-		internal.ProjectDependencyManagerOptions{ProjectInfo: info},
+	test.InvokeFetchDependenciesSuccess(
+		t,
+		pipDependencyManager,
+		internal.ProjectDependencyManagerOptions{},
 		false,
+		[]string{"install", "-r", "requirements.txt"},
 	)
-	require.NoError(t, err)
-
-	exec.AssertExpectations(t)
 }
 
 func TestPip_Pip_ListDependencies(t *testing.T) {
-	exec := test.NewExecutable(t)
-
-	pip := tool.NewPip(exec.LazyExecutable("pip"))
-
-	info := internal.ProjectInfo{Directory: "."}
-
-	exec.OnRun("pip", []string{"list"}).
-		Return(nil)
-
-	err := pip.ListDependencies(
-		t.Context(),
-		internal.ProjectDependencyManagerOptions{ProjectInfo: info},
+	test.InvokeListDependenciesSuccess(
+		t,
+		pipDependencyManager,
+		internal.ProjectDependencyManagerOptions{},
+		[]string{"list"},
 	)
-	require.NoError(t, err)
-
-	exec.AssertExpectations(t)
 }
 
 func TestPip_Pip_AuditDependencies(t *testing.T) {
-	exec := test.NewExecutable(t)
-
-	pip := tool.NewPip(exec.LazyExecutable("pip"))
-
-	info := internal.ProjectInfo{Directory: "."}
-
-	exec.OnRun("pip", []string{"audit"}).
-		Return(nil)
-
-	err := pip.AuditDependencies(
-		t.Context(),
-		internal.ProjectDependencyManagerOptions{ProjectInfo: info},
+	test.InvokeAuditDependenciesError(
+		t,
+		pipDependencyManager,
+		internal.ProjectDependencyManagerOptions{},
+		func(err error) {
+			require.EqualError(t, err, "not supported")
+		},
 	)
-	require.EqualError(t, err, "not supported")
+}
 
-	exec.AssertExpectations(t)
+func pipDetect(ctx context.Context, options internal.DetectOptions) internal.Tool {
+	return tool.DetectPip(ctx, options)
+}
+
+func pipDependencyManager(
+	executable func() (*internal.Executable, error),
+) internal.ProjectDependencyManager {
+	return tool.NewPip(executable)
 }

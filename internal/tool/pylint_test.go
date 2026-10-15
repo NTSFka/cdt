@@ -30,39 +30,53 @@ func TestPylint_DetectPylint_Config(t *testing.T) {
 }
 
 func TestPylint_Pylint_LintFiles_All(t *testing.T) {
-	test.RunLintFilesSuccess(t, pylintBuildLinter, internal.ProjectLinterOptions{}, []string{"*"})
-}
-
-func TestPylint_Pylint_LintFiles(t *testing.T) {
-	test.RunLintFilesSuccess(
+	test.InvokeLintFilesSuccess(
 		t,
-		pylintBuildLinter,
-		internal.ProjectLinterOptions{
-			Filenames: &[]string{"file.py", "/path/to/file2.py"},
-		},
-		[]string{"file.py", "/path/to/file2.py"},
+		pylintLinter,
+		internal.ProjectLinterOptions{},
+		[]string{"*"},
 	)
 }
 
-func TestPylint_Pylint_LintFiles_OutputFormat(t *testing.T) {
-	dataSet := []struct {
-		format internal.LintReportFormat
-		args   []string
-	}{
-		{internal.LintReportFormatRaw, []string{}},
-	}
+func TestPylint_Pylint_LintFiles_All_Failed(t *testing.T) {
+	test.InvokeLintFilesFailed(
+		t,
+		pylintLinter,
+		internal.ProjectLinterOptions{},
+		[]string{"*"},
+	)
+}
 
-	for _, data := range dataSet {
-		t.Run(string(data.format), func(t *testing.T) {
-			test.RunLintFilesOutputFormatCheck(
-				t,
-				pylintBuildLinter,
-				data.format,
-				append([]string{"*"}, data.args...),
-				nil,
-			)
-		})
-	}
+func TestPylint_Pylint_LintFiles(t *testing.T) {
+	fileNames := []string{"file.py", "/path/to/file2.py"}
+
+	test.InvokeLintFilesSuccess(
+		t,
+		pylintLinter,
+		internal.ProjectLinterOptions{Filenames: &fileNames},
+		fileNames,
+	)
+}
+
+func TestPylint_Pylint_LintFiles_Failed(t *testing.T) {
+	fileNames := []string{"file.py", "/path/to/file2.py"}
+
+	test.InvokeLintFilesFailed(
+		t,
+		pylintLinter,
+		internal.ProjectLinterOptions{Filenames: &fileNames},
+		fileNames,
+	)
+}
+
+func TestPylint_Pylint_LintFiles_OutputFormat_Raw(t *testing.T) {
+	test.InvokeLintFilesOutputFormatCheck(
+		t,
+		pylintLinter,
+		internal.LintReportFormatRaw,
+		[]string{"*"},
+		nil,
+	)
 }
 
 func TestPylint_Pylint_LintFiles_OutputFormat_Unsupported(t *testing.T) {
@@ -77,9 +91,9 @@ func TestPylint_Pylint_LintFiles_OutputFormat_Unsupported(t *testing.T) {
 
 	for _, format := range formats {
 		t.Run(string(format), func(t *testing.T) {
-			test.RunLintFilesOutputFormatUnsupported(
+			test.InvokeLintFilesOutputFormatUnsupported(
 				t,
-				pylintBuildLinter,
+				pylintLinter,
 				format,
 				nil,
 			)
@@ -88,9 +102,9 @@ func TestPylint_Pylint_LintFiles_OutputFormat_Unsupported(t *testing.T) {
 }
 
 func TestPylint_Pylint_LintFiles_OutputFile(t *testing.T) {
-	test.RunLintFilesOutputFile(
+	test.InvokeLintFilesOutputFile(
 		t,
-		pylintBuildLinter,
+		pylintLinter,
 		[]string{"*"},
 		nil,
 	)
@@ -100,6 +114,6 @@ func pylintDetect(ctx context.Context, options internal.DetectOptions) internal.
 	return tool.DetectPylint(ctx, options)
 }
 
-func pylintBuildLinter(executable func() (*internal.Executable, error)) internal.ProjectLinter {
+func pylintLinter(executable func() (*internal.Executable, error)) internal.ProjectLinter {
 	return tool.NewPylint(executable)
 }

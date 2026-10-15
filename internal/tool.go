@@ -54,6 +54,9 @@ type Tool interface {
 
 	// Run Execute the tool on the project
 	Run(ctx context.Context, options RunOptions, args []string) error
+
+	// RunForProject Execute the tool on the project
+	RunForProject(ctx context.Context, info ProjectInfo, args []string) error
 }
 
 type ExecutableToolDetectFunc func() (*Executable, error)

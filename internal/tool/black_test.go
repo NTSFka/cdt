@@ -1,6 +1,7 @@
 package tool_test
 
 import (
+	"context"
 	"testing"
 
 	"cdt/internal"
@@ -8,136 +9,95 @@ import (
 	"cdt/internal/tool"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 )
 
 func TestBlack_DetectBlack(t *testing.T) {
-	env := test.NewEnvironment(t)
+	black := test.RunDetectToolLastFound(t, blackDetect, []string{"black"})
 
-	env.OnFindExecutable("black").
-		Return(env.NewExecutable("/bin/black"), nil)
-
-	black := tool.DetectBlack(t.Context(), internal.DetectOptions{Environment: env})
-	assert.NotNil(t, black)
-	assert.Equal(t, "black", black.Id())
-	assert.True(t, black.IsAvailable())
-
-	if executable := black.Executable(); assert.NotNil(t, executable) {
-		assert.Equal(t, "/bin/black", executable.Path)
-	}
-
-	env.AssertExpectations(t)
+	assert.Equal(t, tool.IdBlack, black.Id())
 }
 
 func TestBlack_DetectBlack_NotFound(t *testing.T) {
-	env := test.NewEnvironment(t)
+	black := test.RunDetectToolNotFound(t, blackDetect, []string{"black"})
 
-	env.OnFindExecutable("black").
-		Return(nil, nil)
-
-	black := tool.DetectBlack(t.Context(), internal.DetectOptions{Environment: env})
-	assert.NotNil(t, black)
-	assert.Equal(t, "black", black.Id())
-	assert.False(t, black.IsAvailable())
-	assert.Nil(t, black.Executable())
-
-	env.AssertExpectations(t)
+	assert.Equal(t, tool.IdBlack, black.Id())
 }
 
 func TestBlack_DetectBandit_Config(t *testing.T) {
-	env := test.NewEnvironment(t)
+	black := test.RunDetectToolConfig(t, blackDetect, "black")
 
-	env.OnFindExecutable("black-1").
-		Return(env.NewExecutable("/bin/black"), nil)
-
-	black := tool.DetectBlack(t.Context(), internal.DetectOptions{
-		Environment: env,
-		ToolsPaths:  map[string]string{"black": "black-1"},
-	})
-	assert.NotNil(t, black)
-	assert.Equal(t, "black", black.Id())
-	assert.True(t, black.IsAvailable())
-
-	if executable := black.Executable(); assert.NotNil(t, executable) {
-		assert.Equal(t, "/bin/black", executable.Path)
-	}
-
-	env.AssertExpectations(t)
+	assert.Equal(t, tool.IdBlack, black.Id())
 }
 
 func TestBlack_Black_FormatFiles_All(t *testing.T) {
-	exec := test.NewExecutable(t)
+	test.InvokeFormatFilesSuccess(
+		t,
+		blackFormatter,
+		internal.ProjectFormatterOptions{},
+		[]string{"."},
+	)
+}
 
-	black := tool.NewBlack(exec.LazyExecutable("format"))
-
-	info := internal.ProjectInfo{Directory: "."}
-
-	exec.OnRun("format", []string{"."}).
-		Return(nil)
-
-	err := black.FormatFiles(t.Context(), internal.ProjectFormatterOptions{ProjectInfo: info})
-	require.NoError(t, err)
-
-	exec.AssertExpectations(t)
+func TestBlack_Black_FormatFiles_All_Failed(t *testing.T) {
+	test.InvokeFormatFilesFailed(
+		t,
+		blackFormatter,
+		internal.ProjectFormatterOptions{},
+		[]string{"."},
+	)
 }
 
 func TestBlack_Black_FormatFiles(t *testing.T) {
-	exec := test.NewExecutable(t)
+	fileNames := []string{"tests/*", "/path/to/file.py"}
 
-	black := tool.NewBlack(exec.LazyExecutable("format"))
-
-	info := internal.ProjectInfo{Directory: "."}
-
-	exec.OnRun("format", []string{"tests/*"}).
-		Return(nil)
-
-	err := black.FormatFiles(
-		t.Context(),
-		internal.ProjectFormatterOptions{ProjectInfo: info, Filenames: &[]string{"tests/*"}},
+	test.InvokeFormatFilesSuccess(
+		t,
+		blackFormatter,
+		internal.ProjectFormatterOptions{Filenames: &fileNames},
+		fileNames,
 	)
-	require.NoError(t, err)
+}
 
-	exec.AssertExpectations(t)
+func TestBlack_Black_FormatFiles_Failed(t *testing.T) {
+	fileNames := []string{"tests/*", "/path/to/file.py"}
+
+	test.InvokeFormatFilesFailed(
+		t,
+		blackFormatter,
+		internal.ProjectFormatterOptions{Filenames: &fileNames},
+		fileNames,
+	)
 }
 
 func TestBlack_Black_FormatFiles_CheckAll(t *testing.T) {
-	exec := test.NewExecutable(t)
-
-	black := tool.NewBlack(exec.LazyExecutable("format"))
-
-	info := internal.ProjectInfo{Directory: "."}
-
-	exec.OnRun("format", []string{"--check", "."}).
-		Return(nil)
-
-	err := black.FormatFiles(
-		t.Context(),
-		internal.ProjectFormatterOptions{ProjectInfo: info, CheckOnly: true},
+	test.InvokeFormatFilesSuccess(
+		t,
+		blackFormatter,
+		internal.ProjectFormatterOptions{
+			CheckOnly: true,
+		},
+		[]string{"--check", "."},
 	)
-	require.NoError(t, err)
-
-	exec.AssertExpectations(t)
 }
 
 func TestBlack_Black_FormatFiles_Check(t *testing.T) {
-	exec := test.NewExecutable(t)
+	fileNames := []string{"tests/*", "/path/to/file.py"}
 
-	black := tool.NewBlack(exec.LazyExecutable("format"))
-
-	info := internal.ProjectInfo{Directory: "."}
-
-	exec.OnRun("format", []string{"--check", "tests/*", "/path/to/file.py"}).
-		Return(nil)
-
-	err := black.FormatFiles(
-		t.Context(),
+	test.InvokeFormatFilesSuccess(
+		t,
+		blackFormatter,
 		internal.ProjectFormatterOptions{
-			ProjectInfo: info,
-			CheckOnly:   true,
-			Filenames:   &[]string{"tests/*", "/path/to/file.py"},
+			Filenames: &fileNames,
+			CheckOnly: true,
 		},
+		append([]string{"--check"}, fileNames...),
 	)
-	require.NoError(t, err)
+}
 
-	exec.AssertExpectations(t)
+func blackDetect(ctx context.Context, options internal.DetectOptions) internal.Tool {
+	return tool.DetectBlack(ctx, options)
+}
+
+func blackFormatter(executable func() (*internal.Executable, error)) internal.ProjectFormatter {
+	return tool.NewBlack(executable)
 }

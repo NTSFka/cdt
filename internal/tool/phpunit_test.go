@@ -1,6 +1,7 @@
 package tool_test
 
 import (
+	"context"
 	"path/filepath"
 	"testing"
 
@@ -9,311 +10,173 @@ import (
 	"cdt/internal/tool"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 )
 
 func TestPHPUnit_DetectPHPUnit_Composer(t *testing.T) {
-	env := test.NewEnvironment(t)
+	phpUnit := test.RunDetectToolLastFound(
+		t,
+		phpUnitDetect,
+		[]string{filepath.Join("vendor", "bin", "phpunit")},
+	)
 
-	// Composer installation
-	env.OnFindExecutable(filepath.Join("vendor", "bin", "phpunit")).
-		Return(env.NewExecutable("/bin/phpunit"), nil)
-
-	phpUnit := tool.DetectPHPUnit(t.Context(), internal.DetectOptions{Environment: env})
-	assert.NotNil(t, phpUnit)
-	assert.Equal(t, "phpunit", phpUnit.Id())
-	assert.True(t, phpUnit.IsAvailable())
-
-	if executable := phpUnit.Executable(); assert.NotNil(t, executable) {
-		assert.Equal(t, "/bin/phpunit", executable.Path)
-	}
-
-	env.AssertExpectations(t)
+	assert.Equal(t, tool.IdPHPUnit, phpUnit.Id())
 }
 
 func TestPHPUnit_DetectPHPUnit_System(t *testing.T) {
-	env := test.NewEnvironment(t)
+	phpUnit := test.RunDetectToolLastFound(
+		t,
+		phpUnitDetect,
+		[]string{filepath.Join("vendor", "bin", "phpunit"), "phpunit"},
+	)
 
-	// Composer installation
-	env.OnFindExecutable(filepath.Join("vendor", "bin", "phpunit")).
-		Return(nil, nil)
-
-	// System installation
-	env.OnFindExecutable("phpunit").
-		Return(env.NewExecutable("/bin/phpunit"), nil)
-
-	phpUnit := tool.DetectPHPUnit(t.Context(), internal.DetectOptions{Environment: env})
-	assert.NotNil(t, phpUnit)
-	assert.Equal(t, "phpunit", phpUnit.Id())
-	assert.True(t, phpUnit.IsAvailable())
-
-	if executable := phpUnit.Executable(); assert.NotNil(t, executable) {
-		assert.Equal(t, "/bin/phpunit", executable.Path)
-	}
-
-	env.AssertExpectations(t)
+	assert.Equal(t, tool.IdPHPUnit, phpUnit.Id())
 }
 
 func TestPHPUnit_DetectPHPUnit_NotFound(t *testing.T) {
-	env := test.NewEnvironment(t)
+	phpUnit := test.RunDetectToolNotFound(
+		t,
+		phpUnitDetect,
+		[]string{filepath.Join("vendor", "bin", "phpunit"), "phpunit"},
+	)
 
-	env.OnFindExecutable(filepath.Join("vendor", "bin", "phpunit")).
-		Return(nil, nil)
-	env.OnFindExecutable("phpunit").
-		Return(nil, nil)
-
-	phpUnit := tool.DetectPHPUnit(t.Context(), internal.DetectOptions{Environment: env})
-	assert.NotNil(t, phpUnit)
-	assert.Equal(t, "phpunit", phpUnit.Id())
-	assert.False(t, phpUnit.IsAvailable())
-	assert.Nil(t, phpUnit.Executable())
-
-	env.AssertExpectations(t)
+	assert.Equal(t, tool.IdPHPUnit, phpUnit.Id())
 }
 
 func TestPHPUnit_DetectPHPUnit_Config(t *testing.T) {
-	env := test.NewEnvironment(t)
+	phpUnit := test.RunDetectToolConfig(t, phpUnitDetect, "phpunit")
 
-	env.OnFindExecutable("phpunit-12").
-		Return(env.NewExecutable("/bin/phpunit"), nil)
-
-	phpUnit := tool.DetectPHPUnit(t.Context(), internal.DetectOptions{
-		Environment: env,
-		ToolsPaths:  map[string]string{"phpunit": "phpunit-12"},
-	})
-	assert.NotNil(t, phpUnit)
-	assert.Equal(t, "phpunit", phpUnit.Id())
-	assert.True(t, phpUnit.IsAvailable())
-
-	if executable := phpUnit.Executable(); assert.NotNil(t, executable) {
-		assert.Equal(t, "/bin/phpunit", executable.Path)
-	}
-
-	env.AssertExpectations(t)
+	assert.Equal(t, tool.IdPHPUnit, phpUnit.Id())
 }
 
 func TestPHPUnit_PHPUnit_RunTests(t *testing.T) {
-	exec := test.NewExecutable(t)
-
-	phpUnit := tool.NewPHPUnit(exec.LazyExecutable("test"))
-
-	info := internal.ProjectInfo{Directory: "."}
-
-	exec.OnRun("test", []string{}).
-		Return(nil)
-
-	err := phpUnit.RunTests(t.Context(), internal.ProjectTesterOptions{ProjectInfo: info})
-	require.NoError(t, err)
-
-	exec.AssertExpectations(t)
+	test.InvokeRunTestsSuccess(
+		t,
+		phpUnitTester,
+		internal.ProjectTesterOptions{
+			ProjectInfo: internal.ProjectInfo{Directory: "."},
+		},
+		[]string{},
+	)
 }
 
 func TestPHPUnit_PHPUnit_RunTests_Pattern(t *testing.T) {
-	exec := test.NewExecutable(t)
+	pattern := "tests/*"
 
-	phpUnit := tool.NewPHPUnit(exec.LazyExecutable("test"))
-
-	info := internal.ProjectInfo{Directory: "."}
-
-	exec.OnRun("test", []string{"tests/*"}).
-		Return(nil)
-
-	err := phpUnit.RunTests(
-		t.Context(),
-		internal.ProjectTesterOptions{ProjectInfo: info, Pattern: internal.StrPtr("tests/*")},
+	test.InvokeRunTestsSuccess(
+		t,
+		phpUnitTester,
+		internal.ProjectTesterOptions{
+			ProjectInfo: internal.ProjectInfo{Directory: "."},
+			Pattern:     &pattern,
+		},
+		[]string{pattern},
 	)
-	require.NoError(t, err)
-
-	exec.AssertExpectations(t)
 }
 
 func TestPHPUnit_RunTests_Pattern_FormatUnsupported(t *testing.T) {
-	exec := test.NewExecutable(t)
-
-	phpUnit := tool.NewPHPUnit(exec.LazyExecutable("test"))
-
-	info := internal.ProjectInfo{Directory: "."}
-	data := []internal.TestsReportFormat{
+	dataSet := []internal.TestsReportFormat{
 		"test",
 		internal.TestsReportFormatJson,
 		internal.TestsReportFormatCtrf,
 	}
 
-	for _, format := range data {
+	for _, format := range dataSet {
 		t.Run(string(format), func(t *testing.T) {
-			err := phpUnit.RunTests(
-				t.Context(),
-				internal.ProjectTesterOptions{
-					ProjectInfo: info,
-					Output:      internal.OutputOptions[internal.TestsReportFormat]{Format: format},
-					Pattern:     internal.StrPtr("test1"),
-				},
+			test.InvokeRunTestsOutputFormatUnsupported(
+				t,
+				phpUnitTester,
+				format,
+				internal.StrPtr("test1"),
 			)
-			require.EqualError(t, err, "unsupported report format: "+string(format))
-
-			exec.AssertExpectations(t)
 		})
 	}
 }
 
-func TestPHPUnit_RunTests_Pattern_FormatRawEvents(t *testing.T) {
-	exec := test.NewExecutable(t)
-
-	phpUnit := tool.NewPHPUnit(exec.LazyExecutable("test"))
-
-	info := internal.ProjectInfo{Directory: "."}
-	reportFilename := "phpunit-raw-events.txt"
-
-	exec.OnRun("test", []string{"test1", "--log-events-text", reportFilename}).
-		Return(nil)
-
-	err := phpUnit.RunTests(
-		t.Context(),
-		internal.ProjectTesterOptions{
-			ProjectInfo: info,
-			Output: internal.OutputOptions[internal.TestsReportFormat]{
-				Format:   internal.TestsReportFormatRawEvents,
-				Filename: &reportFilename,
-			},
-			Pattern: internal.StrPtr("test1"),
+func TestPHPUnit_RunTests_Pattern_FormatSupported(t *testing.T) {
+	dataSet := []struct {
+		Format   internal.TestsReportFormat
+		Filename *string
+		Args     []string
+	}{
+		{
+			Format:   internal.TestsReportFormatRawEvents,
+			Filename: internal.StrPtr("phpunit-raw-events.txt"),
+			Args:     []string{"--log-events-text", "phpunit-raw-events.txt"},
 		},
-	)
-	require.NoError(t, err)
-
-	exec.AssertExpectations(t)
-}
-
-func TestPHPUnit_RunTests_Pattern_FormatJUnit(t *testing.T) {
-	exec := test.NewExecutable(t)
-
-	phpUnit := tool.NewPHPUnit(exec.LazyExecutable("test"))
-
-	info := internal.ProjectInfo{Directory: "."}
-	reportFilename := "phpunit-junit.xml"
-
-	exec.OnRun("test", []string{"test1", "--log-junit", reportFilename}).
-		Return(nil)
-
-	err := phpUnit.RunTests(
-		t.Context(),
-		internal.ProjectTesterOptions{
-			ProjectInfo: info,
-			Output: internal.OutputOptions[internal.TestsReportFormat]{
-				Format:   internal.TestsReportFormatJUnit,
-				Filename: &reportFilename,
-			},
-			Pattern: internal.StrPtr("test1"),
+		{
+			Format:   internal.TestsReportFormatJUnit,
+			Filename: internal.StrPtr("phpunit-junit.xml"),
+			Args:     []string{"--log-junit", "phpunit-junit.xml"},
 		},
-	)
-	require.NoError(t, err)
-
-	exec.AssertExpectations(t)
-}
-
-func TestPHPUnit_RunTests_Pattern_FormatTeamCity(t *testing.T) {
-	exec := test.NewExecutable(t)
-
-	phpUnit := tool.NewPHPUnit(exec.LazyExecutable("test"))
-
-	info := internal.ProjectInfo{Directory: "."}
-	reportFilename := "phpunit-teamcity.xml"
-
-	exec.OnRun("test", []string{"test1", "--log-teamcity", reportFilename}).
-		Return(nil)
-
-	err := phpUnit.RunTests(
-		t.Context(),
-		internal.ProjectTesterOptions{
-			ProjectInfo: info,
-			Output: internal.OutputOptions[internal.TestsReportFormat]{
-				Format:   internal.TestsReportFormatTeamCity,
-				Filename: &reportFilename,
-			},
-			Pattern: internal.StrPtr("test1"),
+		{
+			Format:   internal.TestsReportFormatTeamCity,
+			Filename: internal.StrPtr("phpunit-teamcity.xml"),
+			Args:     []string{"--log-teamcity", "phpunit-teamcity.xml"},
 		},
-	)
-	require.NoError(t, err)
+	}
 
-	exec.AssertExpectations(t)
+	for _, values := range dataSet {
+		t.Run(string(values.Format), func(t *testing.T) {
+			test.InvokeRunTestsSuccess(
+				t,
+				phpUnitTester,
+				internal.ProjectTesterOptions{
+					ProjectInfo: internal.ProjectInfo{Directory: "."},
+					Output: internal.OutputOptions[internal.TestsReportFormat]{
+						Format:   values.Format,
+						Filename: values.Filename,
+					},
+				},
+				values.Args,
+			)
+		})
+	}
 }
 
 func TestPHPUnit_PHPUnit_CollectCoverage(t *testing.T) {
-	exec := test.NewExecutable(t)
-
-	phpUnit := tool.NewPHPUnit(exec.LazyExecutable("test"))
-
-	info := internal.ProjectInfo{Directory: "."}
-
-	exec.OnRun("test", []string{"--coverage-text"}).
-		Return(nil)
-
-	err := phpUnit.CollectCoverage(
-		t.Context(),
-		internal.ProjectCoverageCollectorOptions{ProjectInfo: info},
+	test.InvokeCollectCoverageSuccess(
+		t,
+		phpUnitCoverageCollector,
+		internal.ProjectCoverageCollectorOptions{
+			ProjectInfo: internal.ProjectInfo{Directory: "."},
+		},
+		[]string{"--coverage-text"},
 	)
-	require.NoError(t, err)
-
-	exec.AssertExpectations(t)
 }
 
 func TestPHPUnit_PHPUnit_CollectCoverage_Pattern(t *testing.T) {
-	exec := test.NewExecutable(t)
+	pattern := "tests/*"
 
-	phpUnit := tool.NewPHPUnit(exec.LazyExecutable("test"))
-
-	info := internal.ProjectInfo{Directory: "."}
-
-	exec.OnRun("test", []string{"--coverage-text", "tests/*"}).
-		Return(nil)
-
-	err := phpUnit.CollectCoverage(
-		t.Context(),
+	test.InvokeCollectCoverageSuccess(
+		t,
+		phpUnitCoverageCollector,
 		internal.ProjectCoverageCollectorOptions{
-			ProjectInfo: info,
-			Pattern:     internal.StrPtr("tests/*"),
+			ProjectInfo: internal.ProjectInfo{Directory: "."},
+			Pattern:     &pattern,
 		},
+		[]string{"--coverage-text", pattern},
 	)
-	require.NoError(t, err)
-
-	exec.AssertExpectations(t)
 }
 
 func TestPHPUnit_CollectCoverage_FormatUnsupported(t *testing.T) {
-	exec := test.NewExecutable(t)
-
-	phpUnit := tool.NewPHPUnit(exec.LazyExecutable("test"))
-
-	info := internal.ProjectInfo{Directory: "."}
-	data := []internal.CoverageReportFormat{
+	dataSet := []internal.CoverageReportFormat{
 		"test",
 		internal.CoverageReportFormatJson,
 	}
 
-	for _, format := range data {
+	for _, format := range dataSet {
 		t.Run(string(format), func(t *testing.T) {
-			err := phpUnit.CollectCoverage(
-				t.Context(),
-				internal.ProjectCoverageCollectorOptions{
-					ProjectInfo: info,
-					Output: internal.OutputOptions[internal.CoverageReportFormat]{
-						Format: format,
-					},
-					Pattern: internal.StrPtr("test1"),
-				},
+			test.InvokeCollectCoverageOutputFormatUnsupported(
+				t,
+				phpUnitCoverageCollector,
+				format,
+				internal.StrPtr("test1"),
 			)
-			require.EqualError(t, err, "unsupported coverage report format: "+string(format))
-
-			exec.AssertExpectations(t)
 		})
 	}
 }
 
 func TestPHPUnit_CollectCoverage_FormatSupported(t *testing.T) {
-	exec := test.NewExecutable(t)
-
-	phpUnit := tool.NewPHPUnit(exec.LazyExecutable("test"))
-
-	info := internal.ProjectInfo{Directory: "."}
 	data := []struct {
 		Format   internal.CoverageReportFormat
 		Filename *string
@@ -347,22 +210,32 @@ func TestPHPUnit_CollectCoverage_FormatSupported(t *testing.T) {
 
 	for _, values := range data {
 		t.Run(string(values.Format), func(t *testing.T) {
-			exec.OnRun("test", values.Args).
-				Return(nil)
-
-			err := phpUnit.CollectCoverage(
-				t.Context(),
+			test.InvokeCollectCoverageSuccess(
+				t,
+				phpUnitCoverageCollector,
 				internal.ProjectCoverageCollectorOptions{
-					ProjectInfo: info,
+					ProjectInfo: internal.ProjectInfo{Directory: "."},
 					Output: internal.OutputOptions[internal.CoverageReportFormat]{
 						Format:   values.Format,
 						Filename: values.Filename,
 					},
 				},
+				values.Args,
 			)
-			require.NoError(t, err)
-
-			exec.AssertExpectations(t)
 		})
 	}
+}
+
+func phpUnitDetect(ctx context.Context, options internal.DetectOptions) internal.Tool {
+	return tool.DetectPHPUnit(ctx, options)
+}
+
+func phpUnitTester(executable func() (*internal.Executable, error)) internal.ProjectTester {
+	return tool.NewPHPUnit(executable)
+}
+
+func phpUnitCoverageCollector(
+	executable func() (*internal.Executable, error),
+) internal.ProjectCoverageCollector {
+	return tool.NewPHPUnit(executable)
 }

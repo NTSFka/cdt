@@ -2,7 +2,6 @@ package tool_test
 
 import (
 	"context"
-	"errors"
 	"testing"
 
 	"cdt/internal"
@@ -20,7 +19,9 @@ func TestPHP_DetectPHP(t *testing.T) {
 }
 
 func TestPHP_DetectPHP_NotFound(t *testing.T) {
-	test.RunDetectToolNotFound(t, phpDetect, []string{"php"})
+	php := test.RunDetectToolNotFound(t, phpDetect, []string{"php"})
+
+	assert.Equal(t, tool.IdPHP, php.Id())
 }
 
 func TestPHP_DetectPHP_Config(t *testing.T) {
@@ -29,44 +30,31 @@ func TestPHP_DetectPHP_Config(t *testing.T) {
 	assert.Equal(t, tool.IdPHP, php.Id())
 }
 
-func TestPHP_PHP_RunTarget(t *testing.T) {
-	exec := test.NewExecutable(t)
-
-	php := tool.NewPHP(exec.LazyExecutable("php"))
-
-	info := internal.ProjectInfo{Directory: "."}
-
-	exec.OnRun("php", []string{"-f", "index.php"}).
-		Return(nil)
-
-	err := php.RunTarget(t.Context(), internal.ProjectRunnerOptions{ProjectInfo: info}, "index.php")
-	require.NoError(t, err)
-
-	exec.AssertExpectations(t)
+func TestPHP_PHP_RunTarget_Success(t *testing.T) {
+	test.InvokeRunTargetSuccess(
+		t,
+		phpRunner,
+		internal.ProjectRunnerOptions{},
+		"index.php",
+		[]string{"-f", "index.php"},
+	)
 }
 
-func TestPHP_PHP_RunTarget_Fail(t *testing.T) {
-	exec := test.NewExecutable(t)
-
-	php := tool.NewPHP(exec.LazyExecutable("php"))
-
-	info := internal.ProjectInfo{Directory: "."}
-
-	exec.OnRun("php", []string{"-f", "index.php"}).
-		Return(errors.New("failed"))
-
-	err := php.RunTarget(t.Context(), internal.ProjectRunnerOptions{ProjectInfo: info}, "index.php")
-	require.EqualError(t, err, "failed")
-
-	exec.AssertExpectations(t)
+func TestPHP_PHP_RunTarget_Failed(t *testing.T) {
+	test.InvokeRunTargetFailed(
+		t,
+		phpRunner,
+		internal.ProjectRunnerOptions{},
+		"index.php",
+		[]string{"-f", "index.php"},
+	)
 }
 
 func TestPHP_PHP_LintFiles_All(t *testing.T) {
-	test.RunLintFilesInvoked(
+	test.InvokeLintFilesError(
 		t,
-		phpBuildLinter,
+		phpLinter,
 		internal.ProjectLinterOptions{},
-		nil,
 		func(err error) {
 			require.EqualError(t, err, "no files to lint")
 		},
@@ -74,34 +62,37 @@ func TestPHP_PHP_LintFiles_All(t *testing.T) {
 }
 
 func TestPHP_PHP_LintFiles(t *testing.T) {
-	test.RunLintFilesSuccess(
+	fileNames := []string{"file.php", "/path/to/file2.php"}
+
+	test.InvokeLintFilesSuccess(
 		t,
-		phpBuildLinter,
-		internal.ProjectLinterOptions{
-			Filenames: &[]string{"file.php", "/path/to/file2.php"},
-		},
-		[]string{"-l", "file.php", "/path/to/file2.php"},
+		phpLinter,
+		internal.ProjectLinterOptions{Filenames: &fileNames},
+		append([]string{"-l"}, fileNames...),
+	)
+}
+
+func TestPHP_PHP_LintFiles_Failed(t *testing.T) {
+	fileNames := []string{"file.php", "/path/to/file2.php"}
+
+	test.InvokeLintFilesFailed(
+		t,
+		phpLinter,
+		internal.ProjectLinterOptions{Filenames: &fileNames},
+		append([]string{"-l"}, fileNames...),
 	)
 }
 
 func TestPHP_PHP_LintFiles_OutputFormat_Raw(t *testing.T) {
-	dataSet := []struct {
-		format internal.LintReportFormat
-	}{
-		{internal.LintReportFormatRaw},
-	}
+	fileNames := []string{"file.php", "/path/to/file2.php"}
 
-	for _, data := range dataSet {
-		t.Run(string(data.format), func(t *testing.T) {
-			test.RunLintFilesOutputFormatCheck(
-				t,
-				phpBuildLinter,
-				data.format,
-				[]string{"-l", "file.php", "/path/to/file2.php"},
-				&[]string{"file.php", "/path/to/file2.php"},
-			)
-		})
-	}
+	test.InvokeLintFilesOutputFormatCheck(
+		t,
+		phpLinter,
+		internal.LintReportFormatRaw,
+		append([]string{"-l"}, fileNames...),
+		&fileNames,
+	)
 }
 
 func TestPHP_PHP_LintFiles_OutputFormat_Unsupported(t *testing.T) {
@@ -116,9 +107,9 @@ func TestPHP_PHP_LintFiles_OutputFormat_Unsupported(t *testing.T) {
 
 	for _, format := range dataSet {
 		t.Run(string(format), func(t *testing.T) {
-			test.RunLintFilesOutputFormatUnsupported(
+			test.InvokeLintFilesOutputFormatUnsupported(
 				t,
-				phpBuildLinter,
+				phpLinter,
 				format,
 				&[]string{"file.php", "/path/to/file2.php"},
 			)
@@ -127,11 +118,13 @@ func TestPHP_PHP_LintFiles_OutputFormat_Unsupported(t *testing.T) {
 }
 
 func TestPHP_PHP_LintFiles_OutputFile(t *testing.T) {
-	test.RunLintFilesOutputFile(
+	fileNames := []string{"file.php", "/path/to/file2.php"}
+
+	test.InvokeLintFilesOutputFile(
 		t,
-		phpBuildLinter,
-		[]string{"-l", "file.php", "/path/to/file2.php"},
-		&[]string{"file.php", "/path/to/file2.php"},
+		phpLinter,
+		append([]string{"-l"}, fileNames...),
+		&fileNames,
 	)
 }
 
@@ -139,6 +132,10 @@ func phpDetect(ctx context.Context, options internal.DetectOptions) internal.Too
 	return tool.DetectPHP(ctx, options)
 }
 
-func phpBuildLinter(executable func() (*internal.Executable, error)) internal.ProjectLinter {
+func phpRunner(executable func() (*internal.Executable, error)) internal.ProjectRunner {
+	return tool.NewPHP(executable)
+}
+
+func phpLinter(executable func() (*internal.Executable, error)) internal.ProjectLinter {
 	return tool.NewPHP(executable)
 }

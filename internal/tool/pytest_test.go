@@ -1,6 +1,7 @@
 package tool_test
 
 import (
+	"context"
 	"testing"
 
 	"cdt/internal"
@@ -8,106 +9,51 @@ import (
 	"cdt/internal/tool"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 )
 
 func TestPyTest_DetectPyTest(t *testing.T) {
-	env := test.NewEnvironment(t)
+	pyTest := test.RunDetectToolLastFound(t, pyTestDetect, []string{"pytest"})
 
-	env.OnFindExecutable("pytest").
-		Return(env.NewExecutable("/bin/pytest"), nil)
-
-	pyTest := tool.DetectPyTest(t.Context(), internal.DetectOptions{Environment: env})
-	assert.NotNil(t, pyTest)
-	assert.Equal(t, "pytest", pyTest.Id())
-	assert.True(t, pyTest.IsAvailable())
-
-	if executable := pyTest.Executable(); assert.NotNil(t, executable) {
-		assert.Equal(t, "/bin/pytest", executable.Path)
-	}
-
-	env.AssertExpectations(t)
+	assert.Equal(t, tool.IdPyTest, pyTest.Id())
 }
 
 func TestPyTest_DetectPyTest_NotFound(t *testing.T) {
-	env := test.NewEnvironment(t)
+	pyTest := test.RunDetectToolNotFound(t, pyTestDetect, []string{"pytest"})
 
-	env.OnFindExecutable("pytest").
-		Return(nil, nil)
-
-	pyTest := tool.DetectPyTest(t.Context(), internal.DetectOptions{Environment: env})
-	assert.NotNil(t, pyTest)
-	assert.Equal(t, "pytest", pyTest.Id())
-	assert.False(t, pyTest.IsAvailable())
-	assert.Nil(t, pyTest.Executable())
-
-	env.AssertExpectations(t)
+	assert.Equal(t, tool.IdPyTest, pyTest.Id())
 }
 
 func TestPyTest_DetectPyTest_Config(t *testing.T) {
-	env := test.NewEnvironment(t)
+	pyTest := test.RunDetectToolConfig(t, pyTestDetect, "pytest")
 
-	env.OnFindExecutable("pytest2").
-		Return(env.NewExecutable("/bin/pytest"), nil)
-
-	pyTest := tool.DetectPyTest(t.Context(), internal.DetectOptions{
-		Environment: env,
-		ToolsPaths:  map[string]string{"pytest": "pytest2"},
-	})
-	assert.NotNil(t, pyTest)
-	assert.Equal(t, "pytest", pyTest.Id())
-	assert.True(t, pyTest.IsAvailable())
-
-	if executable := pyTest.Executable(); assert.NotNil(t, executable) {
-		assert.Equal(t, "/bin/pytest", executable.Path)
-	}
-
-	env.AssertExpectations(t)
+	assert.Equal(t, tool.IdPyTest, pyTest.Id())
 }
 
 func TestPyTest_PyTest_RunTests(t *testing.T) {
-	exec := test.NewExecutable(t)
-
-	pyTest := tool.NewPyTest(exec.LazyExecutable("test"))
-
-	info := internal.ProjectInfo{Directory: "."}
-
-	exec.OnRun("test", []string{}).
-		Return(nil)
-
-	err := pyTest.RunTests(t.Context(), internal.ProjectTesterOptions{ProjectInfo: info})
-	require.NoError(t, err)
-
-	exec.AssertExpectations(t)
+	test.InvokeRunTestsSuccess(
+		t,
+		pyTestTester,
+		internal.ProjectTesterOptions{ProjectInfo: internal.ProjectInfo{Directory: "."}},
+		[]string{},
+	)
 }
 
 func TestPyTest_PyTest_RunTests_Pattern(t *testing.T) {
-	exec := test.NewExecutable(t)
+	pattern := "tests/*"
 
-	pyTest := tool.NewPyTest(exec.LazyExecutable("test"))
-
-	info := internal.ProjectInfo{Directory: "."}
-
-	exec.OnRun("test", []string{"tests/*"}).
-		Return(nil)
-
-	err := pyTest.RunTests(
-		t.Context(),
-		internal.ProjectTesterOptions{ProjectInfo: info, Pattern: internal.StrPtr("tests/*")},
+	test.InvokeRunTestsSuccess(
+		t,
+		pyTestTester,
+		internal.ProjectTesterOptions{
+			ProjectInfo: internal.ProjectInfo{Directory: "."},
+			Pattern:     &pattern,
+		},
+		[]string{pattern},
 	)
-	require.NoError(t, err)
-
-	exec.AssertExpectations(t)
 }
 
-func TestPyTest_RunTests_Pattern_FormatUnsupported(t *testing.T) {
-	exec := test.NewExecutable(t)
-
-	pyTest := tool.NewPyTest(exec.LazyExecutable("test"))
-
-	info := internal.ProjectInfo{Directory: "."}
-
-	data := []internal.TestsReportFormat{
+func TestPyTest_RunTests_Pattern_Format_Unsupported(t *testing.T) {
+	dataSet := []internal.TestsReportFormat{
 		"test",
 		internal.TestsReportFormatRawEvents,
 		internal.TestsReportFormatJson,
@@ -115,46 +61,53 @@ func TestPyTest_RunTests_Pattern_FormatUnsupported(t *testing.T) {
 		internal.TestsReportFormatTeamCity,
 	}
 
-	for _, format := range data {
+	for _, format := range dataSet {
 		t.Run(string(format), func(t *testing.T) {
-			err := pyTest.RunTests(
-				t.Context(),
-				internal.ProjectTesterOptions{
-					ProjectInfo: info,
-					Output:      internal.OutputOptions[internal.TestsReportFormat]{Format: format},
-					Pattern:     internal.StrPtr("test1"),
-				},
+			test.InvokeRunTestsOutputFormatUnsupported(
+				t,
+				pyTestTester,
+				format,
+				internal.StrPtr("test1"),
 			)
-			require.EqualError(t, err, "unsupported report format: "+string(format))
-
-			exec.AssertExpectations(t)
 		})
 	}
 }
 
-func TestPyTest_RunTests_Pattern_FormatJUnit(t *testing.T) {
-	exec := test.NewExecutable(t)
-
-	pyTest := tool.NewPyTest(exec.LazyExecutable("test"))
-
-	info := internal.ProjectInfo{Directory: "."}
-	reportFilename := "pytest-junit.xml"
-
-	exec.OnRun("test", []string{"test1", "--junitxml=" + reportFilename}).
-		Return(nil)
-
-	err := pyTest.RunTests(
-		t.Context(),
-		internal.ProjectTesterOptions{
-			ProjectInfo: info,
-			Output: internal.OutputOptions[internal.TestsReportFormat]{
-				Format:   internal.TestsReportFormatJUnit,
-				Filename: &reportFilename,
-			},
-			Pattern: internal.StrPtr("test1"),
+func TestPyTest_RunTests_Pattern_Format_Supported(t *testing.T) {
+	dataSet := []struct {
+		Format   internal.TestsReportFormat
+		Filename *string
+		Args     []string
+	}{
+		{
+			Format:   internal.TestsReportFormatJUnit,
+			Filename: internal.StrPtr("pytest-junit.xml"),
+			Args:     []string{"--junitxml=pytest-junit.xml"},
 		},
-	)
-	require.NoError(t, err)
+	}
 
-	exec.AssertExpectations(t)
+	for _, values := range dataSet {
+		t.Run(string(values.Format), func(t *testing.T) {
+			test.InvokeRunTestsSuccess(
+				t,
+				pyTestTester,
+				internal.ProjectTesterOptions{
+					ProjectInfo: internal.ProjectInfo{Directory: "."},
+					Output: internal.OutputOptions[internal.TestsReportFormat]{
+						Format:   values.Format,
+						Filename: values.Filename,
+					},
+				},
+				values.Args,
+			)
+		})
+	}
+}
+
+func pyTestDetect(ctx context.Context, options internal.DetectOptions) internal.Tool {
+	return tool.DetectPyTest(ctx, options)
+}
+
+func pyTestTester(executable func() (*internal.Executable, error)) internal.ProjectTester {
+	return tool.NewPyTest(executable)
 }

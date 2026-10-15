@@ -30,42 +30,44 @@ func TestFlake8_DetectFlake8_Config(t *testing.T) {
 }
 
 func TestFlake8_Flake8_LintFiles_All(t *testing.T) {
-	test.RunLintFilesSuccess(
+	test.InvokeLintFilesSuccess(
 		t,
-		flake8BuildLinter,
+		flake8Linter,
 		internal.ProjectLinterOptions{},
 		[]string{},
 	)
 }
 
 func TestFlake8_Flake8_LintFiles(t *testing.T) {
-	test.RunLintFilesSuccess(
+	fileNames := []string{"file1.py", "/path/to/file2.py"}
+
+	test.InvokeLintFilesSuccess(
 		t,
-		flake8BuildLinter,
-		internal.ProjectLinterOptions{Filenames: &[]string{"file.py", "/path/to/file2.py"}},
-		[]string{"file.py", "/path/to/file2.py"},
+		flake8Linter,
+		internal.ProjectLinterOptions{Filenames: &fileNames},
+		fileNames,
+	)
+}
+
+func TestFlake8_Flake8_LintFiles_Failed(t *testing.T) {
+	fileNames := []string{"file.py", "/path/to/file2.py"}
+
+	test.InvokeLintFilesFailed(
+		t,
+		flake8Linter,
+		internal.ProjectLinterOptions{Filenames: &fileNames},
+		fileNames,
 	)
 }
 
 func TestFlake8_Flake8_LintFiles_OutputFormat_Raw(t *testing.T) {
-	dataSet := []struct {
-		format internal.LintReportFormat
-		args   []string
-	}{
-		{internal.LintReportFormatRaw, []string{}},
-	}
-
-	for _, data := range dataSet {
-		t.Run(string(data.format), func(t *testing.T) {
-			test.RunLintFilesOutputFormatCheck(
-				t,
-				flake8BuildLinter,
-				data.format,
-				append([]string{}, data.args...),
-				nil,
-			)
-		})
-	}
+	test.InvokeLintFilesOutputFormatCheck(
+		t,
+		flake8Linter,
+		internal.LintReportFormatRaw,
+		[]string{},
+		nil,
+	)
 }
 
 func TestFlake8_Flake8_LintFiles_OutputFormat_Unsupported(t *testing.T) {
@@ -80,19 +82,19 @@ func TestFlake8_Flake8_LintFiles_OutputFormat_Unsupported(t *testing.T) {
 
 	for _, format := range dataSet {
 		t.Run(string(format), func(t *testing.T) {
-			test.RunLintFilesOutputFormatUnsupported(t, flake8BuildLinter, format, nil)
+			test.InvokeLintFilesOutputFormatUnsupported(t, flake8Linter, format, nil)
 		})
 	}
 }
 
 func TestFlake8_Flake8_LintFiles_OutputFile(t *testing.T) {
-	test.RunLintFilesOutputFile(t, flake8BuildLinter, []string{}, nil)
+	test.InvokeLintFilesOutputFile(t, flake8Linter, []string{}, nil)
 }
 
 func flake8Detect(ctx context.Context, options internal.DetectOptions) internal.Tool {
 	return tool.DetectFlake8(ctx, options)
 }
 
-func flake8BuildLinter(executable func() (*internal.Executable, error)) internal.ProjectLinter {
+func flake8Linter(executable func() (*internal.Executable, error)) internal.ProjectLinter {
 	return tool.NewFlake8(executable)
 }

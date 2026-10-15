@@ -1,6 +1,7 @@
 package tool_test
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"os"
@@ -21,7 +22,7 @@ func TestDocker_NewDocker_NoExecutable(t *testing.T) {
 	docker := tool.NewDocker(test.LazyExecutableNil)
 
 	assert.NotNil(t, docker)
-	assert.Equal(t, "docker", docker.Id())
+	assert.Equal(t, tool.IdDocker, docker.Id())
 	assert.NotEmpty(t, docker.Name())
 	assert.NotEmpty(t, docker.Info())
 	assert.Equal(t, []string{"d"}, docker.Aliases())
@@ -32,50 +33,26 @@ func TestDocker_NewDocker_WithExecutable(t *testing.T) {
 	docker := tool.NewDocker(test.LazyExecutable("/bin/docker"))
 
 	assert.NotNil(t, docker)
-	assert.Equal(t, "docker", docker.Id())
+	assert.Equal(t, tool.IdDocker, docker.Id())
 	assert.True(t, docker.IsAvailable())
 }
 
 func TestDocker_DetectDocker_NotFound(t *testing.T) {
-	env := test.NewEnvironment(t)
-	env.OnFindExecutable("docker").
-		Return(nil, nil)
+	docker := test.RunDetectToolNotFound(t, dockerDetect, []string{"docker"})
 
-	docker := tool.DetectDocker(t.Context(), internal.DetectOptions{Environment: env})
-	assert.NotNil(t, docker)
-	assert.Equal(t, "docker", docker.Id())
-	assert.False(t, docker.IsAvailable())
-
-	env.AssertExpectations(t)
+	assert.Equal(t, tool.IdDocker, docker.Id())
 }
 
 func TestDocker_DetectDocker_Found(t *testing.T) {
-	env := test.NewEnvironment(t)
-	env.OnFindExecutable("docker").
-		Return(env.NewExecutable("docker"), nil)
+	docker := test.RunDetectToolLastFound(t, dockerDetect, []string{"docker"})
 
-	docker := tool.DetectDocker(t.Context(), internal.DetectOptions{Environment: env})
-	assert.NotNil(t, docker)
-	assert.Equal(t, "docker", docker.Id())
-	assert.True(t, docker.IsAvailable())
-
-	env.AssertExpectations(t)
+	assert.Equal(t, tool.IdDocker, docker.Id())
 }
 
 func TestDocker_DetectDocker_Config(t *testing.T) {
-	env := test.NewEnvironment(t)
-	env.OnFindExecutable("docker-2").
-		Return(env.NewExecutable("docker"), nil)
+	docker := test.RunDetectToolConfig(t, dockerDetect, "docker")
 
-	docker := tool.DetectDocker(t.Context(), internal.DetectOptions{
-		Environment: env,
-		ToolsPaths:  map[string]string{"docker": "docker-2"},
-	})
-	assert.NotNil(t, docker)
-	assert.Equal(t, "docker", docker.Id())
-	assert.True(t, docker.IsAvailable())
-
-	env.AssertExpectations(t)
+	assert.Equal(t, tool.IdDocker, docker.Id())
 }
 
 func TestDocker_Detect(t *testing.T) {
@@ -596,4 +573,8 @@ func TestDocker_Environment_RunExecutable_AutoStart_Failed(t *testing.T) {
 	require.EqualError(t, err, "docker run failed: failed")
 
 	runMock.AssertExpectations(t)
+}
+
+func dockerDetect(ctx context.Context, options internal.DetectOptions) internal.Tool {
+	return tool.DetectDocker(ctx, options)
 }

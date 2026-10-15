@@ -30,29 +30,49 @@ func TestBandit_DetectBandit_Config(t *testing.T) {
 }
 
 func TestBandit_Bandit_LintFiles_All(t *testing.T) {
-	test.RunLintFilesSuccess(
+	test.InvokeLintFilesSuccess(
 		t,
-		banditBuilder,
+		banditLinter,
+		internal.ProjectLinterOptions{},
+		[]string{"*"},
+	)
+}
+
+func TestBandit_Bandit_LintFiles_All_Failed(t *testing.T) {
+	test.InvokeLintFilesFailed(
+		t,
+		banditLinter,
 		internal.ProjectLinterOptions{},
 		[]string{"*"},
 	)
 }
 
 func TestBandit_Bandit_LintFiles(t *testing.T) {
-	test.RunLintFilesSuccess(
+	fileNames := []string{"file.py", "/path/to/file2.py"}
+
+	test.InvokeLintFilesSuccess(
 		t,
-		banditBuilder,
-		internal.ProjectLinterOptions{
-			Filenames: &[]string{"file.py", "/path/to/file2.py"},
-		},
-		[]string{"file.py", "/path/to/file2.py"},
+		banditLinter,
+		internal.ProjectLinterOptions{Filenames: &fileNames},
+		fileNames,
+	)
+}
+
+func TestBandit_Bandit_LintFiles_Failed(t *testing.T) {
+	fileNames := []string{"file.py", "/path/to/file2.py"}
+
+	test.InvokeLintFilesFailed(
+		t,
+		banditLinter,
+		internal.ProjectLinterOptions{Filenames: &fileNames},
+		fileNames,
 	)
 }
 
 func TestBandit_Bandit_LintFiles_OutputFormat_Raw(t *testing.T) {
-	test.RunLintFilesOutputFormatCheck(
+	test.InvokeLintFilesOutputFormatCheck(
 		t,
-		banditBuilder,
+		banditLinter,
 		internal.LintReportFormatRaw,
 		[]string{"*"},
 		nil,
@@ -71,19 +91,19 @@ func TestBandit_Bandit_LintFiles_OutputFormat_Unsupported(t *testing.T) {
 
 	for _, format := range dataSet {
 		t.Run(string(format), func(t *testing.T) {
-			test.RunLintFilesOutputFormatUnsupported(t, banditBuilder, format, nil)
+			test.InvokeLintFilesOutputFormatUnsupported(t, banditLinter, format, nil)
 		})
 	}
 }
 
 func TestBandit_Bandit_LintFiles_OutputFile(t *testing.T) {
-	test.RunLintFilesOutputFile(t, banditBuilder, []string{"*"}, nil)
+	test.InvokeLintFilesOutputFile(t, banditLinter, []string{"*"}, nil)
 }
 
 func banditDetect(ctx context.Context, options internal.DetectOptions) internal.Tool {
 	return tool.DetectBandit(ctx, options)
 }
 
-func banditBuilder(executable func() (*internal.Executable, error)) internal.ProjectLinter {
+func banditLinter(executable func() (*internal.Executable, error)) internal.ProjectLinter {
 	return tool.NewBandit(executable)
 }

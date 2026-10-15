@@ -1,6 +1,7 @@
 package tool_test
 
 import (
+	"context"
 	"path/filepath"
 	"testing"
 
@@ -9,163 +10,100 @@ import (
 	"cdt/internal/tool"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 )
 
 func TestPHPCSFixer_DetectPHPCSFixer_Composer(t *testing.T) {
-	env := test.NewEnvironment(t)
+	phpcsFixer := test.RunDetectToolLastFound(
+		t,
+		phpcsFixerDetect,
+		[]string{filepath.Join("vendor", "bin", "php-cs-fixer")},
+	)
 
-	// Composer installation
-	env.OnFindExecutable(filepath.Join("vendor", "bin", "php-cs-fixer")).
-		Return(env.NewExecutable("/bin/php-cs-fixer"), nil)
-
-	phpcsFixer := tool.DetectPHPCSFixer(t.Context(), internal.DetectOptions{Environment: env})
-	assert.NotNil(t, phpcsFixer)
-	assert.Equal(t, "php-cs-fixer", phpcsFixer.Id())
-	assert.True(t, phpcsFixer.IsAvailable())
-
-	if executable := phpcsFixer.Executable(); assert.NotNil(t, executable) {
-		assert.Equal(t, "/bin/php-cs-fixer", executable.Path)
-	}
-
-	env.AssertExpectations(t)
+	assert.Equal(t, tool.IdPHPCSFixer, phpcsFixer.Id())
 }
 
 func TestPHPCSFixer_DetectPHPCSFixer_System(t *testing.T) {
-	env := test.NewEnvironment(t)
+	phpcsFixer := test.RunDetectToolLastFound(
+		t,
+		phpcsFixerDetect,
+		[]string{filepath.Join("vendor", "bin", "php-cs-fixer"), "php-cs-fixer"},
+	)
 
-	// Composer installation
-	env.OnFindExecutable(filepath.Join("vendor", "bin", "php-cs-fixer")).
-		Return(nil, nil)
-
-	// System installation
-	env.OnFindExecutable("php-cs-fixer").
-		Return(env.NewExecutable("/bin/php-cs-fixer"), nil)
-
-	phpcsFixer := tool.DetectPHPCSFixer(t.Context(), internal.DetectOptions{Environment: env})
-	assert.NotNil(t, phpcsFixer)
-	assert.Equal(t, "php-cs-fixer", phpcsFixer.Id())
-	assert.True(t, phpcsFixer.IsAvailable())
-
-	if executable := phpcsFixer.Executable(); assert.NotNil(t, executable) {
-		assert.Equal(t, "/bin/php-cs-fixer", executable.Path)
-	}
-
-	env.AssertExpectations(t)
+	assert.Equal(t, tool.IdPHPCSFixer, phpcsFixer.Id())
 }
 
 func TestPHPCSFixer_DetectPHPCSFixer_NotFound(t *testing.T) {
-	env := test.NewEnvironment(t)
+	phpcsFixer := test.RunDetectToolNotFound(
+		t,
+		phpcsFixerDetect,
+		[]string{filepath.Join("vendor", "bin", "php-cs-fixer"), "php-cs-fixer"},
+	)
 
-	env.OnFindExecutable(filepath.Join("vendor", "bin", "php-cs-fixer")).
-		Return(nil, nil)
-	env.OnFindExecutable("php-cs-fixer").
-		Return(nil, nil)
-
-	phpcsFixer := tool.DetectPHPCSFixer(t.Context(), internal.DetectOptions{Environment: env})
-	assert.NotNil(t, phpcsFixer)
-	assert.Equal(t, "php-cs-fixer", phpcsFixer.Id())
-	assert.False(t, phpcsFixer.IsAvailable())
-	assert.Nil(t, phpcsFixer.Executable())
-
-	env.AssertExpectations(t)
+	assert.Equal(t, tool.IdPHPCSFixer, phpcsFixer.Id())
 }
 
 func TestPHPCSFixer_DetectPHPCSFixer_Config(t *testing.T) {
-	env := test.NewEnvironment(t)
+	phpcsFixer := test.RunDetectToolConfig(t, phpcsFixerDetect, "php-cs-fixer")
 
-	// Composer installation
-	env.OnFindExecutable("php-cs-fixer-3").
-		Return(env.NewExecutable("/bin/php-cs-fixer"), nil)
-
-	phpcsFixer := tool.DetectPHPCSFixer(t.Context(), internal.DetectOptions{
-		Environment: env,
-		ToolsPaths:  map[string]string{"php-cs-fixer": "php-cs-fixer-3"},
-	})
-	assert.NotNil(t, phpcsFixer)
-	assert.Equal(t, "php-cs-fixer", phpcsFixer.Id())
-	assert.True(t, phpcsFixer.IsAvailable())
-
-	if executable := phpcsFixer.Executable(); assert.NotNil(t, executable) {
-		assert.Equal(t, "/bin/php-cs-fixer", executable.Path)
-	}
-
-	env.AssertExpectations(t)
+	assert.Equal(t, tool.IdPHPCSFixer, phpcsFixer.Id())
 }
 
 func TestPHPCSFixer_PHPCSFixer_FormatFiles_All(t *testing.T) {
-	exec := test.NewExecutable(t)
-
-	phpcsFixer := tool.NewPHPCSFixer(exec.LazyExecutable("format"))
-
-	info := internal.ProjectInfo{Directory: "."}
-
-	exec.OnRun("format", []string{"fix"}).
-		Return(nil)
-
-	err := phpcsFixer.FormatFiles(t.Context(), internal.ProjectFormatterOptions{ProjectInfo: info})
-	require.NoError(t, err)
-
-	exec.AssertExpectations(t)
+	test.InvokeFormatFilesSuccess(
+		t,
+		phpcsFixerFormatter,
+		internal.ProjectFormatterOptions{ProjectInfo: internal.ProjectInfo{Directory: "."}},
+		[]string{"fix"},
+	)
 }
 
 func TestPHPCSFixer_PHPCSFixer_FormatFiles(t *testing.T) {
-	exec := test.NewExecutable(t)
+	fileNames := []string{"tests/*"}
 
-	phpcsFixer := tool.NewPHPCSFixer(exec.LazyExecutable("format"))
-
-	info := internal.ProjectInfo{Directory: "."}
-
-	exec.OnRun("format", []string{"fix", "tests/*"}).
-		Return(nil)
-
-	err := phpcsFixer.FormatFiles(
-		t.Context(),
-		internal.ProjectFormatterOptions{ProjectInfo: info, Filenames: &[]string{"tests/*"}},
+	test.InvokeFormatFilesSuccess(
+		t,
+		phpcsFixerFormatter,
+		internal.ProjectFormatterOptions{
+			ProjectInfo: internal.ProjectInfo{Directory: "."},
+			Filenames:   &fileNames,
+		},
+		append([]string{"fix"}, fileNames...),
 	)
-	require.NoError(t, err)
-
-	exec.AssertExpectations(t)
 }
 
 func TestPHPCSFixer_PHPCSFixer_FormatFiles_CheckAll(t *testing.T) {
-	exec := test.NewExecutable(t)
-
-	phpcsFixer := tool.NewPHPCSFixer(exec.LazyExecutable("format"))
-
-	info := internal.ProjectInfo{Directory: "."}
-
-	exec.OnRun("format", []string{"fix", "--dry-run"}).
-		Return(nil)
-
-	err := phpcsFixer.FormatFiles(
-		t.Context(),
-		internal.ProjectFormatterOptions{ProjectInfo: info, CheckOnly: true},
+	test.InvokeFormatFilesSuccess(
+		t,
+		phpcsFixerFormatter,
+		internal.ProjectFormatterOptions{
+			ProjectInfo: internal.ProjectInfo{Directory: "."},
+			CheckOnly:   true,
+		},
+		[]string{"fix", "--dry-run"},
 	)
-	require.NoError(t, err)
-
-	exec.AssertExpectations(t)
 }
 
 func TestPHPCSFixer_PHPCSFixer_FormatFiles_Check(t *testing.T) {
-	exec := test.NewExecutable(t)
+	fileNames := []string{"tests/*", "/path/to/file.php"}
 
-	phpcsFixer := tool.NewPHPCSFixer(exec.LazyExecutable("format"))
-
-	info := internal.ProjectInfo{Directory: "."}
-
-	exec.OnRun("format", []string{"fix", "--dry-run", "tests/*", "/path/to/file.php"}).
-		Return(nil)
-
-	err := phpcsFixer.FormatFiles(
-		t.Context(),
+	test.InvokeFormatFilesSuccess(
+		t,
+		phpcsFixerFormatter,
 		internal.ProjectFormatterOptions{
-			ProjectInfo: info,
+			ProjectInfo: internal.ProjectInfo{Directory: "."},
 			CheckOnly:   true,
-			Filenames:   &[]string{"tests/*", "/path/to/file.php"},
+			Filenames:   &fileNames,
 		},
+		append([]string{"fix", "--dry-run"}, fileNames...),
 	)
-	require.NoError(t, err)
+}
 
-	exec.AssertExpectations(t)
+func phpcsFixerDetect(ctx context.Context, options internal.DetectOptions) internal.Tool {
+	return tool.DetectPHPCSFixer(ctx, options)
+}
+
+func phpcsFixerFormatter(
+	executable func() (*internal.Executable, error),
+) internal.ProjectFormatter {
+	return tool.NewPHPCSFixer(executable)
 }

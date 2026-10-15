@@ -1,6 +1,7 @@
 package tool_test
 
 import (
+	"context"
 	"path/filepath"
 	"testing"
 
@@ -9,313 +10,174 @@ import (
 	"cdt/internal/tool"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 )
 
 func TestParaTest_DetectParaTest_Composer(t *testing.T) {
-	env := test.NewEnvironment(t)
+	paraTest := test.RunDetectToolLastFound(
+		t,
+		paraTestDetect,
+		[]string{filepath.Join("vendor", "bin", "paratest")},
+	)
 
-	// Composer installation
-	env.OnFindExecutable(filepath.Join("vendor", "bin", "paratest")).
-		Return(env.NewExecutable("/bin/paratest"), nil)
-
-	paraTest := tool.DetectParaTest(t.Context(), internal.DetectOptions{Environment: env})
-	assert.NotNil(t, paraTest)
-	assert.Equal(t, "paratest", paraTest.Id())
-	assert.True(t, paraTest.IsAvailable())
-
-	if executable := paraTest.Executable(); assert.NotNil(t, executable) {
-		assert.Equal(t, "/bin/paratest", executable.Path)
-	}
-
-	env.AssertExpectations(t)
+	assert.Equal(t, tool.IdParaTest, paraTest.Id())
 }
 
 func TestParaTest_DetectParaTest_System(t *testing.T) {
-	env := test.NewEnvironment(t)
+	paraTest := test.RunDetectToolLastFound(
+		t,
+		paraTestDetect,
+		[]string{filepath.Join("vendor", "bin", "paratest"), "paratest"},
+	)
 
-	// Composer installation
-	env.OnFindExecutable(filepath.Join("vendor", "bin", "paratest")).
-		Return(nil, nil)
-
-	// System installation
-	env.OnFindExecutable("paratest").
-		Return(env.NewExecutable("/bin/paratest"), nil)
-
-	paraTest := tool.DetectParaTest(t.Context(), internal.DetectOptions{Environment: env})
-	assert.NotNil(t, paraTest)
-	assert.Equal(t, "paratest", paraTest.Id())
-	assert.True(t, paraTest.IsAvailable())
-
-	if executable := paraTest.Executable(); assert.NotNil(t, executable) {
-		assert.Equal(t, "/bin/paratest", executable.Path)
-	}
-
-	env.AssertExpectations(t)
+	assert.Equal(t, tool.IdParaTest, paraTest.Id())
 }
 
 func TestParaTest_DetectParaTest_NotFound(t *testing.T) {
-	env := test.NewEnvironment(t)
+	paraTest := test.RunDetectToolNotFound(
+		t,
+		paraTestDetect,
+		[]string{filepath.Join("vendor", "bin", "paratest"), "paratest"},
+	)
 
-	env.OnFindExecutable(filepath.Join("vendor", "bin", "paratest")).
-		Return(nil, nil)
-	env.OnFindExecutable("paratest").
-		Return(nil, nil)
-
-	paraTest := tool.DetectParaTest(t.Context(), internal.DetectOptions{Environment: env})
-	assert.NotNil(t, paraTest)
-	assert.Equal(t, "paratest", paraTest.Id())
-	assert.False(t, paraTest.IsAvailable())
-	assert.Nil(t, paraTest.Executable())
-
-	env.AssertExpectations(t)
+	assert.Equal(t, tool.IdParaTest, paraTest.Id())
 }
 
 func TestParaTest_DetectParaTest_Config(t *testing.T) {
-	env := test.NewEnvironment(t)
+	paraTest := test.RunDetectToolConfig(t, paraTestDetect, "paratest")
 
-	// Composer installation
-	env.OnFindExecutable("paratest-7").
-		Return(env.NewExecutable("/bin/paratest"), nil)
-
-	paraTest := tool.DetectParaTest(t.Context(), internal.DetectOptions{
-		Environment: env,
-		ToolsPaths:  map[string]string{"paratest": "paratest-7"},
-	})
-	assert.NotNil(t, paraTest)
-	assert.Equal(t, "paratest", paraTest.Id())
-	assert.True(t, paraTest.IsAvailable())
-
-	if executable := paraTest.Executable(); assert.NotNil(t, executable) {
-		assert.Equal(t, "/bin/paratest", executable.Path)
-	}
-
-	env.AssertExpectations(t)
+	assert.Equal(t, tool.IdParaTest, paraTest.Id())
 }
 
 func TestParaTest_ParaTest_RunTests(t *testing.T) {
-	exec := test.NewExecutable(t)
-
-	paraTest := tool.NewParaTest(exec.LazyExecutable("test"))
-
-	info := internal.ProjectInfo{Directory: "."}
-
-	exec.OnRun("test", []string{}).
-		Return(nil)
-
-	err := paraTest.RunTests(t.Context(), internal.ProjectTesterOptions{ProjectInfo: info})
-	require.NoError(t, err)
-
-	exec.AssertExpectations(t)
+	test.InvokeRunTestsSuccess(
+		t,
+		paraTestTester,
+		internal.ProjectTesterOptions{
+			ProjectInfo: internal.ProjectInfo{Directory: "."},
+		},
+		[]string{},
+	)
 }
 
 func TestParaTest_ParaTest_RunTests_Pattern(t *testing.T) {
-	exec := test.NewExecutable(t)
+	pattern := "tests/*"
 
-	paraTest := tool.NewParaTest(exec.LazyExecutable("test"))
-
-	info := internal.ProjectInfo{Directory: "."}
-
-	exec.OnRun("test", []string{"tests/*"}).
-		Return(nil)
-
-	err := paraTest.RunTests(
-		t.Context(),
-		internal.ProjectTesterOptions{ProjectInfo: info, Pattern: internal.StrPtr("tests/*")},
+	test.InvokeRunTestsSuccess(
+		t,
+		paraTestTester,
+		internal.ProjectTesterOptions{
+			ProjectInfo: internal.ProjectInfo{Directory: "."},
+			Pattern:     &pattern,
+		},
+		[]string{pattern},
 	)
-	require.NoError(t, err)
-
-	exec.AssertExpectations(t)
 }
 
 func TestParaTest_RunTests_Pattern_FormatUnsupported(t *testing.T) {
-	exec := test.NewExecutable(t)
-
-	paraTest := tool.NewParaTest(exec.LazyExecutable("test"))
-
-	info := internal.ProjectInfo{Directory: "."}
-	data := []internal.TestsReportFormat{
+	dataSet := []internal.TestsReportFormat{
 		"test",
 		internal.TestsReportFormatJson,
 		internal.TestsReportFormatCtrf,
 	}
 
-	for _, format := range data {
+	for _, format := range dataSet {
 		t.Run(string(format), func(t *testing.T) {
-			err := paraTest.RunTests(
-				t.Context(),
-				internal.ProjectTesterOptions{
-					ProjectInfo: info,
-					Output:      internal.OutputOptions[internal.TestsReportFormat]{Format: format},
-					Pattern:     internal.StrPtr("test1"),
-				},
+			test.InvokeRunTestsOutputFormatUnsupported(
+				t,
+				paraTestTester,
+				format,
+				internal.StrPtr("test1"),
 			)
-			require.EqualError(t, err, "unsupported report format: "+string(format))
-
-			exec.AssertExpectations(t)
 		})
 	}
 }
 
-func TestParaTest_RunTests_Pattern_FormatRawEvents(t *testing.T) {
-	exec := test.NewExecutable(t)
-
-	paraTest := tool.NewParaTest(exec.LazyExecutable("test"))
-
-	info := internal.ProjectInfo{Directory: "."}
-	reportFilename := "paratest-raw-events.txt"
-
-	exec.OnRun("test", []string{"test1", "--log-events-text", reportFilename}).
-		Return(nil)
-
-	err := paraTest.RunTests(
-		t.Context(),
-		internal.ProjectTesterOptions{
-			ProjectInfo: info,
-			Output: internal.OutputOptions[internal.TestsReportFormat]{
-				Format:   internal.TestsReportFormatRawEvents,
-				Filename: &reportFilename,
-			},
-			Pattern: internal.StrPtr("test1"),
+func TestParaTest_RunTests_Pattern_FormatSupported(t *testing.T) {
+	dataSet := []struct {
+		Format   internal.TestsReportFormat
+		Filename *string
+		Args     []string
+	}{
+		{
+			Format:   internal.TestsReportFormatRawEvents,
+			Filename: internal.StrPtr("paratest-raw-events.txt"),
+			Args:     []string{"--log-events-text", "paratest-raw-events.txt"},
 		},
-	)
-	require.NoError(t, err)
-
-	exec.AssertExpectations(t)
-}
-
-func TestParaTest_RunTests_Pattern_FormatJUnit(t *testing.T) {
-	exec := test.NewExecutable(t)
-
-	paraTest := tool.NewParaTest(exec.LazyExecutable("test"))
-
-	info := internal.ProjectInfo{Directory: "."}
-	reportFilename := "paratest-junit.xml"
-
-	exec.OnRun("test", []string{"test1", "--log-junit", reportFilename}).
-		Return(nil)
-
-	err := paraTest.RunTests(
-		t.Context(),
-		internal.ProjectTesterOptions{
-			ProjectInfo: info,
-			Output: internal.OutputOptions[internal.TestsReportFormat]{
-				Format:   internal.TestsReportFormatJUnit,
-				Filename: &reportFilename,
-			},
-			Pattern: internal.StrPtr("test1"),
+		{
+			Format:   internal.TestsReportFormatJUnit,
+			Filename: internal.StrPtr("paratest-junit.xml"),
+			Args:     []string{"--log-junit", "paratest-junit.xml"},
 		},
-	)
-	require.NoError(t, err)
-
-	exec.AssertExpectations(t)
-}
-
-func TestParaTest_RunTests_Pattern_FormatTeamCity(t *testing.T) {
-	exec := test.NewExecutable(t)
-
-	paraTest := tool.NewParaTest(exec.LazyExecutable("test"))
-
-	info := internal.ProjectInfo{Directory: "."}
-	reportFilename := "paratest-teamcity.xml"
-
-	exec.OnRun("test", []string{"test1", "--log-teamcity", reportFilename}).
-		Return(nil)
-
-	err := paraTest.RunTests(
-		t.Context(),
-		internal.ProjectTesterOptions{
-			ProjectInfo: info,
-			Output: internal.OutputOptions[internal.TestsReportFormat]{
-				Format:   internal.TestsReportFormatTeamCity,
-				Filename: &reportFilename,
-			},
-			Pattern: internal.StrPtr("test1"),
+		{
+			Format:   internal.TestsReportFormatTeamCity,
+			Filename: internal.StrPtr("paratest-teamcity.xml"),
+			Args:     []string{"--log-teamcity", "paratest-teamcity.xml"},
 		},
-	)
-	require.NoError(t, err)
+	}
 
-	exec.AssertExpectations(t)
+	for _, values := range dataSet {
+		t.Run(string(values.Format), func(t *testing.T) {
+			test.InvokeRunTestsSuccess(
+				t,
+				paraTestTester,
+				internal.ProjectTesterOptions{
+					ProjectInfo: internal.ProjectInfo{Directory: "."},
+					Output: internal.OutputOptions[internal.TestsReportFormat]{
+						Format:   values.Format,
+						Filename: values.Filename,
+					},
+				},
+				values.Args,
+			)
+		})
+	}
 }
 
 func TestParaTest_ParaTest_CollectCoverage(t *testing.T) {
-	exec := test.NewExecutable(t)
-
-	phpUnit := tool.NewParaTest(exec.LazyExecutable("test"))
-
-	info := internal.ProjectInfo{Directory: "."}
-
-	exec.OnRun("test", []string{"--coverage-text"}).
-		Return(nil)
-
-	err := phpUnit.CollectCoverage(
-		t.Context(),
-		internal.ProjectCoverageCollectorOptions{ProjectInfo: info},
+	test.InvokeCollectCoverageSuccess(
+		t,
+		paraTestCoverageCollector,
+		internal.ProjectCoverageCollectorOptions{
+			ProjectInfo: internal.ProjectInfo{Directory: "."},
+		},
+		[]string{"--coverage-text"},
 	)
-	require.NoError(t, err)
-
-	exec.AssertExpectations(t)
 }
 
 func TestParaTest_ParaTest_CollectCoverage_Pattern(t *testing.T) {
-	exec := test.NewExecutable(t)
+	pattern := "tests/*"
 
-	phpUnit := tool.NewParaTest(exec.LazyExecutable("test"))
-
-	info := internal.ProjectInfo{Directory: "."}
-
-	exec.OnRun("test", []string{"--coverage-text", "tests/*"}).
-		Return(nil)
-
-	err := phpUnit.CollectCoverage(
-		t.Context(),
+	test.InvokeCollectCoverageSuccess(
+		t,
+		paraTestCoverageCollector,
 		internal.ProjectCoverageCollectorOptions{
-			ProjectInfo: info,
-			Pattern:     internal.StrPtr("tests/*"),
+			ProjectInfo: internal.ProjectInfo{Directory: "."},
+			Pattern:     &pattern,
 		},
+		[]string{"--coverage-text", pattern},
 	)
-	require.NoError(t, err)
-
-	exec.AssertExpectations(t)
 }
 
 func TestParaTest_CollectCoverage_FormatUnsupported(t *testing.T) {
-	exec := test.NewExecutable(t)
-
-	paraTest := tool.NewParaTest(exec.LazyExecutable("test"))
-
-	info := internal.ProjectInfo{Directory: "."}
-	data := []internal.CoverageReportFormat{
+	dataSet := []internal.CoverageReportFormat{
 		"test",
 		internal.CoverageReportFormatJson,
 	}
 
-	for _, format := range data {
+	for _, format := range dataSet {
 		t.Run(string(format), func(t *testing.T) {
-			err := paraTest.CollectCoverage(
-				t.Context(),
-				internal.ProjectCoverageCollectorOptions{
-					ProjectInfo: info,
-					Output: internal.OutputOptions[internal.CoverageReportFormat]{
-						Format: format,
-					},
-					Pattern: internal.StrPtr("test1"),
-				},
+			test.InvokeCollectCoverageOutputFormatUnsupported(
+				t,
+				paraTestCoverageCollector,
+				format,
+				internal.StrPtr("test1"),
 			)
-			require.EqualError(t, err, "unsupported coverage report format: "+string(format))
-
-			exec.AssertExpectations(t)
 		})
 	}
 }
 
 func TestParaTest_CollectCoverage_FormatSupported(t *testing.T) {
-	exec := test.NewExecutable(t)
-
-	paraTest := tool.NewParaTest(exec.LazyExecutable("test"))
-
-	info := internal.ProjectInfo{Directory: "."}
-	data := []struct {
+	dataSet := []struct {
 		Format   internal.CoverageReportFormat
 		Filename *string
 		Args     []string
@@ -346,24 +208,34 @@ func TestParaTest_CollectCoverage_FormatSupported(t *testing.T) {
 		},
 	}
 
-	for _, values := range data {
+	for _, values := range dataSet {
 		t.Run(string(values.Format), func(t *testing.T) {
-			exec.OnRun("test", values.Args).
-				Return(nil)
-
-			err := paraTest.CollectCoverage(
-				t.Context(),
+			test.InvokeCollectCoverageSuccess(
+				t,
+				paraTestCoverageCollector,
 				internal.ProjectCoverageCollectorOptions{
-					ProjectInfo: info,
+					ProjectInfo: internal.ProjectInfo{Directory: "."},
 					Output: internal.OutputOptions[internal.CoverageReportFormat]{
 						Format:   values.Format,
 						Filename: values.Filename,
 					},
 				},
+				values.Args,
 			)
-			require.NoError(t, err)
-
-			exec.AssertExpectations(t)
 		})
 	}
+}
+
+func paraTestDetect(ctx context.Context, options internal.DetectOptions) internal.Tool {
+	return tool.DetectParaTest(ctx, options)
+}
+
+func paraTestTester(executable func() (*internal.Executable, error)) internal.ProjectTester {
+	return tool.NewParaTest(executable)
+}
+
+func paraTestCoverageCollector(
+	executable func() (*internal.Executable, error),
+) internal.ProjectCoverageCollector {
+	return tool.NewParaTest(executable)
 }

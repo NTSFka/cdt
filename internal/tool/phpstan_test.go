@@ -57,22 +57,42 @@ func TestPHPStan_DetectPHPStan_Config(t *testing.T) {
 }
 
 func TestPHPStan_PHPStan_LintFiles_All(t *testing.T) {
-	test.RunLintFilesSuccess(
+	test.InvokeLintFilesSuccess(
 		t,
-		phpStanBuildLinter,
+		phpStanLinter,
+		internal.ProjectLinterOptions{},
+		[]string{"analyse"},
+	)
+}
+
+func TestPHPStan_PHPStan_LintFiles_All_Failed(t *testing.T) {
+	test.InvokeLintFilesFailed(
+		t,
+		phpStanLinter,
 		internal.ProjectLinterOptions{},
 		[]string{"analyse"},
 	)
 }
 
 func TestPHPStan_PHPStan_LintFiles(t *testing.T) {
-	test.RunLintFilesSuccess(
+	fileNames := []string{"file.php", "/path/to/file2.php"}
+
+	test.InvokeLintFilesSuccess(
 		t,
-		phpStanBuildLinter,
-		internal.ProjectLinterOptions{
-			Filenames: &[]string{"file.php", "/path/to/file2.php"},
-		},
-		[]string{"analyse", "file.php", "/path/to/file2.php"},
+		phpStanLinter,
+		internal.ProjectLinterOptions{Filenames: &fileNames},
+		append([]string{"analyse"}, fileNames...),
+	)
+}
+
+func TestPHPStan_PHPStan_LintFiles_Failed(t *testing.T) {
+	fileNames := []string{"file.php", "/path/to/file2.php"}
+
+	test.InvokeLintFilesFailed(
+		t,
+		phpStanLinter,
+		internal.ProjectLinterOptions{Filenames: &fileNames},
+		append([]string{"analyse"}, fileNames...),
 	)
 }
 
@@ -91,9 +111,9 @@ func TestPHPStan_PHPStan_LintFiles_OutputFormat(t *testing.T) {
 
 	for _, data := range dataSet {
 		t.Run(string(data.format), func(t *testing.T) {
-			test.RunLintFilesOutputFormatCheck(
+			test.InvokeLintFilesOutputFormatCheck(
 				t,
-				phpStanBuildLinter,
+				phpStanLinter,
 				data.format,
 				append([]string{"analyse"}, data.args...),
 				nil,
@@ -109,9 +129,9 @@ func TestPHPStan_PHPStan_LintFiles_OutputFormat_Unsupported(t *testing.T) {
 
 	for _, format := range formats {
 		t.Run(string(format), func(t *testing.T) {
-			test.RunLintFilesOutputFormatUnsupported(
+			test.InvokeLintFilesOutputFormatUnsupported(
 				t,
-				phpStanBuildLinter,
+				phpStanLinter,
 				format,
 				nil,
 			)
@@ -120,9 +140,9 @@ func TestPHPStan_PHPStan_LintFiles_OutputFormat_Unsupported(t *testing.T) {
 }
 
 func TestPHPStan_PHPStan_LintFiles_OutputFile(t *testing.T) {
-	test.RunLintFilesOutputFile(
+	test.InvokeLintFilesOutputFile(
 		t,
-		phpStanBuildLinter,
+		phpStanLinter,
 		[]string{"analyse"},
 		nil,
 	)
@@ -132,6 +152,6 @@ func phpStanDetect(ctx context.Context, options internal.DetectOptions) internal
 	return tool.DetectPHPStan(ctx, options)
 }
 
-func phpStanBuildLinter(executable func() (*internal.Executable, error)) internal.ProjectLinter {
+func phpStanLinter(executable func() (*internal.Executable, error)) internal.ProjectLinter {
 	return tool.NewPHPStan(executable)
 }

@@ -30,42 +30,53 @@ func TestMyPy_DetectMyPy_Config(t *testing.T) {
 }
 
 func TestMyPy_MyPy_LintFiles_All(t *testing.T) {
-	test.RunLintFilesSuccess(
+	test.InvokeLintFilesSuccess(
 		t,
-		myPyBuildLinter,
+		myPyLinter,
+		internal.ProjectLinterOptions{},
+		[]string{"*.py"},
+	)
+}
+
+func TestMyPy_MyPy_LintFiles_All_Failed(t *testing.T) {
+	test.InvokeLintFilesFailed(
+		t,
+		myPyLinter,
 		internal.ProjectLinterOptions{},
 		[]string{"*.py"},
 	)
 }
 
 func TestMyPy_MyPy_LintFiles(t *testing.T) {
-	test.RunLintFilesSuccess(
+	fileNames := []string{"file.py", "/path/to/file2.py"}
+
+	test.InvokeLintFilesSuccess(
 		t,
-		myPyBuildLinter,
-		internal.ProjectLinterOptions{Filenames: &[]string{"file.py", "/path/to/file2.py"}},
-		[]string{"file.py", "/path/to/file2.py"},
+		myPyLinter,
+		internal.ProjectLinterOptions{Filenames: &fileNames},
+		fileNames,
 	)
 }
 
-func TestMyPy_MyPy_LintFiles_OutputFormat(t *testing.T) {
-	dataSet := []struct {
-		format internal.LintReportFormat
-		args   []string
-	}{
-		{internal.LintReportFormatRaw, []string{}},
-	}
+func TestMyPy_MyPy_LintFiles_Failed(t *testing.T) {
+	fileNames := []string{"file.py", "/path/to/file2.py"}
 
-	for _, data := range dataSet {
-		t.Run(string(data.format), func(t *testing.T) {
-			test.RunLintFilesOutputFormatCheck(
-				t,
-				myPyBuildLinter,
-				data.format,
-				append([]string{"*.py"}, data.args...),
-				nil,
-			)
-		})
-	}
+	test.InvokeLintFilesFailed(
+		t,
+		myPyLinter,
+		internal.ProjectLinterOptions{Filenames: &fileNames},
+		fileNames,
+	)
+}
+
+func TestMyPy_MyPy_LintFiles_OutputFormat_Raw(t *testing.T) {
+	test.InvokeLintFilesOutputFormatCheck(
+		t,
+		myPyLinter,
+		internal.LintReportFormatRaw,
+		[]string{"*.py"},
+		nil,
+	)
 }
 
 func TestMyPy_MyPy_LintFiles_OutputFormat_Unsupported(t *testing.T) {
@@ -80,19 +91,19 @@ func TestMyPy_MyPy_LintFiles_OutputFormat_Unsupported(t *testing.T) {
 
 	for _, format := range dataSet {
 		t.Run(string(format), func(t *testing.T) {
-			test.RunLintFilesOutputFormatUnsupported(t, myPyBuildLinter, format, nil)
+			test.InvokeLintFilesOutputFormatUnsupported(t, myPyLinter, format, nil)
 		})
 	}
 }
 
 func TestMyPy_MyPy_LintFiles_OutputFile(t *testing.T) {
-	test.RunLintFilesOutputFile(t, myPyBuildLinter, []string{"*.py"}, nil)
+	test.InvokeLintFilesOutputFile(t, myPyLinter, []string{"*.py"}, nil)
 }
 
 func myPyDetect(ctx context.Context, options internal.DetectOptions) internal.Tool {
 	return tool.DetectMyPy(ctx, options)
 }
 
-func myPyBuildLinter(executable func() (*internal.Executable, error)) internal.ProjectLinter {
+func myPyLinter(executable func() (*internal.Executable, error)) internal.ProjectLinter {
 	return tool.NewMyPy(executable)
 }

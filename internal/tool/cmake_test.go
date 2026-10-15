@@ -1,6 +1,7 @@
 package tool_test
 
 import (
+	"context"
 	"errors"
 	"testing"
 
@@ -13,357 +14,341 @@ import (
 )
 
 func TestCMake_CMakeDetect(t *testing.T) {
-	env := test.NewEnvironment(t)
-	env.OnFindExecutable("cmake").
-		Return(env.NewExecutable("/bin/cmake"), nil)
+	cmake := test.RunDetectToolLastFound(t, cmakeDetect, []string{"cmake"})
 
-	cmake := tool.DetectCMake(t.Context(), internal.DetectOptions{Environment: env})
-	assert.NotNil(t, cmake)
-	assert.Equal(t, "cmake", cmake.Id())
-	assert.True(t, cmake.IsAvailable())
-
-	if executable := cmake.Executable(); assert.NotNil(t, executable) {
-		assert.Equal(t, "/bin/cmake", executable.Path)
-	}
-
-	env.AssertExpectations(t)
+	assert.Equal(t, tool.IdCMake, cmake.Id())
 }
 
 func TestCMake_CMakeDetect_NotFound(t *testing.T) {
-	env := test.NewEnvironment(t)
-	env.OnFindExecutable("cmake").
-		Return(nil, nil)
+	cmake := test.RunDetectToolNotFound(t, cmakeDetect, []string{"cmake"})
 
-	cmake := tool.DetectCMake(t.Context(), internal.DetectOptions{Environment: env})
-	assert.NotNil(t, cmake)
-	assert.Equal(t, "cmake", cmake.Id())
-	assert.False(t, cmake.IsAvailable())
-	assert.Nil(t, cmake.Executable())
-
-	env.AssertExpectations(t)
+	assert.Equal(t, tool.IdCMake, cmake.Id())
 }
 
 func TestCMake_CMakeDetect_Config(t *testing.T) {
-	env := test.NewEnvironment(t)
-	env.OnFindExecutable("cmake-4").
-		Return(env.NewExecutable("/bin/cmake"), nil)
+	cmake := test.RunDetectToolConfig(t, cmakeDetect, "cmake")
 
-	cmake := tool.DetectCMake(t.Context(), internal.DetectOptions{
-		Environment: env,
-		ToolsPaths:  map[string]string{"cmake": "cmake-4"},
-	})
-	assert.NotNil(t, cmake)
-	assert.Equal(t, "cmake", cmake.Id())
-	assert.True(t, cmake.IsAvailable())
-
-	if executable := cmake.Executable(); assert.NotNil(t, executable) {
-		assert.Equal(t, "/bin/cmake", executable.Path)
-	}
-
-	env.AssertExpectations(t)
+	assert.Equal(t, tool.IdCMake, cmake.Id())
 }
 
 func TestCMake_Configure(t *testing.T) {
-	exec := test.NewExecutable(t)
-
-	cmake := tool.NewCMake(exec.LazyExecutable("cmake"))
-
 	buildDir := t.TempDir()
 
-	info := internal.ProjectInfo{
-		Directory:         "project",
-		OutputDirectory:   &buildDir,
-		StructureProvider: cmake,
+	options := internal.ProjectConfiguratorOptions{
+		ProjectInfo: internal.ProjectInfo{
+			Directory:       "project",
+			OutputDirectory: &buildDir,
+		},
 	}
 
-	exec.OnRun("cmake", []string{
+	test.InvokeConfigureSuccess(t, cmakeConfigurator, options, []string{
 		"-DCMAKE_EXPORT_COMPILE_COMMANDS=ON",
 		"-S", ".",
 		"-B", buildDir,
-	}).Return(nil)
-
-	err := cmake.Configure(t.Context(), internal.ProjectConfiguratorOptions{ProjectInfo: info})
-	require.NoError(t, err)
-
-	exec.AssertExpectations(t)
+	})
 }
 
 func TestCMake_Configure_Failed(t *testing.T) {
-	exec := test.NewExecutable(t)
-
-	cmake := tool.NewCMake(exec.LazyExecutable("cmake"))
-
 	buildDir := t.TempDir()
 
-	info := internal.ProjectInfo{
-		Directory:         "project",
-		OutputDirectory:   &buildDir,
-		StructureProvider: cmake,
+	options := internal.ProjectConfiguratorOptions{
+		ProjectInfo: internal.ProjectInfo{
+			Directory:       "project",
+			OutputDirectory: &buildDir,
+		},
 	}
 
-	exec.OnRun("cmake", []string{
+	test.InvokeConfigureFailed(t, cmakeConfigurator, options, []string{
 		"-DCMAKE_EXPORT_COMPILE_COMMANDS=ON",
 		"-S", ".",
 		"-B", buildDir,
-	}).Return(errors.New("failed"))
+	})
+}
 
-	err := cmake.Configure(t.Context(), internal.ProjectConfiguratorOptions{ProjectInfo: info})
-	require.EqualError(t, err, "failed")
-
-	exec.AssertExpectations(t)
+func TestCMake_Structure_NoOutputDirectory(t *testing.T) {
+	test.InvokeStructure(
+		t,
+		cmakeStructure,
+		internal.ProjectInfo{
+			Directory: "project",
+		},
+		func(exec *test.Executable, executablePath string) {
+		},
+		func(structure *internal.ProjectStructure, err error) {
+			assert.Nil(t, structure)
+			require.ErrorIs(t, err, internal.ErrNoOutputDirectory)
+		},
+	)
 }
 
 func TestCMake_Structure_ConfigureFailed(t *testing.T) {
-	exec := test.NewExecutable(t)
-
-	cmake := tool.NewCMake(exec.LazyExecutable("cmake"))
-
 	buildDir := t.TempDir()
 
-	desc := internal.ProjectInfo{
-		Directory:         "project",
-		OutputDirectory:   &buildDir,
-		StructureProvider: cmake,
-	}
-
-	// Configure
-	exec.OnRun("cmake", []string{
-		"-DCMAKE_EXPORT_COMPILE_COMMANDS=ON",
-		"-S", ".",
-		"-B", buildDir,
-	}).
-		Return(errors.New("failed"))
-
-	structure, err := cmake.Structure(t.Context(), desc)
-	assert.Nil(t, structure)
-	require.EqualError(t, err, "failed")
-
-	exec.AssertExpectations(t)
+	test.InvokeStructure(
+		t,
+		cmakeStructure,
+		internal.ProjectInfo{
+			Directory:       "project",
+			OutputDirectory: &buildDir,
+		},
+		func(exec *test.Executable, executablePath string) {
+			exec.OnRun(executablePath, []string{
+				"-DCMAKE_EXPORT_COMPILE_COMMANDS=ON",
+				"-S", ".",
+				"-B", buildDir,
+			}).
+				Return(errors.New("failed"))
+		},
+		func(structure *internal.ProjectStructure, err error) {
+			assert.Nil(t, structure)
+			require.EqualError(t, err, "failed")
+		},
+	)
 }
 
 func TestCMake_BuildTargets_All(t *testing.T) {
-	exec := test.NewExecutable(t)
-
-	cmake := tool.NewCMake(exec.LazyExecutable("cmake"))
-
 	buildDir := t.TempDir()
 
-	info := internal.ProjectInfo{
-		Directory:         "project",
-		OutputDirectory:   &buildDir,
-		StructureProvider: cmake,
-	}
+	test.InvokeBuildTargets(
+		t,
+		cmakeBuilder,
+		internal.ProjectBuilderOptions{
+			ProjectInfo: internal.ProjectInfo{
+				Directory:       "project",
+				OutputDirectory: &buildDir,
+			},
+		},
+		func(exec *test.Executable, executablePath string) {
+			// Configure
+			exec.OnRun(executablePath, []string{
+				"-DCMAKE_EXPORT_COMPILE_COMMANDS=ON",
+				"-S", ".",
+				"-B", buildDir,
+			}).
+				Return(nil)
 
-	// Configure
-	exec.OnRun("cmake", []string{
-		"-DCMAKE_EXPORT_COMPILE_COMMANDS=ON",
-		"-S", ".",
-		"-B", buildDir,
-	}).
-		Return(nil)
-
-	// Build
-	exec.OnRun("cmake", []string{"--build", buildDir}).
-		Return(nil)
-
-	err := cmake.BuildTargets(t.Context(), internal.ProjectBuilderOptions{ProjectInfo: info})
-	require.NoError(t, err)
-
-	exec.AssertExpectations(t)
+			// Build
+			exec.OnRun(executablePath, []string{"--build", buildDir}).
+				Return(nil)
+		},
+		func(err error) {
+			require.NoError(t, err)
+		},
+	)
 }
 
 func TestCMake_BuildTargets_All_Failed(t *testing.T) {
-	exec := test.NewExecutable(t)
-
-	cmake := tool.NewCMake(exec.LazyExecutable("cmake"))
-
 	buildDir := t.TempDir()
 
-	info := internal.ProjectInfo{
-		Directory:         "project",
-		OutputDirectory:   &buildDir,
-		StructureProvider: cmake,
-	}
+	test.InvokeBuildTargets(
+		t,
+		cmakeBuilder,
+		internal.ProjectBuilderOptions{
+			ProjectInfo: internal.ProjectInfo{
+				Directory:       "project",
+				OutputDirectory: &buildDir,
+			},
+		},
+		func(exec *test.Executable, executablePath string) {
+			// Configure
+			exec.OnRun(executablePath, []string{
+				"-DCMAKE_EXPORT_COMPILE_COMMANDS=ON",
+				"-S", ".",
+				"-B", buildDir,
+			}).
+				Return(nil)
 
-	// Configure
-	exec.OnRun("cmake", []string{
-		"-DCMAKE_EXPORT_COMPILE_COMMANDS=ON",
-		"-S", ".",
-		"-B", buildDir,
-	}).
-		Return(nil)
-
-	// Build
-	exec.OnRun("cmake", []string{"--build", buildDir}).
-		Return(errors.New("failed"))
-
-	err := cmake.BuildTargets(t.Context(), internal.ProjectBuilderOptions{ProjectInfo: info})
-	require.EqualError(t, err, "failed")
-
-	exec.AssertExpectations(t)
+			// Build
+			exec.OnRun(executablePath, []string{"--build", buildDir}).
+				Return(errors.New("failed"))
+		},
+		func(err error) {
+			require.EqualError(t, err, "failed")
+		},
+	)
 }
 
 func TestCMake_BuildTargets_All_ConfigureFailed(t *testing.T) {
-	exec := test.NewExecutable(t)
-
-	cmake := tool.NewCMake(exec.LazyExecutable("cmake"))
-
 	buildDir := t.TempDir()
 
-	info := internal.ProjectInfo{
-		Directory:         "project",
-		OutputDirectory:   &buildDir,
-		StructureProvider: cmake,
-	}
-
-	// Configure
-	exec.OnRun("cmake", []string{
-		"-DCMAKE_EXPORT_COMPILE_COMMANDS=ON",
-		"-S", ".",
-		"-B", buildDir,
-	}).
-		Return(errors.New("failed"))
-
-	err := cmake.BuildTargets(t.Context(), internal.ProjectBuilderOptions{ProjectInfo: info})
-	require.EqualError(t, err, "failed")
-
-	exec.AssertExpectations(t)
+	test.InvokeBuildTargets(
+		t,
+		cmakeBuilder,
+		internal.ProjectBuilderOptions{
+			ProjectInfo: internal.ProjectInfo{
+				Directory:       "project",
+				OutputDirectory: &buildDir,
+			},
+		},
+		func(exec *test.Executable, executablePath string) {
+			// Configure
+			exec.OnRun(executablePath, []string{
+				"-DCMAKE_EXPORT_COMPILE_COMMANDS=ON",
+				"-S", ".",
+				"-B", buildDir,
+			}).
+				Return(errors.New("failed"))
+		},
+		func(err error) {
+			require.EqualError(t, err, "failed")
+		},
+	)
 }
 
 func TestCMake_BuildTargets(t *testing.T) {
-	exec := test.NewExecutable(t)
-
-	cmake := tool.NewCMake(exec.LazyExecutable("cmake"))
-
 	buildDir := t.TempDir()
 
-	info := internal.ProjectInfo{
-		Directory:         "project",
-		OutputDirectory:   &buildDir,
-		StructureProvider: cmake,
-	}
+	test.InvokeBuildTargets(
+		t,
+		cmakeBuilder,
+		internal.ProjectBuilderOptions{
+			ProjectInfo: internal.ProjectInfo{
+				Directory:       "project",
+				OutputDirectory: &buildDir,
+			},
+			Targets: &[]string{"target1", "target2"},
+		},
+		func(exec *test.Executable, executablePath string) {
+			// Configure
+			exec.OnRun(executablePath, []string{
+				"-DCMAKE_EXPORT_COMPILE_COMMANDS=ON",
+				"-S", ".",
+				"-B", buildDir,
+			}).
+				Return(nil)
 
-	// Configure
-	exec.OnRun("cmake", []string{
-		"-DCMAKE_EXPORT_COMPILE_COMMANDS=ON",
-		"-S", ".",
-		"-B", buildDir,
-	}).
-		Return(nil)
-
-	// Build
-	exec.OnRun("cmake", []string{
-		"--build", buildDir,
-		"--target", "target1", "target2",
-	}).
-		Return(nil)
-
-	err := cmake.BuildTargets(
-		t.Context(),
-		internal.ProjectBuilderOptions{ProjectInfo: info, Targets: &[]string{"target1", "target2"}},
+			// Build
+			exec.OnRun(executablePath, []string{
+				"--build", buildDir,
+				"--target", "target1", "target2",
+			}).
+				Return(nil)
+		},
+		func(err error) {
+			require.NoError(t, err)
+		},
 	)
-	require.NoError(t, err)
-
-	exec.AssertExpectations(t)
 }
 
 func TestCMake_BuildTargets_Failed(t *testing.T) {
-	exec := test.NewExecutable(t)
-
-	cmake := tool.NewCMake(exec.LazyExecutable("cmake"))
-
 	buildDir := t.TempDir()
 
-	info := internal.ProjectInfo{
-		Directory:         "project",
-		OutputDirectory:   &buildDir,
-		StructureProvider: cmake,
-	}
+	test.InvokeBuildTargets(
+		t,
+		cmakeBuilder,
+		internal.ProjectBuilderOptions{
+			ProjectInfo: internal.ProjectInfo{
+				Directory:       "project",
+				OutputDirectory: &buildDir,
+			},
+			Targets: &[]string{"target1", "target2"},
+		},
+		func(exec *test.Executable, executablePath string) {
+			// Configure
+			exec.OnRun(executablePath, []string{
+				"-DCMAKE_EXPORT_COMPILE_COMMANDS=ON",
+				"-S", ".",
+				"-B", buildDir,
+			}).
+				Return(nil)
 
-	// Configure
-	exec.OnRun("cmake", []string{
-		"-DCMAKE_EXPORT_COMPILE_COMMANDS=ON",
-		"-S", ".",
-		"-B", buildDir,
-	}).
-		Return(nil)
-
-	// Build
-	exec.OnRun("cmake", []string{
-		"--build", buildDir,
-		"--target", "target1", "target2",
-	}).
-		Return(errors.New("failed"))
-
-	err := cmake.BuildTargets(
-		t.Context(),
-		internal.ProjectBuilderOptions{ProjectInfo: info, Targets: &[]string{"target1", "target2"}},
+			// Build
+			exec.OnRun(executablePath, []string{
+				"--build", buildDir,
+				"--target", "target1", "target2",
+			}).
+				Return(errors.New("failed"))
+		},
+		func(err error) {
+			require.EqualError(t, err, "failed")
+		},
 	)
-	require.EqualError(t, err, "failed")
-
-	exec.AssertExpectations(t)
 }
 
 func TestCMake_BuildTargets_ConfigureFailed(t *testing.T) {
-	exec := test.NewExecutable(t)
-
-	cmake := tool.NewCMake(exec.LazyExecutable("cmake"))
-
 	buildDir := t.TempDir()
 
-	info := internal.ProjectInfo{
-		Directory:         "project",
-		OutputDirectory:   &buildDir,
-		StructureProvider: cmake,
-	}
-
-	// Configure
-	exec.OnRun("cmake", []string{
-		"-DCMAKE_EXPORT_COMPILE_COMMANDS=ON",
-		"-S", ".",
-		"-B", buildDir,
-	}).
-		Return(errors.New("failed"))
-
-	err := cmake.BuildTargets(
-		t.Context(),
-		internal.ProjectBuilderOptions{ProjectInfo: info, Targets: &[]string{"target1", "target2"}},
+	test.InvokeBuildTargets(
+		t,
+		cmakeBuilder,
+		internal.ProjectBuilderOptions{
+			ProjectInfo: internal.ProjectInfo{
+				Directory:       "project",
+				OutputDirectory: &buildDir,
+			},
+			Targets: &[]string{"target1", "target2"},
+		},
+		func(exec *test.Executable, executablePath string) {
+			// Configure
+			exec.OnRun(executablePath, []string{
+				"-DCMAKE_EXPORT_COMPILE_COMMANDS=ON",
+				"-S", ".",
+				"-B", buildDir,
+			}).
+				Return(errors.New("failed"))
+		},
+		func(err error) {
+			require.EqualError(t, err, "failed")
+		},
 	)
-	require.EqualError(t, err, "failed")
-
-	exec.AssertExpectations(t)
 }
 
 func TestCMake_RunTarget_Failed(t *testing.T) {
-	exec := test.NewExecutable(t)
-
-	cmake := tool.NewCMake(exec.LazyExecutable("cmake"))
-
 	buildDir := t.TempDir()
 
-	info := internal.ProjectInfo{
-		Directory:         "project",
-		OutputDirectory:   &buildDir,
-		StructureProvider: cmake,
+	options := internal.ProjectRunnerOptions{
+		ProjectInfo: internal.ProjectInfo{
+			OutputDirectory: &buildDir,
+		},
 	}
 
-	// Configure
-	exec.OnRun("cmake", []string{
-		"-DCMAKE_EXPORT_COMPILE_COMMANDS=ON",
-		"-S", ".",
-		"-B", buildDir,
-	}).
-		Return(nil)
+	test.InvokeRunTarget(
+		t,
+		cmakeRunner,
+		options,
+		"target1",
+		func(exec *test.Executable, executablePath string) {
+			// Configure
+			exec.OnRun(executablePath, []string{
+				"-DCMAKE_EXPORT_COMPILE_COMMANDS=ON",
+				"-S", ".",
+				"-B", buildDir,
+			}).
+				Return(nil)
 
-	// Build
-	exec.OnRun("cmake", []string{
-		"--build", buildDir,
-		"--target", "target1",
-	}).
-		Return(errors.New("failed"))
+			// Build
+			exec.OnRun(executablePath, []string{
+				"--build", buildDir,
+				"--target", "target1",
+			}).
+				Return(errors.New("failed"))
+		},
+		func(err error) {
+			require.EqualError(t, err, "failed")
+		},
+	)
+}
 
-	err := cmake.RunTarget(t.Context(), internal.ProjectRunnerOptions{ProjectInfo: info}, "target1")
-	require.EqualError(t, err, "failed")
+func cmakeDetect(ctx context.Context, options internal.DetectOptions) internal.Tool {
+	return tool.DetectCMake(ctx, options)
+}
 
-	exec.AssertExpectations(t)
+func cmakeStructure(
+	executable func() (*internal.Executable, error),
+) internal.ProjectStructureProvider {
+	return tool.NewCMake(executable)
+}
+
+func cmakeConfigurator(
+	executable func() (*internal.Executable, error),
+) internal.ProjectConfigurator {
+	return tool.NewCMake(executable)
+}
+
+func cmakeBuilder(executable func() (*internal.Executable, error)) internal.ProjectBuilder {
+	return tool.NewCMake(executable)
+}
+
+func cmakeRunner(executable func() (*internal.Executable, error)) internal.ProjectRunner {
+	return tool.NewCMake(executable)
 }

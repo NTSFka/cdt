@@ -2,7 +2,6 @@ package tool_test
 
 import (
 	"context"
-	"errors"
 	"testing"
 
 	"cdt/internal"
@@ -10,7 +9,6 @@ import (
 	"cdt/internal/tool"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 )
 
 func TestGolangCILint_DetectGolangCILint(t *testing.T) {
@@ -32,42 +30,49 @@ func TestGolangCILint_DetectGolangCILint_Config(t *testing.T) {
 }
 
 func TestGolangCILint_GolangCILint_LintFiles_All(t *testing.T) {
-	test.RunLintFilesSuccess(
+	test.InvokeLintFilesSuccess(
 		t,
-		golangCILintBuildLinter,
+		golangCILintLinter,
+		internal.ProjectLinterOptions{},
+		[]string{"run"},
+	)
+}
+
+func TestGolangCILint_GolangCILint_LintFiles_All_Failed(t *testing.T) {
+	test.InvokeLintFilesFailed(
+		t,
+		golangCILintLinter,
 		internal.ProjectLinterOptions{},
 		[]string{"run"},
 	)
 }
 
 func TestGolangCILint_GolangCILint_LintFiles(t *testing.T) {
-	test.RunLintFilesSuccess(
+	test.InvokeLintFilesSuccess(
 		t,
-		golangCILintBuildLinter,
+		golangCILintLinter,
+		internal.ProjectLinterOptions{Filenames: &[]string{"mod1"}},
+		[]string{"run", "mod1"},
+	)
+}
+
+func TestGolangCILint_GolangCILint_LintFiles_Failed(t *testing.T) {
+	test.InvokeLintFilesFailed(
+		t,
+		golangCILintLinter,
 		internal.ProjectLinterOptions{Filenames: &[]string{"mod1"}},
 		[]string{"run", "mod1"},
 	)
 }
 
 func TestGolangCILint_GolangCILint_LintFiles_OutputFormat_Raw(t *testing.T) {
-	dataSet := []struct {
-		format internal.LintReportFormat
-		args   []string
-	}{
-		{internal.LintReportFormatRaw, []string{}},
-	}
-
-	for _, data := range dataSet {
-		t.Run(string(data.format), func(t *testing.T) {
-			test.RunLintFilesOutputFormatCheck(
-				t,
-				golangCILintBuildLinter,
-				data.format,
-				append([]string{"run"}, data.args...),
-				nil,
-			)
-		})
-	}
+	test.InvokeLintFilesOutputFormatCheck(
+		t,
+		golangCILintLinter,
+		internal.LintReportFormatRaw,
+		[]string{"run"},
+		nil,
+	)
 }
 
 func TestGolangCILint_GolangCILint_LintFiles_OutputFormat_Unsupported(t *testing.T) {
@@ -82,188 +87,124 @@ func TestGolangCILint_GolangCILint_LintFiles_OutputFormat_Unsupported(t *testing
 
 	for _, format := range dataSet {
 		t.Run(string(format), func(t *testing.T) {
-			test.RunLintFilesOutputFormatUnsupported(t, golangCILintBuildLinter, format, nil)
+			test.InvokeLintFilesOutputFormatUnsupported(t, golangCILintLinter, format, nil)
 		})
 	}
 }
 
 func TestGolangCILint_GolangCILint_LintFiles_OutputFile(t *testing.T) {
-	test.RunLintFilesOutputFile(
+	test.InvokeLintFilesOutputFile(
 		t,
-		func(executable func() (*internal.Executable, error)) internal.ProjectLinter {
-			return tool.NewGolangCILint(executable)
-		},
+		golangCILintLinter,
 		[]string{"run"},
 		nil,
 	)
 }
 
 func TestGolangCILint_FormatFiles_All(t *testing.T) {
-	exec := test.NewExecutable(t)
-
-	golangCILint := tool.NewGolangCILint(exec.LazyExecutable("lint"))
-
-	info := internal.ProjectInfo{Directory: "."}
-
-	exec.OnRun("lint", []string{"fmt"}).
-		Return(nil)
-
-	err := golangCILint.FormatFiles(
-		t.Context(),
-		internal.ProjectFormatterOptions{ProjectInfo: info},
+	test.InvokeFormatFilesSuccess(
+		t,
+		golangCILintFormatter,
+		internal.ProjectFormatterOptions{ProjectInfo: internal.ProjectInfo{Directory: "."}},
+		[]string{"fmt"},
 	)
-	require.NoError(t, err)
-
-	exec.AssertExpectations(t)
 }
 
 func TestGolangCILint_FormatFiles_All_Failed(t *testing.T) {
-	exec := test.NewExecutable(t)
-
-	golangCILint := tool.NewGolangCILint(exec.LazyExecutable("lint"))
-
-	info := internal.ProjectInfo{Directory: "."}
-
-	exec.OnRun("lint", []string{"fmt"}).
-		Return(errors.New("failed"))
-
-	err := golangCILint.FormatFiles(
-		t.Context(),
-		internal.ProjectFormatterOptions{ProjectInfo: info},
+	test.InvokeFormatFilesFailed(
+		t,
+		golangCILintFormatter,
+		internal.ProjectFormatterOptions{ProjectInfo: internal.ProjectInfo{Directory: "."}},
+		[]string{"fmt"},
 	)
-	require.EqualError(t, err, "failed")
-
-	exec.AssertExpectations(t)
 }
 
 func TestGolangCILint_FormatFiles(t *testing.T) {
-	exec := test.NewExecutable(t)
-
-	golangCILint := tool.NewGolangCILint(exec.LazyExecutable("lint"))
-
-	info := internal.ProjectInfo{Directory: "."}
-
-	exec.OnRun("lint", []string{"fmt", "file1"}).
-		Return(nil)
-
-	err := golangCILint.FormatFiles(
-		t.Context(),
-		internal.ProjectFormatterOptions{ProjectInfo: info, Filenames: &[]string{"file1"}},
+	test.InvokeFormatFilesSuccess(
+		t,
+		golangCILintFormatter,
+		internal.ProjectFormatterOptions{
+			ProjectInfo: internal.ProjectInfo{Directory: "."},
+			Filenames:   &[]string{"file1"},
+		},
+		[]string{"fmt", "file1"},
 	)
-	require.NoError(t, err)
-
-	exec.AssertExpectations(t)
 }
 
 func TestGolangCILint_FormatFiles_Failed(t *testing.T) {
-	exec := test.NewExecutable(t)
-
-	goTool := tool.NewGolangCILint(exec.LazyExecutable("lint"))
-
-	info := internal.ProjectInfo{Directory: "."}
-
-	exec.OnRun("lint", []string{"fmt", "file1"}).
-		Return(errors.New("failed"))
-
-	err := goTool.FormatFiles(
-		t.Context(),
-		internal.ProjectFormatterOptions{ProjectInfo: info, Filenames: &[]string{"file1"}},
+	test.InvokeFormatFilesFailed(
+		t,
+		golangCILintFormatter,
+		internal.ProjectFormatterOptions{
+			ProjectInfo: internal.ProjectInfo{Directory: "."},
+			Filenames:   &[]string{"file1"},
+		},
+		[]string{"fmt", "file1"},
 	)
-	require.EqualError(t, err, "failed")
-
-	exec.AssertExpectations(t)
 }
 
 func TestGolangCILint_FormatFiles_CheckAll(t *testing.T) {
-	exec := test.NewExecutable(t)
-
-	golangCILint := tool.NewGolangCILint(exec.LazyExecutable("lint"))
-
-	info := internal.ProjectInfo{Directory: "."}
-
-	exec.OnRun("lint", []string{"fmt", "--diff"}).
-		Return(nil)
-
-	err := golangCILint.FormatFiles(
-		t.Context(),
-		internal.ProjectFormatterOptions{ProjectInfo: info, CheckOnly: true},
+	test.InvokeFormatFilesSuccess(
+		t,
+		golangCILintFormatter,
+		internal.ProjectFormatterOptions{
+			ProjectInfo: internal.ProjectInfo{Directory: "."},
+			CheckOnly:   true,
+		},
+		[]string{"fmt", "--diff"},
 	)
-	require.NoError(t, err)
-
-	exec.AssertExpectations(t)
 }
 
 func TestGolangCILint_FormatFiles_CheckAll_Failed(t *testing.T) {
-	exec := test.NewExecutable(t)
-
-	golangCILint := tool.NewGolangCILint(exec.LazyExecutable("lint"))
-
-	info := internal.ProjectInfo{Directory: "."}
-
-	exec.OnRun("lint", []string{"fmt", "--diff"}).
-		Return(errors.New("failed"))
-
-	err := golangCILint.FormatFiles(
-		t.Context(),
-		internal.ProjectFormatterOptions{ProjectInfo: info, CheckOnly: true},
+	test.InvokeFormatFilesFailed(
+		t,
+		golangCILintFormatter,
+		internal.ProjectFormatterOptions{
+			ProjectInfo: internal.ProjectInfo{Directory: "."},
+			CheckOnly:   true,
+		},
+		[]string{"fmt", "--diff"},
 	)
-	require.EqualError(t, err, "failed")
-
-	exec.AssertExpectations(t)
 }
 
 func TestGolangCILint_FormatFiles_Check(t *testing.T) {
-	exec := test.NewExecutable(t)
-
-	golangCILint := tool.NewGolangCILint(exec.LazyExecutable("lint"))
-
-	info := internal.ProjectInfo{Directory: "."}
-
-	exec.OnRun("lint", []string{"fmt", "--diff", "file1"}).
-		Return(nil)
-
-	err := golangCILint.FormatFiles(
-		t.Context(),
+	test.InvokeFormatFilesSuccess(
+		t,
+		golangCILintFormatter,
 		internal.ProjectFormatterOptions{
-			ProjectInfo: info,
+			ProjectInfo: internal.ProjectInfo{Directory: "."},
 			CheckOnly:   true,
 			Filenames:   &[]string{"file1"},
 		},
+		[]string{"fmt", "--diff", "file1"},
 	)
-	require.NoError(t, err)
-
-	exec.AssertExpectations(t)
 }
 
 func TestGolangCILint_FormatFiles_Check_Failed(t *testing.T) {
-	exec := test.NewExecutable(t)
-
-	goTool := tool.NewGolangCILint(exec.LazyExecutable("lint"))
-
-	info := internal.ProjectInfo{Directory: "."}
-
-	exec.OnRun("lint", []string{"fmt", "--diff", "file1"}).
-		Return(errors.New("failed"))
-
-	err := goTool.FormatFiles(
-		t.Context(),
+	test.InvokeFormatFilesFailed(
+		t,
+		golangCILintFormatter,
 		internal.ProjectFormatterOptions{
-			ProjectInfo: info,
+			ProjectInfo: internal.ProjectInfo{Directory: "."},
 			CheckOnly:   true,
 			Filenames:   &[]string{"file1"},
 		},
+		[]string{"fmt", "--diff", "file1"},
 	)
-	require.EqualError(t, err, "failed")
-
-	exec.AssertExpectations(t)
 }
 
 func golangCILintDetect(ctx context.Context, options internal.DetectOptions) internal.Tool {
 	return tool.DetectGolangCILint(ctx, options)
 }
 
-func golangCILintBuildLinter(
+func golangCILintLinter(
 	executable func() (*internal.Executable, error),
 ) internal.ProjectLinter {
+	return tool.NewGolangCILint(executable)
+}
+
+func golangCILintFormatter(
+	executable func() (*internal.Executable, error),
+) internal.ProjectFormatter {
 	return tool.NewGolangCILint(executable)
 }

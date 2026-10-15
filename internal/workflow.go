@@ -39,7 +39,7 @@ type ProjectBuilder interface {
 	BuildTargets(ctx context.Context, options ProjectBuilderOptions) error
 }
 
-// TestsReportFormat specifies the format of the tests report.
+// TestsReportFormat specifies the format of the test report.
 type TestsReportFormat string
 
 const (
