@@ -58,6 +58,8 @@ func InitEnvironmentProviders(
 		internal.SystemEnvironmentProvider,
 		tool.DetectDocker(ctx, options),
 		tool.DetectDockerCompose(ctx, options),
+		tool.DetectPodman(ctx, options),
+		tool.DetectPodmanCompose(ctx, options),
 		tool.DetectPython(ctx, options),
 	}
 }
