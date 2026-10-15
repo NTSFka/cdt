@@ -93,103 +93,221 @@ func TestGoLint(t *testing.T) {
 	require.NoError(t, err)
 }
 
-func TestGoBuild_Docker(t *testing.T) {
+func TestGoBuild_Environment(t *testing.T) {
 	if runtime.GOOS == "windows" { // nolint: goconst
 		t.Skip("docker issues on Windows")
 	}
 
+	dataSet := []struct {
+		toolName string
+		envName  string
+	}{
+		{"docker", "docker"},
+		{"podman", "podman"},
+	}
+
 	environment := internal.SystemEnvironment
 
-	checkTool(t, t.Context(), environment, "docker")
+	for _, data := range dataSet {
+		t.Run(data.toolName, func(t *testing.T) {
+			checkTool(t, t.Context(), environment, data.toolName)
 
-	outputDir := t.TempDir()
+			outputDir := t.TempDir()
 
-	buffer := bytes.Buffer{}
-	err := runCdtOutput(t.Context(), io.MultiWriter(os.Stdout, &buffer), os.Stderr,
-		"-e", "d:golang:1.25", "-w", "go", "-r", "data/go", "-o", outputDir,
-		"build",
-	)
-	require.NoError(t, err)
+			buffer := bytes.Buffer{}
+			err := runCdtOutput(
+				t.Context(),
+				io.MultiWriter(os.Stdout, &buffer),
+				os.Stderr,
+				"-e",
+				data.envName+":"+goEnvironmentImage(data.envName),
+				"-w",
+				"go",
+				"-r",
+				"data/go",
+				"-o",
+				outputDir,
+				"build",
+			)
+			require.NoError(t, err)
+		})
+	}
 }
 
-func TestGoRun_Docker(t *testing.T) {
+func TestGoRun_Environment(t *testing.T) {
 	if runtime.GOOS == "windows" { // nolint: goconst
 		t.Skip("docker issues on Windows")
 	}
 
+	dataSet := []struct {
+		toolName string
+		envName  string
+	}{
+		{"docker", "docker"},
+		{"podman", "podman"},
+	}
+
 	environment := internal.SystemEnvironment
 
-	checkTool(t, t.Context(), environment, "docker")
+	for _, data := range dataSet {
+		t.Run(data.toolName, func(t *testing.T) {
+			checkTool(t, t.Context(), environment, data.toolName)
 
-	outputDir := t.TempDir()
+			outputDir := t.TempDir()
 
-	var err error
+			var err error
 
-	// Run
-	buffer := bytes.Buffer{}
-	err = runCdtOutput(t.Context(), io.MultiWriter(os.Stdout, &buffer), os.Stderr,
-		"-e", "d:golang:1.25", "-w", "go", "-r", "data/go", "-o", outputDir,
-		"run", "hello",
-	)
-	require.NoError(t, err)
-	require.Contains(t, buffer.String(), "Hello World!\n")
+			buffer := bytes.Buffer{}
+			err = runCdtOutput(
+				t.Context(),
+				io.MultiWriter(os.Stdout, &buffer),
+				os.Stderr,
+				"-e",
+				data.envName+":"+goEnvironmentImage(data.envName),
+				"-w",
+				"go",
+				"-r",
+				"data/go",
+				"-o",
+				outputDir,
+				"run",
+				"hello",
+			)
+			require.NoError(t, err)
+			require.Contains(t, buffer.String(), "Hello World!\n")
+		})
+	}
 }
 
-func TestGoTest_Docker(t *testing.T) {
+func TestGoTest_Environment(t *testing.T) {
 	if runtime.GOOS == "windows" { // nolint: goconst
 		t.Skip("docker issues on Windows")
 	}
 
+	dataSet := []struct {
+		toolName string
+		envName  string
+	}{
+		{"docker", "docker"},
+		{"podman", "podman"},
+	}
+
 	environment := internal.SystemEnvironment
 
-	checkTool(t, t.Context(), environment, "docker")
+	for _, data := range dataSet {
+		t.Run(data.toolName, func(t *testing.T) {
+			checkTool(t, t.Context(), environment, data.toolName)
 
-	outputDir := t.TempDir()
+			outputDir := t.TempDir()
 
-	buffer := bytes.Buffer{}
-	err := runCdtOutput(t.Context(), io.MultiWriter(os.Stdout, &buffer), os.Stderr,
-		"-e", "d:golang:1.25", "-w", "go", "-r", "data/go", "-o", outputDir,
-		"test",
-	)
-	require.NoError(t, err)
-	require.Contains(t, buffer.String(), "ok")
-	require.NotContains(t, buffer.String(), "FAIL")
+			buffer := bytes.Buffer{}
+			err := runCdtOutput(
+				t.Context(),
+				io.MultiWriter(os.Stdout, &buffer),
+				os.Stderr,
+				"-e",
+				data.envName+":"+goEnvironmentImage(data.envName),
+				"-w",
+				"go",
+				"-r",
+				"data/go",
+				"-o",
+				outputDir,
+				"test",
+			)
+			require.NoError(t, err)
+			require.Contains(t, buffer.String(), "ok")
+			require.NotContains(t, buffer.String(), "FAIL")
+		})
+	}
 }
 
-func TestGoFormat_Docker(t *testing.T) {
+func TestGoFormat_Environment(t *testing.T) {
 	if runtime.GOOS == "windows" { // nolint: goconst
 		t.Skip("docker issues on Windows")
 	}
 
+	dataSet := []struct {
+		toolName string
+		envName  string
+	}{
+		{"docker", "docker"},
+		{"podman", "podman"},
+	}
+
 	environment := internal.SystemEnvironment
 
-	checkTool(t, t.Context(), environment, "docker")
+	for _, data := range dataSet {
+		t.Run(data.toolName, func(t *testing.T) {
+			checkTool(t, t.Context(), environment, data.toolName)
 
-	outputDir := t.TempDir()
+			outputDir := t.TempDir()
 
-	buffer := bytes.Buffer{}
-	err := runCdtOutput(t.Context(), io.MultiWriter(os.Stdout, &buffer), os.Stderr,
-		"-e", "d:golang:1.25", "-w", "go", "-r", "data/go", "-o", outputDir,
-		"format",
-	)
-	require.NoError(t, err)
+			buffer := bytes.Buffer{}
+			err := runCdtOutput(
+				t.Context(),
+				io.MultiWriter(os.Stdout, &buffer),
+				os.Stderr,
+				"-e",
+				data.envName+":"+goEnvironmentImage(data.envName),
+				"-w",
+				"go",
+				"-r",
+				"data/go",
+				"-o",
+				outputDir,
+				"format",
+			)
+			require.NoError(t, err)
+		})
+	}
 }
 
-func TestGoLint_Docker(t *testing.T) {
+func TestGoLint_Environment(t *testing.T) {
 	if runtime.GOOS == "windows" { // nolint: goconst
 		t.Skip("docker issues on Windows")
 	}
 
+	dataSet := []struct {
+		toolName string
+		envName  string
+	}{
+		{"docker", "docker"},
+		{"podman", "podman"},
+	}
+
 	environment := internal.SystemEnvironment
 
-	checkTool(t, t.Context(), environment, "docker")
+	for _, data := range dataSet {
+		t.Run(data.toolName, func(t *testing.T) {
+			checkTool(t, t.Context(), environment, data.toolName)
 
-	outputDir := t.TempDir()
+			outputDir := t.TempDir()
 
-	buffer := bytes.Buffer{}
-	err := runCdtOutput(t.Context(), io.MultiWriter(os.Stdout, &buffer), os.Stderr,
-		"-e", "d:golang:1.25", "-w", "go", "-r", "data/go", "-o", outputDir,
-		"lint",
-	)
-	require.NoError(t, err)
+			buffer := bytes.Buffer{}
+			err := runCdtOutput(
+				t.Context(),
+				io.MultiWriter(os.Stdout, &buffer),
+				os.Stderr,
+				"-e",
+				data.envName+":"+goEnvironmentImage(data.envName),
+				"-w",
+				"go",
+				"-r",
+				"data/go",
+				"-o",
+				outputDir,
+				"lint",
+			)
+			require.NoError(t, err)
+		})
+	}
+}
+
+func goEnvironmentImage(environment string) string {
+	if environment == "podman" {
+		return "docker.io/golang:1.26"
+	}
+
+	return "golang:1.26"
 }

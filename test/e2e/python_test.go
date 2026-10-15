@@ -142,117 +142,169 @@ func TestPythonLint(t *testing.T) {
 	require.NoError(t, err)
 }
 
-func TestPythonRun_Docker(t *testing.T) {
+func TestPythonRun_Environment(t *testing.T) {
 	if runtime.GOOS == "windows" { // nolint: goconst
 		t.Skip("docker might be in Windows or Linux mode - unable to detect mode, yet")
 	}
 
+	dataSet := []struct {
+		toolName string
+		envName  string
+	}{
+		{"docker", "docker"},
+		{"podman", "podman"},
+	}
+
 	environment := internal.SystemEnvironment
 
-	checkTool(t, t.Context(), environment, "docker")
+	for _, data := range dataSet {
+		t.Run(data.toolName, func(t *testing.T) {
+			checkTool(t, t.Context(), environment, data.toolName)
 
-	outputDir := t.TempDir()
+			outputDir := t.TempDir()
 
-	var err error
+			var err error
 
-	buffer := bytes.Buffer{}
-	err = runCdtOutput(t.Context(), io.MultiWriter(os.Stdout, &buffer), os.Stderr,
-		"-e", "d:"+dockerImage(),
-		"-w", "python", "-r", "data/python", "-o", outputDir,
-		"run", "hello.py",
-	)
-	require.NoError(t, err)
-	require.Contains(t, buffer.String(), "Hello World!\n")
+			buffer := bytes.Buffer{}
+			err = runCdtOutput(t.Context(), io.MultiWriter(os.Stdout, &buffer), os.Stderr,
+				"-e", data.envName+":"+pythonEnvironmentImage(data.envName),
+				"-w", "python", "-r", "data/python", "-o", outputDir,
+				"run", "hello.py",
+			)
+			require.NoError(t, err)
+			require.Contains(t, buffer.String(), "Hello World!\n")
+		})
+	}
 }
 
-func TestPythonTest_Docker(t *testing.T) {
+func TestPythonTest_Environment(t *testing.T) {
 	t.Skip("cannot share container between invocations")
 
+	dataSet := []struct {
+		toolName string
+		envName  string
+	}{
+		{"docker", "docker"},
+		{"podman", "podman"},
+	}
+
 	environment := internal.SystemEnvironment
 
-	checkTool(t, t.Context(), environment, "docker")
+	for _, data := range dataSet {
+		t.Run(data.toolName, func(t *testing.T) {
+			checkTool(t, t.Context(), environment, data.toolName)
 
-	outputDir := t.TempDir()
+			outputDir := t.TempDir()
 
-	// Install dependencies
-	err := runCdt(t.Context(),
-		"-e", "d:"+dockerImage(),
-		"-w", "python", "-r", "data/python", "-o", outputDir,
-		"dep", "add", "pytest",
-	)
-	require.NoError(t, err)
+			// Install dependencies
+			err := runCdt(t.Context(),
+				"-e", data.envName+":"+pythonEnvironmentImage(data.envName),
+				"-w", "python", "-r", "data/python", "-o", outputDir,
+				"dep", "add", "pytest",
+			)
+			require.NoError(t, err)
 
-	buffer := bytes.Buffer{}
-	err = runCdtOutput(t.Context(), io.MultiWriter(os.Stdout, &buffer), os.Stderr,
-		"-e", "d:"+dockerImage(),
-		"-w", "python", "-r", "data/python", "-o", outputDir,
-		"test",
-	)
-	require.NoError(t, err)
-	require.Contains(t, buffer.String(), "passed")
+			buffer := bytes.Buffer{}
+			err = runCdtOutput(t.Context(), io.MultiWriter(os.Stdout, &buffer), os.Stderr,
+				"-e", data.envName+":"+pythonEnvironmentImage(data.envName),
+				"-w", "python", "-r", "data/python", "-o", outputDir,
+				"test",
+			)
+			require.NoError(t, err)
+			require.Contains(t, buffer.String(), "passed")
+		})
+	}
 }
 
-func TestPythonFormat_Docker(t *testing.T) {
+func TestPythonFormat_Environment(t *testing.T) {
 	t.Skip("cannot share container between invocations")
 
+	dataSet := []struct {
+		toolName string
+		envName  string
+	}{
+		{"docker", "docker"},
+		{"podman", "podman"},
+	}
+
 	environment := internal.SystemEnvironment
 
-	checkTool(t, t.Context(), environment, "docker")
+	for _, data := range dataSet {
+		t.Run(data.toolName, func(t *testing.T) {
+			checkTool(t, t.Context(), environment, data.toolName)
 
-	envDir := t.TempDir()
-	require.NoError(t, initPythonEnvironment(t.Context(), envDir))
+			envDir := t.TempDir()
+			require.NoError(t, initPythonEnvironment(t.Context(), envDir))
 
-	outputDir := t.TempDir()
+			outputDir := t.TempDir()
 
-	// Install dependencies
-	err := runCdt(t.Context(),
-		"-e", "pyenv:"+envDir,
-		"-w", "python", "-r", "data/python", "-o", outputDir,
-		"dep", "add", "black",
-	)
-	require.NoError(t, err)
+			// Install dependencies
+			err := runCdt(t.Context(),
+				"-e", "pyenv:"+envDir,
+				"-w", "python", "-r", "data/python", "-o", outputDir,
+				"dep", "add", "black",
+			)
+			require.NoError(t, err)
 
-	buffer := bytes.Buffer{}
-	err = runCdtOutput(t.Context(), io.MultiWriter(os.Stdout, &buffer), os.Stderr,
-		"-e", "d:"+dockerImage(),
-		"-w", "python", "-r", "data/python", "-o", outputDir,
-		"format",
-	)
-	require.NoError(t, err)
+			buffer := bytes.Buffer{}
+			err = runCdtOutput(t.Context(), io.MultiWriter(os.Stdout, &buffer), os.Stderr,
+				"-e", data.envName+":"+pythonEnvironmentImage(data.envName),
+				"-w", "python", "-r", "data/python", "-o", outputDir,
+				"format",
+			)
+			require.NoError(t, err)
+		})
+	}
 }
 
-func TestPythonLint_Docker(t *testing.T) {
+func TestPythonLint_Environment(t *testing.T) {
 	t.Skip("cannot share container between invocations")
 
+	dataSet := []struct {
+		toolName string
+		envName  string
+	}{
+		{"docker", "docker"},
+		{"podman", "podman"},
+	}
+
 	environment := internal.SystemEnvironment
 
-	checkTool(t, t.Context(), environment, "docker")
+	for _, data := range dataSet {
+		t.Run(data.toolName, func(t *testing.T) {
+			checkTool(t, t.Context(), environment, data.toolName)
 
-	envDir := t.TempDir()
-	require.NoError(t, initPythonEnvironment(t.Context(), envDir))
+			envDir := t.TempDir()
+			require.NoError(t, initPythonEnvironment(t.Context(), envDir))
 
-	outputDir := t.TempDir()
+			outputDir := t.TempDir()
 
-	// Install dependencies
-	err := runCdt(t.Context(),
-		"-e", "d:"+dockerImage(),
-		"-w", "python", "-r", "data/python", "-o", outputDir,
-		"dep", "add", "pylint",
-	)
-	require.NoError(t, err)
+			// Install dependencies
+			err := runCdt(t.Context(),
+				"-e", data.envName+":"+pythonEnvironmentImage(data.envName),
+				"-w", "python", "-r", "data/python", "-o", outputDir,
+				"dep", "add", "pylint",
+			)
+			require.NoError(t, err)
 
-	buffer := bytes.Buffer{}
-	err = runCdtOutput(t.Context(), io.MultiWriter(os.Stdout, &buffer), os.Stderr,
-		"-e", "d:"+dockerImage(),
-		"-w", "python", "-r", "data/python", "-o", outputDir,
-		"lint",
-	)
-	require.NoError(t, err)
+			buffer := bytes.Buffer{}
+			err = runCdtOutput(t.Context(), io.MultiWriter(os.Stdout, &buffer), os.Stderr,
+				"-e", data.envName+":"+pythonEnvironmentImage(data.envName),
+				"-w", "python", "-r", "data/python", "-o", outputDir,
+				"lint",
+			)
+			require.NoError(t, err)
+		})
+	}
 }
 
-func dockerImage() string {
+func pythonEnvironmentImage(environment string) string {
 	if runtime.GOOS == "windows" { // nolint: goconst
 		return "python:3.14-windowsservercore"
+	}
+
+	if environment == "podman" {
+		return "docker.io/python:3.14"
 	}
 
 	return "python:3.14"

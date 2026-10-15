@@ -80,6 +80,7 @@ linters:
 
   settings:
     goconst:
+      min-occurrences: 6
       ignore-tests: true
       ignore-string-values:
         - "tool"
