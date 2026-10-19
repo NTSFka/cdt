@@ -103,7 +103,26 @@ func TestPhpLint(t *testing.T) {
 	buffer := bytes.Buffer{}
 	err = runCdtOutput(t.Context(), io.MultiWriter(os.Stdout, &buffer), os.Stderr,
 		"-w", "php", "-r", "data/php", "-o", outputDir,
-		"lint",
+		"lint", "bin",
+	)
+	require.NoError(t, err)
+}
+
+func TestPhpAnalyze(t *testing.T) {
+	environment := internal.SystemEnvironment
+
+	checkTool(t, t.Context(), environment, "php")
+
+	outputDir := t.TempDir()
+
+	// Install dependencies
+	err := runCdt(t.Context(), "-w", "php", "-r", "data/php", "-o", outputDir, "dep", "install")
+	require.NoError(t, err)
+
+	buffer := bytes.Buffer{}
+	err = runCdtOutput(t.Context(), io.MultiWriter(os.Stdout, &buffer), os.Stderr,
+		"-w", "php", "-r", "data/php", "-o", outputDir,
+		"analyze",
 	)
 	require.NoError(t, err)
 }
@@ -304,7 +323,62 @@ func TestPhpLint_Environment(t *testing.T) {
 				"data/php",
 				"-o",
 				outputDir,
-				"lint",
+				"lint", "bin",
+			)
+			require.NoError(t, err)
+		})
+	}
+}
+
+func TestPhpAnalyze_Environment(t *testing.T) {
+	if runtime.GOOS == "windows" { // nolint: goconst
+		t.Skip("docker issues on Windows")
+	}
+
+	dataSet := []struct {
+		toolName string
+		envName  string
+	}{
+		{"docker", "docker"},
+		{"podman", "podman"},
+	}
+
+	environment := internal.SystemEnvironment
+
+	for _, data := range dataSet {
+		t.Run(data.toolName, func(t *testing.T) {
+			checkTool(t, t.Context(), environment, data.toolName)
+
+			outputDir := t.TempDir()
+
+			// Install dependencies
+			err := runCdt(
+				t.Context(),
+				"-w",
+				"php",
+				"-r",
+				"data/php",
+				"-o",
+				outputDir,
+				"dep",
+				"install",
+			)
+			require.NoError(t, err)
+
+			buffer := bytes.Buffer{}
+			err = runCdtOutput(
+				t.Context(),
+				io.MultiWriter(os.Stdout, &buffer),
+				os.Stderr,
+				"-e",
+				data.envName+":"+phpEnvironmentImage(data.envName),
+				"-w",
+				"php",
+				"-r",
+				"data/php",
+				"-o",
+				outputDir,
+				"analyze",
 			)
 			require.NoError(t, err)
 		})
