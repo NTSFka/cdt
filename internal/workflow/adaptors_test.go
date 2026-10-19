@@ -437,6 +437,103 @@ func createFormatterTool(id string, executable *internal.Executable) *struct {
 	}
 }
 
+func TestFormatterList_FormatFiles_Empty(t *testing.T) {
+	list := &workflow.FormatterList{}
+
+	err := list.FormatFiles(
+		t.Context(),
+		internal.ProjectFormatterOptions{Filenames: &[]string{"file1"}},
+	)
+
+	require.EqualError(t, err, "no formatter tool available: none")
+}
+
+func TestFormatterList_FormatFiles_NoAvailable(t *testing.T) {
+	tool1 := createFormatterTool("test1", nil)
+	tool2 := createFormatterTool("test2", nil)
+
+	list := &workflow.FormatterList{tool1, tool2}
+
+	err := list.FormatFiles(
+		t.Context(),
+		internal.ProjectFormatterOptions{Filenames: &[]string{"file1"}},
+	)
+
+	require.EqualError(t, err, "no formatter tool available: test1, test2")
+
+	tool1.AssertExpectations(t)
+	tool2.AssertExpectations(t)
+}
+
+func TestFormatterList_FormatFiles_Available1(t *testing.T) {
+	tool1 := createFormatterTool("test1", &internal.Executable{Path: "test1"})
+	tool2 := createFormatterTool("test2", nil)
+
+	list := &workflow.FormatterList{tool1, tool2}
+
+	tool1.Test(t)
+	tool2.Test(t)
+	tool1.On(
+		"FormatFiles",
+		mock.Anything,
+		mock.MatchedBy(func(opts internal.ProjectFormatterOptions) bool {
+			return assert.NotNil(t, opts.Filenames) &&
+				assert.ElementsMatch(t, []string{"file1"}, *opts.Filenames)
+		}),
+	).
+		Return(nil)
+
+	err := list.FormatFiles(
+		t.Context(),
+		internal.ProjectFormatterOptions{Filenames: &[]string{"file1"}},
+	)
+
+	require.NoError(t, err)
+
+	tool1.AssertExpectations(t)
+	tool2.AssertExpectations(t)
+}
+
+func TestFormatterList_FormatFiles_Available2(t *testing.T) {
+	tool1 := createFormatterTool("test1", &internal.Executable{Path: "test1"})
+	tool2 := createFormatterTool("test2", &internal.Executable{Path: "test1"})
+
+	list := &workflow.FormatterList{tool1, tool2}
+
+	tool1.Test(t)
+	tool2.Test(t)
+
+	tool1.On(
+		"FormatFiles",
+		mock.Anything,
+		mock.MatchedBy(func(opts internal.ProjectFormatterOptions) bool {
+			return assert.NotNil(t, opts.Filenames) &&
+				assert.Equal(t, []string{"file1"}, *opts.Filenames)
+		}),
+	).
+		Return(nil)
+
+	tool2.On(
+		"FormatFiles",
+		mock.Anything,
+		mock.MatchedBy(func(opts internal.ProjectFormatterOptions) bool {
+			return assert.NotNil(t, opts.Filenames) &&
+				assert.Equal(t, []string{"file1"}, *opts.Filenames)
+		}),
+	).
+		Return(nil)
+
+	err := list.FormatFiles(
+		t.Context(),
+		internal.ProjectFormatterOptions{Filenames: &[]string{"file1"}},
+	)
+
+	require.NoError(t, err)
+
+	tool1.AssertExpectations(t)
+	tool2.AssertExpectations(t)
+}
+
 func TestFormatterFallback_Details_Empty(t *testing.T) {
 	fallback := &workflow.FormatterFallback{}
 

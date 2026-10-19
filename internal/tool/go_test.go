@@ -417,6 +417,7 @@ func TestGo_Go_LintFiles_OutputFormat_Raw(t *testing.T) {
 	test.InvokeLintFilesOutputFormatCheck(
 		t,
 		goLinter,
+		".",
 		internal.LintReportFormatRaw,
 		[]string{"vet", "./..."},
 		nil,
@@ -435,13 +436,13 @@ func TestGo_Go_LintFiles_OutputFormat_Unsupported(t *testing.T) {
 
 	for _, format := range dataSet {
 		t.Run(string(format), func(t *testing.T) {
-			test.InvokeLintFilesOutputFormatUnsupported(t, goLinter, format, nil)
+			test.InvokeLintFilesOutputFormatUnsupported(t, goLinter, ".", format, nil)
 		})
 	}
 }
 
 func TestGo_Go_LintFiles_OutputFile(t *testing.T) {
-	test.InvokeLintFilesOutputFile(t, goLinter, []string{"vet", "./..."}, nil)
+	test.InvokeLintFilesOutputFile(t, goLinter, ".", []string{"vet", "./..."}, nil)
 }
 
 func TestGo_Go_AddDependencies(t *testing.T) {

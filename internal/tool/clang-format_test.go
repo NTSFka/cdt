@@ -3,7 +3,6 @@ package tool_test
 import (
 	"context"
 	"fmt"
-	"os"
 	"path/filepath"
 	"testing"
 
@@ -12,7 +11,6 @@ import (
 	"cdt/internal/tool"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 )
 
 func TestClangFormat_DetectClangFormat(t *testing.T) {
@@ -82,9 +80,7 @@ func TestClangFormat_FormatFiles_All_Failed(t *testing.T) {
 func TestClangFormat_FormatFiles_All_CustomConfig(t *testing.T) {
 	directory := t.TempDir()
 
-	file, err := os.Create(filepath.Join(directory, ".clang-format"))
-	require.NoError(t, err)
-	assert.NoError(t, file.Close())
+	test.CreateFile(t, directory, ".clang-format")
 
 	test.InvokeFormatFilesSuccess(
 		t,
@@ -156,9 +152,7 @@ func TestClangFormat_FormatFiles_Failed(t *testing.T) {
 func TestClangFormat_FormatFiles_CustomConfig(t *testing.T) {
 	directory := t.TempDir()
 
-	file, err := os.Create(filepath.Join(directory, ".clang-format"))
-	require.NoError(t, err)
-	assert.NoError(t, file.Close())
+	test.CreateFile(t, directory, ".clang-format")
 
 	test.InvokeFormatFilesSuccess(
 		t,
@@ -231,9 +225,7 @@ func TestClangFormat_FormatFiles_CheckAll_Failed(t *testing.T) {
 func TestClangFormat_FormatFiles_CheckAll_CustomConfig(t *testing.T) {
 	directory := t.TempDir()
 
-	file, err := os.Create(filepath.Join(directory, ".clang-format"))
-	require.NoError(t, err)
-	assert.NoError(t, file.Close())
+	test.CreateFile(t, directory, ".clang-format")
 
 	test.InvokeFormatFilesSuccess(
 		t,
@@ -302,9 +294,7 @@ func TestClangFormat_FormatFiles_Check_Failed(t *testing.T) {
 func TestClangFormat_FormatFiles_Check_CustomConfig(t *testing.T) {
 	directory := t.TempDir()
 
-	file, err := os.Create(filepath.Join(directory, ".clang-format"))
-	require.NoError(t, err)
-	assert.NoError(t, file.Close())
+	test.CreateFile(t, directory, ".clang-format")
 
 	test.InvokeFormatFilesSuccess(
 		t,

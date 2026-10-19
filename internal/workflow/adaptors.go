@@ -158,6 +158,22 @@ type formatterTool interface {
 	internal.Tool
 }
 
+// FormatterList run all available formatters.
+type FormatterList []formatterTool
+
+func (f *FormatterList) Details() string {
+	return adaptorToolIds("list", *f)
+}
+
+func (f *FormatterList) FormatFiles(
+	ctx context.Context,
+	options internal.ProjectFormatterOptions,
+) error {
+	return runAllAvailable(*f, "formatter", func(tool formatterTool) error {
+		return tool.FormatFiles(ctx, options)
+	})
+}
+
 // FormatterFallback run the first available formatter.
 type FormatterFallback []formatterTool
 

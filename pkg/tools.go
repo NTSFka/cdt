@@ -30,6 +30,10 @@ func InitTools(
 		tool.DetectPHPStan(ctx, options),
 		tool.DetectPHPCSFixer(ctx, options),
 		tool.DetectComposer(ctx, options),
+		tool.DetectPHPMD(ctx, options),
+		tool.DetectPHPParallelLint(ctx, options),
+		tool.DetectComposerDependencyAnalyzer(ctx, options),
+		tool.DetectMago(ctx, options),
 
 		// Python
 		tool.DetectPython(ctx, options),

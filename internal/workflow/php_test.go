@@ -43,7 +43,11 @@ func TestPHPType_Create(t *testing.T) {
 		tool.NewPHP(test.LazyExecutable("php-test")),
 		tool.NewPHPUnit(test.LazyExecutable("phpunit-test")),
 		tool.NewParaTest(test.LazyExecutable("paratest-test")),
+		tool.NewMago(test.LazyExecutable("mago-test")),
 		tool.NewPHPStan(test.LazyExecutable("phpstan-test")),
+		tool.NewPHPMD(test.LazyExecutable("phpmd")),
+		tool.NewPHPParallelLint(test.LazyExecutable("php-parallel-lint")),
+		tool.NewComposerDependencyAnalyzer(test.LazyExecutable("composer-dependency-analyzer")),
 		tool.NewPHPCSFixer(test.LazyExecutable("php-cs-fixer-test")),
 		tool.NewComposer(test.LazyExecutable("composer-test")),
 	}
@@ -68,7 +72,11 @@ func TestPHPType_Project_RunTests_Paratest(t *testing.T) {
 		tool.NewPHP(test.LazyExecutable("php-test")),
 		tool.NewPHPUnit(phpunitMock.LazyExecutable("phpunit-test")),
 		tool.NewParaTest(paratestMock.LazyExecutable("paratest-test")),
+		tool.NewMago(test.LazyExecutable("mago-test")),
 		tool.NewPHPStan(test.LazyExecutable("phpstan-test")),
+		tool.NewPHPMD(test.LazyExecutable("phpmd")),
+		tool.NewPHPParallelLint(test.LazyExecutable("php-parallel-lint")),
+		tool.NewComposerDependencyAnalyzer(test.LazyExecutable("composer-dependency-analyzer")),
 		tool.NewPHPCSFixer(test.LazyExecutable("php-cs-fixer-test")),
 		tool.NewComposer(test.LazyExecutable("composer-test")),
 	}
@@ -99,7 +107,11 @@ func TestPHPType_Project_RunTests_PHPUnit(t *testing.T) {
 		tool.NewPHP(test.LazyExecutable("php-test")),
 		tool.NewPHPUnit(phpunitMock.LazyExecutable("phpunit-test")),
 		tool.NewParaTest(test.LazyExecutableNil),
+		tool.NewMago(test.LazyExecutable("mago-test")),
 		tool.NewPHPStan(test.LazyExecutable("phpstan-test")),
+		tool.NewPHPMD(test.LazyExecutable("phpmd")),
+		tool.NewPHPParallelLint(test.LazyExecutable("php-parallel-lint")),
+		tool.NewComposerDependencyAnalyzer(test.LazyExecutable("composer-dependency-analyzer")),
 		tool.NewPHPCSFixer(test.LazyExecutable("php-cs-fixer-test")),
 		tool.NewComposer(test.LazyExecutable("composer-test")),
 	}
@@ -130,7 +142,11 @@ func TestPHPType_Project_RunTests_Pattern_Paratest(t *testing.T) {
 		tool.NewPHP(test.LazyExecutable("php-test")),
 		tool.NewPHPUnit(phpunitMock.LazyExecutable("phpunit-test")),
 		tool.NewParaTest(paratestMock.LazyExecutable("paratest-test")),
+		tool.NewMago(test.LazyExecutable("mago-test")),
 		tool.NewPHPStan(test.LazyExecutable("phpstan-test")),
+		tool.NewPHPMD(test.LazyExecutable("phpmd")),
+		tool.NewPHPParallelLint(test.LazyExecutable("php-parallel-lint")),
+		tool.NewComposerDependencyAnalyzer(test.LazyExecutable("composer-dependency-analyzer")),
 		tool.NewPHPCSFixer(test.LazyExecutable("php-cs-fixer-test")),
 		tool.NewComposer(test.LazyExecutable("composer-test")),
 	}
@@ -146,7 +162,7 @@ func TestPHPType_Project_RunTests_Pattern_Paratest(t *testing.T) {
 		t.Context(),
 		internal.ProjectTesterOptions{
 			ProjectInfo: project.Info,
-			Pattern:     internal.StrPtr("my-test"),
+			Pattern:     new("my-test"),
 		},
 	)
 	require.NoError(t, err)
@@ -164,7 +180,11 @@ func TestPHPType_Project_RunTests_Pattern_PHPUnit(t *testing.T) {
 		tool.NewPHP(test.LazyExecutable("php-test")),
 		tool.NewPHPUnit(phpunitMock.LazyExecutable("phpunit-test")),
 		tool.NewParaTest(test.LazyExecutableNil),
+		tool.NewMago(test.LazyExecutable("mago-test")),
 		tool.NewPHPStan(test.LazyExecutable("phpstan-test")),
+		tool.NewPHPMD(test.LazyExecutable("phpmd")),
+		tool.NewPHPParallelLint(test.LazyExecutable("php-parallel-lint")),
+		tool.NewComposerDependencyAnalyzer(test.LazyExecutable("composer-dependency-analyzer")),
 		tool.NewPHPCSFixer(test.LazyExecutable("php-cs-fixer-test")),
 		tool.NewComposer(test.LazyExecutable("composer-test")),
 	}
@@ -180,7 +200,7 @@ func TestPHPType_Project_RunTests_Pattern_PHPUnit(t *testing.T) {
 		t.Context(),
 		internal.ProjectTesterOptions{
 			ProjectInfo: project.Info,
-			Pattern:     internal.StrPtr("my-test"),
+			Pattern:     new("my-test"),
 		},
 	)
 	require.NoError(t, err)

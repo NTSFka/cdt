@@ -137,6 +137,9 @@ const (
 	LintReportFormatGitHub   LintReportFormat = "github"
 	LintReportFormatGitLab   LintReportFormat = "gitlab"
 	LintReportFormatTeamCity LintReportFormat = "teamcity"
+	LintReportFormatXml      LintReportFormat = "xml"
+	LintReportFormatHtml     LintReportFormat = "html"
+	LintReportFormatSarif    LintReportFormat = "sarif"
 )
 
 // ProjectLinterOptions are options for linting a project.

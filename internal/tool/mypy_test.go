@@ -73,6 +73,7 @@ func TestMyPy_MyPy_LintFiles_OutputFormat_Raw(t *testing.T) {
 	test.InvokeLintFilesOutputFormatCheck(
 		t,
 		myPyLinter,
+		".",
 		internal.LintReportFormatRaw,
 		[]string{"*.py"},
 		nil,
@@ -91,13 +92,13 @@ func TestMyPy_MyPy_LintFiles_OutputFormat_Unsupported(t *testing.T) {
 
 	for _, format := range dataSet {
 		t.Run(string(format), func(t *testing.T) {
-			test.InvokeLintFilesOutputFormatUnsupported(t, myPyLinter, format, nil)
+			test.InvokeLintFilesOutputFormatUnsupported(t, myPyLinter, ".", format, nil)
 		})
 	}
 }
 
 func TestMyPy_MyPy_LintFiles_OutputFile(t *testing.T) {
-	test.InvokeLintFilesOutputFile(t, myPyLinter, []string{"*.py"}, nil)
+	test.InvokeLintFilesOutputFile(t, myPyLinter, ".", []string{"*.py"}, nil)
 }
 
 func myPyDetect(ctx context.Context, options internal.DetectOptions) internal.Tool {

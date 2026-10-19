@@ -73,6 +73,7 @@ func TestPylint_Pylint_LintFiles_OutputFormat_Raw(t *testing.T) {
 	test.InvokeLintFilesOutputFormatCheck(
 		t,
 		pylintLinter,
+		".",
 		internal.LintReportFormatRaw,
 		[]string{"*"},
 		nil,
@@ -94,6 +95,7 @@ func TestPylint_Pylint_LintFiles_OutputFormat_Unsupported(t *testing.T) {
 			test.InvokeLintFilesOutputFormatUnsupported(
 				t,
 				pylintLinter,
+				".",
 				format,
 				nil,
 			)
@@ -105,6 +107,7 @@ func TestPylint_Pylint_LintFiles_OutputFile(t *testing.T) {
 	test.InvokeLintFilesOutputFile(
 		t,
 		pylintLinter,
+		".",
 		[]string{"*"},
 		nil,
 	)

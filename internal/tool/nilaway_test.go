@@ -73,6 +73,7 @@ func TestNilAway_NilAway_LintFiles_OutputFormat_Raw(t *testing.T) {
 	test.InvokeLintFilesOutputFormatCheck(
 		t,
 		nilAwayLinter,
+		".",
 		internal.LintReportFormatRaw,
 		[]string{"./..."},
 		nil,
@@ -91,7 +92,7 @@ func TestNilAway_NilAway_LintFiles_OutputFormat_Unsupported(t *testing.T) {
 
 	for _, format := range dataSet {
 		t.Run(string(format), func(t *testing.T) {
-			test.InvokeLintFilesOutputFormatUnsupported(t, nilAwayLinter, format, nil)
+			test.InvokeLintFilesOutputFormatUnsupported(t, nilAwayLinter, ".", format, nil)
 		})
 	}
 }
@@ -100,6 +101,7 @@ func TestNilAway_NilAway_LintFiles_OutputFile(t *testing.T) {
 	test.InvokeLintFilesOutputFile(
 		t,
 		nilAwayLinter,
+		".",
 		[]string{"./..."},
 		nil,
 	)

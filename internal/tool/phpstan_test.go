@@ -114,6 +114,7 @@ func TestPHPStan_PHPStan_LintFiles_OutputFormat(t *testing.T) {
 			test.InvokeLintFilesOutputFormatCheck(
 				t,
 				phpStanLinter,
+				".",
 				data.format,
 				append([]string{"analyse"}, data.args...),
 				nil,
@@ -132,6 +133,7 @@ func TestPHPStan_PHPStan_LintFiles_OutputFormat_Unsupported(t *testing.T) {
 			test.InvokeLintFilesOutputFormatUnsupported(
 				t,
 				phpStanLinter,
+				".",
 				format,
 				nil,
 			)
@@ -143,6 +145,7 @@ func TestPHPStan_PHPStan_LintFiles_OutputFile(t *testing.T) {
 	test.InvokeLintFilesOutputFile(
 		t,
 		phpStanLinter,
+		".",
 		[]string{"analyse"},
 		nil,
 	)

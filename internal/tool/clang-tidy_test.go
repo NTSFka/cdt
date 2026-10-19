@@ -80,9 +80,7 @@ func TestClangTidy_LintFiles_All_CustomConfig(t *testing.T) {
 	info := clangTidyProjectInfo(t, []string{"file1.c", "file2.c"})
 
 	// Create configuration file
-	file, err := os.Create(filepath.Join(info.Directory, ".clang-tidy"))
-	require.NoError(t, err)
-	assert.NoError(t, file.Close())
+	test.CreateFile(t, info.Directory, ".clang-tidy")
 
 	test.InvokeLintFiles(
 		t,
@@ -155,9 +153,7 @@ func TestClangTidy_LintFiles_CustomConfig(t *testing.T) {
 	info := clangTidyProjectInfo(t, []string{"file1.c", "file2.c"})
 
 	// Create configuration file
-	file, err := os.Create(filepath.Join(info.Directory, ".clang-tidy"))
-	require.NoError(t, err)
-	assert.NoError(t, file.Close())
+	test.CreateFile(t, info.Directory, ".clang-tidy")
 
 	test.InvokeLintFiles(
 		t,

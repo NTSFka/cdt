@@ -68,6 +68,7 @@ func (p *PHPStan) LintFiles(
 func (p *PHPStan) argsBuildLintOutputFormat(format internal.LintReportFormat) ([]string, error) {
 	var args []string
 
+	// nolint: exhaustive
 	switch format {
 	case internal.LintReportFormatDefault:
 		fallthrough

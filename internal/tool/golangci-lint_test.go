@@ -69,6 +69,7 @@ func TestGolangCILint_GolangCILint_LintFiles_OutputFormat_Raw(t *testing.T) {
 	test.InvokeLintFilesOutputFormatCheck(
 		t,
 		golangCILintLinter,
+		".",
 		internal.LintReportFormatRaw,
 		[]string{"run"},
 		nil,
@@ -87,7 +88,7 @@ func TestGolangCILint_GolangCILint_LintFiles_OutputFormat_Unsupported(t *testing
 
 	for _, format := range dataSet {
 		t.Run(string(format), func(t *testing.T) {
-			test.InvokeLintFilesOutputFormatUnsupported(t, golangCILintLinter, format, nil)
+			test.InvokeLintFilesOutputFormatUnsupported(t, golangCILintLinter, ".", format, nil)
 		})
 	}
 }
@@ -96,6 +97,7 @@ func TestGolangCILint_GolangCILint_LintFiles_OutputFile(t *testing.T) {
 	test.InvokeLintFilesOutputFile(
 		t,
 		golangCILintLinter,
+		".",
 		[]string{"run"},
 		nil,
 	)

@@ -89,6 +89,7 @@ func TestPHP_PHP_LintFiles_OutputFormat_Raw(t *testing.T) {
 	test.InvokeLintFilesOutputFormatCheck(
 		t,
 		phpLinter,
+		".",
 		internal.LintReportFormatRaw,
 		append([]string{"-l"}, fileNames...),
 		&fileNames,
@@ -110,6 +111,7 @@ func TestPHP_PHP_LintFiles_OutputFormat_Unsupported(t *testing.T) {
 			test.InvokeLintFilesOutputFormatUnsupported(
 				t,
 				phpLinter,
+				".",
 				format,
 				&[]string{"file.php", "/path/to/file2.php"},
 			)
@@ -123,6 +125,7 @@ func TestPHP_PHP_LintFiles_OutputFile(t *testing.T) {
 	test.InvokeLintFilesOutputFile(
 		t,
 		phpLinter,
+		".",
 		append([]string{"-l"}, fileNames...),
 		&fileNames,
 	)

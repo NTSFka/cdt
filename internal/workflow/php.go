@@ -20,7 +20,11 @@ func (p *PHP) Detect(directory string) bool {
 func (p *PHP) Create(config Config, tools internal.Tools) internal.Project {
 	php := internal.GetTool[*tool.PHP](tools)
 	phpStan := internal.GetTool[*tool.PHPStan](tools)
+	phpmd := internal.GetTool[*tool.PHPMD](tools)
+	phpParallelLint := internal.GetTool[*tool.PHPParallelLint](tools)
 	phpCsFixer := internal.GetTool[*tool.PHPCSFixer](tools)
+	mago := internal.GetTool[*tool.Mago](tools)
+	composerDependencyAnalyzer := internal.GetTool[*tool.ComposerDependencyAnalyzer](tools)
 	paratest := internal.GetTool[*tool.ParaTest](tools)
 	phpUnit := internal.GetTool[*tool.PHPUnit](tools)
 	composer := internal.GetTool[*tool.Composer](tools)
@@ -32,8 +36,14 @@ func (p *PHP) Create(config Config, tools internal.Tools) internal.Project {
 		Runner:            php,
 		Tester:            &TesterFallback{paratest, phpUnit},
 		CoverageCollector: &CoverageCollectorFallback{paratest, phpUnit},
-		Formatter:         phpCsFixer,
-		Linter:            phpStan,
+		Formatter:         &FormatterList{mago, phpCsFixer},
+		Linter: &LinterList{
+			phpParallelLint,
+			mago,
+			phpStan,
+			phpmd,
+			composerDependencyAnalyzer,
+		},
 		DependencyManager: composer,
 	}
 

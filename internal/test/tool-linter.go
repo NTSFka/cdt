@@ -103,6 +103,7 @@ func InvokeLintFilesError(
 func InvokeLintFilesOutputFormatCheck(
 	t *testing.T,
 	builder LinterBuilder,
+	directory string,
 	format internal.LintReportFormat,
 	expectedArgs []string,
 	filenames *[]string,
@@ -111,6 +112,9 @@ func InvokeLintFilesOutputFormatCheck(
 		t,
 		builder,
 		internal.ProjectLinterOptions{
+			ProjectInfo: internal.ProjectInfo{
+				Directory: directory,
+			},
 			Filenames: filenames,
 			Output: internal.OutputOptions[internal.LintReportFormat]{
 				Format: format,
@@ -125,6 +129,7 @@ func InvokeLintFilesOutputFormatCheck(
 func InvokeLintFilesOutputFormatUnsupported(
 	t *testing.T,
 	builder LinterBuilder,
+	directory string,
 	format internal.LintReportFormat,
 	filenames *[]string,
 ) internal.ProjectLinter {
@@ -132,6 +137,9 @@ func InvokeLintFilesOutputFormatUnsupported(
 		t,
 		builder,
 		internal.ProjectLinterOptions{
+			ProjectInfo: internal.ProjectInfo{
+				Directory: directory,
+			},
 			Filenames: filenames,
 			Output: internal.OutputOptions[internal.LintReportFormat]{
 				Format: format,
@@ -147,6 +155,7 @@ func InvokeLintFilesOutputFormatUnsupported(
 func InvokeLintFilesOutputFile(
 	t *testing.T,
 	builder LinterBuilder,
+	directory string,
 	expectedArgs []string,
 	filenames *[]string,
 ) internal.ProjectLinter {
@@ -158,6 +167,9 @@ func InvokeLintFilesOutputFile(
 		t,
 		builder,
 		internal.ProjectLinterOptions{
+			ProjectInfo: internal.ProjectInfo{
+				Directory: directory,
+			},
 			Filenames: filenames,
 			Output: internal.OutputOptions[internal.LintReportFormat]{
 				Filename: &outputFilename,
