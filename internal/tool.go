@@ -17,6 +17,7 @@ const (
 	ToolTagBuild       Tag = "build"
 	ToolTagTest        Tag = "test"
 	ToolTagLint        Tag = "lint"
+	ToolTagAnalyze     Tag = "analyze"
 	ToolTagFormat      Tag = "format"
 	ToolTagRun         Tag = "run"
 	ToolTagDependency  Tag = "dependency"

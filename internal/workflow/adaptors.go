@@ -190,6 +190,27 @@ func (f *FormatterFallback) FormatFiles(
 	})
 }
 
+type analyzerTool interface {
+	internal.ProjectAnalyzer
+	internal.Tool
+}
+
+// AnalyzerList run all available analyzers.
+type AnalyzerList []analyzerTool
+
+func (f *AnalyzerList) Details() string {
+	return adaptorToolIds("list", *f)
+}
+
+func (f *AnalyzerList) AnalyzeFiles(
+	ctx context.Context,
+	options internal.ProjectAnalyzerOptions,
+) error {
+	return runAllAvailable(*f, "analyzer", func(tool analyzerTool) error {
+		return tool.AnalyzeFiles(ctx, options)
+	})
+}
+
 type linterTool interface {
 	internal.ProjectLinter
 	internal.Tool

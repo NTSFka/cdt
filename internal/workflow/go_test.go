@@ -49,6 +49,7 @@ func TestGoType_Create(t *testing.T) {
 
 	tools := internal.Tools{
 		tool.NewGo(test.LazyExecutable("go-test")),
+		tool.NewNilAway(test.LazyExecutable("nilaway-test")),
 		tool.NewGolangCILint(test.LazyExecutableNil),
 	}
 

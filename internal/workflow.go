@@ -162,6 +162,42 @@ type ProjectLinter interface {
 	LintFiles(ctx context.Context, options ProjectLinterOptions) error
 }
 
+// AnalyzeReportFormat specifies the format of the analysis report.
+type AnalyzeReportFormat string
+
+const (
+	AnalyzeReportFormatDefault  AnalyzeReportFormat = ""
+	AnalyzeReportFormatRaw      AnalyzeReportFormat = "raw"
+	AnalyzeReportFormatJson     AnalyzeReportFormat = "json"
+	AnalyzeReportFormatJUnit    AnalyzeReportFormat = "junit"
+	AnalyzeReportFormatGitHub   AnalyzeReportFormat = "github"
+	AnalyzeReportFormatGitLab   AnalyzeReportFormat = "gitlab"
+	AnalyzeReportFormatTeamCity AnalyzeReportFormat = "teamcity"
+	AnalyzeReportFormatXml      AnalyzeReportFormat = "xml"
+	AnalyzeReportFormatHtml     AnalyzeReportFormat = "html"
+	AnalyzeReportFormatSarif    AnalyzeReportFormat = "sarif"
+)
+
+// ProjectAnalyzerOptions are options for analyzing a project.
+type ProjectAnalyzerOptions struct {
+	ProjectInfo
+
+	// ExtraArgs are extra arguments for the specific linter implementation
+	ExtraArgs []string
+
+	// Output specifies how the operation should produce output
+	Output OutputOptions[AnalyzeReportFormat]
+
+	// Filenames specify filenames to lint
+	Filenames *[]string
+}
+
+// A ProjectAnalyzer allow analyzing files of a project.
+type ProjectAnalyzer interface {
+	// AnalyzeFiles perform analysis on files
+	AnalyzeFiles(ctx context.Context, options ProjectAnalyzerOptions) error
+}
+
 // ProjectRunnerOptions are options for running a target in the project.
 type ProjectRunnerOptions struct {
 	ProjectInfo
@@ -248,6 +284,9 @@ type Workflow struct {
 
 	// Linter stores a linter for the project
 	Linter ProjectLinter
+
+	// Analyzer stores an analyzer for the project
+	Analyzer ProjectAnalyzer
 
 	// Runner stores a runner of the project
 	Runner ProjectRunner

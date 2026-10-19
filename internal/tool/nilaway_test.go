@@ -29,78 +29,78 @@ func TestNilAway_DetectNilAway_Config(t *testing.T) {
 	assert.Equal(t, tool.IdNilAway, nilAway.Id())
 }
 
-func TestNilAway_NilAway_LintFiles_All(t *testing.T) {
-	test.InvokeLintFilesSuccess(
+func TestNilAway_AnalyzeFiles_All(t *testing.T) {
+	test.InvokeAnalyzeFilesSuccess(
 		t,
-		nilAwayLinter,
-		internal.ProjectLinterOptions{},
+		nilAwayAnalyzer,
+		internal.ProjectAnalyzerOptions{},
 		[]string{"./..."},
 	)
 }
 
-func TestNilAway_NilAway_LintFiles_All_Failed(t *testing.T) {
-	test.InvokeLintFilesFailed(
+func TestNilAway_AnalyzeFiles_All_Failed(t *testing.T) {
+	test.InvokeAnalyzeFilesFailed(
 		t,
-		nilAwayLinter,
-		internal.ProjectLinterOptions{},
+		nilAwayAnalyzer,
+		internal.ProjectAnalyzerOptions{},
 		[]string{"./..."},
 	)
 }
 
-func TestNilAway_NilAway_LintFiles(t *testing.T) {
+func TestNilAway_AnalyzeFiles(t *testing.T) {
 	fileNames := []string{"mod1"}
 
-	test.InvokeLintFilesSuccess(
+	test.InvokeAnalyzeFilesSuccess(
 		t,
-		nilAwayLinter,
-		internal.ProjectLinterOptions{Filenames: &fileNames},
+		nilAwayAnalyzer,
+		internal.ProjectAnalyzerOptions{Filenames: &fileNames},
 		fileNames,
 	)
 }
 
-func TestNilAway_NilAway_LintFiles_Failed(t *testing.T) {
+func TestNilAway_AnalyzeFiles_Failed(t *testing.T) {
 	fileNames := []string{"mod1"}
 
-	test.InvokeLintFilesFailed(
+	test.InvokeAnalyzeFilesFailed(
 		t,
-		nilAwayLinter,
-		internal.ProjectLinterOptions{Filenames: &fileNames},
+		nilAwayAnalyzer,
+		internal.ProjectAnalyzerOptions{Filenames: &fileNames},
 		fileNames,
 	)
 }
 
-func TestNilAway_NilAway_LintFiles_OutputFormat_Raw(t *testing.T) {
-	test.InvokeLintFilesOutputFormatCheck(
+func TestNilAway_AnalyzeFiles_OutputFormat_Raw(t *testing.T) {
+	test.InvokeAnalyzeFilesOutputFormatCheck(
 		t,
-		nilAwayLinter,
+		nilAwayAnalyzer,
 		".",
-		internal.LintReportFormatRaw,
+		internal.AnalyzeReportFormatRaw,
 		[]string{"./..."},
 		nil,
 	)
 }
 
-func TestNilAway_NilAway_LintFiles_OutputFormat_Unsupported(t *testing.T) {
-	dataSet := []internal.LintReportFormat{
-		internal.LintReportFormatJson,
-		internal.LintReportFormatJUnit,
-		internal.LintReportFormatGitHub,
-		internal.LintReportFormatGitLab,
-		internal.LintReportFormatTeamCity,
+func TestNilAway_AnalyzeFiles_OutputFormat_Unsupported(t *testing.T) {
+	dataSet := []internal.AnalyzeReportFormat{
+		internal.AnalyzeReportFormatJson,
+		internal.AnalyzeReportFormatJUnit,
+		internal.AnalyzeReportFormatGitHub,
+		internal.AnalyzeReportFormatGitLab,
+		internal.AnalyzeReportFormatTeamCity,
 		"test-unsupported",
 	}
 
 	for _, format := range dataSet {
 		t.Run(string(format), func(t *testing.T) {
-			test.InvokeLintFilesOutputFormatUnsupported(t, nilAwayLinter, ".", format, nil)
+			test.InvokeAnalyzeFilesOutputFormatUnsupported(t, nilAwayAnalyzer, ".", format, nil)
 		})
 	}
 }
 
-func TestNilAway_NilAway_LintFiles_OutputFile(t *testing.T) {
-	test.InvokeLintFilesOutputFile(
+func TestNilAway_AnalyzeFiles_OutputFile(t *testing.T) {
+	test.InvokeAnalyzeFilesOutputFile(
 		t,
-		nilAwayLinter,
+		nilAwayAnalyzer,
 		".",
 		[]string{"./..."},
 		nil,
@@ -111,6 +111,6 @@ func nilAwayDetect(ctx context.Context, options internal.DetectOptions) internal
 	return tool.DetectNilAway(ctx, options)
 }
 
-func nilAwayLinter(executable func() (*internal.Executable, error)) internal.ProjectLinter {
+func nilAwayAnalyzer(executable func() (*internal.Executable, error)) internal.ProjectAnalyzer {
 	return tool.NewNilAway(executable)
 }

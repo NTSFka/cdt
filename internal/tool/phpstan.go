@@ -39,15 +39,15 @@ func NewPHPStan(detect internal.ExecutableToolDetectFunc) *PHPStan {
 			IdPHPStan,
 			"PHPStan",
 			"Analyses source code.",
-			internal.Tags{internal.ToolTagPhp, internal.ToolTagLint},
+			internal.Tags{internal.ToolTagPhp, internal.ToolTagAnalyze},
 			detect,
 		),
 	}
 }
 
-func (p *PHPStan) LintFiles(
+func (p *PHPStan) AnalyzeFiles(
 	ctx context.Context,
-	options internal.ProjectLinterOptions,
+	options internal.ProjectAnalyzerOptions,
 ) error {
 	args := append([]string{"analyse"}, options.ExtraArgs...)
 	args = appendFiles(args, options.Filenames, nil)
@@ -65,24 +65,24 @@ func (p *PHPStan) LintFiles(
 	return p.RunForProject(ctx, options.ProjectInfo, args)
 }
 
-func (p *PHPStan) argsBuildLintOutputFormat(format internal.LintReportFormat) ([]string, error) {
+func (p *PHPStan) argsBuildLintOutputFormat(format internal.AnalyzeReportFormat) ([]string, error) {
 	var args []string
 
 	// nolint: exhaustive
 	switch format {
-	case internal.LintReportFormatDefault:
+	case internal.AnalyzeReportFormatDefault:
 		fallthrough
-	case internal.LintReportFormatRaw:
+	case internal.AnalyzeReportFormatRaw:
 		break
-	case internal.LintReportFormatJson:
+	case internal.AnalyzeReportFormatJson:
 		args = []string{"--error-format=json"}
-	case internal.LintReportFormatJUnit:
+	case internal.AnalyzeReportFormatJUnit:
 		args = []string{"--error-format=junit"}
-	case internal.LintReportFormatGitHub:
+	case internal.AnalyzeReportFormatGitHub:
 		args = []string{"--error-format=github"}
-	case internal.LintReportFormatGitLab:
+	case internal.AnalyzeReportFormatGitLab:
 		args = []string{"--error-format=gitlab"}
-	case internal.LintReportFormatTeamCity:
+	case internal.AnalyzeReportFormatTeamCity:
 		args = []string{"--error-format=teamcity"}
 	default:
 		return nil, fmt.Errorf("unsupported report format: %s", format)

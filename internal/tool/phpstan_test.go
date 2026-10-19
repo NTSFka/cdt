@@ -56,64 +56,64 @@ func TestPHPStan_DetectPHPStan_Config(t *testing.T) {
 	assert.Equal(t, tool.IdPHPStan, phpStan.Id())
 }
 
-func TestPHPStan_PHPStan_LintFiles_All(t *testing.T) {
-	test.InvokeLintFilesSuccess(
+func TestPHPStan_PHPStan_AnalyzeFiles_All(t *testing.T) {
+	test.InvokeAnalyzeFilesSuccess(
 		t,
-		phpStanLinter,
-		internal.ProjectLinterOptions{},
+		phpStanAnalyzer,
+		internal.ProjectAnalyzerOptions{},
 		[]string{"analyse"},
 	)
 }
 
-func TestPHPStan_PHPStan_LintFiles_All_Failed(t *testing.T) {
-	test.InvokeLintFilesFailed(
+func TestPHPStan_PHPStan_AnalyzeFiles_All_Failed(t *testing.T) {
+	test.InvokeAnalyzeFilesFailed(
 		t,
-		phpStanLinter,
-		internal.ProjectLinterOptions{},
+		phpStanAnalyzer,
+		internal.ProjectAnalyzerOptions{},
 		[]string{"analyse"},
 	)
 }
 
-func TestPHPStan_PHPStan_LintFiles(t *testing.T) {
+func TestPHPStan_PHPStan_AnalyzeFiles(t *testing.T) {
 	fileNames := []string{"file.php", "/path/to/file2.php"}
 
-	test.InvokeLintFilesSuccess(
+	test.InvokeAnalyzeFilesSuccess(
 		t,
-		phpStanLinter,
-		internal.ProjectLinterOptions{Filenames: &fileNames},
+		phpStanAnalyzer,
+		internal.ProjectAnalyzerOptions{Filenames: &fileNames},
 		append([]string{"analyse"}, fileNames...),
 	)
 }
 
-func TestPHPStan_PHPStan_LintFiles_Failed(t *testing.T) {
+func TestPHPStan_PHPStan_AnalyzeFiles_Failed(t *testing.T) {
 	fileNames := []string{"file.php", "/path/to/file2.php"}
 
-	test.InvokeLintFilesFailed(
+	test.InvokeAnalyzeFilesFailed(
 		t,
-		phpStanLinter,
-		internal.ProjectLinterOptions{Filenames: &fileNames},
+		phpStanAnalyzer,
+		internal.ProjectAnalyzerOptions{Filenames: &fileNames},
 		append([]string{"analyse"}, fileNames...),
 	)
 }
 
-func TestPHPStan_PHPStan_LintFiles_OutputFormat(t *testing.T) {
+func TestPHPStan_PHPStan_AnalyzeFiles_OutputFormat(t *testing.T) {
 	dataSet := []struct {
-		format internal.LintReportFormat
+		format internal.AnalyzeReportFormat
 		args   []string
 	}{
-		{internal.LintReportFormatRaw, []string{}},
-		{internal.LintReportFormatJson, []string{"--error-format=json"}},
-		{internal.LintReportFormatJUnit, []string{"--error-format=junit"}},
-		{internal.LintReportFormatGitHub, []string{"--error-format=github"}},
-		{internal.LintReportFormatGitLab, []string{"--error-format=gitlab"}},
-		{internal.LintReportFormatTeamCity, []string{"--error-format=teamcity"}},
+		{internal.AnalyzeReportFormatRaw, []string{}},
+		{internal.AnalyzeReportFormatJson, []string{"--error-format=json"}},
+		{internal.AnalyzeReportFormatJUnit, []string{"--error-format=junit"}},
+		{internal.AnalyzeReportFormatGitHub, []string{"--error-format=github"}},
+		{internal.AnalyzeReportFormatGitLab, []string{"--error-format=gitlab"}},
+		{internal.AnalyzeReportFormatTeamCity, []string{"--error-format=teamcity"}},
 	}
 
 	for _, data := range dataSet {
 		t.Run(string(data.format), func(t *testing.T) {
-			test.InvokeLintFilesOutputFormatCheck(
+			test.InvokeAnalyzeFilesOutputFormatCheck(
 				t,
-				phpStanLinter,
+				phpStanAnalyzer,
 				".",
 				data.format,
 				append([]string{"analyse"}, data.args...),
@@ -123,16 +123,16 @@ func TestPHPStan_PHPStan_LintFiles_OutputFormat(t *testing.T) {
 	}
 }
 
-func TestPHPStan_PHPStan_LintFiles_OutputFormat_Unsupported(t *testing.T) {
-	formats := []internal.LintReportFormat{
+func TestPHPStan_PHPStan_AnalyzeFiles_OutputFormat_Unsupported(t *testing.T) {
+	formats := []internal.AnalyzeReportFormat{
 		"test-unsupported",
 	}
 
 	for _, format := range formats {
 		t.Run(string(format), func(t *testing.T) {
-			test.InvokeLintFilesOutputFormatUnsupported(
+			test.InvokeAnalyzeFilesOutputFormatUnsupported(
 				t,
-				phpStanLinter,
+				phpStanAnalyzer,
 				".",
 				format,
 				nil,
@@ -141,10 +141,10 @@ func TestPHPStan_PHPStan_LintFiles_OutputFormat_Unsupported(t *testing.T) {
 	}
 }
 
-func TestPHPStan_PHPStan_LintFiles_OutputFile(t *testing.T) {
-	test.InvokeLintFilesOutputFile(
+func TestPHPStan_PHPStan_AnalyzeFiles_OutputFile(t *testing.T) {
+	test.InvokeAnalyzeFilesOutputFile(
 		t,
-		phpStanLinter,
+		phpStanAnalyzer,
 		".",
 		[]string{"analyse"},
 		nil,
@@ -155,6 +155,6 @@ func phpStanDetect(ctx context.Context, options internal.DetectOptions) internal
 	return tool.DetectPHPStan(ctx, options)
 }
 
-func phpStanLinter(executable func() (*internal.Executable, error)) internal.ProjectLinter {
+func phpStanAnalyzer(executable func() (*internal.Executable, error)) internal.ProjectAnalyzer {
 	return tool.NewPHPStan(executable)
 }

@@ -19,7 +19,7 @@ func LazyExecutable(path string) func() (*internal.Executable, error) {
 	}
 }
 
-// Executable allow testing executable invocation.
+// The Executable allow testing executable invocation.
 type Executable struct {
 	mock.Mock
 	Runtime ExecutableRuntime

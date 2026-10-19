@@ -71,6 +71,20 @@ verify if code is properly formatted.
 cdt format --check
 ```
 
+### Code analysis
+
+```shell
+# Analyze whole project
+cdt analyze
+
+# Analyze file or multiple files
+cdt analyze file1 file2
+
+# Use specific supported tool
+cdt analyze --tool mago test1
+```
+
+
 ### Code linting
 
 ```shell

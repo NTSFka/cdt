@@ -38,7 +38,12 @@ func NewMago(detect internal.ExecutableToolDetectFunc) *Mago {
 			IdMago,
 			"Mago",
 			"Mago is a static analyzer, linter, and formatter for PHP, written in Rust.",
-			internal.Tags{internal.ToolTagPhp, internal.ToolTagLint, internal.ToolTagFormat},
+			internal.Tags{
+				internal.ToolTagPhp,
+				internal.ToolTagLint,
+				internal.ToolTagAnalyze,
+				internal.ToolTagFormat,
+			},
 			detect,
 		),
 	}
@@ -49,6 +54,16 @@ func (p *Mago) LintFiles(
 	options internal.ProjectLinterOptions,
 ) error {
 	args := append([]string{"lint"}, options.ExtraArgs...)
+	args = appendFiles(args, options.Filenames, nil)
+
+	return p.RunForProject(ctx, options.ProjectInfo, args)
+}
+
+func (p *Mago) AnalyzeFiles(
+	ctx context.Context,
+	options internal.ProjectAnalyzerOptions,
+) error {
+	args := append([]string{"analyze"}, options.ExtraArgs...)
 	args = appendFiles(args, options.Filenames, nil)
 
 	return p.RunForProject(ctx, options.ProjectInfo, args)

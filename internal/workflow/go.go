@@ -21,6 +21,7 @@ func (g *Go) Detect(directory string) bool {
 func (g *Go) Create(config Config, tools internal.Tools) internal.Project {
 	goTool := internal.GetTool[*tool.Go](tools)
 	goLint := internal.GetTool[*tool.GolangCILint](tools)
+	nilAway := internal.GetTool[*tool.NilAway](tools)
 
 	workflow := internal.Workflow{
 		Name:              g.Id(),
@@ -30,6 +31,7 @@ func (g *Go) Create(config Config, tools internal.Tools) internal.Project {
 		Tester:            goTool,
 		Formatter:         &FormatterFallback{goLint, goTool},
 		Linter:            &LinterList{goTool, goLint},
+		Analyzer:          nilAway,
 		DependencyManager: goTool,
 	}
 

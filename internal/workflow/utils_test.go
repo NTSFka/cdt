@@ -419,6 +419,7 @@ func TestBuildProject_Custom_StringWorkflow_Go(t *testing.T) {
 	config := internal.Config{RootDirectory: rootDir, Workflow: "go"}
 	project, err := workflow.CreateProject(config, internal.Tools{
 		tool.DetectGo(t.Context(), internal.DetectOptions{Environment: env}),
+		tool.DetectNilAway(t.Context(), internal.DetectOptions{Environment: env}),
 		tool.DetectGolangCILint(t.Context(), internal.DetectOptions{Environment: env}),
 	})
 
@@ -459,6 +460,7 @@ func TestBuildProject_Go(t *testing.T) {
 	config := internal.Config{RootDirectory: rootDir}
 	project, err := workflow.CreateProject(config, internal.Tools{
 		tool.DetectGo(t.Context(), internal.DetectOptions{Environment: env}),
+		tool.DetectNilAway(t.Context(), internal.DetectOptions{Environment: env}),
 		tool.DetectGolangCILint(t.Context(), internal.DetectOptions{Environment: env}),
 	})
 

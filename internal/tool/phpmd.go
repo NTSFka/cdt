@@ -59,9 +59,9 @@ func NewPHPMD(detect internal.ExecutableToolDetectFunc) *PHPMD {
 	}
 }
 
-func (p *PHPMD) LintFiles(
+func (p *PHPMD) AnalyzeFiles(
 	ctx context.Context,
-	options internal.ProjectLinterOptions,
+	options internal.ProjectAnalyzerOptions,
 ) error {
 	// Version 2 and 3 have different argument layout.
 	version, err := p.detectVersion(ctx)
@@ -107,12 +107,12 @@ func (p *PHPMD) detectVersion(ctx context.Context) (PHPMDVersion, error) {
 	return 0, fmt.Errorf("unsupported PHPMD version: %s", output.String())
 }
 
-func (p *PHPMD) argsBuild2(options internal.ProjectLinterOptions) ([]string, error) {
+func (p *PHPMD) argsBuild2(options internal.ProjectAnalyzerOptions) ([]string, error) {
 	var args []string
 
 	args = append(args, p.argsBuild2Fileset(options))
 
-	if arg, err := p.argsBuildLintOutputFormat(options.Output.Format, new("ansi")); err == nil {
+	if arg, err := p.argsBuildAnalyzeOutputFormat(options.Output.Format, new("ansi")); err == nil {
 		args = append(args, *arg)
 	} else {
 		return nil, err
@@ -129,10 +129,10 @@ func (p *PHPMD) argsBuild2(options internal.ProjectLinterOptions) ([]string, err
 	return args, nil
 }
 
-func (p *PHPMD) argsBuild3(options internal.ProjectLinterOptions) ([]string, error) {
+func (p *PHPMD) argsBuild3(options internal.ProjectAnalyzerOptions) ([]string, error) {
 	args := []string{"analyze"}
 
-	if arg, err := p.argsBuildLintOutputFormat(options.Output.Format, nil); err == nil {
+	if arg, err := p.argsBuildAnalyzeOutputFormat(options.Output.Format, nil); err == nil {
 		if arg != nil {
 			args = append(args, "--format="+*arg)
 		}
@@ -149,36 +149,36 @@ func (p *PHPMD) argsBuild3(options internal.ProjectLinterOptions) ([]string, err
 	return args, nil
 }
 
-func (p *PHPMD) argsBuildLintOutputFormat(
-	format internal.LintReportFormat,
+func (p *PHPMD) argsBuildAnalyzeOutputFormat(
+	format internal.AnalyzeReportFormat,
 	def *string,
 ) (*string, error) {
 	// supported: ansi, baseline, checkstyle, github, gitlab, html, json, sarif, text, xml.
 
 	// nolint: exhaustive
 	switch format {
-	case internal.LintReportFormatDefault:
+	case internal.AnalyzeReportFormatDefault:
 		fallthrough
-	case internal.LintReportFormatRaw:
+	case internal.AnalyzeReportFormatRaw:
 		return def, nil
-	case internal.LintReportFormatJson:
+	case internal.AnalyzeReportFormatJson:
 		return new("json"), nil
-	case internal.LintReportFormatGitHub:
+	case internal.AnalyzeReportFormatGitHub:
 		return new("github"), nil
-	case internal.LintReportFormatGitLab:
+	case internal.AnalyzeReportFormatGitLab:
 		return new("gitlab"), nil
-	case internal.LintReportFormatXml:
+	case internal.AnalyzeReportFormatXml:
 		return new("xml"), nil
-	case internal.LintReportFormatHtml:
+	case internal.AnalyzeReportFormatHtml:
 		return new("html"), nil
-	case internal.LintReportFormatSarif:
+	case internal.AnalyzeReportFormatSarif:
 		return new("sarif"), nil
 	default:
 		return nil, fmt.Errorf("unsupported report format: %s", format)
 	}
 }
 
-func (p *PHPMD) argsBuild2Fileset(options internal.ProjectLinterOptions) string {
+func (p *PHPMD) argsBuild2Fileset(options internal.ProjectAnalyzerOptions) string {
 	if options.Filenames != nil && len(*options.Filenames) > 0 {
 		return strings.Join(*options.Filenames, ",")
 	}
@@ -200,7 +200,7 @@ func (p *PHPMD) argsBuild2Fileset(options internal.ProjectLinterOptions) string 
 	return options.Directory
 }
 
-func (p *PHPMD) argsBuild2Ruleset(options internal.ProjectLinterOptions) ([]string, error) {
+func (p *PHPMD) argsBuild2Ruleset(options internal.ProjectAnalyzerOptions) ([]string, error) {
 	var args []string
 
 	switch {

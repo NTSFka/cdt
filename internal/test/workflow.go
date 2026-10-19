@@ -63,6 +63,24 @@ func (t *ProjectFormatter) FormatFiles(
 	return t.Called(ctx, options).Error(0)
 }
 
+type ProjectAnalyzer struct {
+	mock.Mock
+}
+
+func NewProjectAnalyzer(t *testing.T) *ProjectAnalyzer {
+	analyzer := ProjectAnalyzer{}
+	analyzer.Test(t)
+
+	return &analyzer
+}
+
+func (t *ProjectAnalyzer) AnalyzeFiles(
+	ctx context.Context,
+	options internal.ProjectAnalyzerOptions,
+) error {
+	return t.Called(ctx, options).Error(0)
+}
+
 type ProjectLinter struct {
 	mock.Mock
 }

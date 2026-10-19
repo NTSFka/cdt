@@ -69,6 +69,7 @@ func NewApp(buildContext func(config internal.Config) (*internal.Context, error)
 			command.NewFormatCommand(),
 			command.NewTestCommand(),
 			command.NewLintCommand(),
+			command.NewAnalyzeCommand(),
 			command.NewRunCommand(),
 			command.NewEnvironmentCommand(),
 			command.NewExecCommand(),

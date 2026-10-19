@@ -620,6 +620,139 @@ func TestFormatterFallback_FormatFiles_Available2(t *testing.T) {
 	tool2.AssertExpectations(t)
 }
 
+func createAnalyzerTool(id string, executable *internal.Executable) *struct {
+	internal.ExecutableTool
+	test.ProjectAnalyzer
+} {
+	return &struct {
+		internal.ExecutableTool
+		test.ProjectAnalyzer
+	}{
+		internal.MakeExecutableTool(
+			id,
+			"Test",
+			"",
+			internal.Tags{},
+			func() (*internal.Executable, error) {
+				return executable, nil
+			},
+		),
+		test.ProjectAnalyzer{},
+	}
+}
+
+func TestAnalyzerList_Details_Empty(t *testing.T) {
+	list := &workflow.AnalyzerList{}
+
+	assert.Equal(t, "list ()", list.Details())
+}
+
+func TestAnalyzerList_Details(t *testing.T) {
+	tool1 := createAnalyzerTool("test1", nil)
+	tool2 := createAnalyzerTool("test2", nil)
+
+	list := &workflow.AnalyzerList{tool1, tool2}
+
+	assert.Equal(t, "list (test1, test2)", list.Details())
+}
+
+func TestAnalyzerList_LintFiles_Empty(t *testing.T) {
+	list := &workflow.AnalyzerList{}
+
+	err := list.AnalyzeFiles(
+		t.Context(),
+		internal.ProjectAnalyzerOptions{Filenames: &[]string{"file1"}},
+	)
+
+	require.EqualError(t, err, "no analyzer tool available: none")
+}
+
+func TestAnalyzerList_LintFiles_NoAvailable(t *testing.T) {
+	tool1 := createAnalyzerTool("test1", nil)
+	tool2 := createAnalyzerTool("test2", nil)
+
+	list := &workflow.AnalyzerList{tool1, tool2}
+
+	err := list.AnalyzeFiles(
+		t.Context(),
+		internal.ProjectAnalyzerOptions{Filenames: &[]string{"file1"}},
+	)
+
+	require.EqualError(t, err, "no analyzer tool available: test1, test2")
+
+	tool1.AssertExpectations(t)
+	tool2.AssertExpectations(t)
+}
+
+func TestAnalyzerList_LintFiles_Available1(t *testing.T) {
+	tool1 := createAnalyzerTool("test1", &internal.Executable{Path: "test1"})
+	tool2 := createAnalyzerTool("test2", nil)
+
+	list := &workflow.AnalyzerList{tool1, tool2}
+
+	tool1.Test(t)
+	tool2.Test(t)
+	tool1.On(
+		"AnalyzeFiles",
+		mock.Anything,
+		mock.MatchedBy(func(opts internal.ProjectAnalyzerOptions) bool {
+			return assert.NotNil(t, opts.Filenames) &&
+				assert.ElementsMatch(t, []string{"file1"}, *opts.Filenames)
+		}),
+	).
+		Return(nil)
+
+	err := list.AnalyzeFiles(
+		t.Context(),
+		internal.ProjectAnalyzerOptions{Filenames: &[]string{"file1"}},
+	)
+
+	require.NoError(t, err)
+
+	tool1.AssertExpectations(t)
+	tool2.AssertExpectations(t)
+}
+
+func TestAnalyzerList_LintFiles_Available2(t *testing.T) {
+	tool1 := createAnalyzerTool("test1", &internal.Executable{Path: "test1"})
+	tool2 := createAnalyzerTool("test2", &internal.Executable{Path: "test1"})
+
+	list := &workflow.AnalyzerList{tool1, tool2}
+
+	tool1.Test(t)
+	tool2.Test(t)
+
+	tool1.On(
+		"AnalyzeFiles",
+		mock.Anything,
+		mock.MatchedBy(func(opts internal.ProjectAnalyzerOptions) bool {
+			return assert.NotNil(t, opts.Filenames) &&
+				assert.Equal(t, []string{"file1"}, *opts.Filenames)
+		}),
+	).
+		Return(nil)
+
+	tool2.On(
+		"AnalyzeFiles",
+		mock.Anything,
+		mock.MatchedBy(func(opts internal.ProjectAnalyzerOptions) bool {
+			return assert.NotNil(t, opts.Filenames) &&
+				assert.Equal(t, []string{"file1"}, *opts.Filenames)
+		}),
+	).
+		Return(nil)
+
+	err := list.AnalyzeFiles(
+		t.Context(),
+		internal.ProjectAnalyzerOptions{Filenames: &[]string{"file1"}},
+	)
+
+	require.NoError(t, err)
+
+	tool1.AssertExpectations(t)
+	tool2.AssertExpectations(t)
+}
+
 func createLinterTool(id string, executable *internal.Executable) *struct {
 	internal.ExecutableTool
 	test.ProjectLinter

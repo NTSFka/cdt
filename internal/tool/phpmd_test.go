@@ -81,10 +81,10 @@ func TestPHPMD_DetectPHPMD_Config(t *testing.T) {
 func TestPHPMD_PHPMD_Version_Failed(t *testing.T) {
 	expectedErr := errors.New("version error")
 
-	test.InvokeLintFiles(
+	test.InvokeAnalyzeFiles(
 		t,
-		phpMDLinter,
-		internal.ProjectLinterOptions{
+		phpMDAnalyzer,
+		internal.ProjectAnalyzerOptions{
 			ProjectInfo: internal.ProjectInfo{
 				Directory: ".",
 			},
@@ -100,10 +100,10 @@ func TestPHPMD_PHPMD_Version_Failed(t *testing.T) {
 }
 
 func TestPHPMD_PHPMD_Version_Unknown(t *testing.T) {
-	test.InvokeLintFiles(
+	test.InvokeAnalyzeFiles(
 		t,
-		phpMDLinter,
-		internal.ProjectLinterOptions{
+		phpMDAnalyzer,
+		internal.ProjectAnalyzerOptions{
 			ProjectInfo: internal.ProjectInfo{
 				Directory: ".",
 			},
@@ -118,7 +118,7 @@ func TestPHPMD_PHPMD_Version_Unknown(t *testing.T) {
 	)
 }
 
-func TestPHPMD_PHPMD_2_LintFiles_All_Success(t *testing.T) {
+func TestPHPMD_PHPMD_2_AnalyzeFiles_All_Success(t *testing.T) {
 	dataSet := []string{
 		"phpmd.xml",
 		"phpmd.ruleset.xml",
@@ -130,10 +130,10 @@ func TestPHPMD_PHPMD_2_LintFiles_All_Success(t *testing.T) {
 
 			test.CreateFile(t, directory, fileName)
 
-			test.InvokeLintFiles(
+			test.InvokeAnalyzeFiles(
 				t,
-				phpMDLinter,
-				internal.ProjectLinterOptions{
+				phpMDAnalyzer,
+				internal.ProjectAnalyzerOptions{
 					ProjectInfo: internal.ProjectInfo{
 						Directory: directory,
 					},
@@ -153,17 +153,17 @@ func TestPHPMD_PHPMD_2_LintFiles_All_Success(t *testing.T) {
 	}
 }
 
-func TestPHPMD_PHPMD_2_LintFiles_All_Directories(t *testing.T) {
+func TestPHPMD_PHPMD_2_AnalyzeFiles_All_Directories(t *testing.T) {
 	directory := t.TempDir()
 
 	test.CreateFile(t, directory, "phpmd.xml")
 	test.CreateDirectory(t, directory, "src")
 	test.CreateDirectory(t, directory, "tests")
 
-	test.InvokeLintFiles(
+	test.InvokeAnalyzeFiles(
 		t,
-		phpMDLinter,
-		internal.ProjectLinterOptions{
+		phpMDAnalyzer,
+		internal.ProjectAnalyzerOptions{
 			ProjectInfo: internal.ProjectInfo{
 				Directory: directory,
 			},
@@ -181,17 +181,17 @@ func TestPHPMD_PHPMD_2_LintFiles_All_Directories(t *testing.T) {
 	)
 }
 
-func TestPHPMD_PHPMD_2_LintFiles_All_Failed(t *testing.T) {
+func TestPHPMD_PHPMD_2_AnalyzeFiles_All_Failed(t *testing.T) {
 	directory := t.TempDir()
 
 	test.CreateFile(t, directory, "phpmd.xml")
 
 	expectedErr := errors.New("failed")
 
-	test.InvokeLintFiles(
+	test.InvokeAnalyzeFiles(
 		t,
-		phpMDLinter,
-		internal.ProjectLinterOptions{
+		phpMDAnalyzer,
+		internal.ProjectAnalyzerOptions{
 			ProjectInfo: internal.ProjectInfo{
 				Directory: directory,
 			},
@@ -209,11 +209,11 @@ func TestPHPMD_PHPMD_2_LintFiles_All_Failed(t *testing.T) {
 	)
 }
 
-func TestPHPMD_PHPMD_2_LintFiles_All_MissingRulesFile(t *testing.T) {
-	test.InvokeLintFiles(
+func TestPHPMD_PHPMD_2_AnalyzeFiles_All_MissingRulesFile(t *testing.T) {
+	test.InvokeAnalyzeFiles(
 		t,
-		phpMDLinter,
-		internal.ProjectLinterOptions{},
+		phpMDAnalyzer,
+		internal.ProjectAnalyzerOptions{},
 		func(exec *test.Executable, executablePath string) {
 			exec.OnRunOutput(executablePath, []string{"--version"}, phpMDVersion2).
 				Return(nil)
@@ -228,13 +228,13 @@ func TestPHPMD_PHPMD_2_LintFiles_All_MissingRulesFile(t *testing.T) {
 	)
 }
 
-func TestPHPMD_PHPMD_2_LintFiles_All_CustomRulesFile(t *testing.T) {
+func TestPHPMD_PHPMD_2_AnalyzeFiles_All_CustomRulesFile(t *testing.T) {
 	directory := t.TempDir()
 
-	test.InvokeLintFiles(
+	test.InvokeAnalyzeFiles(
 		t,
-		phpMDLinter,
-		internal.ProjectLinterOptions{
+		phpMDAnalyzer,
+		internal.ProjectAnalyzerOptions{
 			ProjectInfo: internal.ProjectInfo{
 				Directory: directory,
 			},
@@ -253,17 +253,17 @@ func TestPHPMD_PHPMD_2_LintFiles_All_CustomRulesFile(t *testing.T) {
 	)
 }
 
-func TestPHPMD_PHPMD_2_LintFiles(t *testing.T) {
+func TestPHPMD_PHPMD_2_AnalyzeFiles(t *testing.T) {
 	directory := t.TempDir()
 
 	test.CreateFile(t, directory, "phpmd.xml")
 
 	fileNames := []string{"file.php", "/path/to/file2.php"}
 
-	test.InvokeLintFiles(
+	test.InvokeAnalyzeFiles(
 		t,
-		phpMDLinter,
-		internal.ProjectLinterOptions{
+		phpMDAnalyzer,
+		internal.ProjectAnalyzerOptions{
 			ProjectInfo: internal.ProjectInfo{
 				Directory: directory,
 			},
@@ -282,7 +282,7 @@ func TestPHPMD_PHPMD_2_LintFiles(t *testing.T) {
 	)
 }
 
-func TestPHPMD_PHPMD_2_LintFiles_Failed(t *testing.T) {
+func TestPHPMD_PHPMD_2_AnalyzeFiles_Failed(t *testing.T) {
 	directory := t.TempDir()
 
 	test.CreateFile(t, directory, "phpmd.xml")
@@ -291,10 +291,10 @@ func TestPHPMD_PHPMD_2_LintFiles_Failed(t *testing.T) {
 
 	expectedErr := errors.New("failed")
 
-	test.InvokeLintFiles(
+	test.InvokeAnalyzeFiles(
 		t,
-		phpMDLinter,
-		internal.ProjectLinterOptions{
+		phpMDAnalyzer,
+		internal.ProjectAnalyzerOptions{
 			ProjectInfo: internal.ProjectInfo{
 				Directory: directory,
 			},
@@ -313,34 +313,34 @@ func TestPHPMD_PHPMD_2_LintFiles_Failed(t *testing.T) {
 	)
 }
 
-func TestPHPMD_PHPMD_2_LintFiles_OutputFormat(t *testing.T) {
+func TestPHPMD_PHPMD_2_AnalyzeFiles_OutputFormat(t *testing.T) {
 	directory := t.TempDir()
 
 	test.CreateFile(t, directory, "phpmd.xml")
 
 	dataSet := []struct {
-		format internal.LintReportFormat
+		format internal.AnalyzeReportFormat
 		arg    string
 	}{
-		{internal.LintReportFormatRaw, "ansi"},
-		{internal.LintReportFormatJson, "json"},
-		{internal.LintReportFormatGitHub, "github"},
-		{internal.LintReportFormatGitLab, "gitlab"},
-		{internal.LintReportFormatXml, "xml"},
-		{internal.LintReportFormatHtml, "html"},
-		{internal.LintReportFormatSarif, "sarif"},
+		{internal.AnalyzeReportFormatRaw, "ansi"},
+		{internal.AnalyzeReportFormatJson, "json"},
+		{internal.AnalyzeReportFormatGitHub, "github"},
+		{internal.AnalyzeReportFormatGitLab, "gitlab"},
+		{internal.AnalyzeReportFormatXml, "xml"},
+		{internal.AnalyzeReportFormatHtml, "html"},
+		{internal.AnalyzeReportFormatSarif, "sarif"},
 	}
 
 	for _, data := range dataSet {
 		t.Run(string(data.format), func(t *testing.T) {
-			test.InvokeLintFiles(
+			test.InvokeAnalyzeFiles(
 				t,
-				phpMDLinter,
-				internal.ProjectLinterOptions{
+				phpMDAnalyzer,
+				internal.ProjectAnalyzerOptions{
 					ProjectInfo: internal.ProjectInfo{
 						Directory: directory,
 					},
-					Output: internal.OutputOptions[internal.LintReportFormat]{
+					Output: internal.OutputOptions[internal.AnalyzeReportFormat]{
 						Format: data.format,
 					},
 				},
@@ -359,25 +359,25 @@ func TestPHPMD_PHPMD_2_LintFiles_OutputFormat(t *testing.T) {
 	}
 }
 
-func TestPHPMD_PHPMD_2_LintFiles_OutputFormat_Unsupported(t *testing.T) {
+func TestPHPMD_PHPMD_2_AnalyzeFiles_OutputFormat_Unsupported(t *testing.T) {
 	directory := t.TempDir()
 
-	formats := []internal.LintReportFormat{
+	formats := []internal.AnalyzeReportFormat{
 		"test-unsupported",
-		internal.LintReportFormatJUnit,
-		internal.LintReportFormatTeamCity,
+		internal.AnalyzeReportFormatJUnit,
+		internal.AnalyzeReportFormatTeamCity,
 	}
 
 	for _, format := range formats {
 		t.Run(string(format), func(t *testing.T) {
-			test.InvokeLintFiles(
+			test.InvokeAnalyzeFiles(
 				t,
-				phpMDLinter,
-				internal.ProjectLinterOptions{
+				phpMDAnalyzer,
+				internal.ProjectAnalyzerOptions{
 					ProjectInfo: internal.ProjectInfo{
 						Directory: directory,
 					},
-					Output: internal.OutputOptions[internal.LintReportFormat]{
+					Output: internal.OutputOptions[internal.AnalyzeReportFormat]{
 						Format: format,
 					},
 				},
@@ -394,7 +394,7 @@ func TestPHPMD_PHPMD_2_LintFiles_OutputFormat_Unsupported(t *testing.T) {
 	}
 }
 
-func TestPHPMD_PHPMD_2_LintFiles_OutputFile(t *testing.T) {
+func TestPHPMD_PHPMD_2_AnalyzeFiles_OutputFile(t *testing.T) {
 	directory := t.TempDir()
 
 	test.CreateFile(t, directory, "phpmd.xml")
@@ -403,14 +403,14 @@ func TestPHPMD_PHPMD_2_LintFiles_OutputFile(t *testing.T) {
 
 	outputFilename := t.TempDir() + "/report.txt"
 
-	test.InvokeLintFiles(
+	test.InvokeAnalyzeFiles(
 		t,
-		phpMDLinter,
-		internal.ProjectLinterOptions{
+		phpMDAnalyzer,
+		internal.ProjectAnalyzerOptions{
 			ProjectInfo: internal.ProjectInfo{
 				Directory: directory,
 			},
-			Output: internal.OutputOptions[internal.LintReportFormat]{
+			Output: internal.OutputOptions[internal.AnalyzeReportFormat]{
 				Filename: &outputFilename,
 			},
 		},
@@ -432,13 +432,13 @@ func TestPHPMD_PHPMD_2_LintFiles_OutputFile(t *testing.T) {
 	)
 }
 
-func TestPHPMD_PHPMD_3_LintFiles_All_Success(t *testing.T) {
+func TestPHPMD_PHPMD_3_AnalyzeFiles_All_Success(t *testing.T) {
 	directory := t.TempDir()
 
-	test.InvokeLintFiles(
+	test.InvokeAnalyzeFiles(
 		t,
-		phpMDLinter,
-		internal.ProjectLinterOptions{
+		phpMDAnalyzer,
+		internal.ProjectAnalyzerOptions{
 			ProjectInfo: internal.ProjectInfo{
 				Directory: directory,
 			},
@@ -456,13 +456,13 @@ func TestPHPMD_PHPMD_3_LintFiles_All_Success(t *testing.T) {
 	)
 }
 
-func TestPHPMD_PHPMD_3_LintFiles_All_Failed(t *testing.T) {
+func TestPHPMD_PHPMD_3_AnalyzeFiles_All_Failed(t *testing.T) {
 	expectedErr := errors.New("failed")
 
-	test.InvokeLintFiles(
+	test.InvokeAnalyzeFiles(
 		t,
-		phpMDLinter,
-		internal.ProjectLinterOptions{
+		phpMDAnalyzer,
+		internal.ProjectAnalyzerOptions{
 			ProjectInfo: internal.ProjectInfo{
 				Directory: ".",
 			},
@@ -480,13 +480,13 @@ func TestPHPMD_PHPMD_3_LintFiles_All_Failed(t *testing.T) {
 	)
 }
 
-func TestPHPMD_PHPMD_3_LintFiles(t *testing.T) {
+func TestPHPMD_PHPMD_3_AnalyzeFiles(t *testing.T) {
 	fileNames := []string{"file.php", "/path/to/file2.php"}
 
-	test.InvokeLintFiles(
+	test.InvokeAnalyzeFiles(
 		t,
-		phpMDLinter,
-		internal.ProjectLinterOptions{
+		phpMDAnalyzer,
+		internal.ProjectAnalyzerOptions{
 			ProjectInfo: internal.ProjectInfo{
 				Directory: ".",
 			},
@@ -505,15 +505,15 @@ func TestPHPMD_PHPMD_3_LintFiles(t *testing.T) {
 	)
 }
 
-func TestPHPMD_PHPMD_3_LintFiles_Failed(t *testing.T) {
+func TestPHPMD_PHPMD_3_AnalyzeFiles_Failed(t *testing.T) {
 	fileNames := []string{"file.php", "/path/to/file2.php"}
 
 	expectedErr := errors.New("failed")
 
-	test.InvokeLintFiles(
+	test.InvokeAnalyzeFiles(
 		t,
-		phpMDLinter,
-		internal.ProjectLinterOptions{
+		phpMDAnalyzer,
+		internal.ProjectAnalyzerOptions{
 			ProjectInfo: internal.ProjectInfo{
 				Directory: ".",
 			},
@@ -532,30 +532,30 @@ func TestPHPMD_PHPMD_3_LintFiles_Failed(t *testing.T) {
 	)
 }
 
-func TestPHPMD_PHPMD_3_LintFiles_OutputFormat(t *testing.T) {
+func TestPHPMD_PHPMD_3_AnalyzeFiles_OutputFormat(t *testing.T) {
 	dataSet := []struct {
-		format internal.LintReportFormat
+		format internal.AnalyzeReportFormat
 		args   []string
 	}{
-		{internal.LintReportFormatRaw, []string{}},
-		{internal.LintReportFormatJson, []string{"--format=json"}},
-		{internal.LintReportFormatGitHub, []string{"--format=github"}},
-		{internal.LintReportFormatGitLab, []string{"--format=gitlab"}},
-		{internal.LintReportFormatXml, []string{"--format=xml"}},
-		{internal.LintReportFormatHtml, []string{"--format=html"}},
-		{internal.LintReportFormatSarif, []string{"--format=sarif"}},
+		{internal.AnalyzeReportFormatRaw, []string{}},
+		{internal.AnalyzeReportFormatJson, []string{"--format=json"}},
+		{internal.AnalyzeReportFormatGitHub, []string{"--format=github"}},
+		{internal.AnalyzeReportFormatGitLab, []string{"--format=gitlab"}},
+		{internal.AnalyzeReportFormatXml, []string{"--format=xml"}},
+		{internal.AnalyzeReportFormatHtml, []string{"--format=html"}},
+		{internal.AnalyzeReportFormatSarif, []string{"--format=sarif"}},
 	}
 
 	for _, data := range dataSet {
 		t.Run(string(data.format), func(t *testing.T) {
-			test.InvokeLintFiles(
+			test.InvokeAnalyzeFiles(
 				t,
-				phpMDLinter,
-				internal.ProjectLinterOptions{
+				phpMDAnalyzer,
+				internal.ProjectAnalyzerOptions{
 					ProjectInfo: internal.ProjectInfo{
 						Directory: ".",
 					},
-					Output: internal.OutputOptions[internal.LintReportFormat]{
+					Output: internal.OutputOptions[internal.AnalyzeReportFormat]{
 						Format: data.format,
 					},
 				},
@@ -574,23 +574,23 @@ func TestPHPMD_PHPMD_3_LintFiles_OutputFormat(t *testing.T) {
 	}
 }
 
-func TestPHPMD_PHPMD_3_LintFiles_OutputFormat_Unsupported(t *testing.T) {
-	formats := []internal.LintReportFormat{
+func TestPHPMD_PHPMD_3_AnalyzeFiles_OutputFormat_Unsupported(t *testing.T) {
+	formats := []internal.AnalyzeReportFormat{
 		"test-unsupported",
-		internal.LintReportFormatJUnit,
-		internal.LintReportFormatTeamCity,
+		internal.AnalyzeReportFormatJUnit,
+		internal.AnalyzeReportFormatTeamCity,
 	}
 
 	for _, format := range formats {
 		t.Run(string(format), func(t *testing.T) {
-			test.InvokeLintFiles(
+			test.InvokeAnalyzeFiles(
 				t,
-				phpMDLinter,
-				internal.ProjectLinterOptions{
+				phpMDAnalyzer,
+				internal.ProjectAnalyzerOptions{
 					ProjectInfo: internal.ProjectInfo{
 						Directory: ".",
 					},
-					Output: internal.OutputOptions[internal.LintReportFormat]{
+					Output: internal.OutputOptions[internal.AnalyzeReportFormat]{
 						Format: format,
 					},
 				},
@@ -607,21 +607,21 @@ func TestPHPMD_PHPMD_3_LintFiles_OutputFormat_Unsupported(t *testing.T) {
 	}
 }
 
-func TestPHPMD_PHPMD_3_LintFiles_OutputFile(t *testing.T) {
+func TestPHPMD_PHPMD_3_AnalyzeFiles_OutputFile(t *testing.T) {
 	directory := t.TempDir()
 
 	const content = "ok"
 
 	outputFilename := directory + "/report.txt"
 
-	test.InvokeLintFiles(
+	test.InvokeAnalyzeFiles(
 		t,
-		phpMDLinter,
-		internal.ProjectLinterOptions{
+		phpMDAnalyzer,
+		internal.ProjectAnalyzerOptions{
 			ProjectInfo: internal.ProjectInfo{
 				Directory: directory,
 			},
-			Output: internal.OutputOptions[internal.LintReportFormat]{
+			Output: internal.OutputOptions[internal.AnalyzeReportFormat]{
 				Filename: &outputFilename,
 			},
 		},
@@ -647,6 +647,6 @@ func phpMDDetect(ctx context.Context, options internal.DetectOptions) internal.T
 	return tool.DetectPHPMD(ctx, options)
 }
 
-func phpMDLinter(executable func() (*internal.Executable, error)) internal.ProjectLinter {
+func phpMDAnalyzer(executable func() (*internal.Executable, error)) internal.ProjectAnalyzer {
 	return tool.NewPHPMD(executable)
 }

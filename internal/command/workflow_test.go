@@ -89,6 +89,7 @@ func TestWorkflowShow_Custom(t *testing.T) {
 func TestWorkflowShow_Named(t *testing.T) {
 	tools := internal.Tools{
 		tool.NewGo(test.LazyExecutable("go-test")),
+		tool.NewNilAway(test.LazyExecutable("nilaway-test")),
 		tool.NewGolangCILint(test.LazyExecutableNil),
 	}
 

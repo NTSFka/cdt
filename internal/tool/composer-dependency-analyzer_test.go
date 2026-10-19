@@ -12,7 +12,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestComposerDependencyAnalyzer_DetectComposerDependencyAnalyzer_Composer(t *testing.T) {
+func TestComposerDependencyAnalyzer_Detect_Composer(t *testing.T) {
 	composerDependencyAnalyzer := test.RunDetectToolLastFound(
 		t,
 		composerDependencyAnalyzerDetect,
@@ -24,7 +24,7 @@ func TestComposerDependencyAnalyzer_DetectComposerDependencyAnalyzer_Composer(t 
 	assert.Equal(t, tool.IdComposerDependencyAnalyzer, composerDependencyAnalyzer.Id())
 }
 
-func TestComposerDependencyAnalyzer_DetectComposerDependencyAnalyzer_System(t *testing.T) {
+func TestComposerDependencyAnalyzer_Detect_System(t *testing.T) {
 	composerDependencyAnalyzer := test.RunDetectToolLastFound(
 		t,
 		composerDependencyAnalyzerDetect,
@@ -37,7 +37,7 @@ func TestComposerDependencyAnalyzer_DetectComposerDependencyAnalyzer_System(t *t
 	assert.Equal(t, tool.IdComposerDependencyAnalyzer, composerDependencyAnalyzer.Id())
 }
 
-func TestComposerDependencyAnalyzer_DetectComposerDependencyAnalyzer_NotFound(t *testing.T) {
+func TestComposerDependencyAnalyzer_Detect_NotFound(t *testing.T) {
 	composerDependencyAnalyzer := test.RunDetectToolNotFound(
 		t,
 		composerDependencyAnalyzerDetect,
@@ -50,7 +50,7 @@ func TestComposerDependencyAnalyzer_DetectComposerDependencyAnalyzer_NotFound(t 
 	assert.Equal(t, tool.IdComposerDependencyAnalyzer, composerDependencyAnalyzer.Id())
 }
 
-func TestComposerDependencyAnalyzer_DetectComposerDependencyAnalyzer_Config(t *testing.T) {
+func TestComposerDependencyAnalyzer_Detect_Config(t *testing.T) {
 	composerDependencyAnalyzer := test.RunDetectToolConfig(
 		t,
 		composerDependencyAnalyzerDetect,
@@ -60,42 +60,42 @@ func TestComposerDependencyAnalyzer_DetectComposerDependencyAnalyzer_Config(t *t
 	assert.Equal(t, tool.IdComposerDependencyAnalyzer, composerDependencyAnalyzer.Id())
 }
 
-func TestComposerDependencyAnalyzer_ComposerDependencyAnalyzer_LintFiles_All(t *testing.T) {
-	test.InvokeLintFilesSuccess(
+func TestComposerDependencyAnalyzer_AnalyzeFiles_All(t *testing.T) {
+	test.InvokeAnalyzeFilesSuccess(
 		t,
-		composerDependencyAnalyzerLinter,
-		internal.ProjectLinterOptions{},
+		composerDependencyAnalyzerAnalyzer,
+		internal.ProjectAnalyzerOptions{},
 		[]string{},
 	)
 }
 
-func TestComposerDependencyAnalyzer_ComposerDependencyAnalyzer_LintFiles_All_Failed(t *testing.T) {
-	test.InvokeLintFilesFailed(
+func TestComposerDependencyAnalyzer_AnalyzeFiles_All_Failed(t *testing.T) {
+	test.InvokeAnalyzeFilesFailed(
 		t,
-		composerDependencyAnalyzerLinter,
-		internal.ProjectLinterOptions{},
+		composerDependencyAnalyzerAnalyzer,
+		internal.ProjectAnalyzerOptions{},
 		[]string{},
 	)
 }
 
-func TestComposerDependencyAnalyzer_ComposerDependencyAnalyzer_LintFiles(t *testing.T) {
+func TestComposerDependencyAnalyzer_AnalyzeFiles(t *testing.T) {
 	fileNames := []string{"file.php", "/path/to/file2.php"}
 
-	test.InvokeLintFilesSuccess(
+	test.InvokeAnalyzeFilesSuccess(
 		t,
-		composerDependencyAnalyzerLinter,
-		internal.ProjectLinterOptions{Filenames: &fileNames},
+		composerDependencyAnalyzerAnalyzer,
+		internal.ProjectAnalyzerOptions{Filenames: &fileNames},
 		fileNames,
 	)
 }
 
-func TestComposerDependencyAnalyzer_ComposerDependencyAnalyzer_LintFiles_Failed(t *testing.T) {
+func TestComposerDependencyAnalyzer_AnalyzeFiles_Failed(t *testing.T) {
 	fileNames := []string{"file.php", "/path/to/file2.php"}
 
-	test.InvokeLintFilesFailed(
+	test.InvokeAnalyzeFilesFailed(
 		t,
-		composerDependencyAnalyzerLinter,
-		internal.ProjectLinterOptions{Filenames: &fileNames},
+		composerDependencyAnalyzerAnalyzer,
+		internal.ProjectAnalyzerOptions{Filenames: &fileNames},
 		fileNames,
 	)
 }
@@ -107,8 +107,8 @@ func composerDependencyAnalyzerDetect(
 	return tool.DetectComposerDependencyAnalyzer(ctx, options)
 }
 
-func composerDependencyAnalyzerLinter(
+func composerDependencyAnalyzerAnalyzer(
 	executable func() (*internal.Executable, error),
-) internal.ProjectLinter {
+) internal.ProjectAnalyzer {
 	return tool.NewComposerDependencyAnalyzer(executable)
 }

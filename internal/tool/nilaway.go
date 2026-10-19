@@ -21,7 +21,7 @@ func NewNilAway(detect internal.ExecutableToolDetectFunc) *NilAway {
 			IdNilAway,
 			"NilAway",
 			"NilAway is a static analysis tool that seeks to help developers avoid nil panics in production.",
-			internal.Tags{internal.ToolTagGo, internal.ToolTagLint},
+			internal.Tags{internal.ToolTagGo, internal.ToolTagAnalyze},
 			detect,
 		),
 	}
@@ -37,11 +37,11 @@ func DetectNilAway(
 	})
 }
 
-func (c *NilAway) LintFiles(
+func (c *NilAway) AnalyzeFiles(
 	ctx context.Context,
-	options internal.ProjectLinterOptions,
+	options internal.ProjectAnalyzerOptions,
 ) error {
-	args := appendFiles(options.ExtraArgs, options.Filenames, internal.StrPtr("./..."))
+	args := appendFiles(options.ExtraArgs, options.Filenames, new("./..."))
 
 	if a, err := c.argsBuildLintOutputFormat(options.Output.Format); err == nil {
 		args = append(args, a...)
@@ -56,14 +56,14 @@ func (c *NilAway) LintFiles(
 	return c.RunForProject(ctx, options.ProjectInfo, args)
 }
 
-func (c *NilAway) argsBuildLintOutputFormat(format internal.LintReportFormat) ([]string, error) {
+func (c *NilAway) argsBuildLintOutputFormat(format internal.AnalyzeReportFormat) ([]string, error) {
 	var args []string
 
 	// nolint: exhaustive
 	switch format {
-	case internal.LintReportFormatDefault:
+	case internal.AnalyzeReportFormatDefault:
 		fallthrough
-	case internal.LintReportFormatRaw:
+	case internal.AnalyzeReportFormatRaw:
 		break
 	default:
 		return nil, fmt.Errorf("unsupported report format: %s", format)

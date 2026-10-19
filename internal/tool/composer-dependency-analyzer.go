@@ -43,15 +43,15 @@ func NewComposerDependencyAnalyzer(
 			IdComposerDependencyAnalyzer,
 			"ComposerDependencyAnalyzer",
 			"Detects unused, shadow and misplaced composer dependencies.",
-			internal.Tags{internal.ToolTagPhp, internal.ToolTagLint},
+			internal.Tags{internal.ToolTagPhp, internal.ToolTagAnalyze},
 			detect,
 		),
 	}
 }
 
-func (p *ComposerDependencyAnalyzer) LintFiles(
+func (p *ComposerDependencyAnalyzer) AnalyzeFiles(
 	ctx context.Context,
-	options internal.ProjectLinterOptions,
+	options internal.ProjectAnalyzerOptions,
 ) error {
 	args := options.ExtraArgs
 	args = appendFiles(args, options.Filenames, nil)
