@@ -3,6 +3,7 @@ package test
 import (
 	"cdt/internal"
 	"errors"
+	"io"
 	"os"
 	"testing"
 
@@ -98,56 +99,36 @@ func InvokeAnalyzeFilesError(
 	)
 }
 
-// InvokeAnalyzeFilesOutputFormatCheck run a test that verifies call AnalyzeFiles on an analyzer that should invoke the
-// analyzer with expected arguments for a given output format.
-func InvokeAnalyzeFilesOutputFormatCheck(
+// InvokeAnalyzeFilesReporter run a test that verifies call AnalyzeFiles on an analyzer that should pass output to
+// the reporter.
+func InvokeAnalyzeFilesReporter(
 	t *testing.T,
 	builder AnalyzerBuilder,
 	directory string,
-	format internal.AnalyzeReportFormat,
+	analyzeReporter internal.FileIssueReporter,
 	expectedArgs []string,
-	filenames *[]string,
+	output string,
+	errorCheck func(err error),
 ) internal.ProjectAnalyzer {
-	return InvokeAnalyzeFilesSuccess(
-		t,
-		builder,
-		internal.ProjectAnalyzerOptions{
-			ProjectInfo: internal.ProjectInfo{
-				Directory: directory,
-			},
-			Filenames: filenames,
-			Output: internal.OutputOptions[internal.AnalyzeReportFormat]{
-				Format: format,
-			},
-		},
-		expectedArgs,
-	)
-}
+	defer func() { _ = analyzeReporter.Finish() }()
 
-// InvokeAnalyzeFilesOutputFormatUnsupported run a test that verifies call AnalyzeFiles on an analyzer for unsupported
-// output format.
-func InvokeAnalyzeFilesOutputFormatUnsupported(
-	t *testing.T,
-	builder AnalyzerBuilder,
-	directory string,
-	format internal.AnalyzeReportFormat,
-	filenames *[]string,
-) internal.ProjectAnalyzer {
-	return InvokeAnalyzeFilesError(
+	return InvokeAnalyzeFiles(
 		t,
 		builder,
 		internal.ProjectAnalyzerOptions{
 			ProjectInfo: internal.ProjectInfo{
 				Directory: directory,
 			},
-			Filenames: filenames,
-			Output: internal.OutputOptions[internal.AnalyzeReportFormat]{
-				Format: format,
+			Output: internal.AnalyzeOutputOptions{
+				Reporter: analyzeReporter,
+				Output:   io.Discard,
 			},
 		},
-		func(err error) {
-			require.EqualError(t, err, "unsupported report format: "+string(format))
+		func(exec *Executable, executablePath string) {
+			exec.OnRunOutput(executablePath, expectedArgs, output).
+				Return(nil)
 		},
+		errorCheck,
 	)
 }
 
@@ -163,6 +144,13 @@ func InvokeAnalyzeFilesOutputFile(
 
 	outputFilename := t.TempDir() + "/report.txt"
 
+	file, err := os.OpenFile(outputFilename, os.O_CREATE|os.O_WRONLY, 0644)
+	require.NoError(t, err)
+
+	defer func() {
+		_ = file.Close()
+	}()
+
 	return InvokeAnalyzeFiles(
 		t,
 		builder,
@@ -171,8 +159,8 @@ func InvokeAnalyzeFilesOutputFile(
 				Directory: directory,
 			},
 			Filenames: filenames,
-			Output: internal.OutputOptions[internal.AnalyzeReportFormat]{
-				Filename: &outputFilename,
+			Output: internal.AnalyzeOutputOptions{
+				Output: file,
 			},
 		},
 		func(exec *Executable, executablePath string) {

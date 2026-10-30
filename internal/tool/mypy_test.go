@@ -69,34 +69,6 @@ func TestMyPy_MyPy_LintFiles_Failed(t *testing.T) {
 	)
 }
 
-func TestMyPy_MyPy_LintFiles_OutputFormat_Raw(t *testing.T) {
-	test.InvokeLintFilesOutputFormatCheck(
-		t,
-		myPyLinter,
-		".",
-		internal.LintReportFormatRaw,
-		[]string{"*.py"},
-		nil,
-	)
-}
-
-func TestMyPy_MyPy_LintFiles_OutputFormat_Unsupported(t *testing.T) {
-	dataSet := []internal.LintReportFormat{
-		internal.LintReportFormatJson,
-		internal.LintReportFormatJUnit,
-		internal.LintReportFormatGitHub,
-		internal.LintReportFormatGitLab,
-		internal.LintReportFormatTeamCity,
-		"test-unsupported",
-	}
-
-	for _, format := range dataSet {
-		t.Run(string(format), func(t *testing.T) {
-			test.InvokeLintFilesOutputFormatUnsupported(t, myPyLinter, ".", format, nil)
-		})
-	}
-}
-
 func TestMyPy_MyPy_LintFiles_OutputFile(t *testing.T) {
 	test.InvokeLintFilesOutputFile(t, myPyLinter, ".", []string{"*.py"}, nil)
 }

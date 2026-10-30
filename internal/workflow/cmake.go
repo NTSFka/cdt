@@ -1,13 +1,11 @@
 package workflow
 
 import (
+	"cdt/internal"
+	"cdt/internal/tool"
 	"context"
 	"fmt"
 	"path/filepath"
-	"runtime"
-
-	"cdt/internal"
-	"cdt/internal/tool"
 )
 
 type CMake struct{}
@@ -83,22 +81,8 @@ func (t *cmakeTester) RunTests(ctx context.Context, options internal.ProjectTest
 		args = append(args, "-R", *options.Pattern)
 	}
 
-	filename := internal.DefaultString(options.Output.Filename, "/dev/stdout")
-
-	// nolint: exhaustive
-	switch options.Output.Format {
-	case internal.TestsReportFormatDefault:
-		fallthrough
-	case internal.TestsReportFormatRaw:
-		break
-	case internal.TestsReportFormatJUnit:
-		if runtime.GOOS == "windows" && options.Output.Filename == nil {
-			return fmt.Errorf("output to stdout is not supported on Windows")
-		}
-
-		args = append(args, "--output-junit", filename)
-	default:
-		return fmt.Errorf("unsupported report format: %s", options.Output.Format)
+	if options.Output.Reporter != nil {
+		return fmt.Errorf("output to reporter not supported")
 	}
 
 	return t.ctestTool.RunForProject(ctx, options.ProjectInfo, args)

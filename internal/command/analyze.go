@@ -1,11 +1,12 @@
 package command
 
 import (
+	"cdt/internal"
+	"cdt/internal/reporter"
 	"context"
 	"errors"
 	"fmt"
-
-	"cdt/internal"
+	"io"
 
 	"github.com/urfave/cli/v3"
 )
@@ -41,19 +42,15 @@ func analyzeCommandAction(ctx context.Context, cmd *cli.Command) error {
 	analyzer := cmdContext.Project.Workflow.Analyzer
 
 	if cmd.IsSet("tool") {
-		toolName := cmd.String("tool")
-		tool := cmdContext.Tools.Get(toolName)
+		var err error
 
-		if tool == nil {
-			return fmt.Errorf("tool '%s' not found", toolName)
-		}
-
-		linterTool, ok := tool.(internal.ProjectAnalyzer)
-
-		if ok {
-			analyzer = linterTool
-		} else {
-			return fmt.Errorf("tool '%s' doesn't support analyzing", toolName)
+		analyzer, err = getTool[internal.ProjectAnalyzer](
+			cmd.String("tool"),
+			cmdContext.Tools,
+			"analyzing",
+		)
+		if err != nil {
+			return err
 		}
 	}
 
@@ -61,15 +58,26 @@ func analyzeCommandAction(ctx context.Context, cmd *cli.Command) error {
 		return errors.New("project doesn't support analyzing")
 	}
 
-	outputOptions := ParseOptionOutput[internal.AnalyzeReportFormat](
-		cmd.String("output"),
-		internal.AnalyzeReportFormatDefault,
-	)
+	outputOptions := ParseOptionOutput(cmd.String("output"))
+
+	output, err := buildOutput(outputOptions.Filename)
+	if err != nil {
+		return err
+	}
+	defer func() { _ = output.Close() }()
+
+	rep, err := buildAnalyzeReporter(outputOptions.Format, output)
+	if err != nil {
+		return err
+	}
 
 	options := internal.ProjectAnalyzerOptions{
 		ProjectInfo: cmdContext.Project.Info,
 		ExtraArgs:   cmd.Args().Tail(),
-		Output:      outputOptions,
+		Output: internal.AnalyzeOutputOptions{
+			Output:   output,
+			Reporter: rep,
+		},
 	}
 
 	if files := cmd.StringArgs("files"); len(files) > 0 {
@@ -80,5 +88,24 @@ func analyzeCommandAction(ctx context.Context, cmd *cli.Command) error {
 		return fmt.Errorf("%w", err)
 	}
 
+	if rep != nil {
+		return rep.Finish()
+	}
+
 	return nil
+}
+
+func buildAnalyzeReporter(format string, output io.Writer) (internal.FileIssueReporter, error) {
+	switch format {
+	case "":
+		fallthrough
+	case "raw":
+		return nil, nil // nolint: nilnil
+	case "simple":
+		return reporter.NewSimpleSarifReporter(output), nil
+	case "sarif":
+		return reporter.NewFileSarifReporter(output), nil
+	}
+
+	return nil, fmt.Errorf("unsupported report format: %s", format)
 }

@@ -3,6 +3,7 @@ package command_test
 import (
 	"context"
 	"errors"
+	"path"
 	"testing"
 
 	"cdt/internal"
@@ -168,8 +169,7 @@ func TestLint_LintFiles_Failure(t *testing.T) {
 func TestLint_LintFiles_CustomOutput_Raw(t *testing.T) {
 	linter := test.NewProjectLinter(t)
 	linter.On("LintFiles", mock.Anything, mock.MatchedBy(func(options internal.ProjectLinterOptions) bool {
-		return assert.Equal(t, internal.LintReportFormatRaw, options.Output.Format) &&
-			assert.Nil(t, options.Output.Filename)
+		return assert.Nil(t, options.Output.Reporter)
 	})).
 		Return(nil)
 
@@ -180,15 +180,15 @@ func TestLint_LintFiles_CustomOutput_Raw(t *testing.T) {
 }
 
 func TestLint_LintFiles_CustomOutput_Json(t *testing.T) {
+	reportFilename := path.Join(t.TempDir(), "report.txt")
+
 	linter := test.NewProjectLinter(t)
 	linter.On("LintFiles", mock.Anything, mock.MatchedBy(func(options internal.ProjectLinterOptions) bool {
-		return assert.Equal(t, internal.LintReportFormatJson, options.Output.Format) &&
-			assert.NotNil(t, options.Output.Filename) &&
-			assert.Equal(t, "lint.json", *options.Output.Filename)
+		return assert.NotNil(t, options.Output.Reporter)
 	})).
 		Return(nil)
 
-	err := runLint(t.Context(), linter, "-o", "json:lint.json")
+	err := runLint(t.Context(), linter, "-o", "simple:"+reportFilename)
 
 	require.NoError(t, err)
 	linter.AssertExpectations(t)

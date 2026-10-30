@@ -96,26 +96,3 @@ func InvokeRunTestsError(
 		},
 	)
 }
-
-// InvokeRunTestsOutputFormatUnsupported run a test that verifies call RunTests on a tester for unsupported output
-// format.
-func InvokeRunTestsOutputFormatUnsupported(
-	t *testing.T,
-	builder TesterBuilder,
-	format internal.TestsReportFormat,
-	pattern *string,
-) internal.ProjectTester {
-	return InvokeRunTestsError(
-		t,
-		builder,
-		internal.ProjectTesterOptions{
-			Output: internal.OutputOptions[internal.TestsReportFormat]{
-				Format: format,
-			},
-			Pattern: pattern,
-		},
-		func(err error) {
-			require.EqualError(t, err, "unsupported report format: "+string(format))
-		},
-	)
-}

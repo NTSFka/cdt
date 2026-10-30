@@ -1,11 +1,14 @@
 package internal
 
-import "context"
+import (
+	"context"
+	"io"
+)
 
 // OutputOptions specifies output options for various operations.
-type OutputOptions[T any] struct {
-	Format   T
-	Filename *string
+type OutputOptions[R any] struct {
+	Output   io.Writer
+	Reporter R
 }
 
 // ProjectConfiguratorOptions are options for configuring a project.
@@ -39,18 +42,8 @@ type ProjectBuilder interface {
 	BuildTargets(ctx context.Context, options ProjectBuilderOptions) error
 }
 
-// TestsReportFormat specifies the format of the test report.
-type TestsReportFormat string
-
-const (
-	TestsReportFormatDefault   TestsReportFormat = ""
-	TestsReportFormatRaw       TestsReportFormat = "raw"
-	TestsReportFormatRawEvents TestsReportFormat = "raw-events"
-	TestsReportFormatJson      TestsReportFormat = "json"
-	TestsReportFormatCtrf      TestsReportFormat = "ctrf"
-	TestsReportFormatJUnit     TestsReportFormat = "junit"
-	TestsReportFormatTeamCity  TestsReportFormat = "team-city"
-)
+// TestsOutputOptions specifies how the operation should produce output.
+type TestsOutputOptions OutputOptions[TestsReporter]
 
 // ProjectTesterOptions are options for testing a project.
 type ProjectTesterOptions struct {
@@ -60,7 +53,7 @@ type ProjectTesterOptions struct {
 	ExtraArgs []string
 
 	// Output specifies how the operation should produce output
-	Output OutputOptions[TestsReportFormat]
+	Output TestsOutputOptions
 
 	// Pattern specifies a pattern for tests to run
 	Pattern *string
@@ -72,19 +65,8 @@ type ProjectTester interface {
 	RunTests(ctx context.Context, options ProjectTesterOptions) error
 }
 
-// CoverageReportFormat specifies the format of the coverage report.
-type CoverageReportFormat string
-
-const (
-	CoverageReportFormatDefault   CoverageReportFormat = ""
-	CoverageReportFormatRaw       CoverageReportFormat = "raw"
-	CoverageReportFormatCobertura CoverageReportFormat = "cobertura"
-	CoverageReportFormatCrap4j    CoverageReportFormat = "crap4j"
-	CoverageReportFormatHtml      CoverageReportFormat = "html"
-	CoverageReportFormatXml       CoverageReportFormat = "xml"
-	CoverageReportFormatJson      CoverageReportFormat = "json"
-	CoverageReportFormatLcov      CoverageReportFormat = "lcov"
-)
+// CoverageOutputOptions specifies how the operation should produce output.
+type CoverageOutputOptions OutputOptions[CoverageReporter]
 
 // ProjectCoverageCollectorOptions are options for collecting coverage of a project.
 type ProjectCoverageCollectorOptions struct {
@@ -94,7 +76,7 @@ type ProjectCoverageCollectorOptions struct {
 	ExtraArgs []string
 
 	// Output specifies how the operation should produce output
-	Output OutputOptions[CoverageReportFormat]
+	Output CoverageOutputOptions
 
 	// Pattern specifies a pattern for tests to collect coverage from
 	Pattern *string
@@ -126,21 +108,8 @@ type ProjectFormatter interface {
 	FormatFiles(ctx context.Context, options ProjectFormatterOptions) error
 }
 
-// LintReportFormat specifies the format of the lint report.
-type LintReportFormat string
-
-const (
-	LintReportFormatDefault  LintReportFormat = ""
-	LintReportFormatRaw      LintReportFormat = "raw"
-	LintReportFormatJson     LintReportFormat = "json"
-	LintReportFormatJUnit    LintReportFormat = "junit"
-	LintReportFormatGitHub   LintReportFormat = "github"
-	LintReportFormatGitLab   LintReportFormat = "gitlab"
-	LintReportFormatTeamCity LintReportFormat = "teamcity"
-	LintReportFormatXml      LintReportFormat = "xml"
-	LintReportFormatHtml     LintReportFormat = "html"
-	LintReportFormatSarif    LintReportFormat = "sarif"
-)
+// LintOutputOptions specifies how the operation should produce output.
+type LintOutputOptions OutputOptions[FileIssueReporter]
 
 // ProjectLinterOptions are options for linting a project.
 type ProjectLinterOptions struct {
@@ -150,7 +119,7 @@ type ProjectLinterOptions struct {
 	ExtraArgs []string
 
 	// Output specifies how the operation should produce output
-	Output OutputOptions[LintReportFormat]
+	Output LintOutputOptions
 
 	// Filenames specify filenames to lint
 	Filenames *[]string
@@ -162,21 +131,8 @@ type ProjectLinter interface {
 	LintFiles(ctx context.Context, options ProjectLinterOptions) error
 }
 
-// AnalyzeReportFormat specifies the format of the analysis report.
-type AnalyzeReportFormat string
-
-const (
-	AnalyzeReportFormatDefault  AnalyzeReportFormat = ""
-	AnalyzeReportFormatRaw      AnalyzeReportFormat = "raw"
-	AnalyzeReportFormatJson     AnalyzeReportFormat = "json"
-	AnalyzeReportFormatJUnit    AnalyzeReportFormat = "junit"
-	AnalyzeReportFormatGitHub   AnalyzeReportFormat = "github"
-	AnalyzeReportFormatGitLab   AnalyzeReportFormat = "gitlab"
-	AnalyzeReportFormatTeamCity AnalyzeReportFormat = "teamcity"
-	AnalyzeReportFormatXml      AnalyzeReportFormat = "xml"
-	AnalyzeReportFormatHtml     AnalyzeReportFormat = "html"
-	AnalyzeReportFormatSarif    AnalyzeReportFormat = "sarif"
-)
+// AnalyzeOutputOptions specifies how the operation should produce output.
+type AnalyzeOutputOptions OutputOptions[FileIssueReporter]
 
 // ProjectAnalyzerOptions are options for analyzing a project.
 type ProjectAnalyzerOptions struct {
@@ -186,7 +142,7 @@ type ProjectAnalyzerOptions struct {
 	ExtraArgs []string
 
 	// Output specifies how the operation should produce output
-	Output OutputOptions[AnalyzeReportFormat]
+	Output AnalyzeOutputOptions
 
 	// Filenames specify filenames to lint
 	Filenames *[]string

@@ -3,6 +3,7 @@ package command_test
 import (
 	"context"
 	"errors"
+	"path"
 	"testing"
 
 	"cdt/internal"
@@ -53,8 +54,7 @@ func TestTest_RunTests_Success(t *testing.T) {
 func TestTest_RunTests_CustomOutput_Raw(t *testing.T) {
 	tester := test.NewProjectTester(t)
 	tester.On("RunTests", mock.Anything, mock.MatchedBy(func(options internal.ProjectTesterOptions) bool {
-		return assert.Equal(t, internal.TestsReportFormatRaw, options.Output.Format) &&
-			assert.Nil(t, options.Output.Filename)
+		return assert.Nil(t, options.Output.Reporter)
 	})).
 		Return(nil)
 
@@ -65,15 +65,15 @@ func TestTest_RunTests_CustomOutput_Raw(t *testing.T) {
 }
 
 func TestTest_RunTests_CustomOutput_Json(t *testing.T) {
+	reportFilename := path.Join(t.TempDir(), "report.txt")
+
 	tester := test.NewProjectTester(t)
 	tester.On("RunTests", mock.Anything, mock.MatchedBy(func(options internal.ProjectTesterOptions) bool {
-		return assert.Equal(t, internal.TestsReportFormatJson, options.Output.Format) &&
-			assert.NotNil(t, options.Output.Filename) &&
-			assert.Equal(t, "tests.json", *options.Output.Filename)
+		return assert.NotNil(t, options.Output.Reporter)
 	})).
 		Return(nil)
 
-	err := runTest(t.Context(), tester, "-o", "json:tests.json")
+	err := runTest(t.Context(), tester, "-o", "simple:"+reportFilename)
 
 	require.NoError(t, err)
 	tester.AssertExpectations(t)

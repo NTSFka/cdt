@@ -3,6 +3,7 @@ package test
 import (
 	"cdt/internal"
 	"errors"
+	"io"
 	"os"
 	"testing"
 
@@ -98,56 +99,36 @@ func InvokeLintFilesError(
 	)
 }
 
-// InvokeLintFilesOutputFormatCheck run a test that verifies call LintFiles on a linter that should invoke the linter
-// with expected arguments for a given output format.
-func InvokeLintFilesOutputFormatCheck(
+// InvokeLintFilesReporter run a test that verifies call LintFiles on a linter that should pass output to
+// the reporter.
+func InvokeLintFilesReporter(
 	t *testing.T,
 	builder LinterBuilder,
 	directory string,
-	format internal.LintReportFormat,
+	linterReporter internal.FileIssueReporter,
 	expectedArgs []string,
-	filenames *[]string,
+	output string,
+	errorCheck func(err error),
 ) internal.ProjectLinter {
-	return InvokeLintFilesSuccess(
-		t,
-		builder,
-		internal.ProjectLinterOptions{
-			ProjectInfo: internal.ProjectInfo{
-				Directory: directory,
-			},
-			Filenames: filenames,
-			Output: internal.OutputOptions[internal.LintReportFormat]{
-				Format: format,
-			},
-		},
-		expectedArgs,
-	)
-}
+	defer func() { _ = linterReporter.Finish() }()
 
-// InvokeLintFilesOutputFormatUnsupported run a test that verifies call LintFiles on a linter for unsupported output
-// format.
-func InvokeLintFilesOutputFormatUnsupported(
-	t *testing.T,
-	builder LinterBuilder,
-	directory string,
-	format internal.LintReportFormat,
-	filenames *[]string,
-) internal.ProjectLinter {
-	return InvokeLintFilesError(
+	return InvokeLintFiles(
 		t,
 		builder,
 		internal.ProjectLinterOptions{
 			ProjectInfo: internal.ProjectInfo{
 				Directory: directory,
 			},
-			Filenames: filenames,
-			Output: internal.OutputOptions[internal.LintReportFormat]{
-				Format: format,
+			Output: internal.LintOutputOptions{
+				Reporter: linterReporter,
+				Output:   io.Discard,
 			},
 		},
-		func(err error) {
-			require.EqualError(t, err, "unsupported report format: "+string(format))
+		func(exec *Executable, executablePath string) {
+			exec.OnRunOutput(executablePath, expectedArgs, output).
+				Return(nil)
 		},
+		errorCheck,
 	)
 }
 
@@ -163,6 +144,13 @@ func InvokeLintFilesOutputFile(
 
 	outputFilename := t.TempDir() + "/report.txt"
 
+	file, err := os.OpenFile(outputFilename, os.O_CREATE|os.O_WRONLY, 0644)
+	require.NoError(t, err)
+
+	defer func() {
+		_ = file.Close()
+	}()
+
 	return InvokeLintFiles(
 		t,
 		builder,
@@ -171,8 +159,8 @@ func InvokeLintFilesOutputFile(
 				Directory: directory,
 			},
 			Filenames: filenames,
-			Output: internal.OutputOptions[internal.LintReportFormat]{
-				Filename: &outputFilename,
+			Output: internal.LintOutputOptions{
+				Output: file,
 			},
 		},
 		func(exec *Executable, executablePath string) {

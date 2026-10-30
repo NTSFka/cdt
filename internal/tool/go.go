@@ -8,12 +8,10 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"os"
 	"runtime"
 
 	"github.com/ctrf-io/go-ctrf-json-reporter/ctrf"
 	"github.com/ctrf-io/go-ctrf-json-reporter/reporter"
-	"golang.org/x/sync/errgroup"
 )
 
 const IdGo = "go"
@@ -117,28 +115,19 @@ func (g *Go) RunTarget(
 }
 
 func (g *Go) RunTests(ctx context.Context, options internal.ProjectTesterOptions) error {
-	var pattern string
+	args := append([]string{"test"}, options.ExtraArgs...)
+
 	if options.Pattern != nil {
-		pattern = *options.Pattern
+		args = append(args, *options.Pattern)
 	} else {
-		pattern = "./..."
+		args = append(args, "./...")
 	}
 
-	// nolint: exhaustive
-	switch options.Output.Format {
-	case internal.TestsReportFormatDefault:
-		fallthrough
-	case internal.TestsReportFormatRaw:
-		break
-	case internal.TestsReportFormatRawEvents:
-		return g.testPatternJson(ctx, options, pattern)
-	case internal.TestsReportFormatCtrf:
-		return g.testPatternCtrf(ctx, options, pattern)
-	default:
-		return fmt.Errorf("unsupported report format: %s", options.Output.Format)
+	if options.Output.Reporter != nil {
+		return g.runTestsReporter(ctx, options, options.Output.Reporter, args)
 	}
 
-	return g.RunForProject(ctx, options.ProjectInfo, append(options.ExtraArgs, "test", pattern))
+	return g.RunForProjectWithWriter(ctx, options.ProjectInfo, options.Output.Output, args)
 }
 
 func (g *Go) FormatFiles(
@@ -176,21 +165,11 @@ func (g *Go) LintFiles(
 		args = append(args, "./...")
 	}
 
-	// nolint: exhaustive
-	switch options.Output.Format {
-	case internal.LintReportFormatDefault:
-		fallthrough
-	case internal.LintReportFormatRaw:
-		break
-	default:
-		return fmt.Errorf("unsupported report format: %s", options.Output.Format)
+	if options.Output.Reporter != nil {
+		return fmt.Errorf("output to reporter not supported")
 	}
 
-	if options.Output.Filename != nil {
-		return g.RunForProjectWithOutput(ctx, options.ProjectInfo, *options.Output.Filename, args)
-	}
-
-	return g.RunForProject(ctx, options.ProjectInfo, args)
+	return g.RunForProjectWithWriter(ctx, options.ProjectInfo, options.Output.Output, args)
 }
 
 func (g *Go) AddDependencies(
@@ -259,44 +238,35 @@ func (g *Go) AuditDependencies(
 	return errors.New("not supported")
 }
 
-func (g *Go) testPatternJson(
+func (g *Go) runTestsReporter(
 	ctx context.Context,
 	options internal.ProjectTesterOptions,
-	pattern string,
+	reporter internal.TestsReporter,
+	args []string,
 ) error {
-	var writer io.Writer = os.Stdout
+	// Process JSON output
+	args = append(args, "-json")
 
-	if options.Output.Filename != nil {
-		file, err := os.OpenFile(*options.Output.Filename, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0644)
-		if err != nil {
-			return fmt.Errorf("failed to open output file: %w", err)
-		}
+	outputBuffer := bytes.Buffer{}
 
-		writer = file
+	err := g.RunForProjectWithWriter(ctx, options.ProjectInfo, &outputBuffer, args)
 
-		defer func() {
-			_ = file.Close()
-		}()
+	if err != nil && !checkExitCode(err, []int{1}) {
+		return err
+	} else if outputBuffer.Len() == 0 {
+		// Nothing returned
+		return nil
 	}
 
-	runOptions := internal.RunOptions{
-		Directory: options.Directory,
-		Output:    writer,
-	}
-
-	return g.Run(
-		ctx,
-		runOptions,
-		append(options.ExtraArgs, "test", "-json", pattern),
-	)
+	return errors.Join(err, g.reportJsonOutput(&outputBuffer, reporter))
 }
 
-func (g *Go) testPatternCtrfProcess(
+func (g *Go) reportJsonOutput(
 	reader io.Reader,
-	outputFilename *string,
+	testsReporter internal.TestsReporter,
 ) error {
 	env := &ctrf.Environment{
-		AppName:    "cdt",
+		AppName:    "go",
 		OSPlatform: runtime.GOOS,
 	}
 
@@ -305,86 +275,5 @@ func (g *Go) testPatternCtrfProcess(
 		return fmt.Errorf("error parsing test results: %w", err)
 	}
 
-	if outputFilename != nil {
-		err = report.WriteFile(*outputFilename)
-	} else {
-		err = report.Write(os.Stdout, true)
-	}
-
-	if err != nil {
-		return fmt.Errorf("error writing the report to file: %w", err)
-	}
-
-	var buildFailed bool
-
-	if report.Results.Extra != nil {
-		extraMap, isMap := report.Results.Extra.(map[string]any)
-		if !isMap {
-			err = fmt.Errorf("expected a map, but got %T instead", report.Results.Extra)
-
-			return fmt.Errorf("error extracting report results: %w", err)
-		}
-
-		if _, ok := extraMap["buildFail"]; ok {
-			buildFailed = true
-		}
-
-		if _, ok := extraMap["FailedBuild"]; ok {
-			buildFailed = true
-		}
-	}
-
-	if report.Results.Summary.Failed > 0 {
-		buildFailed = true
-	}
-
-	if buildFailed {
-		return errors.New("build failed")
-	}
-
-	return nil
-}
-
-func (g *Go) testPatternCtrf(
-	ctx context.Context,
-	options internal.ProjectTesterOptions,
-	pattern string,
-) error {
-	// TODO: use Pipe from created process
-	reader, writer, err := os.Pipe()
-	if err != nil {
-		return fmt.Errorf("failed to create pipe: %w", err)
-	}
-
-	defer func() {
-		_ = reader.Close()
-	}()
-	defer func() {
-		_ = writer.Close()
-	}()
-
-	runOptions := internal.RunOptions{
-		Directory: options.Directory,
-		Input:     os.Stdin,
-		Output:    writer,
-		Error:     os.Stderr,
-	}
-
-	group, ctx := errgroup.WithContext(ctx)
-
-	group.Go(func() error {
-		return g.testPatternCtrfProcess(reader, options.Output.Filename)
-	})
-
-	group.Go(
-		func() error {
-			err := g.Run(ctx, runOptions, append(options.ExtraArgs, "test", "-json", pattern))
-
-			_ = writer.Close()
-
-			return err
-		},
-	)
-
-	return group.Wait()
+	return testsReporter.AddCtrf(report)
 }

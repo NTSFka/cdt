@@ -41,31 +41,9 @@ func (f *Flake8) LintFiles(
 ) error {
 	args := appendFiles(options.ExtraArgs, options.Filenames, nil)
 
-	if a, err := f.argsBuildLintOutputFormat(options.Output.Format); err == nil {
-		args = append(args, a...)
-	} else {
-		return err
+	if options.Output.Reporter != nil {
+		return fmt.Errorf("output to reporter not supported")
 	}
 
-	if options.Output.Filename != nil {
-		return f.RunForProjectWithOutput(ctx, options.ProjectInfo, *options.Output.Filename, args)
-	}
-
-	return f.RunForProject(ctx, options.ProjectInfo, args)
-}
-
-func (f *Flake8) argsBuildLintOutputFormat(format internal.LintReportFormat) ([]string, error) {
-	var args []string
-
-	// nolint: exhaustive
-	switch format {
-	case internal.LintReportFormatDefault:
-		fallthrough
-	case internal.LintReportFormatRaw:
-		break
-	default:
-		return nil, fmt.Errorf("unsupported report format: %s", format)
-	}
-
-	return args, nil
+	return f.RunForProjectWithWriter(ctx, options.ProjectInfo, options.Output.Output, args)
 }

@@ -166,6 +166,8 @@ func (t *ExecutableTool) RunForProject(ctx context.Context, info ProjectInfo, ar
 }
 
 // RunForProjectWithOutput runs the tool for the project with a path to an output file.
+//
+// Deprecated: use RunForProjectWithWriter instead.
 func (t *ExecutableTool) RunForProjectWithOutput(
 	ctx context.Context,
 	info ProjectInfo,
@@ -184,6 +186,23 @@ func (t *ExecutableTool) RunForProjectWithOutput(
 		Directory: info.Directory,
 		Input:     os.Stdin,
 		Output:    file,
+		Error:     os.Stderr,
+	}
+
+	return t.Run(ctx, options, args)
+}
+
+// RunForProjectWithWriter runs the tool for the project with output to a writer.
+func (t *ExecutableTool) RunForProjectWithWriter(
+	ctx context.Context,
+	info ProjectInfo,
+	output io.Writer,
+	args []string,
+) error {
+	options := RunOptions{
+		Directory: info.Directory,
+		Input:     os.Stdin,
+		Output:    output,
 		Error:     os.Stderr,
 	}
 

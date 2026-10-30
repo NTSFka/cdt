@@ -83,42 +83,6 @@ func TestPHP_PHP_LintFiles_Failed(t *testing.T) {
 	)
 }
 
-func TestPHP_PHP_LintFiles_OutputFormat_Raw(t *testing.T) {
-	fileNames := []string{"file.php", "/path/to/file2.php"}
-
-	test.InvokeLintFilesOutputFormatCheck(
-		t,
-		phpLinter,
-		".",
-		internal.LintReportFormatRaw,
-		append([]string{"-l"}, fileNames...),
-		&fileNames,
-	)
-}
-
-func TestPHP_PHP_LintFiles_OutputFormat_Unsupported(t *testing.T) {
-	dataSet := []internal.LintReportFormat{
-		internal.LintReportFormatJson,
-		internal.LintReportFormatJUnit,
-		internal.LintReportFormatGitHub,
-		internal.LintReportFormatGitLab,
-		internal.LintReportFormatTeamCity,
-		"test-unsupported",
-	}
-
-	for _, format := range dataSet {
-		t.Run(string(format), func(t *testing.T) {
-			test.InvokeLintFilesOutputFormatUnsupported(
-				t,
-				phpLinter,
-				".",
-				format,
-				&[]string{"file.php", "/path/to/file2.php"},
-			)
-		})
-	}
-}
-
 func TestPHP_PHP_LintFiles_OutputFile(t *testing.T) {
 	fileNames := []string{"file.php", "/path/to/file2.php"}
 

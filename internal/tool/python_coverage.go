@@ -70,29 +70,11 @@ func (p *PythonCoverage) CollectCoverage(
 		args = append(args, *options.Pattern)
 	}
 
-	filename := internal.DefaultString(options.Output.Filename, "php://stdout")
-
-	var reportArgs []string
-
-	// nolint: exhaustive
-	switch options.Output.Format {
-	case internal.CoverageReportFormatDefault:
-		fallthrough
-	case internal.CoverageReportFormatRaw:
-		reportArgs = append(reportArgs, "report")
-	case internal.CoverageReportFormatHtml:
-		reportArgs = append(reportArgs, "html", filename)
-	case internal.CoverageReportFormatXml:
-		reportArgs = append(reportArgs, "xml", filename)
-	case internal.CoverageReportFormatJson:
-		reportArgs = append(reportArgs, "json", filename)
-	case internal.CoverageReportFormatLcov:
-		reportArgs = append(reportArgs, "lcov", filename)
-	default:
-		return fmt.Errorf("unsupported coverage report format: %s", options.Output.Format)
+	if options.Output.Reporter != nil {
+		return fmt.Errorf("output to reporter not supported")
 	}
 
-	reportArgs = append(reportArgs, options.ExtraArgs...)
+	reportArgs := append([]string{"report"}, options.ExtraArgs...)
 
 	// Collect coverage
 	if err := p.RunForProject(ctx, options.ProjectInfo, args); err != nil {

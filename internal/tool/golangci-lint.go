@@ -1,10 +1,15 @@
 package tool
 
 import (
+	"bytes"
 	"context"
+	"errors"
 	"fmt"
+	"io"
 
 	"cdt/internal"
+
+	"github.com/owenrumney/go-sarif/v3/pkg/report/v210/sarif"
 )
 
 const IdGolangCILint = "golangci-lint"
@@ -47,17 +52,11 @@ func (g *GolangCILint) LintFiles(
 	args := append([]string{"run"}, options.ExtraArgs...)
 	args = appendFiles(args, options.Filenames, nil)
 
-	if a, err := g.argsBuildLintOutputFormat(options.Output.Format); err == nil {
-		args = append(args, a...)
-	} else {
-		return err
+	if options.Output.Reporter != nil {
+		return g.lintFilesReporter(ctx, options, options.Output.Reporter, args)
 	}
 
-	if options.Output.Filename != nil {
-		return g.RunForProjectWithOutput(ctx, options.ProjectInfo, *options.Output.Filename, args)
-	}
-
-	return g.RunForProject(ctx, options.ProjectInfo, args)
+	return g.RunForProjectWithWriter(ctx, options.ProjectInfo, options.Output.Output, args)
 }
 
 func (g *GolangCILint) FormatFiles(
@@ -77,20 +76,42 @@ func (g *GolangCILint) FormatFiles(
 	return g.RunForProject(ctx, options.ProjectInfo, args)
 }
 
-func (g *GolangCILint) argsBuildLintOutputFormat(
-	format internal.LintReportFormat,
-) ([]string, error) {
-	var args []string
+func (g *GolangCILint) lintFilesReporter(
+	ctx context.Context,
+	options internal.ProjectLinterOptions,
+	reporter internal.FileIssueReporter,
+	args []string,
+) error {
+	// Process SARIF output
+	args = append(args, "--output.sarif.path", "stdout")
 
-	// nolint: exhaustive
-	switch format {
-	case internal.LintReportFormatDefault:
-		fallthrough
-	case internal.LintReportFormatRaw:
-		break
-	default:
-		return nil, fmt.Errorf("unsupported report format: %s", format)
+	outputBuffer := bytes.Buffer{}
+
+	err := g.RunForProjectWithWriter(ctx, options.ProjectInfo, &outputBuffer, args)
+
+	if err != nil && !checkExitCode(err, []int{1}) {
+		return err
+	} else if outputBuffer.Len() == 0 {
+		// Nothing returned
+		return nil
 	}
 
-	return args, nil
+	return errors.Join(err, g.reportSarifOutput(&outputBuffer, reporter))
+}
+
+func (g *GolangCILint) reportSarifOutput(
+	reader io.Reader,
+	linterReporter internal.FileIssueReporter,
+) error {
+	data, err := io.ReadAll(reader)
+	if err != nil {
+		return fmt.Errorf("failed to read JSON output: %w", err)
+	}
+
+	report, err := sarif.FromBytes(data)
+	if err != nil {
+		return fmt.Errorf("failed to parse SARIF output: %w", err)
+	}
+
+	return linterReporter.AddSarif(report)
 }

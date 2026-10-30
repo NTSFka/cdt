@@ -39,33 +39,11 @@ func (p *Pylint) LintFiles(
 	ctx context.Context,
 	options internal.ProjectLinterOptions,
 ) error {
-	args := appendFiles(options.ExtraArgs, options.Filenames, internal.StrPtr("*"))
+	args := appendFiles(options.ExtraArgs, options.Filenames, new("*"))
 
-	if a, err := p.argsBuildLintOutputFormat(options.Output.Format); err == nil {
-		args = append(args, a...)
-	} else {
-		return err
+	if options.Output.Reporter != nil {
+		return fmt.Errorf("output to reporter not supported")
 	}
 
-	if options.Output.Filename != nil {
-		return p.RunForProjectWithOutput(ctx, options.ProjectInfo, *options.Output.Filename, args)
-	}
-
-	return p.RunForProject(ctx, options.ProjectInfo, args)
-}
-
-func (p *Pylint) argsBuildLintOutputFormat(format internal.LintReportFormat) ([]string, error) {
-	var args []string
-
-	// nolint: exhaustive
-	switch format {
-	case internal.LintReportFormatDefault:
-		fallthrough
-	case internal.LintReportFormatRaw:
-		break
-	default:
-		return nil, fmt.Errorf("unsupported report format: %s", format)
-	}
-
-	return args, nil
+	return p.RunForProjectWithWriter(ctx, options.ProjectInfo, options.Output.Output, args)
 }

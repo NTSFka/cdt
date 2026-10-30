@@ -1,9 +1,15 @@
 package tool
 
 import (
+	"bytes"
 	"cdt/internal"
 	"context"
+	"errors"
+	"fmt"
+	"io"
 	"path/filepath"
+
+	"github.com/owenrumney/go-sarif/v3/pkg/report/v210/sarif"
 )
 
 const IdMago = "mago"
@@ -49,27 +55,35 @@ func NewMago(detect internal.ExecutableToolDetectFunc) *Mago {
 	}
 }
 
-func (p *Mago) LintFiles(
+func (m *Mago) LintFiles(
 	ctx context.Context,
 	options internal.ProjectLinterOptions,
 ) error {
 	args := append([]string{"lint"}, options.ExtraArgs...)
 	args = appendFiles(args, options.Filenames, nil)
 
-	return p.RunForProject(ctx, options.ProjectInfo, args)
+	if options.Output.Reporter != nil {
+		return m.runForSarifReporter(ctx, options.ProjectInfo, options.Output.Reporter, args)
+	}
+
+	return m.RunForProjectWithWriter(ctx, options.ProjectInfo, options.Output.Output, args)
 }
 
-func (p *Mago) AnalyzeFiles(
+func (m *Mago) AnalyzeFiles(
 	ctx context.Context,
 	options internal.ProjectAnalyzerOptions,
 ) error {
 	args := append([]string{"analyze"}, options.ExtraArgs...)
 	args = appendFiles(args, options.Filenames, nil)
 
-	return p.RunForProject(ctx, options.ProjectInfo, args)
+	if options.Output.Reporter != nil {
+		return m.runForSarifReporter(ctx, options.ProjectInfo, options.Output.Reporter, args)
+	}
+
+	return m.RunForProjectWithWriter(ctx, options.ProjectInfo, options.Output.Output, args)
 }
 
-func (p *Mago) FormatFiles(ctx context.Context, options internal.ProjectFormatterOptions) error {
+func (m *Mago) FormatFiles(ctx context.Context, options internal.ProjectFormatterOptions) error {
 	args := append([]string{"format"}, options.ExtraArgs...)
 
 	if options.CheckOnly {
@@ -78,5 +92,45 @@ func (p *Mago) FormatFiles(ctx context.Context, options internal.ProjectFormatte
 
 	args = appendFiles(args, options.Filenames, nil)
 
-	return p.RunForProject(ctx, options.ProjectInfo, args)
+	return m.RunForProject(ctx, options.ProjectInfo, args)
+}
+
+func (m *Mago) runForSarifReporter(
+	ctx context.Context,
+	projectInfo internal.ProjectInfo,
+	reporter internal.FileIssueReporter,
+	args []string,
+) error {
+	// Process SARIF output
+	args = append(args, "--reporting-format=sarif")
+
+	outputBuffer := bytes.Buffer{}
+
+	err := m.RunForProjectWithWriter(ctx, projectInfo, &outputBuffer, args)
+
+	if err != nil && !checkExitCode(err, []int{1}) {
+		return err
+	} else if outputBuffer.Len() == 0 {
+		// Nothing returned
+		return nil
+	}
+
+	return errors.Join(err, m.reportSarifOutput(&outputBuffer, reporter))
+}
+
+func (m *Mago) reportSarifOutput(
+	reader io.Reader,
+	sarifReporter internal.FileIssueReporter,
+) error {
+	data, err := io.ReadAll(reader)
+	if err != nil {
+		return fmt.Errorf("failed to read JSON output: %w", err)
+	}
+
+	report, err := sarif.FromBytes(data)
+	if err != nil {
+		return fmt.Errorf("failed to parse SARIF output: %w", err)
+	}
+
+	return sarifReporter.AddSarif(report)
 }

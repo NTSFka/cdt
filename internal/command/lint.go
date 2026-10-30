@@ -1,9 +1,11 @@
 package command
 
 import (
+	"cdt/internal/reporter"
 	"context"
 	"errors"
 	"fmt"
+	"io"
 
 	"cdt/internal"
 
@@ -41,19 +43,15 @@ func lintCommandAction(ctx context.Context, cmd *cli.Command) error {
 	linter := cmdContext.Project.Workflow.Linter
 
 	if cmd.IsSet("tool") {
-		toolName := cmd.String("tool")
-		tool := cmdContext.Tools.Get(toolName)
+		var err error
 
-		if tool == nil {
-			return fmt.Errorf("tool '%s' not found", toolName)
-		}
-
-		linterTool, ok := tool.(internal.ProjectLinter)
-
-		if ok {
-			linter = linterTool
-		} else {
-			return fmt.Errorf("tool '%s' doesn't support linting", toolName)
+		linter, err = getTool[internal.ProjectLinter](
+			cmd.String("tool"),
+			cmdContext.Tools,
+			"linting",
+		)
+		if err != nil {
+			return err
 		}
 	}
 
@@ -61,15 +59,26 @@ func lintCommandAction(ctx context.Context, cmd *cli.Command) error {
 		return errors.New("project doesn't support linting")
 	}
 
-	outputOptions := ParseOptionOutput[internal.LintReportFormat](
-		cmd.String("output"),
-		internal.LintReportFormatDefault,
-	)
+	outputOptions := ParseOptionOutput(cmd.String("output"))
+
+	output, err := buildOutput(outputOptions.Filename)
+	if err != nil {
+		return err
+	}
+	defer func() { _ = output.Close() }()
+
+	rep, err := buildLintReporter(outputOptions.Format, output)
+	if err != nil {
+		return err
+	}
 
 	options := internal.ProjectLinterOptions{
 		ProjectInfo: cmdContext.Project.Info,
 		ExtraArgs:   cmd.Args().Tail(),
-		Output:      outputOptions,
+		Output: internal.LintOutputOptions{
+			Output:   output,
+			Reporter: rep,
+		},
 	}
 
 	if files := cmd.StringArgs("files"); len(files) > 0 {
@@ -80,5 +89,24 @@ func lintCommandAction(ctx context.Context, cmd *cli.Command) error {
 		return fmt.Errorf("%w", err)
 	}
 
+	if rep != nil {
+		return rep.Finish()
+	}
+
 	return nil
+}
+
+func buildLintReporter(format string, output io.Writer) (internal.FileIssueReporter, error) {
+	switch format {
+	case "":
+		fallthrough
+	case "raw":
+		return nil, nil // nolint: nilnil
+	case "simple":
+		return reporter.NewSimpleSarifReporter(output), nil
+	case "sarif":
+		return reporter.NewFileSarifReporter(output), nil
+	}
+
+	return nil, fmt.Errorf("unsupported report format: %s", format)
 }

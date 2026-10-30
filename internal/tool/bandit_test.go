@@ -69,34 +69,6 @@ func TestBandit_Bandit_LintFiles_Failed(t *testing.T) {
 	)
 }
 
-func TestBandit_Bandit_LintFiles_OutputFormat_Raw(t *testing.T) {
-	test.InvokeLintFilesOutputFormatCheck(
-		t,
-		banditLinter,
-		".",
-		internal.LintReportFormatRaw,
-		[]string{"*"},
-		nil,
-	)
-}
-
-func TestBandit_Bandit_LintFiles_OutputFormat_Unsupported(t *testing.T) {
-	dataSet := []internal.LintReportFormat{
-		internal.LintReportFormatJson,
-		internal.LintReportFormatJUnit,
-		internal.LintReportFormatGitHub,
-		internal.LintReportFormatGitLab,
-		internal.LintReportFormatTeamCity,
-		"test-unsupported",
-	}
-
-	for _, format := range dataSet {
-		t.Run(string(format), func(t *testing.T) {
-			test.InvokeLintFilesOutputFormatUnsupported(t, banditLinter, ".", format, nil)
-		})
-	}
-}
-
 func TestBandit_Bandit_LintFiles_OutputFile(t *testing.T) {
 	test.InvokeLintFilesOutputFile(t, banditLinter, ".", []string{"*"}, nil)
 }

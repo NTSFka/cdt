@@ -69,40 +69,6 @@ func TestPylint_Pylint_LintFiles_Failed(t *testing.T) {
 	)
 }
 
-func TestPylint_Pylint_LintFiles_OutputFormat_Raw(t *testing.T) {
-	test.InvokeLintFilesOutputFormatCheck(
-		t,
-		pylintLinter,
-		".",
-		internal.LintReportFormatRaw,
-		[]string{"*"},
-		nil,
-	)
-}
-
-func TestPylint_Pylint_LintFiles_OutputFormat_Unsupported(t *testing.T) {
-	formats := []internal.LintReportFormat{
-		internal.LintReportFormatJson,
-		internal.LintReportFormatJUnit,
-		internal.LintReportFormatGitHub,
-		internal.LintReportFormatGitLab,
-		internal.LintReportFormatTeamCity,
-		"test-unsupported",
-	}
-
-	for _, format := range formats {
-		t.Run(string(format), func(t *testing.T) {
-			test.InvokeLintFilesOutputFormatUnsupported(
-				t,
-				pylintLinter,
-				".",
-				format,
-				nil,
-			)
-		})
-	}
-}
-
 func TestPylint_Pylint_LintFiles_OutputFile(t *testing.T) {
 	test.InvokeLintFilesOutputFile(
 		t,

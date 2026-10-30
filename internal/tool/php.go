@@ -59,19 +59,9 @@ func (p *PHP) LintFiles(
 		return fmt.Errorf("no files to lint")
 	}
 
-	// nolint: exhaustive
-	switch options.Output.Format {
-	case internal.LintReportFormatDefault:
-		fallthrough
-	case internal.LintReportFormatRaw:
-		break
-	default:
-		return fmt.Errorf("unsupported report format: %s", options.Output.Format)
+	if options.Output.Reporter != nil {
+		return fmt.Errorf("output to reporter not supported")
 	}
 
-	if options.Output.Filename != nil {
-		return p.RunForProjectWithOutput(ctx, options.ProjectInfo, *options.Output.Filename, args)
-	}
-
-	return p.RunForProject(ctx, options.ProjectInfo, args)
+	return p.RunForProjectWithWriter(ctx, options.ProjectInfo, options.Output.Output, args)
 }

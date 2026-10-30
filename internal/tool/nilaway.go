@@ -1,10 +1,18 @@
 package tool
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
+	"errors"
 	"fmt"
+	"io"
+	"strconv"
+	"strings"
 
 	"cdt/internal"
+
+	"github.com/owenrumney/go-sarif/v3/pkg/report/v210/sarif"
 )
 
 const IdNilAway = "nilaway"
@@ -37,37 +45,88 @@ func DetectNilAway(
 	})
 }
 
-func (c *NilAway) AnalyzeFiles(
+func (n *NilAway) AnalyzeFiles(
 	ctx context.Context,
 	options internal.ProjectAnalyzerOptions,
 ) error {
 	args := appendFiles(options.ExtraArgs, options.Filenames, new("./..."))
 
-	if a, err := c.argsBuildLintOutputFormat(options.Output.Format); err == nil {
-		args = append(args, a...)
-	} else {
+	if options.Output.Reporter != nil {
+		return n.analyzeFilesReporter(ctx, options, options.Output.Reporter, args)
+	}
+
+	return n.RunForProjectWithWriter(ctx, options.ProjectInfo, options.Output.Output, args)
+}
+
+func (n *NilAway) analyzeFilesReporter(
+	ctx context.Context,
+	options internal.ProjectAnalyzerOptions,
+	reporter internal.FileIssueReporter,
+	args []string,
+) error {
+	// Process JSON output
+	args = append([]string{"-json"}, args...)
+
+	outputBuffer := bytes.Buffer{}
+
+	err := n.RunForProjectWithWriter(ctx, options.ProjectInfo, &outputBuffer, args)
+
+	if err != nil && !checkExitCode(err, []int{3}) {
+		return err
+	} else if outputBuffer.Len() == 0 {
+		// Nothing returned
+		return nil
+	}
+
+	return errors.Join(err, n.reportJsonOutput(&outputBuffer, reporter))
+}
+
+type nilAwayJsonReport map[string]struct {
+	NilAway []struct {
+		Posn    string `json:"posn"`
+		End     string `json:"end"`
+		Message string `json:"message"`
+	} `json:"nilaway"`
+}
+
+func (n *NilAway) reportJsonOutput(
+	reader io.Reader,
+	analyzerReporter internal.FileIssueReporter,
+) error {
+	var report nilAwayJsonReport
+	if err := json.NewDecoder(reader).Decode(&report); err != nil {
 		return err
 	}
 
-	if options.Output.Filename != nil {
-		return c.RunForProjectWithOutput(ctx, options.ProjectInfo, *options.Output.Filename, args)
+	sarifReport := sarif.NewReport()
+
+	run := sarif.NewRunWithInformationURI(
+		n.Name(),
+		"https://github.com/uber-go/nilaway",
+	)
+
+	for _, group := range report {
+		for _, reportRecord := range group.NilAway {
+			position := strings.SplitN(reportRecord.Posn, ":", 3)
+
+			if len(position) != 3 {
+				return fmt.Errorf("invalid position: %s", reportRecord.Posn)
+			}
+
+			line, _ := strconv.Atoi(position[1])
+			column, _ := strconv.Atoi(position[2])
+
+			run.CreateResultForRule("").
+				WithMessage(sarif.NewTextMessage(reportRecord.Message)).
+				AddLocation(sarif.NewLocationWithPhysicalLocation(
+					sarif.NewPhysicalLocation().
+						WithArtifactLocation(sarif.NewSimpleArtifactLocation(position[0])).
+						WithRegion(sarif.NewRegion().WithStartLine(line).WithStartColumn(column)),
+				))
+		}
 	}
 
-	return c.RunForProject(ctx, options.ProjectInfo, args)
-}
+	sarifReport.AddRun(run)
 
-func (c *NilAway) argsBuildLintOutputFormat(format internal.AnalyzeReportFormat) ([]string, error) {
-	var args []string
-
-	// nolint: exhaustive
-	switch format {
-	case internal.AnalyzeReportFormatDefault:
-		fallthrough
-	case internal.AnalyzeReportFormatRaw:
-		break
-	default:
-		return nil, fmt.Errorf("unsupported report format: %s", format)
-	}
-
-	return args, nil
+	return analyzerReporter.AddSarif(sarifReport)
 }

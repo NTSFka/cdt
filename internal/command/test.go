@@ -2,9 +2,11 @@ package command
 
 import (
 	"cdt/internal"
+	"cdt/internal/reporter"
 	"context"
 	"errors"
 	"fmt"
+	"io"
 
 	"github.com/urfave/cli/v3"
 )
@@ -41,19 +43,15 @@ func testCommandAction(ctx context.Context, cmd *cli.Command) error {
 	tester := cmdContext.Project.Workflow.Tester
 
 	if cmd.IsSet("tool") {
-		toolName := cmd.String("tool")
-		tool := cmdContext.Tools.Get(toolName)
+		var err error
 
-		if tool == nil {
-			return fmt.Errorf("tool '%s' not found", toolName)
-		}
-
-		testerTool, ok := tool.(internal.ProjectTester)
-
-		if ok {
-			tester = testerTool
-		} else {
-			return fmt.Errorf("tool '%s' doesn't support testing", toolName)
+		tester, err = getTool[internal.ProjectTester](
+			cmd.String("tool"),
+			cmdContext.Tools,
+			"testing",
+		)
+		if err != nil {
+			return err
 		}
 	}
 
@@ -61,15 +59,26 @@ func testCommandAction(ctx context.Context, cmd *cli.Command) error {
 		return errors.New("project doesn't support testing")
 	}
 
-	outputOptions := ParseOptionOutput[internal.TestsReportFormat](
-		cmd.String("output"),
-		internal.TestsReportFormatRaw,
-	)
+	outputOptions := ParseOptionOutput(cmd.String("output"))
+
+	output, err := buildOutput(outputOptions.Filename)
+	if err != nil {
+		return err
+	}
+	defer func() { _ = output.Close() }()
+
+	rep, err := buildTestsReporter(outputOptions.Format, output)
+	if err != nil {
+		return err
+	}
 
 	options := internal.ProjectTesterOptions{
 		ProjectInfo: cmdContext.Project.Info,
 		ExtraArgs:   cmd.Args().Tail(),
-		Output:      outputOptions,
+		Output: internal.TestsOutputOptions{
+			Output:   output,
+			Reporter: rep,
+		},
 	}
 
 	if pattern := cmd.StringArgs("pattern"); len(pattern) != 0 {
@@ -80,5 +89,24 @@ func testCommandAction(ctx context.Context, cmd *cli.Command) error {
 		return fmt.Errorf("%w", err)
 	}
 
+	if rep != nil {
+		return rep.Finish()
+	}
+
 	return nil
+}
+
+func buildTestsReporter(format string, output io.Writer) (internal.TestsReporter, error) {
+	switch format {
+	case "":
+		fallthrough
+	case "raw":
+		return nil, nil // nolint: nilnil
+	case "simple":
+		return reporter.NewSimpleCtrfReporter(output), nil
+	case "sarif":
+		return reporter.NewFileCtrfReporter(output), nil
+	}
+
+	return nil, fmt.Errorf("unsupported report format: %s", format)
 }

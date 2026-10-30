@@ -1,11 +1,9 @@
 package tool
 
 import (
+	"cdt/internal"
 	"context"
 	"fmt"
-	"runtime"
-
-	"cdt/internal"
 )
 
 const IdPyTest = "pytest"
@@ -45,23 +43,9 @@ func (p *PyTest) RunTests(ctx context.Context, options internal.ProjectTesterOpt
 		args = append(args, *options.Pattern)
 	}
 
-	filename := internal.DefaultString(options.Output.Filename, "/dev/stdout")
-
-	// nolint: exhaustive
-	switch options.Output.Format {
-	case internal.TestsReportFormatDefault:
-		fallthrough
-	case internal.TestsReportFormatRaw:
-		break
-	case internal.TestsReportFormatJUnit:
-		if runtime.GOOS == "windows" && options.Output.Filename == nil {
-			return fmt.Errorf("output to stdout is not supported on Windows")
-		}
-
-		args = append(args, "--junitxml="+filename)
-	default:
-		return fmt.Errorf("unsupported report format: %s", options.Output.Format)
+	if options.Output.Reporter != nil {
+		return fmt.Errorf("output to reporter not supported")
 	}
 
-	return p.RunForProject(ctx, options.ProjectInfo, args)
+	return p.RunForProjectWithWriter(ctx, options.ProjectInfo, options.Output.Output, args)
 }

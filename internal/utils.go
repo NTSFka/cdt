@@ -52,3 +52,12 @@ func DefaultString(s *string, def string) string {
 
 	return *s
 }
+
+// DefaultValue returns the default value if the value is nil.
+func DefaultValue[T any](value *T, def T) T {
+	if value == nil {
+		return def
+	}
+
+	return *value
+}

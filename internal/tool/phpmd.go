@@ -4,10 +4,14 @@ import (
 	"bytes"
 	"cdt/internal"
 	"context"
+	"errors"
 	"fmt"
+	"io"
 	"path"
 	"path/filepath"
 	"strings"
+
+	"github.com/owenrumney/go-sarif/v3/pkg/report/v210/sarif"
 )
 
 const IdPHPMD = "phpmd"
@@ -75,18 +79,57 @@ func (p *PHPMD) AnalyzeFiles(
 	case PHPMDVersion2:
 		args, err = p.argsBuild2(options)
 	case PHPMDVersion3:
-		args, err = p.argsBuild3(options)
+		args = p.argsBuild3(options)
+		err = nil
 	}
 
 	if err != nil {
 		return err
 	}
 
-	if options.Output.Filename != nil {
-		return p.RunForProjectWithOutput(ctx, options.ProjectInfo, *options.Output.Filename, args)
+	if options.Output.Reporter != nil {
+		return p.analyzeFilesReporter(ctx, options, options.Output.Reporter, args)
 	}
 
-	return p.RunForProject(ctx, options.ProjectInfo, args)
+	return p.RunForProjectWithWriter(ctx, options.ProjectInfo, options.Output.Output, args)
+}
+
+func (p *PHPMD) analyzeFilesReporter(
+	ctx context.Context,
+	options internal.ProjectAnalyzerOptions,
+	reporter internal.FileIssueReporter,
+	args []string,
+) error {
+	// NOTE: The output format is already in args (version 2 vs. 3)
+	outputBuffer := bytes.Buffer{}
+
+	err := p.RunForProjectWithWriter(ctx, options.ProjectInfo, &outputBuffer, args)
+
+	if err != nil && !checkExitCode(err, []int{2}) {
+		return err
+	} else if outputBuffer.Len() == 0 {
+		// Nothing returned
+		return nil
+	}
+
+	return errors.Join(err, p.reportSarifOutput(&outputBuffer, reporter))
+}
+
+func (p *PHPMD) reportSarifOutput(
+	reader io.Reader,
+	analyzerReporter internal.FileIssueReporter,
+) error {
+	data, err := io.ReadAll(reader)
+	if err != nil {
+		return fmt.Errorf("failed to read JSON output: %w", err)
+	}
+
+	report, err := sarif.FromBytes(data)
+	if err != nil {
+		return fmt.Errorf("failed to parse SARIF output: %w", err)
+	}
+
+	return analyzerReporter.AddSarif(report)
 }
 
 func (p *PHPMD) detectVersion(ctx context.Context) (PHPMDVersion, error) {
@@ -112,10 +155,10 @@ func (p *PHPMD) argsBuild2(options internal.ProjectAnalyzerOptions) ([]string, e
 
 	args = append(args, p.argsBuild2Fileset(options))
 
-	if arg, err := p.argsBuildAnalyzeOutputFormat(options.Output.Format, new("ansi")); err == nil {
-		args = append(args, *arg)
+	if options.Output.Reporter != nil {
+		args = append(args, "sarif")
 	} else {
-		return nil, err
+		args = append(args, "ansi")
 	}
 
 	if a, err := p.argsBuild2Ruleset(options); err == nil {
@@ -129,53 +172,18 @@ func (p *PHPMD) argsBuild2(options internal.ProjectAnalyzerOptions) ([]string, e
 	return args, nil
 }
 
-func (p *PHPMD) argsBuild3(options internal.ProjectAnalyzerOptions) ([]string, error) {
+func (p *PHPMD) argsBuild3(options internal.ProjectAnalyzerOptions) []string {
 	args := []string{"analyze"}
 
-	if arg, err := p.argsBuildAnalyzeOutputFormat(options.Output.Format, nil); err == nil {
-		if arg != nil {
-			args = append(args, "--format="+*arg)
-		}
-	} else {
-		return nil, err
+	if options.Output.Reporter != nil {
+		args = append(args, "--format=sarif")
 	}
 
 	if options.Filenames != nil && len(*options.Filenames) > 0 {
 		args = append(args, *options.Filenames...)
 	}
 
-	args = append(args, options.ExtraArgs...)
-
-	return args, nil
-}
-
-func (p *PHPMD) argsBuildAnalyzeOutputFormat(
-	format internal.AnalyzeReportFormat,
-	def *string,
-) (*string, error) {
-	// supported: ansi, baseline, checkstyle, github, gitlab, html, json, sarif, text, xml.
-
-	// nolint: exhaustive
-	switch format {
-	case internal.AnalyzeReportFormatDefault:
-		fallthrough
-	case internal.AnalyzeReportFormatRaw:
-		return def, nil
-	case internal.AnalyzeReportFormatJson:
-		return new("json"), nil
-	case internal.AnalyzeReportFormatGitHub:
-		return new("github"), nil
-	case internal.AnalyzeReportFormatGitLab:
-		return new("gitlab"), nil
-	case internal.AnalyzeReportFormatXml:
-		return new("xml"), nil
-	case internal.AnalyzeReportFormatHtml:
-		return new("html"), nil
-	case internal.AnalyzeReportFormatSarif:
-		return new("sarif"), nil
-	default:
-		return nil, fmt.Errorf("unsupported report format: %s", format)
-	}
+	return append(args, options.ExtraArgs...)
 }
 
 func (p *PHPMD) argsBuild2Fileset(options internal.ProjectAnalyzerOptions) string {

@@ -1,6 +1,8 @@
 package tool_test
 
 import (
+	"bytes"
+	"cdt/internal/reporter"
 	"cdt/internal/test"
 	"context"
 	"path/filepath"
@@ -10,6 +12,7 @@ import (
 	"cdt/internal/tool"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestComposerDependencyAnalyzer_Detect_Composer(t *testing.T) {
@@ -97,6 +100,98 @@ func TestComposerDependencyAnalyzer_AnalyzeFiles_Failed(t *testing.T) {
 		composerDependencyAnalyzerAnalyzer,
 		internal.ProjectAnalyzerOptions{Filenames: &fileNames},
 		fileNames,
+	)
+}
+
+func TestComposerDependencyAnalyzer_AnalyzeFiles_Reporter_NoErrors(t *testing.T) {
+	result := bytes.Buffer{}
+
+	test.InvokeAnalyzeFilesReporter(
+		t,
+		composerDependencyAnalyzerAnalyzer,
+		".",
+		reporter.NewSimpleSarifReporter(&result),
+		[]string{"--format", "junit"},
+		"<?xml version=\"1.0\" encoding=\"UTF-8\"?>",
+		func(err error) {
+			require.NoError(t, err)
+		},
+	)
+
+	assert.Equal(t, "\nTotal issues: 0\n\n", result.String())
+}
+
+func TestComposerDependencyAnalyzer_AnalyzeFiles_Reporter_SomeErrors(t *testing.T) {
+	result := bytes.Buffer{}
+
+	test.InvokeAnalyzeFilesReporter(
+		t,
+		composerDependencyAnalyzerAnalyzer,
+		".",
+		reporter.NewSimpleSarifReporter(&result),
+		[]string{"--format", "junit"},
+		`<?xml version="1.0" encoding="UTF-8"?>
+		<testsuites>
+		  <testsuite name="shadow dependencies" failures="4">
+			<testcase name="package1">
+			  <failure message="Class1">www/index.php:10</failure>
+			</testcase>
+		  </testsuite>
+		  <!-- showing only first example failure usage -->
+		</testsuites>`,
+		func(err error) {
+			require.NoError(t, err)
+		},
+	)
+
+	assert.NotEmpty(t, result.String())
+}
+
+func TestComposerDependencyAnalyzer_AnalyzeFiles_Reporter_NoOutput(t *testing.T) {
+	result := bytes.Buffer{}
+
+	test.InvokeAnalyzeFilesReporter(
+		t,
+		composerDependencyAnalyzerAnalyzer,
+		".",
+		reporter.NewSimpleSarifReporter(&result),
+		[]string{"--format", "junit"},
+		"",
+		func(err error) {
+			require.NoError(t, err)
+		},
+	)
+
+	assert.Equal(t, "\nTotal issues: 0\n\n", result.String())
+}
+
+func TestComposerDependencyAnalyzer_AnalyzeFiles_Reporter_InvalidXml(t *testing.T) {
+	result := bytes.Buffer{}
+
+	test.InvokeAnalyzeFilesReporter(
+		t,
+		composerDependencyAnalyzerAnalyzer,
+		".",
+		reporter.NewSimpleSarifReporter(&result),
+		[]string{"--format", "junit"},
+		".",
+		func(err error) {
+			// The tool returns invalid XML when no issue is found, so it's not possible to distinguish between
+			// no issue and invalid XML
+			require.NoError(t, err)
+		},
+	)
+
+	assert.Equal(t, "\nTotal issues: 0\n\n", result.String())
+}
+
+func TestComposerDependencyAnalyzer_AnalyzeFiles_OutputFile(t *testing.T) {
+	test.InvokeAnalyzeFilesOutputFile(
+		t,
+		composerDependencyAnalyzerAnalyzer,
+		".",
+		[]string{},
+		nil,
 	)
 }
 

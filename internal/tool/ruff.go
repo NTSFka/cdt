@@ -42,17 +42,11 @@ func (r *Ruff) LintFiles(
 	args := append([]string{"check"}, options.ExtraArgs...)
 	args = appendFiles(args, options.Filenames, nil)
 
-	if a, err := r.argsBuildLintOutputFormat(options.Output.Format); err == nil {
-		args = append(args, a...)
-	} else {
-		return err
+	if options.Output.Reporter != nil {
+		return fmt.Errorf("output to reporter not supported")
 	}
 
-	if options.Output.Filename != nil {
-		return r.RunForProjectWithOutput(ctx, options.ProjectInfo, *options.Output.Filename, args)
-	}
-
-	return r.RunForProject(ctx, options.ProjectInfo, args)
+	return r.RunForProjectWithWriter(ctx, options.ProjectInfo, options.Output.Output, args)
 }
 
 func (r *Ruff) FormatFiles(
@@ -72,20 +66,4 @@ func (r *Ruff) FormatFiles(
 	}
 
 	return r.RunForProject(ctx, options.ProjectInfo, args)
-}
-
-func (r *Ruff) argsBuildLintOutputFormat(format internal.LintReportFormat) ([]string, error) {
-	var args []string
-
-	// nolint: exhaustive
-	switch format {
-	case internal.LintReportFormatDefault:
-		fallthrough
-	case internal.LintReportFormatRaw:
-		break
-	default:
-		return nil, fmt.Errorf("unsupported report format: %s", format)
-	}
-
-	return args, nil
 }

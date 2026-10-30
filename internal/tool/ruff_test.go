@@ -69,34 +69,6 @@ func TestRuff_Ruff_LintFiles_Failed(t *testing.T) {
 	)
 }
 
-func TestRuff_Ruff_LintFiles_OutputFormat_Raw(t *testing.T) {
-	test.InvokeLintFilesOutputFormatCheck(
-		t,
-		ruffLinter,
-		".",
-		internal.LintReportFormatRaw,
-		[]string{"check"},
-		nil,
-	)
-}
-
-func TestRuff_Ruff_LintFiles_OutputFormat_Unsupported(t *testing.T) {
-	dataSet := []internal.LintReportFormat{
-		internal.LintReportFormatJson,
-		internal.LintReportFormatJUnit,
-		internal.LintReportFormatGitHub,
-		internal.LintReportFormatGitLab,
-		internal.LintReportFormatTeamCity,
-		"test-unsupported",
-	}
-
-	for _, format := range dataSet {
-		t.Run(string(format), func(t *testing.T) {
-			test.InvokeLintFilesOutputFormatUnsupported(t, ruffLinter, ".", format, nil)
-		})
-	}
-}
-
 func TestRuff_Ruff_LintFiles_OutputFile(t *testing.T) {
 	test.InvokeLintFilesOutputFile(
 		t,

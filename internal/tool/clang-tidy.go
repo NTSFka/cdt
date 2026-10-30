@@ -66,17 +66,11 @@ func (c *ClangTidy) LintFiles(
 		options.ExtraArgs...,
 	)
 
-	if a, err := c.argsBuildLintOutputFormat(options.Output.Format); err == nil {
-		args = append(args, a...)
-	} else {
-		return err
+	if options.Output.Reporter != nil {
+		return fmt.Errorf("output to reporter not supported")
 	}
 
-	if options.Output.Filename != nil {
-		return c.RunForProjectWithOutput(ctx, options.ProjectInfo, *options.Output.Filename, args)
-	}
-
-	return c.ExecutableTool.RunForProject(ctx, options.ProjectInfo, args)
+	return c.RunForProjectWithWriter(ctx, options.ProjectInfo, options.Output.Output, args)
 }
 
 func (c *ClangTidy) RunForProject(
@@ -107,20 +101,4 @@ func (c *ClangTidy) buildArgs(
 	args = append(args, "-p", buildDirectory)
 
 	return append(args, paths...)
-}
-
-func (c *ClangTidy) argsBuildLintOutputFormat(format internal.LintReportFormat) ([]string, error) {
-	var args []string
-
-	// nolint: exhaustive
-	switch format {
-	case internal.LintReportFormatDefault:
-		fallthrough
-	case internal.LintReportFormatRaw:
-		break
-	default:
-		return nil, fmt.Errorf("unsupported report format: %s", format)
-	}
-
-	return args, nil
 }

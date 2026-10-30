@@ -3,6 +3,7 @@ package command_test
 import (
 	"context"
 	"errors"
+	"path"
 	"testing"
 
 	"cdt/internal"
@@ -169,27 +170,26 @@ func TestAnalyze_AnalyzeFiles_Failure(t *testing.T) {
 func TestAnalyze_AnalyzeFiles_CustomOutput(t *testing.T) {
 	linter := test.NewProjectAnalyzer(t)
 	linter.On("AnalyzeFiles", mock.Anything, mock.MatchedBy(func(options internal.ProjectAnalyzerOptions) bool {
-		return assert.Equal(t, internal.AnalyzeReportFormatSarif, options.Output.Format) &&
-			assert.Nil(t, options.Output.Filename)
+		return assert.NotNil(t, options.Output.Reporter)
 	})).
 		Return(nil)
 
-	err := runAnalyze(t.Context(), linter, "--output", "sarif")
+	err := runAnalyze(t.Context(), linter, "--output", "simple")
 
 	require.NoError(t, err)
 	linter.AssertExpectations(t)
 }
 
 func TestAnalyze_AnalyzeFiles_CustomOutputWithFile(t *testing.T) {
+	reportFilename := path.Join(t.TempDir(), "report.txt")
+
 	linter := test.NewProjectAnalyzer(t)
 	linter.On("AnalyzeFiles", mock.Anything, mock.MatchedBy(func(options internal.ProjectAnalyzerOptions) bool {
-		return assert.Equal(t, internal.AnalyzeReportFormatSarif, options.Output.Format) &&
-			assert.NotNil(t, options.Output.Filename) &&
-			assert.Equal(t, "report.sarif", *options.Output.Filename)
+		return assert.NotNil(t, options.Output.Reporter)
 	})).
 		Return(nil)
 
-	err := runAnalyze(t.Context(), linter, "-o", "sarif:report.sarif")
+	err := runAnalyze(t.Context(), linter, "-o", "simple:"+reportFilename)
 
 	require.NoError(t, err)
 	linter.AssertExpectations(t)

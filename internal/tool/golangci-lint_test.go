@@ -1,6 +1,8 @@
 package tool_test
 
 import (
+	"bytes"
+	"cdt/internal/reporter"
 	"context"
 	"testing"
 
@@ -9,6 +11,7 @@ import (
 	"cdt/internal/tool"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestGolangCILint_DetectGolangCILint(t *testing.T) {
@@ -65,32 +68,114 @@ func TestGolangCILint_GolangCILint_LintFiles_Failed(t *testing.T) {
 	)
 }
 
-func TestGolangCILint_GolangCILint_LintFiles_OutputFormat_Raw(t *testing.T) {
-	test.InvokeLintFilesOutputFormatCheck(
+func TestGolangCILint_LintFiles_Reporter_NoErrors(t *testing.T) {
+	result := bytes.Buffer{}
+
+	test.InvokeLintFilesReporter(
 		t,
 		golangCILintLinter,
 		".",
-		internal.LintReportFormatRaw,
-		[]string{"run"},
-		nil,
+		reporter.NewSimpleSarifReporter(&result),
+		[]string{"run", "--output.sarif.path", "stdout"},
+		"{}",
+		func(err error) {
+			require.NoError(t, err)
+		},
 	)
+
+	assert.Equal(t, "\nTotal issues: 0\n\n", result.String())
 }
 
-func TestGolangCILint_GolangCILint_LintFiles_OutputFormat_Unsupported(t *testing.T) {
-	dataSet := []internal.LintReportFormat{
-		internal.LintReportFormatJson,
-		internal.LintReportFormatJUnit,
-		internal.LintReportFormatGitHub,
-		internal.LintReportFormatGitLab,
-		internal.LintReportFormatTeamCity,
-		"test-unsupported",
-	}
+func TestGolangCILint_LintFiles_Reporter_SomeErrors(t *testing.T) {
+	result := bytes.Buffer{}
 
-	for _, format := range dataSet {
-		t.Run(string(format), func(t *testing.T) {
-			test.InvokeLintFilesOutputFormatUnsupported(t, golangCILintLinter, ".", format, nil)
-		})
-	}
+	test.InvokeLintFilesReporter(
+		t,
+		golangCILintLinter,
+		".",
+		reporter.NewSimpleSarifReporter(&result),
+		[]string{"run", "--output.sarif.path", "stdout"},
+		`{
+		"version": "2.1.0",
+		"$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+		"runs": [
+		  {
+			"artifacts": [
+			  {
+				"location": {
+				  "uri": "file:///test.go"
+				}
+			  }
+			],
+			"results": [
+			  {
+				"level": "error",
+				"message": {
+				  "text": "'x' is assigned a value but never used."
+				},
+				"locations": [
+				  {
+					"physicalLocation": {
+					  "artifactLocation": {
+						"uri": "file:///test.go",
+						"index": 0
+					  },
+					  "region": {
+						"startLine": 1,
+						"startColumn": 5
+					  }
+					}
+				  }
+				],
+				"ruleId": "no-unused-vars",
+				"ruleIndex": 0
+			  }
+			]
+		  }
+		]
+  		}`,
+		func(err error) {
+			require.NoError(t, err)
+		},
+	)
+
+	assert.NotEmpty(t, result.String())
+}
+
+func TestGolangCILint_LintFiles_Reporter_NoOutput(t *testing.T) {
+	result := bytes.Buffer{}
+
+	test.InvokeLintFilesReporter(
+		t,
+		golangCILintLinter,
+		".",
+		reporter.NewSimpleSarifReporter(&result),
+		[]string{"run", "--output.sarif.path", "stdout"},
+		"",
+		func(err error) {
+			require.NoError(t, err)
+		},
+	)
+
+	assert.Equal(t, "\nTotal issues: 0\n\n", result.String())
+}
+
+func TestGolangCILint_LintFiles_Reporter_InvalidJson(t *testing.T) {
+	result := bytes.Buffer{}
+
+	test.InvokeLintFilesReporter(
+		t,
+		golangCILintLinter,
+		".",
+		reporter.NewSimpleSarifReporter(&result),
+		[]string{"run", "--output.sarif.path", "stdout"},
+		".",
+		func(err error) {
+			require.ErrorContains(t, err, "failed to parse SARIF output:")
+		},
+	)
+
+	assert.Equal(t, "\nTotal issues: 0\n\n", result.String())
 }
 
 func TestGolangCILint_GolangCILint_LintFiles_OutputFile(t *testing.T) {

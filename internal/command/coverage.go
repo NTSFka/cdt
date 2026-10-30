@@ -1,9 +1,11 @@
 package command
 
 import (
+	"cdt/internal/reporter"
 	"context"
 	"errors"
 	"fmt"
+	"io"
 
 	"cdt/internal"
 
@@ -42,19 +44,15 @@ func coverageCommandAction(ctx context.Context, cmd *cli.Command) error {
 	collector := cmdContext.Project.Workflow.CoverageCollector
 
 	if cmd.IsSet("tool") {
-		toolName := cmd.String("tool")
-		tool := cmdContext.Tools.Get(toolName)
+		var err error
 
-		if tool == nil {
-			return fmt.Errorf("tool '%s' not found", toolName)
-		}
-
-		collectorTool, ok := tool.(internal.ProjectCoverageCollector)
-
-		if ok {
-			collector = collectorTool
-		} else {
-			return fmt.Errorf("tool '%s' doesn't support coverage collection", toolName)
+		collector, err = getTool[internal.ProjectCoverageCollector](
+			cmd.String("tool"),
+			cmdContext.Tools,
+			"coverage collection",
+		)
+		if err != nil {
+			return err
 		}
 	}
 
@@ -62,25 +60,52 @@ func coverageCommandAction(ctx context.Context, cmd *cli.Command) error {
 		return errors.New("project doesn't support coverage collection")
 	}
 
-	outputOptions := ParseOptionOutput[internal.CoverageReportFormat](
-		cmd.String("output"),
-		internal.CoverageReportFormatRaw,
-	)
+	outputOptions := ParseOptionOutput(cmd.String("output"))
+
+	output, err := buildOutput(outputOptions.Filename)
+	if err != nil {
+		return err
+	}
+	defer func() { _ = output.Close() }()
+
+	rep, err := buildCoverageReporter(outputOptions.Format, output)
+	if err != nil {
+		return err
+	}
 
 	options := internal.ProjectCoverageCollectorOptions{
 		ProjectInfo: cmdContext.Project.Info,
 		ExtraArgs:   cmd.Args().Tail(),
-		Output:      outputOptions,
+		Output: internal.CoverageOutputOptions{
+			Output:   output,
+			Reporter: rep,
+		},
 	}
 
 	if pattern := cmd.StringArgs("pattern"); len(pattern) != 0 {
 		options.Pattern = &pattern[0]
 	}
 
-	err := collector.CollectCoverage(ctx, options)
-	if err != nil {
+	if err := collector.CollectCoverage(ctx, options); err != nil {
 		return fmt.Errorf("%w", err)
 	}
 
+	if rep != nil {
+		return rep.Finish()
+	}
+
 	return nil
+}
+
+func buildCoverageReporter(format string, output io.Writer) (internal.CoverageReporter, error) {
+	switch format {
+	case "":
+		fallthrough
+	case "raw":
+		return nil, nil // nolint: nilnil
+	case "simple":
+		return reporter.NewSimpleCoberturaReporter(output), nil
+	}
+
+	return nil, fmt.Errorf("unsupported report format: %s", format)
 }

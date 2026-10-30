@@ -173,87 +173,25 @@ func TestClangTidy_LintFiles_CustomConfig(t *testing.T) {
 	)
 }
 
-func TestClangTidy_ClangTidy_LintFiles_OutputFormat(t *testing.T) {
-	dataSet := []struct {
-		format internal.LintReportFormat
-		args   []string
-	}{
-		{internal.LintReportFormatRaw, []string{}},
-	}
-
-	for _, data := range dataSet {
-		t.Run(string(data.format), func(t *testing.T) {
-			info := clangTidyProjectInfo(t, []string{"file1.c", "file2.c"})
-
-			test.InvokeLintFiles(
-				t,
-				clangTidyLinter,
-				internal.ProjectLinterOptions{
-					ProjectInfo: info,
-					Output: internal.OutputOptions[internal.LintReportFormat]{
-						Format: data.format,
-					},
-				},
-				func(exec *test.Executable, executablePath string) {
-					exec.OnRun(executablePath, append([]string{
-						"-p", *info.OutputDirectory,
-						"file1.c",
-						"file2.c",
-					}, data.args...)).
-						Return(nil)
-				},
-				func(err error) {
-					require.NoError(t, err)
-				},
-			)
-		})
-	}
-}
-
-func TestClangTidy_ClangTidy_LintFiles_OutputFormat_Unsupported(t *testing.T) {
-	dataSet := []internal.LintReportFormat{
-		internal.LintReportFormatJson,
-		internal.LintReportFormatJUnit,
-		internal.LintReportFormatGitHub,
-		internal.LintReportFormatGitLab,
-		internal.LintReportFormatTeamCity,
-		"test-unsupported",
-	}
-
-	for _, format := range dataSet {
-		t.Run(string(format), func(t *testing.T) {
-			test.InvokeLintFiles(
-				t,
-				clangTidyLinter,
-				internal.ProjectLinterOptions{
-					ProjectInfo: clangTidyProjectInfo(t, []string{"file1.c", "file2.c"}),
-					Output: internal.OutputOptions[internal.LintReportFormat]{
-						Format: format,
-					},
-				},
-				func(exec *test.Executable, executablePath string) {
-					// Not executed
-				},
-				func(err error) {
-					require.EqualError(t, err, "unsupported report format: "+string(format))
-				},
-			)
-		})
-	}
-}
-
 func TestClangTidy_ClangTidy_LintFiles_OutputFile(t *testing.T) {
 	info := clangTidyProjectInfo(t, []string{"file1.c", "file2.c"})
 
 	outputFilename := t.TempDir() + "/report.txt"
+
+	file, err := os.OpenFile(outputFilename, os.O_CREATE|os.O_WRONLY, 0644)
+	require.NoError(t, err)
+
+	defer func() {
+		_ = file.Close()
+	}()
 
 	test.InvokeLintFiles(
 		t,
 		clangTidyLinter,
 		internal.ProjectLinterOptions{
 			ProjectInfo: info,
-			Output: internal.OutputOptions[internal.LintReportFormat]{
-				Filename: &outputFilename,
+			Output: internal.LintOutputOptions{
+				Output: file,
 			},
 		},
 		func(exec *test.Executable, executablePath string) {
@@ -307,7 +245,7 @@ func clangTidyTool(executable func() (*internal.Executable, error)) internal.Too
 func clangTidyProjectInfo(t *testing.T, filenames []string) internal.ProjectInfo {
 	return internal.ProjectInfo{
 		Directory:       t.TempDir(),
-		OutputDirectory: internal.StrPtr("build"),
+		OutputDirectory: new("build"),
 		StructureProvider: &internal.FixedProjectStructureProvider{
 			ProjectStructure: internal.ProjectStructure{
 				Targets: map[string]internal.ProjectTarget{

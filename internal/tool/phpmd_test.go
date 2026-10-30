@@ -1,9 +1,12 @@
 package tool_test
 
 import (
+	"bytes"
+	"cdt/internal/reporter"
 	"cdt/internal/test"
 	"context"
 	"errors"
+	"io"
 	"os"
 	"path/filepath"
 	"strings"
@@ -313,85 +316,192 @@ func TestPHPMD_PHPMD_2_AnalyzeFiles_Failed(t *testing.T) {
 	)
 }
 
-func TestPHPMD_PHPMD_2_AnalyzeFiles_OutputFormat(t *testing.T) {
+func TestPHPMD_2_AnalyzeFiles_Reporter_NoErrors(t *testing.T) {
 	directory := t.TempDir()
 
-	test.CreateFile(t, directory, "phpmd.xml")
+	result := bytes.Buffer{}
 
-	dataSet := []struct {
-		format internal.AnalyzeReportFormat
-		arg    string
-	}{
-		{internal.AnalyzeReportFormatRaw, "ansi"},
-		{internal.AnalyzeReportFormatJson, "json"},
-		{internal.AnalyzeReportFormatGitHub, "github"},
-		{internal.AnalyzeReportFormatGitLab, "gitlab"},
-		{internal.AnalyzeReportFormatXml, "xml"},
-		{internal.AnalyzeReportFormatHtml, "html"},
-		{internal.AnalyzeReportFormatSarif, "sarif"},
-	}
+	analyzeReporter := reporter.NewSimpleSarifReporter(&result)
 
-	for _, data := range dataSet {
-		t.Run(string(data.format), func(t *testing.T) {
-			test.InvokeAnalyzeFiles(
-				t,
-				phpMDAnalyzer,
-				internal.ProjectAnalyzerOptions{
-					ProjectInfo: internal.ProjectInfo{
-						Directory: directory,
-					},
-					Output: internal.OutputOptions[internal.AnalyzeReportFormat]{
-						Format: data.format,
-					},
-				},
-				func(exec *test.Executable, executablePath string) {
-					exec.OnRunOutput(executablePath, []string{"--version"}, phpMDVersion2).
-						Return(nil)
+	test.InvokeAnalyzeFiles(
+		t,
+		phpMDAnalyzer,
+		internal.ProjectAnalyzerOptions{
+			ProjectInfo: internal.ProjectInfo{
+				Directory: directory,
+			},
+			Output: internal.AnalyzeOutputOptions{
+				Reporter: analyzeReporter,
+				Output:   io.Discard,
+			},
+			ExtraArgs: []string{"phpmd.rules.xml"},
+		},
+		func(exec *test.Executable, executablePath string) {
+			exec.OnRunOutput(executablePath, []string{"--version"}, phpMDVersion2).
+				Return(nil)
 
-					exec.OnRun(executablePath, []string{directory, data.arg, "phpmd.xml"}).
-						Return(nil)
-				},
-				func(err error) {
-					require.NoError(t, err)
-				},
-			)
-		})
-	}
+			exec.OnRunOutput(executablePath, []string{directory, "sarif", "phpmd.rules.xml"}, "{}").
+				Return(nil)
+		},
+		func(err error) {
+			require.NoError(t, err)
+		},
+	)
+
+	assert.Empty(t, result.String())
 }
 
-func TestPHPMD_PHPMD_2_AnalyzeFiles_OutputFormat_Unsupported(t *testing.T) {
+// nolint:funlen
+func TestPHPMD_2_AnalyzeFiles_Reporter_SomeErrors(t *testing.T) {
 	directory := t.TempDir()
 
-	formats := []internal.AnalyzeReportFormat{
-		"test-unsupported",
-		internal.AnalyzeReportFormatJUnit,
-		internal.AnalyzeReportFormatTeamCity,
-	}
+	result := bytes.Buffer{}
 
-	for _, format := range formats {
-		t.Run(string(format), func(t *testing.T) {
-			test.InvokeAnalyzeFiles(
-				t,
-				phpMDAnalyzer,
-				internal.ProjectAnalyzerOptions{
-					ProjectInfo: internal.ProjectInfo{
-						Directory: directory,
-					},
-					Output: internal.OutputOptions[internal.AnalyzeReportFormat]{
-						Format: format,
-					},
-				},
-				func(exec *test.Executable, executablePath string) {
-					exec.OnRunOutput(executablePath, []string{"--version"}, phpMDVersion2).
-						Return(nil)
-				},
-				func(err error) {
-					require.Error(t, err)
-					require.EqualError(t, err, "unsupported report format: "+string(format))
-				},
-			)
-		})
-	}
+	analyzeReporter := reporter.NewSimpleSarifReporter(&result)
+
+	test.InvokeAnalyzeFiles(
+		t,
+		phpMDAnalyzer,
+		internal.ProjectAnalyzerOptions{
+			ProjectInfo: internal.ProjectInfo{
+				Directory: directory,
+			},
+			Output: internal.AnalyzeOutputOptions{
+				Reporter: analyzeReporter,
+				Output:   io.Discard,
+			},
+			ExtraArgs: []string{"phpmd.rules.xml"},
+		},
+		func(executable *test.Executable, executablePath string) {
+			executable.OnRunOutput(executablePath, []string{"--version"}, phpMDVersion2).
+				Return(nil)
+
+			executable.OnRunOutput(executablePath, []string{directory, "sarif", "phpmd.rules.xml"}, `{
+    "version": "2.1.0",
+    "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+    "runs": [
+      {
+        "tool": {
+          "driver": {
+            "informationUri": "https://github.com/carthage-software/phpmd",
+            "name": "phpmd",
+            "version": "1.57.0"
+          }
+        },
+        "artifacts": [
+          {
+            "location": {
+              "uri": "file:///test.php"
+            }
+          }
+        ],
+        "results": [
+          {
+            "level": "error",
+            "message": {
+              "text": "'x' is assigned a value but never used."
+            },
+            "locations": [
+              {
+                "physicalLocation": {
+                  "artifactLocation": {
+                    "uri": "file:///test.php",
+                    "index": 0
+                  },
+                  "region": {
+                    "startLine": 1,
+                    "startColumn": 5
+                  }
+                }
+              }
+            ],
+            "ruleId": "no-unused-vars",
+            "ruleIndex": 0
+          }
+        ]
+      }
+    ]
+  }`).
+				Return(nil)
+		},
+		func(err error) {
+			require.NoError(t, err)
+		},
+	)
+
+	require.NoError(t, analyzeReporter.Finish())
+
+	assert.NotEmpty(t, result.String())
+}
+
+func TestPHPMD_2_AnalyzeFiles_Reporter_NoOutput(t *testing.T) {
+	directory := t.TempDir()
+
+	result := bytes.Buffer{}
+
+	analyzeReporter := reporter.NewSimpleSarifReporter(&result)
+
+	test.InvokeAnalyzeFiles(
+		t,
+		phpMDAnalyzer,
+		internal.ProjectAnalyzerOptions{
+			ProjectInfo: internal.ProjectInfo{
+				Directory: directory,
+			},
+			Output: internal.AnalyzeOutputOptions{
+				Reporter: analyzeReporter,
+				Output:   io.Discard,
+			},
+			ExtraArgs: []string{"phpmd.rules.xml"},
+		},
+		func(executable *test.Executable, executablePath string) {
+			executable.OnRunOutput(executablePath, []string{"--version"}, phpMDVersion2).
+				Return(nil)
+
+			executable.OnRunOutput(executablePath, []string{directory, "sarif", "phpmd.rules.xml"}, "").
+				Return(nil)
+		},
+		func(err error) {
+			require.NoError(t, err)
+		},
+	)
+
+	assert.Empty(t, result.String())
+}
+
+func TestPHPMD_2_AnalyzeFiles_Reporter_InvalidJson(t *testing.T) {
+	directory := t.TempDir()
+
+	result := bytes.Buffer{}
+
+	analyzeReporter := reporter.NewSimpleSarifReporter(&result)
+
+	test.InvokeAnalyzeFiles(
+		t,
+		phpMDAnalyzer,
+		internal.ProjectAnalyzerOptions{
+			ProjectInfo: internal.ProjectInfo{
+				Directory: directory,
+			},
+			Output: internal.AnalyzeOutputOptions{
+				Reporter: analyzeReporter,
+				Output:   io.Discard,
+			},
+			ExtraArgs: []string{"phpmd.rules.xml"},
+		},
+		func(executable *test.Executable, executablePath string) {
+			executable.OnRunOutput(executablePath, []string{"--version"}, phpMDVersion2).
+				Return(nil)
+
+			executable.OnRunOutput(executablePath, []string{directory, "sarif", "phpmd.rules.xml"}, ".").
+				Return(nil)
+		},
+		func(err error) {
+			require.ErrorContains(t, err, "failed to parse SARIF output:")
+		},
+	)
+
+	assert.Empty(t, result.String())
 }
 
 func TestPHPMD_PHPMD_2_AnalyzeFiles_OutputFile(t *testing.T) {
@@ -403,6 +513,13 @@ func TestPHPMD_PHPMD_2_AnalyzeFiles_OutputFile(t *testing.T) {
 
 	outputFilename := t.TempDir() + "/report.txt"
 
+	file, err := os.OpenFile(outputFilename, os.O_CREATE|os.O_WRONLY, 0644)
+	require.NoError(t, err)
+
+	defer func() {
+		_ = file.Close()
+	}()
+
 	test.InvokeAnalyzeFiles(
 		t,
 		phpMDAnalyzer,
@@ -410,8 +527,8 @@ func TestPHPMD_PHPMD_2_AnalyzeFiles_OutputFile(t *testing.T) {
 			ProjectInfo: internal.ProjectInfo{
 				Directory: directory,
 			},
-			Output: internal.OutputOptions[internal.AnalyzeReportFormat]{
-				Filename: &outputFilename,
+			Output: internal.AnalyzeOutputOptions{
+				Output: file,
 			},
 		},
 		func(exec *test.Executable, executablePath string) {
@@ -532,79 +649,180 @@ func TestPHPMD_PHPMD_3_AnalyzeFiles_Failed(t *testing.T) {
 	)
 }
 
-func TestPHPMD_PHPMD_3_AnalyzeFiles_OutputFormat(t *testing.T) {
-	dataSet := []struct {
-		format internal.AnalyzeReportFormat
-		args   []string
-	}{
-		{internal.AnalyzeReportFormatRaw, []string{}},
-		{internal.AnalyzeReportFormatJson, []string{"--format=json"}},
-		{internal.AnalyzeReportFormatGitHub, []string{"--format=github"}},
-		{internal.AnalyzeReportFormatGitLab, []string{"--format=gitlab"}},
-		{internal.AnalyzeReportFormatXml, []string{"--format=xml"}},
-		{internal.AnalyzeReportFormatHtml, []string{"--format=html"}},
-		{internal.AnalyzeReportFormatSarif, []string{"--format=sarif"}},
-	}
+func TestPHPMD_3_AnalyzeFiles_Reporter_NoErrors(t *testing.T) {
+	result := bytes.Buffer{}
 
-	for _, data := range dataSet {
-		t.Run(string(data.format), func(t *testing.T) {
-			test.InvokeAnalyzeFiles(
-				t,
-				phpMDAnalyzer,
-				internal.ProjectAnalyzerOptions{
-					ProjectInfo: internal.ProjectInfo{
-						Directory: ".",
-					},
-					Output: internal.OutputOptions[internal.AnalyzeReportFormat]{
-						Format: data.format,
-					},
-				},
-				func(exec *test.Executable, executablePath string) {
-					exec.OnRunOutput(executablePath, []string{"--version"}, phpMDVersion3).
-						Return(nil)
+	analyzeReporter := reporter.NewSimpleSarifReporter(&result)
 
-					exec.OnRun(executablePath, append([]string{"analyze"}, data.args...)).
-						Return(nil)
-				},
-				func(err error) {
-					require.NoError(t, err)
-				},
-			)
-		})
-	}
+	test.InvokeAnalyzeFiles(
+		t,
+		phpMDAnalyzer,
+		internal.ProjectAnalyzerOptions{
+			ProjectInfo: internal.ProjectInfo{
+				Directory: ".",
+			},
+			Output: internal.AnalyzeOutputOptions{
+				Reporter: analyzeReporter,
+				Output:   io.Discard,
+			},
+		},
+		func(exec *test.Executable, executablePath string) {
+			exec.OnRunOutput(executablePath, []string{"--version"}, phpMDVersion3).
+				Return(nil)
+
+			exec.OnRunOutput(executablePath, []string{"analyze", "--format=sarif"}, "{}").
+				Return(nil)
+		},
+		func(err error) {
+			require.NoError(t, err)
+		},
+	)
+
+	assert.Empty(t, result.String())
 }
 
-func TestPHPMD_PHPMD_3_AnalyzeFiles_OutputFormat_Unsupported(t *testing.T) {
-	formats := []internal.AnalyzeReportFormat{
-		"test-unsupported",
-		internal.AnalyzeReportFormatJUnit,
-		internal.AnalyzeReportFormatTeamCity,
-	}
+// nolint:funlen
+func TestPHPMD_3_AnalyzeFiles_Reporter_SomeErrors(t *testing.T) {
+	result := bytes.Buffer{}
 
-	for _, format := range formats {
-		t.Run(string(format), func(t *testing.T) {
-			test.InvokeAnalyzeFiles(
-				t,
-				phpMDAnalyzer,
-				internal.ProjectAnalyzerOptions{
-					ProjectInfo: internal.ProjectInfo{
-						Directory: ".",
-					},
-					Output: internal.OutputOptions[internal.AnalyzeReportFormat]{
-						Format: format,
-					},
-				},
-				func(exec *test.Executable, executablePath string) {
-					exec.OnRunOutput(executablePath, []string{"--version"}, phpMDVersion3).
-						Return(nil)
-				},
-				func(err error) {
-					require.Error(t, err)
-					require.EqualError(t, err, "unsupported report format: "+string(format))
-				},
-			)
-		})
-	}
+	analyzeReporter := reporter.NewSimpleSarifReporter(&result)
+
+	test.InvokeAnalyzeFiles(
+		t,
+		phpMDAnalyzer,
+		internal.ProjectAnalyzerOptions{
+			ProjectInfo: internal.ProjectInfo{
+				Directory: ".",
+			},
+			Output: internal.AnalyzeOutputOptions{
+				Reporter: analyzeReporter,
+				Output:   io.Discard,
+			},
+		},
+		func(executable *test.Executable, executablePath string) {
+			executable.OnRunOutput(executablePath, []string{"--version"}, phpMDVersion3).
+				Return(nil)
+
+			executable.OnRunOutput(executablePath, []string{"analyze", "--format=sarif"}, `{
+    "version": "2.1.0",
+    "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+    "runs": [
+      {
+        "tool": {
+          "driver": {
+            "informationUri": "https://github.com/carthage-software/phpmd",
+            "name": "phpmd",
+            "version": "1.57.0"
+          }
+        },
+        "artifacts": [
+          {
+            "location": {
+              "uri": "file:///test.php"
+            }
+          }
+        ],
+        "results": [
+          {
+            "level": "error",
+            "message": {
+              "text": "'x' is assigned a value but never used."
+            },
+            "locations": [
+              {
+                "physicalLocation": {
+                  "artifactLocation": {
+                    "uri": "file:///test.php",
+                    "index": 0
+                  },
+                  "region": {
+                    "startLine": 1,
+                    "startColumn": 5
+                  }
+                }
+              }
+            ],
+            "ruleId": "no-unused-vars",
+            "ruleIndex": 0
+          }
+        ]
+      }
+    ]
+  }`).
+				Return(nil)
+		},
+		func(err error) {
+			require.NoError(t, err)
+		},
+	)
+
+	require.NoError(t, analyzeReporter.Finish())
+
+	assert.NotEmpty(t, result.String())
+}
+
+func TestPHPMD_3_AnalyzeFiles_Reporter_NoOutput(t *testing.T) {
+	result := bytes.Buffer{}
+
+	analyzeReporter := reporter.NewSimpleSarifReporter(&result)
+
+	test.InvokeAnalyzeFiles(
+		t,
+		phpMDAnalyzer,
+		internal.ProjectAnalyzerOptions{
+			ProjectInfo: internal.ProjectInfo{
+				Directory: ".",
+			},
+			Output: internal.AnalyzeOutputOptions{
+				Reporter: analyzeReporter,
+				Output:   io.Discard,
+			},
+		},
+		func(executable *test.Executable, executablePath string) {
+			executable.OnRunOutput(executablePath, []string{"--version"}, phpMDVersion3).
+				Return(nil)
+
+			executable.OnRunOutput(executablePath, []string{"analyze", "--format=sarif"}, "").
+				Return(nil)
+		},
+		func(err error) {
+			require.NoError(t, err)
+		},
+	)
+
+	assert.Empty(t, result.String())
+}
+
+func TestPHPMD_3_AnalyzeFiles_Reporter_InvalidJson(t *testing.T) {
+	result := bytes.Buffer{}
+
+	analyzeReporter := reporter.NewSimpleSarifReporter(&result)
+
+	test.InvokeAnalyzeFiles(
+		t,
+		phpMDAnalyzer,
+		internal.ProjectAnalyzerOptions{
+			ProjectInfo: internal.ProjectInfo{
+				Directory: ".",
+			},
+			Output: internal.AnalyzeOutputOptions{
+				Reporter: analyzeReporter,
+				Output:   io.Discard,
+			},
+		},
+		func(executable *test.Executable, executablePath string) {
+			executable.OnRunOutput(executablePath, []string{"--version"}, phpMDVersion3).
+				Return(nil)
+
+			executable.OnRunOutput(executablePath, []string{"analyze", "--format=sarif"}, ".").
+				Return(nil)
+		},
+		func(err error) {
+			require.ErrorContains(t, err, "failed to parse SARIF output:")
+		},
+	)
+
+	assert.Empty(t, result.String())
 }
 
 func TestPHPMD_PHPMD_3_AnalyzeFiles_OutputFile(t *testing.T) {
@@ -614,6 +832,13 @@ func TestPHPMD_PHPMD_3_AnalyzeFiles_OutputFile(t *testing.T) {
 
 	outputFilename := directory + "/report.txt"
 
+	file, err := os.OpenFile(outputFilename, os.O_CREATE|os.O_WRONLY, 0644)
+	require.NoError(t, err)
+
+	defer func() {
+		_ = file.Close()
+	}()
+
 	test.InvokeAnalyzeFiles(
 		t,
 		phpMDAnalyzer,
@@ -621,8 +846,8 @@ func TestPHPMD_PHPMD_3_AnalyzeFiles_OutputFile(t *testing.T) {
 			ProjectInfo: internal.ProjectInfo{
 				Directory: directory,
 			},
-			Output: internal.OutputOptions[internal.AnalyzeReportFormat]{
-				Filename: &outputFilename,
+			Output: internal.AnalyzeOutputOptions{
+				Output: file,
 			},
 		},
 		func(exec *test.Executable, executablePath string) {

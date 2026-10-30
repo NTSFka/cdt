@@ -96,26 +96,3 @@ func InvokeCollectCoverageError(
 		},
 	)
 }
-
-// InvokeCollectCoverageOutputFormatUnsupported run a test that verifies call CollectCoverage on a collector for
-// unsupported output format.
-func InvokeCollectCoverageOutputFormatUnsupported(
-	t *testing.T,
-	builder CoverageCollectorBuilder,
-	format internal.CoverageReportFormat,
-	pattern *string,
-) internal.ProjectCoverageCollector {
-	return InvokeCollectCoverageError(
-		t,
-		builder,
-		internal.ProjectCoverageCollectorOptions{
-			Output: internal.OutputOptions[internal.CoverageReportFormat]{
-				Format: format,
-			},
-			Pattern: pattern,
-		},
-		func(err error) {
-			require.EqualError(t, err, "unsupported coverage report format: "+string(format))
-		},
-	)
-}

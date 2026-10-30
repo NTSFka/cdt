@@ -1,6 +1,8 @@
 package tool_test
 
 import (
+	"bytes"
+	"cdt/internal/reporter"
 	"cdt/internal/test"
 	"context"
 	"path/filepath"
@@ -10,6 +12,7 @@ import (
 	"cdt/internal/tool"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestPHPStan_DetectPHPStan_Composer(t *testing.T) {
@@ -56,7 +59,7 @@ func TestPHPStan_DetectPHPStan_Config(t *testing.T) {
 	assert.Equal(t, tool.IdPHPStan, phpStan.Id())
 }
 
-func TestPHPStan_PHPStan_AnalyzeFiles_All(t *testing.T) {
+func TestPHPStan_AnalyzeFiles_All(t *testing.T) {
 	test.InvokeAnalyzeFilesSuccess(
 		t,
 		phpStanAnalyzer,
@@ -65,7 +68,7 @@ func TestPHPStan_PHPStan_AnalyzeFiles_All(t *testing.T) {
 	)
 }
 
-func TestPHPStan_PHPStan_AnalyzeFiles_All_Failed(t *testing.T) {
+func TestPHPStan_AnalyzeFiles_All_Failed(t *testing.T) {
 	test.InvokeAnalyzeFilesFailed(
 		t,
 		phpStanAnalyzer,
@@ -74,7 +77,7 @@ func TestPHPStan_PHPStan_AnalyzeFiles_All_Failed(t *testing.T) {
 	)
 }
 
-func TestPHPStan_PHPStan_AnalyzeFiles(t *testing.T) {
+func TestPHPStan_AnalyzeFiles(t *testing.T) {
 	fileNames := []string{"file.php", "/path/to/file2.php"}
 
 	test.InvokeAnalyzeFilesSuccess(
@@ -85,7 +88,7 @@ func TestPHPStan_PHPStan_AnalyzeFiles(t *testing.T) {
 	)
 }
 
-func TestPHPStan_PHPStan_AnalyzeFiles_Failed(t *testing.T) {
+func TestPHPStan_AnalyzeFiles_Failed(t *testing.T) {
 	fileNames := []string{"file.php", "/path/to/file2.php"}
 
 	test.InvokeAnalyzeFilesFailed(
@@ -96,52 +99,87 @@ func TestPHPStan_PHPStan_AnalyzeFiles_Failed(t *testing.T) {
 	)
 }
 
-func TestPHPStan_PHPStan_AnalyzeFiles_OutputFormat(t *testing.T) {
-	dataSet := []struct {
-		format internal.AnalyzeReportFormat
-		args   []string
-	}{
-		{internal.AnalyzeReportFormatRaw, []string{}},
-		{internal.AnalyzeReportFormatJson, []string{"--error-format=json"}},
-		{internal.AnalyzeReportFormatJUnit, []string{"--error-format=junit"}},
-		{internal.AnalyzeReportFormatGitHub, []string{"--error-format=github"}},
-		{internal.AnalyzeReportFormatGitLab, []string{"--error-format=gitlab"}},
-		{internal.AnalyzeReportFormatTeamCity, []string{"--error-format=teamcity"}},
-	}
+func TestPHPStan_AnalyzeFiles_Reporter_NoErrors(t *testing.T) {
+	result := bytes.Buffer{}
 
-	for _, data := range dataSet {
-		t.Run(string(data.format), func(t *testing.T) {
-			test.InvokeAnalyzeFilesOutputFormatCheck(
-				t,
-				phpStanAnalyzer,
-				".",
-				data.format,
-				append([]string{"analyse"}, data.args...),
-				nil,
-			)
-		})
-	}
+	test.InvokeAnalyzeFilesReporter(
+		t,
+		phpStanAnalyzer,
+		".",
+		reporter.NewSimpleSarifReporter(&result),
+		[]string{"analyse", "--error-format=json", "--quiet"}, "{}",
+		func(err error) {
+			require.NoError(t, err)
+		},
+	)
+
+	assert.Equal(t, "\nTotal issues: 0\n\n", result.String())
 }
 
-func TestPHPStan_PHPStan_AnalyzeFiles_OutputFormat_Unsupported(t *testing.T) {
-	formats := []internal.AnalyzeReportFormat{
-		"test-unsupported",
-	}
+func TestPHPStan_AnalyzeFiles_Reporter_SomeErrors(t *testing.T) {
+	result := bytes.Buffer{}
 
-	for _, format := range formats {
-		t.Run(string(format), func(t *testing.T) {
-			test.InvokeAnalyzeFilesOutputFormatUnsupported(
-				t,
-				phpStanAnalyzer,
-				".",
-				format,
-				nil,
-			)
-		})
-	}
+	test.InvokeAnalyzeFilesReporter(
+		t,
+		phpStanAnalyzer,
+		".",
+		reporter.NewSimpleSarifReporter(&result),
+		[]string{"analyse", "--error-format=json", "--quiet"},
+		`{
+			"totals": {},
+			"files": {
+				"file1.php": {
+					"messages": [
+						{"message": "test", "line": 1, "identifier": "undefined"}
+					]
+				}
+			}
+  		}`,
+		func(err error) {
+			require.NoError(t, err)
+		},
+	)
+
+	assert.NotEmpty(t, result.String())
 }
 
-func TestPHPStan_PHPStan_AnalyzeFiles_OutputFile(t *testing.T) {
+func TestPHPStan_AnalyzeFiles_Reporter_NoOutput(t *testing.T) {
+	result := bytes.Buffer{}
+
+	test.InvokeAnalyzeFilesReporter(
+		t,
+		phpStanAnalyzer,
+		".",
+		reporter.NewSimpleSarifReporter(&result),
+		[]string{"analyse", "--error-format=json", "--quiet"},
+		"",
+		func(err error) {
+			require.NoError(t, err)
+		},
+	)
+
+	assert.Equal(t, "\nTotal issues: 0\n\n", result.String())
+}
+
+func TestPHPStan_AnalyzeFiles_Reporter_InvalidJson(t *testing.T) {
+	result := bytes.Buffer{}
+
+	test.InvokeAnalyzeFilesReporter(
+		t,
+		phpStanAnalyzer,
+		".",
+		reporter.NewSimpleSarifReporter(&result),
+		[]string{"analyse", "--error-format=json", "--quiet"},
+		".",
+		func(err error) {
+			require.ErrorContains(t, err, "invalid character '.'")
+		},
+	)
+
+	assert.Equal(t, "\nTotal issues: 0\n\n", result.String())
+}
+
+func TestPHPStan_AnalyzeFiles_OutputFile(t *testing.T) {
 	test.InvokeAnalyzeFilesOutputFile(
 		t,
 		phpStanAnalyzer,
