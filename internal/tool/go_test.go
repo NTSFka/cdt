@@ -215,7 +215,7 @@ func TestGo_RunTests_Pattern(t *testing.T) {
 		goTester,
 		internal.ProjectTesterOptions{
 			ProjectInfo: internal.ProjectInfo{Directory: "."},
-			Pattern:     internal.StrPtr("test1"),
+			Pattern:     new("test1"),
 		},
 		[]string{"test", "test1"},
 	)
@@ -227,7 +227,7 @@ func TestGo_RunTests_Pattern_Failed(t *testing.T) {
 		goTester,
 		internal.ProjectTesterOptions{
 			ProjectInfo: internal.ProjectInfo{Directory: "."},
-			Pattern:     internal.StrPtr("test1"),
+			Pattern:     new("test1"),
 		},
 		[]string{"test", "test1"},
 	)

@@ -96,3 +96,4 @@ linters:
     varnamelen:
       ignore-names:
         - "id"
+        - "wf"

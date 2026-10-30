@@ -38,7 +38,7 @@ func TestClangFormat_FormatFiles_All(t *testing.T) {
 		internal.ProjectFormatterOptions{
 			ProjectInfo: internal.ProjectInfo{
 				Directory:       "project",
-				OutputDirectory: internal.StrPtr("build"),
+				OutputDirectory: new("build"),
 				StructureProvider: clangFormatProjectStructure(
 					"target1",
 					[]string{"file1.go", "file2.go"},
@@ -61,7 +61,7 @@ func TestClangFormat_FormatFiles_All_Failed(t *testing.T) {
 		internal.ProjectFormatterOptions{
 			ProjectInfo: internal.ProjectInfo{
 				Directory:       "project",
-				OutputDirectory: internal.StrPtr("build"),
+				OutputDirectory: new("build"),
 				StructureProvider: clangFormatProjectStructure(
 					"target2",
 					[]string{"file1.go", "file2.go"},
@@ -88,7 +88,7 @@ func TestClangFormat_FormatFiles_All_CustomConfig(t *testing.T) {
 		internal.ProjectFormatterOptions{
 			ProjectInfo: internal.ProjectInfo{
 				Directory:       directory,
-				OutputDirectory: internal.StrPtr("build"),
+				OutputDirectory: new("build"),
 				StructureProvider: clangFormatProjectStructure(
 					"target3",
 					[]string{"file1.go", "file2.go"},
@@ -114,7 +114,7 @@ func TestClangFormat_FormatFiles(t *testing.T) {
 		internal.ProjectFormatterOptions{
 			ProjectInfo: internal.ProjectInfo{
 				Directory:       directory,
-				OutputDirectory: internal.StrPtr("build"),
+				OutputDirectory: new("build"),
 			},
 			Filenames: &[]string{"file1.go", filepath.Join(directory, "file3.go")},
 		},
@@ -136,7 +136,7 @@ func TestClangFormat_FormatFiles_Failed(t *testing.T) {
 		internal.ProjectFormatterOptions{
 			ProjectInfo: internal.ProjectInfo{
 				Directory:       directory,
-				OutputDirectory: internal.StrPtr("build"),
+				OutputDirectory: new("build"),
 			},
 			Filenames: &[]string{"file1.go", filepath.Join(directory, "file3.go")},
 		},
@@ -160,7 +160,7 @@ func TestClangFormat_FormatFiles_CustomConfig(t *testing.T) {
 		internal.ProjectFormatterOptions{
 			ProjectInfo: internal.ProjectInfo{
 				Directory:       directory,
-				OutputDirectory: internal.StrPtr("build"),
+				OutputDirectory: new("build"),
 			},
 			Filenames: &[]string{"file1.go", filepath.Join(directory, "file3.go")},
 		},
@@ -181,7 +181,7 @@ func TestClangFormat_FormatFiles_CheckAll(t *testing.T) {
 		internal.ProjectFormatterOptions{
 			ProjectInfo: internal.ProjectInfo{
 				Directory:       "project",
-				OutputDirectory: internal.StrPtr("build"),
+				OutputDirectory: new("build"),
 				StructureProvider: clangFormatProjectStructure(
 					"target4",
 					[]string{"file1.go", "file2.go"},
@@ -205,7 +205,7 @@ func TestClangFormat_FormatFiles_CheckAll_Failed(t *testing.T) {
 		internal.ProjectFormatterOptions{
 			ProjectInfo: internal.ProjectInfo{
 				Directory:       "project",
-				OutputDirectory: internal.StrPtr("build"),
+				OutputDirectory: new("build"),
 				StructureProvider: clangFormatProjectStructure(
 					"target5",
 					[]string{"file1.go", "file2.go"},
@@ -233,7 +233,7 @@ func TestClangFormat_FormatFiles_CheckAll_CustomConfig(t *testing.T) {
 		internal.ProjectFormatterOptions{
 			ProjectInfo: internal.ProjectInfo{
 				Directory:       directory,
-				OutputDirectory: internal.StrPtr("build"),
+				OutputDirectory: new("build"),
 				StructureProvider: clangFormatProjectStructure(
 					"target1",
 					[]string{"file1.go", "file2.go"},
@@ -260,7 +260,7 @@ func TestClangFormat_FormatFiles_Check(t *testing.T) {
 		internal.ProjectFormatterOptions{
 			ProjectInfo: internal.ProjectInfo{
 				Directory:       directory,
-				OutputDirectory: internal.StrPtr("build"),
+				OutputDirectory: new("build"),
 			},
 			CheckOnly: true,
 			Filenames: &[]string{"file1.go", filepath.Join(directory, "file3.go")},
@@ -302,7 +302,7 @@ func TestClangFormat_FormatFiles_Check_CustomConfig(t *testing.T) {
 		internal.ProjectFormatterOptions{
 			ProjectInfo: internal.ProjectInfo{
 				Directory:       directory,
-				OutputDirectory: internal.StrPtr("build"),
+				OutputDirectory: new("build"),
 			},
 			CheckOnly: true,
 			Filenames: &[]string{"file1.go"},

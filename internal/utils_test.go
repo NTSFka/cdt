@@ -38,12 +38,6 @@ func TestAssert_Fails(t *testing.T) {
 	}, "failed")
 }
 
-func TestStrPtr(t *testing.T) {
-	s := "test"
-
-	assert.Equal(t, &s, internal.StrPtr(s))
-}
-
 func TestDetectTermWidth_NotTerminal(t *testing.T) {
 	writer := &bytes.Buffer{}
 
@@ -60,5 +54,5 @@ func TestDetectTermWidth_StdOut(t *testing.T) {
 
 func TestDefaultString(t *testing.T) {
 	assert.Equal(t, "default", internal.DefaultString(nil, "default"))
-	assert.Equal(t, "test", internal.DefaultString(internal.StrPtr("test"), "default"))
+	assert.Equal(t, "test", internal.DefaultString(new("test"), "default"))
 }

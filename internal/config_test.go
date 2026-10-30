@@ -159,16 +159,16 @@ func TestFileConfig_UpdateConfig(t *testing.T) {
 			"tool1": "tool1-7",
 		},
 		Project: internal.FileConfigProject{
-			OutputDirectory: internal.StrPtr("/project/build"),
-			Environment:     internal.StrPtr("env:arg"),
+			OutputDirectory: new("/project/build"),
+			Environment:     new("env:arg"),
 			Workflow: &internal.FileConfigProjectWorkflow{
-				Configure:  internal.StrPtr("tool1"),
-				Build:      internal.StrPtr("tool2"),
-				Test:       internal.StrPtr("tool3"),
-				Format:     internal.StrPtr("tool4"),
-				Lint:       internal.StrPtr("tool5"),
-				Run:        internal.StrPtr("tool6"),
-				Dependency: internal.StrPtr("tool7"),
+				Configure:  new("tool1"),
+				Build:      new("tool2"),
+				Test:       new("tool3"),
+				Format:     new("tool4"),
+				Lint:       new("tool5"),
+				Run:        new("tool6"),
+				Dependency: new("tool7"),
 			},
 		},
 	}
@@ -216,8 +216,8 @@ func TestFileConfig_UpdateConfig_WorkflowString(t *testing.T) {
 
 	fileConfig := internal.FileConfig{
 		Project: internal.FileConfigProject{
-			OutputDirectory: internal.StrPtr("/project/build"),
-			Environment:     internal.StrPtr("env:arg"),
+			OutputDirectory: new("/project/build"),
+			Environment:     new("env:arg"),
 			Workflow:        "my-workflow",
 		},
 	}
@@ -243,8 +243,8 @@ func TestFileConfig_UpdateConfig_WorkflowInvalid(t *testing.T) {
 
 	fileConfig := internal.FileConfig{
 		Project: internal.FileConfigProject{
-			OutputDirectory: internal.StrPtr("/project/build"),
-			Environment:     internal.StrPtr("env:arg"),
+			OutputDirectory: new("/project/build"),
+			Environment:     new("env:arg"),
 			Workflow:        42,
 		},
 	}
