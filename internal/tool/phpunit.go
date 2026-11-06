@@ -8,8 +8,10 @@ import (
 	"encoding/xml"
 	"fmt"
 	"io"
+	"math/rand"
 	"os"
 	"path/filepath"
+	"strconv"
 
 	"github.com/ctrf-io/go-ctrf-json-reporter/ctrf"
 )
@@ -90,28 +92,37 @@ func (p *PHPUnit) CollectCoverage(
 	)
 }
 
+func (p *PHPUnit) createTempFileName(kind string, suffix string) string {
+	random := strconv.FormatUint(uint64(rand.Uint32()), 10)
+
+	return fmt.Sprintf(".phpunit-%s.%s.%s", kind, random, suffix)
+}
+
 func (p *PHPUnit) runTestsReporter(
 	ctx context.Context,
 	options internal.ProjectTesterOptions,
 	reporter internal.TestsReporter,
 	args []string,
 ) error {
-	file, err := os.CreateTemp("", "phpunit-report.*.xml")
-	if err != nil {
-		return fmt.Errorf("failed to create temporary file for report: %w", err)
-	}
-	defer func() { _ = os.Remove(file.Name()) }()
-	defer func() { _ = file.Close() }()
+	outputPath := p.createTempFileName("tests", "xml")
 
-	args = append(args, "--log-junit", file.Name())
+	defer func() { _ = os.Remove(outputPath) }()
+
+	args = append(args, "--log-junit", outputPath)
 
 	if options.Pattern != nil {
 		args = append(args, *options.Pattern)
 	}
 
-	if err = p.RunForProject(ctx, options.ProjectInfo, args); err != nil {
+	if err := p.RunForProject(ctx, options.ProjectInfo, args); err != nil {
 		return fmt.Errorf("failed to run PHPUnit: %w", err)
 	}
+
+	file, err := os.Open(outputPath)
+	if err != nil {
+		return fmt.Errorf("failed to open PHPUnit output file: %w", err)
+	}
+	defer func() { _ = file.Close() }()
 
 	return p.reportJUnitOutput(file, reporter)
 }
@@ -169,20 +180,17 @@ func (p *PHPUnit) collectCoverageReporter(
 	reporter internal.CoverageReporter,
 	args []string,
 ) error {
-	file, err := os.CreateTemp("", "phpunit-coverage.*.xml")
-	if err != nil {
-		return fmt.Errorf("failed to create temporary file for report: %w", err)
-	}
-	defer func() { _ = os.Remove(file.Name()) }()
-	defer func() { _ = file.Close() }()
+	outputPath := p.createTempFileName("coverage", "xml")
 
-	args = append(args, "--coverage-cobertura", file.Name())
+	defer func() { _ = os.Remove(outputPath) }()
+
+	args = append(args, "--coverage-cobertura", outputPath)
 
 	if options.Pattern != nil {
 		args = append(args, *options.Pattern)
 	}
 
-	err = p.RunForProjectWithEnv(
+	err := p.RunForProjectWithEnv(
 		ctx,
 		options.ProjectInfo,
 		[]string{"XDEBUG_MODE=coverage"},
@@ -191,6 +199,12 @@ func (p *PHPUnit) collectCoverageReporter(
 	if err != nil {
 		return fmt.Errorf("failed to run PHPUnit with coverage: %w", err)
 	}
+
+	file, err := os.Open(outputPath)
+	if err != nil {
+		return fmt.Errorf("failed to open PHPUnit output file: %w", err)
+	}
+	defer func() { _ = file.Close() }()
 
 	return p.reportCoberturaOutput(file, reporter)
 }
