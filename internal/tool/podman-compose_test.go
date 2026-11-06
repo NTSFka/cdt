@@ -495,7 +495,7 @@ func TestPodmanCompose_Environment_RunExecutable_AutoStart_Failed(t *testing.T) 
 		"/usr/bin/tool1",
 		[]string{"arg1", "arg2"},
 	)
-	require.EqualError(t, err, "podman compose start failed: failed")
+	require.EqualError(t, err, "podman-compose start failed: failed")
 
 	runMock.AssertExpectations(t)
 }
