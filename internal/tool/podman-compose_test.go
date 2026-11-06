@@ -3,6 +3,7 @@ package tool_test
 import (
 	"context"
 	"errors"
+	"fmt"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -99,15 +100,21 @@ func (m *podmanComposeRunMock) OnCallOutput(args []string, output string) *mock.
 }
 
 func (m *podmanComposeRunMock) OnState(service string, result bool) *mock.Call {
-	var output string
+	var state string
 
 	if result {
-		output = `{"State": "running"}`
+		state = "running"
 	} else {
-		output = `{"State": "exited"}`
+		state = "exited"
 	}
 
-	return m.OnCallOutput([]string{"compose", "ps", "--format", "json", service}, output)
+	output := fmt.Sprintf(
+		`[{"Labels": {"com.docker.compose.service": "%s"}, "State": "%s"}]`,
+		service,
+		state,
+	)
+
+	return m.OnCallOutput([]string{"compose", "ps", "--format", "json"}, output)
 }
 
 func podmanComposePrepare(
@@ -115,6 +122,7 @@ func podmanComposePrepare(
 	service string,
 ) (*podmanComposeRunMock, internal.Environment) {
 	runMock := podmanComposeRunMock{}
+	runMock.Test(t)
 
 	podmanCompose := tool.NewPodmanCompose(runMock.LazyExecutable("podman"))
 	assert.NotNil(t, podmanCompose)
@@ -177,7 +185,7 @@ func TestPodmanCompose_Environment_IsRunning_False(t *testing.T) {
 func TestPodmanCompose_Environment_IsRunning_InvalidJson(t *testing.T) {
 	runMock, env := podmanComposePrepare(t, "service5")
 
-	runMock.OnCallOutput([]string{"compose", "ps", "--format", "json", "service5"}, `{"invalid": "json"`).
+	runMock.OnCallOutput([]string{"compose", "ps", "--format", "json"}, `{"invalid": "json"`).
 		Return(nil)
 
 	result := env.IsRunning(t.Context())
@@ -189,7 +197,7 @@ func TestPodmanCompose_Environment_IsRunning_InvalidJson(t *testing.T) {
 func TestPodmanCompose_Environment_IsRunning_Failed(t *testing.T) {
 	runMock, env := podmanComposePrepare(t, "service6")
 
-	runMock.OnCall([]string{"compose", "ps", "--format", "json", "service6"}).
+	runMock.OnCall([]string{"compose", "ps", "--format", "json"}).
 		Return(errors.New("failed"))
 
 	result := env.IsRunning(t.Context())

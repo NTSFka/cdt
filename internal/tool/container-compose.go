@@ -67,20 +67,31 @@ func (c *containerComposeEnvironment) Start(ctx context.Context) error {
 
 func (c *containerComposeEnvironment) IsRunning(ctx context.Context) bool {
 	return internal.Trace(ctx, c.Id()+".is_running", func() bool {
-		output, err := c.runOutput(ctx, []string{"ps", "--format", "json", c.service})
+		output, err := c.runOutput(ctx, []string{"ps", "--format", "json"})
 		if err != nil {
 			return false
 		}
 
-		var data struct {
-			State string `json:"State"`
+		var data []struct {
+			State  string            `json:"State"`
+			Labels map[string]string `json:"Labels"`
 		}
 
 		if err := json.Unmarshal([]byte(output), &data); err != nil {
 			return false
 		}
 
-		return data.State == "running"
+		for _, info := range data {
+			if name, ok := info.Labels["com.docker.compose.service"]; !ok || name != c.service {
+				continue
+			}
+
+			if info.State == "running" {
+				return true
+			}
+		}
+
+		return false
 	}, "service", c.service)
 }
 
